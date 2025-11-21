@@ -1,0 +1,279 @@
+:root {
+  --first-clr: #5C4736;
+}
+
+.login-parent-container {
+  display: flex;
+  justify-content: center;
+  align-items: center; /* vertically center */
+  width: 100vw;        /* full viewport width */
+  height: 100vh;       /* full viewport height */
+  background: linear-gradient(
+    109.6deg,
+    rgba(129, 126, 122, 0.447) 11.2%,
+    rgba(129, 126, 122, 0.735) 51.2%,
+    rgb(129, 126, 122) 100%
+  );
+}
+
+.loginContainer {
+  width: 380px;
+  background-color: #fff;
+  box-shadow: 0 15px 20px rgba(0,0,0,0.2);
+  border-radius: 15px;
+}
+
+.loginContainer .header {
+  text-align: center;
+  background: linear-gradient(90deg, #AF907A 0%, #5C4736 50%, #1D1411 100%);
+  border-radius: 12px 12px 0 0;
+  padding: 20px 0;
+}
+
+.loginContainer .header img {
+  max-width: 120px;
+  height: auto;
+}
+
+.loginContainer form {
+  padding: 25px 30px;
+}
+
+.loginContainer form .field {
+  position: relative;
+  height: 50px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.loginContainer form .field input,
+.loginContainer form .field button {
+  width: 100%;
+  height: 100%;
+  border-radius: 25px;
+  outline: none;
+}
+
+.loginContainer form .field input {
+  border: 1px solid lightgrey;
+  padding-left: 15px;
+  border-bottom-width: 2px;
+  transition: all 0.3s ease;
+  font-size: 17px;
+}
+
+.loginContainer form .field input:focus,
+.loginContainer form .field input:valid {
+  border-color: var(--first-clr);
+}
+
+.loginContainer form .field input:focus ~ label,
+.loginContainer form .field input:valid ~ label {
+  top: 0%;
+  font-size: 16px;
+  color: var(--first-clr);
+  background-color: #fff;
+  padding: 0 5px;
+}
+
+.loginContainer form .field label {
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  transform: translateY(-50%);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  font-size: 17px;
+  color: #999;
+}
+
+/* Show Password */
+.showPassword {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--first-clr);
+}
+
+/* Form Links */
+.loginContainer form .form-link {
+  color: #4158d0;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.loginContainer form .form-link span {
+  color: #888;
+}
+
+.loginContainer form .form-link .forgot-pass:hover,
+.loginContainer form .sign-up a:hover {
+  text-decoration: underline;
+}
+
+/* Buttons */
+.loginContainer form .field button {
+  color: #fff;
+  background-color: var(--first-clr);
+  font-size: 18px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.loginContainer form .field button:hover,
+.loginContainer form .field button:active {
+  border-color: var(--first-clr);
+  background-color: transparent;
+  color: var(--first-clr);
+  transform: scale(1.02);
+}
+
+/* =================== SIDEBAR =================== */
+.sidebar {
+    width: 250px;
+    transform: translateX(-250px);  /* hide initially */
+    background: linear-gradient(180deg, #20262C 0%, #1D1411 100%);
+    color: #f2f2f2;
+    padding-top: 2rem;
+    flex-shrink: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transition: transform 0.3s ease;
+    box-shadow: 3px 0 12px rgba(0,0,0,0.2);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    height: 100vh;
+    overflow-y: auto;
+    overflow: visible !important;
+    z-index: 1500;
+}
+
+.sidebar.sidebar-open {
+    transform: translateX(0);
+    z-index: 1500;
+}
+
+sidebar.sidebar-open nav {
+    display: none;
+}
+
+.sidebar h2 {
+    text-align: center;
+    font-size: 22px;
+    margin-bottom: 2rem;
+    color: #AF907A;
+    letter-spacing: 1px;
+}
+
+.sidebar a {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    color: #d9d9d9;
+    text-decoration: none;
+    font-size: 16px;
+    border-left: 4px solid transparent;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.sidebar a:hover {
+    background: #1A3D7C;
+    color: #f2f2f2;
+    border-left: 4px solid #AF907A;
+}
+
+.sidebar a.active {
+    background: #5C4736;
+    color: #f2f2f2;
+    border-left: 4px solid #AF907A;
+}
+
+.sidebar a::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #AF907A;
+    margin-right: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.sidebar a:hover::before,
+.sidebar a.active::before {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: #20262C;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #5C4736;
+    border-radius: 3px;
+}
+
+/* =================== HAMBURGER BUTTON =================== */
+.hamburger {
+    /*display: none; /* hidden by default, only on small screens */
+    font-size: 28px;
+    background: #20262C;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1100;
+    border-radius: 4px;
+}
+
+/* =================== CLAYMORPHIC CLOSE BUTTON =================== */
+.close-btn {
+  position: absolute;
+  right: 10px; /* fully inside sidebar */
+  top: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  color: #333;
+  background: #fff;
+  box-shadow:
+      inset 4px 4px 8px rgba(0,0,0,0.15),
+      inset -4px -4px 8px rgba(255,255,255,0.7),
+      6px 6px 12px rgba(0,0,0,0.18),
+      -4px -4px 12px rgba(255,255,255,0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 1600;
+}
+
+.close-btn:hover {
+    transform: scale(1.05);
+    box-shadow:
+        inset 3px 3px 6px rgba(0,0,0,0.15),
+        inset -3px -3px 6px rgba(255,255,255,0.7),
+        4px 4px 10px rgba(0,0,0,0.2),
+        -4px -4px 10px rgba(255,255,255,0.5);
+}
+
+.sidebar.sidebar-open ~ .hamburger {
+    display: none;
+}
