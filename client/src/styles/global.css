@@ -238,9 +238,9 @@
         }
 
         /* Only show close button when sidebar is open */
-        body:not(.sidebar-open) .close-btn {
+        /*body:not(.sidebar-open) .close-btn {
             display: none;
-        }
+        }*/
 
     /* ================================
         SIDEBAR DROPDOWN STYLING

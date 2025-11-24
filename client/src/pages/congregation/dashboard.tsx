@@ -9,17 +9,28 @@ const CongregationDashboard: React.FC = () => {
 
   // Chart refs
   const growthChartRef = useRef<Chart | null>(null);
-  const statusChartRef   = useRef<Chart | null>(null);
+  const statusChartRef = useRef<Chart | null>(null);
   const attendanceChartRef = useRef<Chart | null>(null);
   const ageChartRef = useRef<Chart | null>(null);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
+  // Add/remove sidebar-open class on body for proper animation
+  useEffect(() => {
+    const body = document.body;
+    if (sidebarOpen) {
+      body.classList.add("sidebar-open");
+    } else {
+      body.classList.remove("sidebar-open");
+    }
+    // Clean up on unmount
+    return () => body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
+
   /* ------------------------------------
      CREATE ALL CHARTS
   --------------------------------------*/
   useEffect(() => {
-    // Destroy charts before remounting
     growthChartRef.current?.destroy();
     statusChartRef.current?.destroy();
     attendanceChartRef.current?.destroy();
@@ -130,8 +141,18 @@ const CongregationDashboard: React.FC = () => {
       {/* SIDEBAR */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
 
+        {/* Close Button (Styled like ClassDashboard) */}
         <div className="close-wrapper">
-          <button className="close-btn" onClick={toggleSidebar}>X</button>
+          <div className="toggle close-btn">
+            <input
+              type="checkbox"
+              id="closeSidebarButton"
+              checked={sidebarOpen}
+              onChange={toggleSidebar}
+            />
+            <span className="button"></span>
+            <span className="label">X</span>
+          </div>
         </div>
 
         <h2>CONGREGATION</h2>
@@ -146,9 +167,7 @@ const CongregationDashboard: React.FC = () => {
 
         <hr className="sidebar-separator" />
 
-        <a href="/dashboard" className="return-main">
-          ← Back to Main Dashboard
-        </a>
+        <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
 
         <a
           href="/"
@@ -163,6 +182,7 @@ const CongregationDashboard: React.FC = () => {
         </a>
       </div>
 
+
       {/* MAIN DASHBOARD CONTENT */}
       <div className="dashboard-content">
         <h1>Congregation Overview</h1>
@@ -175,12 +195,10 @@ const CongregationDashboard: React.FC = () => {
             <h3>Total Members</h3>
             <p>320</p>
           </div>
-
           <div className="kpi-card">
             <h3>Visitors This Month</h3>
             <p>45</p>
           </div>
-
           <div className="kpi-card">
             <h3>New Converts</h3>
             <p>30</p>
@@ -189,27 +207,22 @@ const CongregationDashboard: React.FC = () => {
 
         {/* Charts */}
         <div className="chart-grid">
-
           <div className="chart-box">
             <h3>Church Growth (Last 12 Months)</h3>
             <canvas id="growthChart"></canvas>
           </div>
-
           <div className="chart-box">
             <h3>Members by Status</h3>
             <canvas id="statusChart"></canvas>
           </div>
-
           <div className="chart-box">
             <h3>Attendance Last 4 Weeks</h3>
             <canvas id="attendanceChart"></canvas>
           </div>
-
           <div className="chart-box">
             <h3>Age Group Distribution</h3>
             <canvas id="ageChart"></canvas>
           </div>
-
         </div>
       </div>
     </div>
