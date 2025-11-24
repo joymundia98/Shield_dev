@@ -4,6 +4,7 @@ import { RegisterPage } from './pages/RegisterPage';
 import { LandingPage } from './pages/LandingPage';
 import DashboardPage from './pages/DashboardPage';
 import PastoralDashboard from './pages/pastoral/dashboard';
+import ProgramsDashboard from './pages/programs/dashboard';
 import { AuthProvider } from './context/AuthContext';
 
 function App() {
@@ -22,7 +23,10 @@ function App() {
           <Route path="/finance/dashboard" element={<DashboardPage />} />
           <Route path="/hr/dashboard" element={<DashboardPage />} />
           <Route path="/assets/dashboard" element={<DashboardPage />} />
-          <Route path="/programs/dashboard" element={<DashboardPage />} />
+
+          {/* Programs Dashboard */}
+          <Route path="/programs/dashboard" element={<ProgramsDashboard />} />
+
           <Route path="/class/dashboard" element={<DashboardPage />} />
           <Route path="/ministry/dashboard" element={<DashboardPage />} />
           <Route path="/pastoral/dashboard" element={<PastoralDashboard />} />
@@ -51,10 +55,11 @@ function App() {
           <Route path="/assets/maintenance" element={<DashboardPage />} />
           <Route path="/assets/categories" element={<DashboardPage />} />
 
-          <Route path="/programs/donors" element={<DashboardPage />} />
-          <Route path="/programs/add-donor" element={<DashboardPage />} />
-          <Route path="/programs/donations" element={<DashboardPage />} />
-          <Route path="/programs/reports" element={<DashboardPage />} />
+          {/* Programs routes */}
+          <Route path="/programs/donors" element={<ProgramsDashboard />} />
+          <Route path="/programs/add-donor" element={<ProgramsDashboard />} />
+          <Route path="/programs/donations" element={<ProgramsDashboard />} />
+          <Route path="/programs/reports" element={<ProgramsDashboard />} />
 
           <Route path="/class/classes" element={<DashboardPage />} />
           <Route path="/class/add-class" element={<DashboardPage />} />
