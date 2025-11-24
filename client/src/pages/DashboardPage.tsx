@@ -259,7 +259,7 @@ const DashboardPage: React.FC = () => {
             navigate("/"); // go to LandingPage
           }}
         >
-          Logout
+          ➜] &nbsp; Logout
         </a>
       </div>
 
@@ -268,7 +268,7 @@ const DashboardPage: React.FC = () => {
         <h1>Church Overview</h1>
 
         <br/><br/>
-        
+
         <div className="kpi-container">
           <div className="kpi-card">
             <h3>Total Members</h3>
