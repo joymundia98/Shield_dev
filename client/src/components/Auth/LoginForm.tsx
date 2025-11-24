@@ -3,8 +3,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { loginUser } from '../../api/auth';
-import { useAuth } from '../../hooks/useAuth';
+import { useNavigate } from 'react-router-dom'; // for navigation
 import headerLogo from '../../assets/headerlogo.png';
 
 const loginSchema = z.object({
@@ -14,29 +13,33 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
+// Default simulated credentials
+const DEFAULT_EMAIL = 'shield@devtest.com';
+const DEFAULT_PASSWORD = 'SCI-ELD';
+
 export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(''); // To display invalid credentials
 
   const { register, handleSubmit } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
 
-  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const onSubmit = async (data: LoginFormData) => {
-    try {
-      const res = await loginUser(data);
-      login(res.token, res.user);
+  const onSubmit = (data: LoginFormData) => {
+    // Check against default credentials
+    if (data.email === DEFAULT_EMAIL && data.password === DEFAULT_PASSWORD) {
+      setError('');
       alert('Login successful!');
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Login failed');
+      navigate('/dashboard'); // Redirect to dashboard
+    } else {
+      setError('Invalid email or password.');
     }
   };
 
   return (
     <div className="login-parent-container">
-      {/* Sidebar / Hamburger handled elsewhere if needed */}
-
       <div className="loginContainer">
         <div className="header">
           <img src={headerLogo} alt="Logo" />
@@ -65,6 +68,9 @@ export const LoginForm = () => {
               {showPassword ? '👁️' : '🙈'}
             </span>
           </div>
+
+          {/* Error Message */}
+          {error && <div className="form-error">{error}</div>}
 
           {/* Forgot Password */}
           <div className="form-link">
