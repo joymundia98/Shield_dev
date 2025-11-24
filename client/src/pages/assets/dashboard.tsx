@@ -33,6 +33,15 @@ const AssetDashboard: React.FC = () => {
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
+  // Add/remove sidebar-open class on body for CSS to show close button
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.classList.add("sidebar-open");
+    } else {
+      document.body.classList.remove("sidebar-open");
+    }
+  }, [sidebarOpen]);
+
   // Dynamic data examples
   const assets: Asset[] = useMemo(() => [
     { id: 1, name: "Laptop Dell XPS", category: "Electronics", condition: "Good", value: 1200 },
@@ -105,7 +114,16 @@ const AssetDashboard: React.FC = () => {
       {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
         <div className="close-wrapper">
-          <button className="close-btn" onClick={toggleSidebar}>X</button>
+            <div className="toggle close-btn">
+                <input
+                type="checkbox"
+                id="closeSidebarButton"
+                checked={sidebarOpen}
+                onChange={toggleSidebar}
+                />
+                <span className="button"></span>
+                <span className="label">X</span>
+            </div>
         </div>
 
         <h2>ASSET MANAGER</h2>

@@ -21,6 +21,22 @@ const ClassDashboard: React.FC = () => {
   const enrollmentChartRef = useRef<Chart | null>(null);
   const attendanceChartRef = useRef<Chart | null>(null);
 
+  // Sidebar toggle
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  // Add/remove sidebar-open class on body
+  useEffect(() => {
+    const body = document.body;
+    if (sidebarOpen) {
+      body.classList.add("sidebar-open");
+    } else {
+      body.classList.remove("sidebar-open");
+    }
+
+    // Cleanup on unmount
+    return () => body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
+
   // Example dynamic data
   const classes: Class[] = useMemo(
     () => [
@@ -41,13 +57,9 @@ const ClassDashboard: React.FC = () => {
       { id: 4, name: "Diana", classId: 3 },
       { id: 5, name: "Ethan", classId: 4 },
       { id: 6, name: "Fiona", classId: 5 },
-      // add more students as needed
     ],
     []
   );
-
-  // Sidebar toggle
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   // KPI calculations
   const totalClasses = classes.length;
@@ -91,7 +103,6 @@ const ClassDashboard: React.FC = () => {
     attendanceChartRef.current?.destroy();
     const ctx = document.getElementById("attendanceChart") as HTMLCanvasElement;
     if (ctx) {
-      // Example last 5 months
       const months = ["Jan", "Feb", "Mar", "Apr", "May"];
       const attendanceData = [80, 82, 88, 87, 90];
 
@@ -128,9 +139,16 @@ const ClassDashboard: React.FC = () => {
       {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
         <div className="close-wrapper">
-          <button className="close-btn" onClick={toggleSidebar}>
-            X
-          </button>
+          <div className="toggle close-btn">
+            <input
+              type="checkbox"
+              id="closeSidebarButton"
+              checked={sidebarOpen}
+              onChange={toggleSidebar}
+            />
+            <span className="button"></span>
+            <span className="label">X</span>
+          </div>
         </div>
 
         <h2>CLASS MANAGER</h2>
@@ -164,7 +182,6 @@ const ClassDashboard: React.FC = () => {
 
         <br/><br/>
 
-        {/* KPI Cards */}
         <div className="kpi-container">
           <div className="kpi-card">
             <h3>Total Classes</h3>
@@ -184,7 +201,6 @@ const ClassDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Charts */}
         <div className="chart-grid">
           <div className="chart-box">
             <h3>Enrolled Students</h3>

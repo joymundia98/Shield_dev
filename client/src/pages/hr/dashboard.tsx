@@ -23,6 +23,18 @@ const HRDashboard: React.FC = () => {
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
+  // Add/remove sidebar-open class on body for proper animation
+    useEffect(() => {
+      const body = document.body;
+      if (sidebarOpen) {
+        body.classList.add("sidebar-open");
+      } else {
+        body.classList.remove("sidebar-open");
+      }
+      // Clean up on unmount
+      return () => body.classList.remove("sidebar-open");
+    }, [sidebarOpen]);
+
   useEffect(() => {
     // Destroy previous charts if they exist
     deptChartRef.current?.destroy();
@@ -118,8 +130,18 @@ const HRDashboard: React.FC = () => {
 
       {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
+        {/* Close Button (Styled like ClassDashboard) */}
         <div className="close-wrapper">
-          <button className="close-btn" onClick={toggleSidebar}>X</button>
+          <div className="toggle close-btn">
+            <input
+              type="checkbox"
+              id="closeSidebarButton"
+              checked={sidebarOpen}
+              onChange={toggleSidebar}
+            />
+            <span className="button"></span>
+            <span className="label">X</span>
+          </div>
         </div>
 
         <h2>HR MANAGEMENT</h2>
