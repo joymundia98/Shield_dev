@@ -1,10 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { LoginForm } from "../components/Auth/LoginForm";
 
 export const LoginPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.classList.add("sidebar-open");
+    } else {
+      document.body.classList.remove("sidebar-open");
+    }
+  }, [sidebarOpen]);
 
   const menuLinks = [
     { label: "Home", path: "/" },
@@ -14,25 +22,41 @@ export const LoginPage = () => {
     { label: "Contact", path: "/#contact" },
   ];
 
+  const closeSidebar = () => {
+    setSidebarOpen(false);
+  };
+
   return (
     <>
       {/* Sidebar */}
-      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
+      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
         <h2>Menu</h2>
-        <button
-          className="close-btn"
-          onClick={() => setSidebarOpen(false)}
-        >
-          &times;
-        </button>
+
+        {/* STATIC-STYLE CLOSE BUTTON */}
+        {sidebarOpen && (
+          <div className="close-wrapper">
+            <div className="toggle close-btn">
+              <input
+                type="checkbox"
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    closeSidebar();
+                    e.target.checked = false; // reset animation same as static
+                  }
+                }}
+              />
+              <span className="button"></span>
+              <span className="label">X</span>
+            </div>
+          </div>
+        )}
+
         {menuLinks.map((link, idx) => (
           <Link
             key={idx}
             to={link.path}
-            className={
-              location.pathname === link.path ? "active" : ""
-            }
-            onClick={() => setSidebarOpen(false)}
+            className={location.pathname === link.path ? "active" : ""}
+            onClick={closeSidebar}
           >
             {link.label}
           </Link>
@@ -41,10 +65,7 @@ export const LoginPage = () => {
 
       {/* Hamburger */}
       {!sidebarOpen && (
-        <button
-          className="hamburger"
-          onClick={() => setSidebarOpen(true)}
-        >
+        <button className="hamburger" onClick={() => setSidebarOpen(true)}>
           &#9776;
         </button>
       )}
