@@ -1,102 +1,143 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { LoginPage } from './pages/LoginPage';
-import { RegisterPage } from './pages/RegisterPage';
-import { LandingPage } from './pages/LandingPage';
-import DashboardPage from './pages/DashboardPage';
-import PastoralDashboard from './pages/pastoral/dashboard';
-import ProgramsDashboard from './pages/programs/dashboard';
-import MinistryDashboard from './pages/ministry/dashboard';
-import HRDashboard from './pages/hr/dashboard';
-import { AuthProvider } from './context/AuthContext';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import { LoginPage } from "./pages/LoginPage";
+import { RegisterPage } from "./pages/RegisterPage";
+import { LandingPage } from "./pages/LandingPage";
+
+import DashboardPage from "./pages/DashboardPage";
+
+// Department Dashboards
+import PastoralDashboard from "./pages/pastoral/dashboard";
+import ProgramsDashboard from "./pages/programs/dashboard";
+import MinistryDashboard from "./pages/ministry/dashboard";
+import HRDashboard from "./pages/hr/dashboard";
+import GovernanceDashboard from "./pages/governance/dashboard";
+import FinanceDashboard from "./pages/finance/dashboard";
+import DonorDashboard from "./pages/donor/dashboard";
+import CongregationDashboard from "./pages/congregation/dashboard";
+
+// NEW — Class Module Dashboard
+import ClassDashboard from "./pages/class/dashboard";
+
+// NEW — Asset Module Dashboard
+import AssetDashboard from "./pages/assets/dashboard";
+
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Public pages */}
+
+          {/* PUBLIC PAGES */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* Dashboards */}
+          {/* MAIN DASHBOARD */}
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/congregation/dashboard" element={<DashboardPage />} />
-          <Route path="/finance/dashboard" element={<DashboardPage />} />
-          <Route path="/hr/dashboard" element={<HRDashboard />} />
-          <Route path="/assets/dashboard" element={<DashboardPage />} />
 
-          {/* Programs Dashboard */}
-          <Route path="/programs/dashboard" element={<ProgramsDashboard />} />
-
-          <Route path="/class/dashboard" element={<DashboardPage />} />
-
-          {/* Ministry Dashboard */}
-          <Route path="/ministry/dashboard" element={<MinistryDashboard />} />
-
-          {/* Pastoral Dashboard */}
+          {/* ------------------------------
+                DEPT ROOT DASHBOARDS
+          --------------------------------*/}
           <Route path="/pastoral/dashboard" element={<PastoralDashboard />} />
+          <Route path="/programs/dashboard" element={<ProgramsDashboard />} />
+          <Route path="/ministry/dashboard" element={<MinistryDashboard />} />
+          <Route path="/hr/dashboard" element={<HRDashboard />} />
+          <Route path="/governance/dashboard" element={<GovernanceDashboard />} />
+          <Route path="/finance/dashboard" element={<FinanceDashboard />} />
+          <Route path="/donor/dashboard" element={<DonorDashboard />} />
+          <Route path="/congregation/dashboard" element={<CongregationDashboard />} />
+          <Route path="/class/dashboard" element={<ClassDashboard />} />
+          <Route path="/assets/dashboard" element={<AssetDashboard />} />
 
-          <Route path="/governance/dashboard" element={<DashboardPage />} />
-          <Route path="/donor/dashboard" element={<DashboardPage />} />
+          {/* ------------------------------
+                CONGREGATION SUB-ROUTES
+          --------------------------------*/}
+          <Route path="/congregation/members" element={<CongregationDashboard />} />
+          <Route path="/congregation/families" element={<CongregationDashboard />} />
+          <Route path="/congregation/attendance" element={<CongregationDashboard />} />
+          <Route path="/congregation/followups" element={<CongregationDashboard />} />
+          <Route path="/congregation/reports" element={<CongregationDashboard />} />
+          <Route path="/congregation/settings" element={<CongregationDashboard />} />
 
-          {/* Other routes from links */}
-          <Route path="/congregation/donors" element={<DashboardPage />} />
-          <Route path="/congregation/add-donor" element={<DashboardPage />} />
-          <Route path="/congregation/donations" element={<DashboardPage />} />
-          <Route path="/congregation/reports" element={<DashboardPage />} />
+          {/* ------------------------------
+                    FINANCE SUB-ROUTES
+          --------------------------------*/}
+          <Route path="/finance/transactions" element={<FinanceDashboard />} />
+          <Route path="/finance/add-transaction" element={<FinanceDashboard />} />
+          <Route path="/finance/expenses" element={<FinanceDashboard />} />
+          <Route path="/finance/payroll" element={<FinanceDashboard />} />
+          <Route path="/finance/budgets" element={<FinanceDashboard />} />
+          <Route path="/finance/reports" element={<FinanceDashboard />} />
 
-          <Route path="/finance/transactions" element={<DashboardPage />} />
-          <Route path="/finance/budgets" element={<DashboardPage />} />
-          <Route path="/finance/expenses" element={<DashboardPage />} />
-          <Route path="/finance/payroll" element={<DashboardPage />} />
-          <Route path="/finance/reports" element={<DashboardPage />} />
-
+          {/* ------------------------------
+                         HR SUB-ROUTES
+          --------------------------------*/}
           <Route path="/hr/staff-directory" element={<HRDashboard />} />
           <Route path="/hr/attendance" element={<HRDashboard />} />
           <Route path="/hr/leave" element={<HRDashboard />} />
           <Route path="/hr/departments" element={<HRDashboard />} />
 
-          <Route path="/assets/assets" element={<DashboardPage />} />
-          <Route path="/assets/depreciation" element={<DashboardPage />} />
-          <Route path="/assets/maintenance" element={<DashboardPage />} />
-          <Route path="/assets/categories" element={<DashboardPage />} />
+          {/* ------------------------------
+                       ASSETS MODULE
+          --------------------------------*/}
+          <Route path="/assets/assets" element={<AssetDashboard />} />
+          <Route path="/assets/depreciation" element={<AssetDashboard />} />
+          <Route path="/assets/maintenance" element={<AssetDashboard />} />
+          <Route path="/assets/categories" element={<AssetDashboard />} />
 
-          {/* Programs routes */}
+          {/* ------------------------------
+                    PROGRAMS SUB-ROUTES
+          --------------------------------*/}
           <Route path="/programs/donors" element={<ProgramsDashboard />} />
           <Route path="/programs/add-donor" element={<ProgramsDashboard />} />
           <Route path="/programs/donations" element={<ProgramsDashboard />} />
           <Route path="/programs/reports" element={<ProgramsDashboard />} />
 
-          <Route path="/class/classes" element={<DashboardPage />} />
-          <Route path="/class/add-class" element={<DashboardPage />} />
-          <Route path="/class/teachers" element={<DashboardPage />} />
-          <Route path="/class/enrollments" element={<DashboardPage />} />
-          <Route path="/class/attendance" element={<DashboardPage />} />
-          <Route path="/class/reports" element={<DashboardPage />} />
+          {/* ------------------------------
+                      CLASS MODULE
+          --------------------------------*/}
+          <Route path="/class/classes" element={<ClassDashboard />} />
+          <Route path="/class/add-class" element={<ClassDashboard />} />
+          <Route path="/class/teachers" element={<ClassDashboard />} />
+          <Route path="/class/enrollments" element={<ClassDashboard />} />
+          <Route path="/class/attendance" element={<ClassDashboard />} />
+          <Route path="/class/reports" element={<ClassDashboard />} />
 
-          {/* Ministry routes */}
-          <Route path="/ministry/donors" element={<MinistryDashboard />} />
-          <Route path="/ministry/add-donor" element={<MinistryDashboard />} />
-          <Route path="/ministry/donations" element={<MinistryDashboard />} />
+          {/* ------------------------------
+                    MINISTRY SUB-ROUTES
+          --------------------------------*/}
+          <Route path="/ministry/teams" element={<MinistryDashboard />} />
+          <Route path="/ministry/members" element={<MinistryDashboard />} />
           <Route path="/ministry/reports" element={<MinistryDashboard />} />
 
-          {/* Pastoral routes */}
+          {/* ------------------------------
+                  PASTORAL SUB-ROUTES
+          --------------------------------*/}
           <Route path="/pastoral/donors" element={<PastoralDashboard />} />
           <Route path="/pastoral/add-donor" element={<PastoralDashboard />} />
           <Route path="/pastoral/donations" element={<PastoralDashboard />} />
           <Route path="/pastoral/reports" element={<PastoralDashboard />} />
 
-          <Route path="/governance/policies" element={<DashboardPage />} />
-          <Route path="/governance/audit-reports" element={<DashboardPage />} />
-          <Route path="/governance/compliance-logs" element={<DashboardPage />} />
-          <Route path="/governance/documentation" element={<DashboardPage />} />
-          <Route path="/governance/certificates" element={<DashboardPage />} />
+          {/* ------------------------------
+                GOVERNANCE SUB-ROUTES
+          --------------------------------*/}
+          <Route path="/governance/policies" element={<GovernanceDashboard />} />
+          <Route path="/governance/audit-reports" element={<GovernanceDashboard />} />
+          <Route path="/governance/compliance-logs" element={<GovernanceDashboard />} />
+          <Route path="/governance/documentation" element={<GovernanceDashboard />} />
+          <Route path="/governance/certificates" element={<GovernanceDashboard />} />
 
-          <Route path="/donor/donors" element={<DashboardPage />} />
-          <Route path="/donor/add-donor" element={<DashboardPage />} />
-          <Route path="/donor/donations" element={<DashboardPage />} />
-          <Route path="/donor/reports" element={<DashboardPage />} />
+          {/* ------------------------------
+              DONOR MANAGEMENT SUB-ROUTES
+          --------------------------------*/}
+          <Route path="/donor/donors" element={<DonorDashboard />} />
+          <Route path="/donor/add-donor" element={<DonorDashboard />} />
+          <Route path="/donor/donations" element={<DonorDashboard />} />
+          <Route path="/donor/reports" element={<DonorDashboard />} />
+
         </Routes>
       </BrowserRouter>
     </AuthProvider>

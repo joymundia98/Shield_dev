@@ -1,8 +1,12 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "../../styles/global.css";
 import Chart from "chart.js/auto";
+import { useNavigate } from "react-router-dom";
 
 const HRDashboard: React.FC = () => {
+  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   // Chart refs
   const deptChartRef = useRef<Chart | null>(null);
   const genderChartRef = useRef<Chart | null>(null);
@@ -16,6 +20,8 @@ const HRDashboard: React.FC = () => {
   const brown2 = "#AF907A";
   const gray = "#817E7A";
   const dark = "#20262C";
+
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   useEffect(() => {
     // Destroy previous charts if they exist
@@ -43,11 +49,7 @@ const HRDashboard: React.FC = () => {
             "IT & Media",
           ],
           datasets: [
-            {
-              label: "Staff Count",
-              data: [12, 8, 6, 7, 6, 6, 5, 4, 4],
-              backgroundColor: blue,
-            },
+            { label: "Staff Count", data: [12, 8, 6, 7, 6, 6, 5, 4, 4], backgroundColor: blue },
           ],
         },
         options: { responsive: true },
@@ -61,12 +63,7 @@ const HRDashboard: React.FC = () => {
         type: "pie",
         data: {
           labels: ["Male", "Female"],
-          datasets: [
-            {
-              data: [28, 30],
-              backgroundColor: [blue, brown2],
-            },
-          ],
+          datasets: [{ data: [28, 30], backgroundColor: [blue, brown2] }],
         },
         options: { responsive: true },
       });
@@ -79,12 +76,7 @@ const HRDashboard: React.FC = () => {
         type: "doughnut",
         data: {
           labels: ["On Leave Today", "Pending Approvals", "Next 30 Days"],
-          datasets: [
-            {
-              data: [3, 4, 9],
-              backgroundColor: [blue, brown1, gray],
-            },
-          ],
+          datasets: [{ data: [3, 4, 9], backgroundColor: [blue, brown1, gray] }],
         },
         options: { responsive: true },
       });
@@ -97,13 +89,7 @@ const HRDashboard: React.FC = () => {
         type: "bar",
         data: {
           labels: ["New Staff", "Volunteers Added", "Exits"],
-          datasets: [
-            {
-              label: "Count",
-              data: [2, 3, 1],
-              backgroundColor: [blue, brown2, dark],
-            },
-          ],
+          datasets: [{ label: "Count", data: [2, 3, 1], backgroundColor: [blue, brown2, dark] }],
         },
         options: { responsive: true },
       });
@@ -115,19 +101,8 @@ const HRDashboard: React.FC = () => {
       complianceChartRef.current = new Chart(complianceCtx, {
         type: "bar",
         data: {
-          labels: [
-            "Pending Background Checks",
-            "Expired IDs",
-            "Credentials Expiring",
-            "Missed Training",
-          ],
-          datasets: [
-            {
-              label: "Count",
-              data: [2, 1, 3, 5],
-              backgroundColor: [blue, gray, brown2, dark],
-            },
-          ],
+          labels: ["Pending Background Checks", "Expired IDs", "Credentials Expiring", "Missed Training"],
+          datasets: [{ label: "Count", data: [2, 1, 3, 5], backgroundColor: [blue, gray, brown2, dark] }],
         },
         options: { responsive: true, indexAxis: "y" },
       });
@@ -137,24 +112,41 @@ const HRDashboard: React.FC = () => {
   return (
     <div className="dashboard-wrapper">
       {/* Hamburger */}
-      <button className="hamburger">&#9776;</button>
+      <button className="hamburger" onClick={toggleSidebar}>
+        &#9776;
+      </button>
 
       {/* Sidebar */}
-      <div className="sidebar">
+      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
+        <div className="close-wrapper">
+          <button className="close-btn" onClick={toggleSidebar}>X</button>
+        </div>
+
         <h2>HR MANAGEMENT</h2>
-        <a href="#" className="active">Dashboard</a>
-        <a href="#">Staff Directory</a>
-        <a href="#">Pastors & Clergy</a>
-        <a href="#">Attendance</a>
-        <a href="#">Leave Management</a>
-        <a href="#">Departments</a>
-        <a href="#">Payroll</a>
+        <a href="/hr/dashboard" className="active">Dashboard</a>
+        <a href="/hr/staff-directory">Staff Directory</a>
+        <a href="/hr/pastors">Pastors & Clergy</a>
+        <a href="/hr/attendance">Attendance</a>
+        <a href="/hr/leave">Leave Management</a>
+        <a href="/hr/departments">Departments</a>
+        <a href="/hr/payroll">Payroll</a>
         <a href="#">Volunteers</a>
         <a href="#">Training</a>
         <a href="#">Documents</a>
+
         <hr className="sidebar-separator" />
-        <a href="#" className="return-main">← Back to Main Dashboard</a>
-        <a href="#" className="logout-link">Logout</a>
+        <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
+        <a
+          href="/"
+          className="logout-link"
+          onClick={(e) => {
+            e.preventDefault();
+            localStorage.clear();
+            navigate("/");
+          }}
+        >
+          Logout
+        </a>
       </div>
 
       {/* Main Dashboard Content */}
@@ -171,26 +163,11 @@ const HRDashboard: React.FC = () => {
         </div>
 
         <div className="chart-grid">
-          <div className="chart-box">
-            <h3>Department Breakdown</h3>
-            <canvas id="deptChart"></canvas>
-          </div>
-          <div className="chart-box">
-            <h3>Gender Ratio</h3>
-            <canvas id="genderChart"></canvas>
-          </div>
-          <div className="chart-box">
-            <h3>Leave Management Overview</h3>
-            <canvas id="leaveChart"></canvas>
-          </div>
-          <div className="chart-box">
-            <h3>Joiners & Leavers</h3>
-            <canvas id="joinLeaveChart"></canvas>
-          </div>
-          <div className="chart-box">
-            <h3>Compliance & Credentials</h3>
-            <canvas id="complianceChart"></canvas>
-          </div>
+          <div className="chart-box"><h3>Department Breakdown</h3><canvas id="deptChart"></canvas></div>
+          <div className="chart-box"><h3>Gender Ratio</h3><canvas id="genderChart"></canvas></div>
+          <div className="chart-box"><h3>Leave Management Overview</h3><canvas id="leaveChart"></canvas></div>
+          <div className="chart-box"><h3>Joiners & Leavers</h3><canvas id="joinLeaveChart"></canvas></div>
+          <div className="chart-box"><h3>Compliance & Credentials</h3><canvas id="complianceChart"></canvas></div>
         </div>
 
         <div className="chart-box" style={{ marginTop: 30 }}>

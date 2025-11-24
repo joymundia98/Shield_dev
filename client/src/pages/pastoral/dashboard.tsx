@@ -165,6 +165,7 @@ const PastoralDashboard: React.FC = () => {
         </div>
 
         <h2>PASTORAL CARE & COUNSELLING</h2>
+        <br/><br/> 
         <a href="#" className="active">
           Dashboard
         </a>
