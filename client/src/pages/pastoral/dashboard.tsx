@@ -139,10 +139,19 @@ const PastoralDashboard: React.FC = () => {
     }
 
     // Gender distribution
-    const genderCounts = { Male: 0, Female: 0, Other: 0 };
+    type Gender = "Male" | "Female" | "Other";
+
+    const genderCounts: Record<Gender, number> = { Male: 0, Female: 0, Other: 0 };
+
     sessions.forEach(s => {
-      if (s.gender) genderCounts[s.gender] = (genderCounts[s.gender] || 0) + 1;
+      const gender = s.gender as Gender;
+      if (Object.prototype.hasOwnProperty.call(genderCounts, gender)) {
+        genderCounts[gender] += 1;
+      } else {
+        console.warn(`Unknown gender: ${s.gender}`);
+      }
     });
+
     const genderCtx = document.getElementById("genderChart") as HTMLCanvasElement;
     if (genderCtx) {
       genderChartRef.current = new Chart(genderCtx, {

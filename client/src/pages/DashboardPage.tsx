@@ -130,14 +130,14 @@ const dropdowns: Dropdown[] = [
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
 
-  const [kpi, setKpi] = useState<KPI>({
+  const [kpi, _setKpi] = useState<KPI>({
     totalMembers: 1248,
     weeklyAttendance: 560,
     monthlyGiving: 34000,
     activeVolunteers: 75,
   });
 
-  const [chartData, setChartData] = useState<ChartData>({
+  const [chartData, _setChartData] = useState<ChartData>({
     attendance: [520, 560, 580, 600],
     donations: [15000, 8000, 5000, 6000],
   });
