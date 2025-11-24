@@ -1,0 +1,351 @@
+:root {
+    --first-clr: #5C4736;
+}
+
+/* =================== RESET =================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+/* =================== LANDING PAGE WRAPPER =================== */
+.landing-page-wrapper {
+    width: 100%;
+}
+
+/* =================== HEADER =================== */
+.landing-page-wrapper header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    height: 70px;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    z-index: 1000;
+}
+
+.landing-page-wrapper header .logo {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--first-clr);
+}
+
+.landing-page-wrapper nav {
+    display: flex;
+    gap: 20px;
+}
+
+.landing-page-wrapper nav a {
+    text-decoration: none;
+    color: var(--first-clr);
+    font-weight: 600;
+    padding: 0 10px;
+    transition: color 0.2s;
+}
+
+.landing-page-wrapper nav a:last-child {
+    padding-right: 20px;
+}
+
+.landing-page-wrapper nav a:hover {
+    color: #AF907A;
+}
+
+.landing-page-wrapper nav .active {
+    color: #1A3D7C;
+    font-weight: 700;
+}
+
+/* =================== SIDEBAR =================== */
+.landing-page-wrapper .sidebar {
+    width: 250px;
+    transform: translateX(-260px);
+    background: linear-gradient(180deg, #20262C 0%, #1D1411 100%);
+    color: #f2f2f2;
+    padding-top: 2rem;
+    flex-shrink: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transition: transform 0.3s ease;
+    box-shadow: 3px 0 12px rgba(0,0,0,0.2);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.landing-page-wrapper .sidebar.sidebar-open {
+    transform: translateX(0);
+}
+
+body.sidebar-open nav {
+    display: none;
+}
+
+.landing-page-wrapper .sidebar h2 {
+    text-align: center;
+    font-size: 22px;
+    margin-bottom: 2rem;
+    color: #AF907A;
+    letter-spacing: 1px;
+}
+
+.landing-page-wrapper .sidebar a {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    color: #d9d9d9;
+    text-decoration: none;
+    font-size: 16px;
+    border-left: 4px solid transparent;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.landing-page-wrapper .sidebar a:hover {
+    background: #1A3D7C;
+    color: #f2f2f2;
+    border-left: 4px solid #AF907A;
+}
+
+.landing-page-wrapper .sidebar a.active {
+    background: #5C4736;
+    color: #f2f2f2;
+    border-left: 4px solid #AF907A;
+}
+
+.landing-page-wrapper .sidebar a::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #AF907A;
+    margin-right: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.landing-page-wrapper .sidebar a:hover::before,
+.landing-page-wrapper .sidebar a.active::before {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+.landing-page-wrapper .sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.landing-page-wrapper .sidebar::-webkit-scrollbar-track {
+    background: #20262C;
+}
+
+.landing-page-wrapper .sidebar::-webkit-scrollbar-thumb {
+    background: #5C4736;
+    border-radius: 3px;
+}
+
+/* =================== HAMBURGER BUTTON =================== */
+.landing-page-wrapper .hamburger {
+    display: none;
+    font-size: 28px;
+    background: #20262C;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 1100;
+    border-radius: 4px;
+}
+
+/* =================== CLAYMORPHIC CLOSE BUTTON =================== */
+.landing-page-wrapper .close-btn {
+    position: absolute;
+    right: -28px;
+    top: 10px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 2rem;
+    color: #333;
+    background: #ffffff;
+    box-shadow:
+        inset 4px 4px 8px rgba(0,0,0,0.15),
+        inset -4px -4px 8px rgba(255,255,255,0.7),
+        6px 6px 12px rgba(0,0,0,0.18),
+        -4px -4px 12px rgba(255,255,255,0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    z-index: 2000;
+}
+
+.landing-page-wrapper .close-btn:hover {
+    transform: scale(1.05);
+    box-shadow:
+        inset 3px 3px 6px rgba(0,0,0,0.15),
+        inset -3px -3px 6px rgba(255,255,255,0.7),
+        4px 4px 10px rgba(0,0,0,0.2),
+        -4px -4px 10px rgba(255,255,255,0.5);
+}
+
+body:not(.sidebar-open) .close-btn {
+    display: none;
+}
+
+/* =================== LANDING PAGE CONTENT =================== */
+.landing-page-wrapper .landing-page {
+    padding: 2rem;
+}
+
+.landing-page-wrapper .landing-page .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.landing-page-wrapper .landing-page .content {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.landing-page-wrapper .landing-page .content .text-cont {
+    width: 60%;
+}
+
+.landing-page-wrapper .landing-page .content .text-cont .header {
+    font-size: 60px;
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+.landing-page-wrapper .first-clr {
+    text-transform: capitalize;
+    letter-spacing: 0.8px;
+    font-family: Arial, sans-serif;
+    font-weight: 900;
+    font-size: clamp(3.4375rem, 3.25rem + 0.75vw, 4rem);
+    background-color: #AF907A;
+    background-image: linear-gradient(45deg, #AF907A, #5C4736);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.landing-page-wrapper .landing-page .content .text-cont .description {
+    font-size: 1.1rem;
+    margin: 30px 0;
+    color: #777;
+    font-weight: 400;
+    width: 80%;
+}
+
+.landing-page-wrapper .landing-page .content .text-cont .btn {
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    box-shadow: 0 0px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s linear;
+    margin-right: 5px;
+}
+
+.landing-page-wrapper .btn-discover {
+    min-width: 160px;
+    color: #fff;
+    background-color: var(--first-clr);
+    border: 1px solid transparent;
+}
+
+.landing-page-wrapper .btn-discover:hover {
+    border-color: var(--first-clr);
+    background-color: transparent;
+    color: var(--first-clr);
+}
+
+.landing-page-wrapper .landing-page .content .img-cont {
+    width: 35%;
+    position: relative;
+}
+
+.landing-page-wrapper .landing-page .content .img-cont::before,
+.landing-page-wrapper .landing-page .content .img-cont::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    background-color: var(--first-clr);
+}
+
+.landing-page-wrapper .landing-page .content .img-cont::before {
+    top: -5%;
+    left: -7%;
+    width: 100%;
+    height: 60px;
+}
+
+.landing-page-wrapper .landing-page .content .img-cont::after {
+    height: 25vh;
+    width: 25vh;
+    max-width: 180px;
+    max-height: 180px;
+    bottom: -5%;
+    left: -5%;
+    border-radius: 0 0 0 15px;
+}
+
+.landing-page-wrapper .landing-page .content .img-cont .img {
+    width: 100%;
+    display: block;
+    border-radius: 0 0 0 15px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
+}
+
+/* =================== RESPONSIVE =================== */
+@media screen and (max-width: 768px) {
+    .landing-page-wrapper nav {
+        display: none;
+    }
+
+    .landing-page-wrapper .hamburger {
+        display: block;
+        margin-top: -0.5rem;
+    }
+
+    .landing-page-wrapper .landing-page {
+        padding-top: 7rem;
+    }
+
+    .landing-page-wrapper .landing-page .content {
+        flex-direction: column;
+    }
+
+    .landing-page-wrapper .landing-page .content .text-cont,
+    .landing-page-wrapper .landing-page .content .text-cont .description {
+        width: 100%;
+        text-align: center;
+    }
+
+    .landing-page-wrapper .landing-page .content .img-cont {
+        width: 80%;
+        margin-top: 50px;
+    }
+}
