@@ -5,6 +5,8 @@ import { LandingPage } from './pages/LandingPage';
 import DashboardPage from './pages/DashboardPage';
 import PastoralDashboard from './pages/pastoral/dashboard';
 import ProgramsDashboard from './pages/programs/dashboard';
+import MinistryDashboard from './pages/ministry/dashboard';
+import HRDashboard from './pages/hr/dashboard';
 import { AuthProvider } from './context/AuthContext';
 
 function App() {
@@ -21,15 +23,20 @@ function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/congregation/dashboard" element={<DashboardPage />} />
           <Route path="/finance/dashboard" element={<DashboardPage />} />
-          <Route path="/hr/dashboard" element={<DashboardPage />} />
+          <Route path="/hr/dashboard" element={<HRDashboard />} />
           <Route path="/assets/dashboard" element={<DashboardPage />} />
 
           {/* Programs Dashboard */}
           <Route path="/programs/dashboard" element={<ProgramsDashboard />} />
 
           <Route path="/class/dashboard" element={<DashboardPage />} />
-          <Route path="/ministry/dashboard" element={<DashboardPage />} />
+
+          {/* Ministry Dashboard */}
+          <Route path="/ministry/dashboard" element={<MinistryDashboard />} />
+
+          {/* Pastoral Dashboard */}
           <Route path="/pastoral/dashboard" element={<PastoralDashboard />} />
+
           <Route path="/governance/dashboard" element={<DashboardPage />} />
           <Route path="/donor/dashboard" element={<DashboardPage />} />
 
@@ -45,10 +52,10 @@ function App() {
           <Route path="/finance/payroll" element={<DashboardPage />} />
           <Route path="/finance/reports" element={<DashboardPage />} />
 
-          <Route path="/hr/staff-directory" element={<DashboardPage />} />
-          <Route path="/hr/attendance" element={<DashboardPage />} />
-          <Route path="/hr/leave" element={<DashboardPage />} />
-          <Route path="/hr/departments" element={<DashboardPage />} />
+          <Route path="/hr/staff-directory" element={<HRDashboard />} />
+          <Route path="/hr/attendance" element={<HRDashboard />} />
+          <Route path="/hr/leave" element={<HRDashboard />} />
+          <Route path="/hr/departments" element={<HRDashboard />} />
 
           <Route path="/assets/assets" element={<DashboardPage />} />
           <Route path="/assets/depreciation" element={<DashboardPage />} />
@@ -68,15 +75,17 @@ function App() {
           <Route path="/class/attendance" element={<DashboardPage />} />
           <Route path="/class/reports" element={<DashboardPage />} />
 
-          <Route path="/ministry/donors" element={<DashboardPage />} />
-          <Route path="/ministry/add-donor" element={<DashboardPage />} />
-          <Route path="/ministry/donations" element={<DashboardPage />} />
-          <Route path="/ministry/reports" element={<DashboardPage />} />
+          {/* Ministry routes */}
+          <Route path="/ministry/donors" element={<MinistryDashboard />} />
+          <Route path="/ministry/add-donor" element={<MinistryDashboard />} />
+          <Route path="/ministry/donations" element={<MinistryDashboard />} />
+          <Route path="/ministry/reports" element={<MinistryDashboard />} />
 
-          <Route path="/pastoral/donors" element={<DashboardPage />} />
-          <Route path="/pastoral/add-donor" element={<DashboardPage />} />
-          <Route path="/pastoral/donations" element={<DashboardPage />} />
-          <Route path="/pastoral/reports" element={<DashboardPage />} />
+          {/* Pastoral routes */}
+          <Route path="/pastoral/donors" element={<PastoralDashboard />} />
+          <Route path="/pastoral/add-donor" element={<PastoralDashboard />} />
+          <Route path="/pastoral/donations" element={<PastoralDashboard />} />
+          <Route path="/pastoral/reports" element={<PastoralDashboard />} />
 
           <Route path="/governance/policies" element={<DashboardPage />} />
           <Route path="/governance/audit-reports" element={<DashboardPage />} />
