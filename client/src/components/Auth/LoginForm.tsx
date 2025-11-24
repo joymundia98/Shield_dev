@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useNavigate } from 'react-router-dom'; // for navigation
+import { useNavigate } from 'react-router-dom';
 import headerLogo from '../../assets/headerlogo.png';
 
 const loginSchema = z.object({
@@ -13,13 +13,13 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-// Default simulated credentials
 const DEFAULT_EMAIL = 'shield@devtest.com';
 const DEFAULT_PASSWORD = 'SCI-ELD';
 
 export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(''); // To display invalid credentials
+  const [error, setError] = useState('');
+  const [showSuccessCard, setShowSuccessCard] = useState(false);
 
   const { register, handleSubmit } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -28,13 +28,18 @@ export const LoginForm = () => {
   const navigate = useNavigate();
 
   const onSubmit = (data: LoginFormData) => {
-    // Check against default credentials
     if (data.email === DEFAULT_EMAIL && data.password === DEFAULT_PASSWORD) {
       setError('');
-      alert('Login successful!');
-      navigate('/dashboard'); // Redirect to dashboard
+      setShowSuccessCard(true);
+
+      // Redirect after 3 seconds
+      setTimeout(() => {
+        setShowSuccessCard(false);
+        navigate('/dashboard');
+      }, 3000);
     } else {
       setError('Invalid email or password.');
+      setShowSuccessCard(false);
     }
   };
 
@@ -91,6 +96,14 @@ export const LoginForm = () => {
           </div>
         </form>
       </div>
+
+      {/* Success Card */}
+      {showSuccessCard && (
+        <div className="success-card">
+          <h3>✅ Login Successful!</h3>
+          <p>Redirecting to dashboard...</p>
+        </div>
+      )}
     </div>
   );
 };
