@@ -1,1 +1,1 @@
-export const BASE_API_URL = 'http://localhost:4000/api'; // replace with your backend
+export const BASE_API_URL = import.meta.env.VITE_BASE_API_URL;
