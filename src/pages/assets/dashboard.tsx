@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import Chart from "chart.js/auto";
-import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
 interface Asset {
@@ -127,11 +127,12 @@ const AssetDashboard: React.FC = () => {
         </div>
 
         <h2>ASSET MANAGER</h2>
-        <a href="/assets/dashboard" className="active">Dashboard</a>
-        <a href="/assets/assets">Asset Inventory</a>
-        <a href="/assets/depreciation">Depreciation Info</a>
-        <a href="/assets/maintenance">Maintenance</a>
-        <a href="/assets/categories">Categories</a>
+    
+        <Link to="/assets/dashboard" className="active">Dashboard</Link>
+        <Link to="/assets/assets">Asset Inventory</Link>
+        <Link to="/assets/depreciation">Depreciation Info</Link>
+        <Link to="/assets/maintenance">Maintenance</Link>
+        <Link to="/assets/categories">Categories</Link>
 
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
