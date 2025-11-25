@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
 :root {
     --first-clr: #5C4736;
 }
@@ -352,5 +354,6 @@ body:not(.sidebar-open) .close-btn {
         margin-top: 50px;
     }
 }
+
 
 
