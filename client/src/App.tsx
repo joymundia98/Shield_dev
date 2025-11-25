@@ -22,6 +22,9 @@ import ClassDashboard from "./pages/class/dashboard";
 // NEW — Asset Module Dashboard
 import AssetDashboard from "./pages/assets/dashboard";
 
+// Asset Module Functional Pages
+import AssetsPage from "./pages/assets/assets";
+
 import { AuthProvider } from "./context/AuthContext";
 
 function App() {
@@ -83,10 +86,10 @@ function App() {
           {/* ------------------------------
                        ASSETS MODULE
           --------------------------------*/}
-          <Route path="/assets/assets" element={<AssetDashboard />} />
-          <Route path="/assets/depreciation" element={<AssetDashboard />} />
-          <Route path="/assets/maintenance" element={<AssetDashboard />} />
-          <Route path="/assets/categories" element={<AssetDashboard />} />
+          <Route path="/assets/assets" element={<AssetsPage />} />
+          <Route path="/assets/depreciation" element={<AssetsPage />} />
+          <Route path="/assets/maintenance" element={<AssetsPage />} />
+          <Route path="/assets/categories" element={<AssetsPage />} />
 
           {/* ------------------------------
                     PROGRAMS SUB-ROUTES
