@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
 :root {
     --first-clr: #5C4736;
 }
@@ -10,12 +12,14 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Open Sans', sans-serif;
+    overflow-x: hidden;
 }
 
 /* =================== LANDING PAGE WRAPPER =================== */
 .landing-page-wrapper {
     width: 100%;
+    overflow-x: hidden;
 }
 
 /* =================== HEADER =================== */
