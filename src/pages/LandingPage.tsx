@@ -197,12 +197,13 @@ export const LandingPage = () => {
         <h1 data-aos="fade-up" data-aos-delay="100">Discover SCI-ELD Features</h1>
 
         <div className="feature-cards">
-          {/* Attendance Trends */}
-          <div
-            className={`feature-card feature-card--purple ${activeCard === 0 ? "active" : ""}`}
-            onMouseOver={() => setActiveCard(0)}
+          {/* Attendance Trends 
             data-aos="zoom-in"
             data-aos-delay="100"
+          */}
+          <div
+            className={`feature-card feature-card--purple ${activeCard === 0 ? "active" : ""}`}
+            onMouseEnter={() => setActiveCard(0)}
           >
             <div className="feature-card__outer">
               <div className="feature-card__inner">
@@ -220,12 +221,13 @@ export const LandingPage = () => {
             </div>
           </div>
 
-          {/* Prayer Requests */}
-          <div
-            className={`feature-card feature-card--red ${activeCard === 1 ? "active" : ""}`}
-            onMouseOver={() => setActiveCard(1)}
+          {/* Prayer Requests 
             data-aos="zoom-in"
             data-aos-delay="200"
+          */}
+          <div
+            className={`feature-card feature-card--red ${activeCard === 1 ? "active" : ""}`}
+            onMouseEnter={() => setActiveCard(1)}
           >
             <div className="feature-card__outer">
               <div className="feature-card__inner">
@@ -243,12 +245,13 @@ export const LandingPage = () => {
             </div>
           </div>
 
-          {/* Donations by Fund */}
+          {/* Donations by Fund 
+            data-aos="zoom-in" --> Removed because of temporary glitches
+            data-aos-delay="300"
+          */}
           <div
             className={`feature-card feature-card--green ${activeCard === 2 ? "active" : ""}`}
-            onMouseOver={() => setActiveCard(2)}
-            data-aos="zoom-in"
-            data-aos-delay="300"
+            onMouseEnter={() => setActiveCard(2)}
           >
             <div className="feature-card__outer">
               <div className="feature-card__inner">
