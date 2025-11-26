@@ -1,3 +1,7 @@
+import jwt from "jsonwebtoken";
+import UserModel from "../modules/user/user.model.js";
+
+
 export const verifyJWT = async (req, res, next) => {
   const header = req.headers.authorization || "";
   const token = header.startsWith("Bearer ") ? header.split(" ")[1] : null;
@@ -16,13 +20,13 @@ export const verifyJWT = async (req, res, next) => {
     }
 
     // Fetch roles & permissions
-    const roles = await UserModel.getUserRoles(user.id);
+    const role = await UserModel.getRoleNameById(user.role_id);
     const permissions = await UserModel.getUserPermissions(user.id);
 
     req.user = {
       id: user.id,
       email: user.email,
-      roles,
+      role,
       permissions,
       organization_id: user.organization_id
     };

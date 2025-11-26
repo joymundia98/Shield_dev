@@ -1,8 +1,8 @@
-// controllers/authController.js
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import UserModel from "../user/user.model.js";
+import OrganizationModel from "../organization/organizationModel.js"
 
 dotenv.config();
 
@@ -113,18 +113,8 @@ export const register = async (req, res) => {
 // ========================================
 // REGISTER ORG– MATCHES USER MODEL FIELDS
 // ========================================
-export const registerOrganization = async (req, res) => {
+export const createOrg = async (req, res) => {
   try {
-    // 1️⃣ Must be logged in — verifyJWT middleware already adds req.user
-    const user = req.user;
-
-    if (!user)
-      return res.status(401).json({ message: "Unauthorized" });
-
-    // 2️⃣ Must have permission before doing anything else
-    // This is enforced in the route using: requirePermission("organization.create")
-    // So no checks needed here — if we arrive here, user is allowed.
-
     // 3️⃣ Get fields from request body
     const {
       name,
