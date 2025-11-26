@@ -145,8 +145,11 @@ async update(id, data) {
     async assignRole(user_id, role_id) {
         try {
             await pool.query(
-            `INSERT INTO user_roles (user_id, role_id)
-            VALUES ($1, $2)`,
+            `
+            INSERT INTO user_roles (user_id, role_id)
+            VALUES ($1, $2)
+            ON CONFLICT (user_id, role_id) DO NOTHING
+            `,
             [user_id, role_id]
             );
 
