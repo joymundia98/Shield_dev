@@ -1,3 +1,4 @@
+// client/src/components/Auth/orgLogin.tsx
 import './LoginForm.css';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -6,45 +7,47 @@ import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
 import headerLogo from '../../assets/headerlogo.png';
 
-const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
+const orgLoginSchema = z.object({
+  accountId: z.string().min(1, 'Account ID is required'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type OrgLoginFormData = z.infer<typeof orgLoginSchema>;
 
-const DEFAULT_EMAIL = 'shield@devtest.com';
+const DEFAULT_ACCOUNT_ID = '123456890';
 const DEFAULT_PASSWORD = 'SCI-ELD';
 
-export const LoginForm = () => {
+export const OrgLoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [showSuccessCard, setShowSuccessCard] = useState(false);
 
-  const { register, handleSubmit } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  const { register, handleSubmit } = useForm<OrgLoginFormData>({
+    resolver: zodResolver(orgLoginSchema),
   });
 
   const navigate = useNavigate();
 
-  const onSubmit = (data: LoginFormData) => {
-    if (data.email === DEFAULT_EMAIL && data.password === DEFAULT_PASSWORD) {
+  const onSubmit = (data: OrgLoginFormData) => {
+    const accountId = data.accountId.trim();
+    const password = data.password.trim();
+
+    if (accountId === DEFAULT_ACCOUNT_ID && password === DEFAULT_PASSWORD) {
       setError('');
       setShowSuccessCard(true);
 
-      // Redirect after 3 seconds
       setTimeout(() => {
         setShowSuccessCard(false);
-        navigate('/dashboard');
+        navigate('/dashboard'); // redirect to main dashboard (same as user login)
       }, 3000);
     } else {
-      setError('Invalid email or password.');
+      setError('Invalid Account ID or password.');
       setShowSuccessCard(false);
     }
   };
 
-  const handleOrgLogin = () => {
-    navigate('/org-login'); // redirect to orgLogin.tsx page
+  const handleUserLogin = () => {
+    navigate('/login'); // redirect to user login page
   };
 
   return (
@@ -55,13 +58,13 @@ export const LoginForm = () => {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Email Field */}
+          {/* Account ID */}
           <div className="field input-field">
-            <input type="email" required {...register('email')} />
-            <label>Email Address</label>
+            <input type="text" required {...register('accountId')} />
+            <label>Account ID</label>
           </div>
 
-          {/* Password Field */}
+          {/* Password */}
           <div className="field input-field">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -93,20 +96,20 @@ export const LoginForm = () => {
             <button type="submit">Login</button>
           </div>
 
-          {/* Signup Link */}
+          {/* Registration Link */}
           <div className="form-link sign-up">
-            <span>Don't have an account?</span>
-            <a href="/register"> Sign up now</a>
+            <span>Register Organization instead?</span>
+            <a href="/org-register"> Register now!</a>
           </div>
         </form>
       </div>
 
-      {/* Organization Login Button */}
+      {/* Switch to User Login */}
       <div className="switchLogin">
-        <button className="orgLogin" onClick={handleOrgLogin}>
+        <button type="button" className="orgLogin" onClick={handleUserLogin}>
           <div className="orgLogin-outer">
             <div className="orgLogin-inner">
-              <span>Login as Organization 🏛️</span>
+              <span>Login as User 👤</span>
             </div>
           </div>
         </button>

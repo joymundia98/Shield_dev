@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { LandingPage } from "./pages/LandingPage";
+import { OrgLoginPage } from "./pages/OrgLoginPage"; // <-- updated import
 
 import DashboardPage from "./pages/DashboardPage";
 
@@ -24,6 +25,7 @@ import AssetDashboard from "./pages/assets/dashboard";
 
 // Asset Module Functional Pages
 import AssetsPage from "./pages/assets/assets";
+import DepreciationPage from "./pages/assets/depreciation";
 
 import { AuthProvider } from "./context/AuthContext";
 
@@ -37,6 +39,10 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+
+          {/* ORGANIZATION LOGIN */}
+          <Route path="/org-login" element={<OrgLoginPage />} />
+          <Route path="/org-dashboard" element={<DashboardPage />} /> {/* Replace with actual org dashboard if you have one */}
 
           {/* MAIN DASHBOARD */}
           <Route path="/dashboard" element={<DashboardPage />} />
@@ -87,7 +93,7 @@ function App() {
                        ASSETS MODULE
           --------------------------------*/}
           <Route path="/assets/assets" element={<AssetsPage />} />
-          <Route path="/assets/depreciation" element={<AssetsPage />} />
+          <Route path="/assets/depreciation" element={<DepreciationPage />} />
           <Route path="/assets/maintenance" element={<AssetsPage />} />
           <Route path="/assets/categories" element={<AssetsPage />} />
 
