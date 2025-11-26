@@ -1,4 +1,4 @@
-import "./LoginForm.css"; // using same styling file
+import "./LoginForm.css"; 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -54,7 +54,9 @@ export const RegisterForm = () => {
 
     setTimeout(() => {
       setShowSuccessCard(false);
-      navigate("/login");
+
+      // Redirect user to dashboard after successful registration
+      navigate("/dashboard");
     }, 3000);
   };
 
@@ -196,7 +198,7 @@ export const RegisterForm = () => {
       {showSuccessCard && (
         <div className="success-card">
           <h3>✅ Registration Successful!</h3>
-          <p>Redirecting to login...</p>
+          <p>Redirecting to dashboard...</p>
         </div>
       )}
     </div>
