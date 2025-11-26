@@ -92,7 +92,7 @@ body {
     font-family: 'Segoe UI', Arial, sans-serif;
     height: 100vh;
     overflow-y: auto;
-    z-index: 1000;
+    z-index: 2000;
 }
 
 .landing-page-wrapper .sidebar.sidebar-open {
@@ -167,7 +167,6 @@ body.sidebar-open nav {
 
 /* =================== HAMBURGER BUTTON =================== */
 .landing-page-wrapper .hamburger {
-    display: none;
     font-size: 28px;
     background: #20262C;
     color: white;
@@ -176,48 +175,108 @@ body.sidebar-open nav {
     cursor: pointer;
     position: fixed;
     top: 15px;
-    right: 15px;
+    left: 15px;
     z-index: 1100;
     border-radius: 4px;
+    opacity: 0;
 }
 
 /* =================== CLAYMORPHIC CLOSE BUTTON =================== */
-.landing-page-wrapper .close-btn {
-    position: absolute;
-    right: -28px;
-    top: 10px;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 2rem;
-    color: #333;
-    background: #ffffff;
-    box-shadow:
-        inset 4px 4px 8px rgba(0,0,0,0.15),
-        inset -4px -4px 8px rgba(255,255,255,0.7),
-        6px 6px 12px rgba(0,0,0,0.18),
-        -4px -4px 12px rgba(255,255,255,0.4);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    z-index: 2000;
+/* ---- Close Button Wrapper ---- */
+.close-wrapper {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 60px;
+  height: 60px;
+  z-index: 2000;
 }
 
-.landing-page-wrapper .close-btn:hover {
-    transform: scale(1.05);
-    box-shadow:
-        inset 3px 3px 6px rgba(0,0,0,0.15),
-        inset -3px -3px 6px rgba(255,255,255,0.7),
-        4px 4px 10px rgba(0,0,0,0.2),
-        -4px -4px 10px rgba(255,255,255,0.5);
+/* Hide unless sidebar is open */
+body:not(.sidebar-open) .close-wrapper {
+  display: none;
 }
 
-body:not(.sidebar-open) .close-btn {
-    display: none;
+/* ---- Uiverse Toggle (Resized & Cleaned) ---- */
+.toggle.close-btn {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: inline-block;
+}
+
+/* Glow halo */
+.toggle.close-btn:before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46px;
+  height: 46px;
+  margin-left: -23px;
+  margin-top: -23px;
+  background: #ffffff;
+  opacity: 0.2;
+  border-radius: 50%;
+}
+
+/* Main round button */
+.toggle.close-btn .button {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46px;
+  height: 46px;
+  margin-left: -23px;
+  margin-top: -23px;
+  border-radius: 50%;
+  background: #eaeaea;
+  transition: all 300ms cubic-bezier(0.23, 1, 0.32, 1);
+
+  box-shadow:
+      0 10px 22px -4px rgba(0, 0, 0, 0.5),
+      inset 0 -3px 4px -1px rgba(0, 0, 0, 0.2),
+      inset 0 3px 4px -1px rgba(255, 255, 255, 0.3);
+}
+
+/* X label */
+.toggle.close-btn .label {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  color: rgba(30,30,30,0.9);
+  font-weight: 700;
+  font-size: 26px;
+  text-align: center;
+  line-height: 60px;
+  transition: 200ms ease-out;
+}
+
+/* Checkbox input */
+.toggle.close-btn input {
+  opacity: 0;
+  position: absolute;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  cursor: pointer;
+}
+
+/* Press animation */
+.toggle.close-btn input:active ~ .button {
+  filter: blur(0.4px);
+}
+
+.toggle.close-btn input:active ~ .label {
+  color: rgba(0,0,0,0.5);
+  font-size: 24px;
+}
+
+/* Hide hamburger when sidebar is open */
+.sidebar.sidebar-open ~ .hamburger {
+  display: none;
 }
 
 /* =================== LANDING PAGE CONTENT =================== */
@@ -338,6 +397,7 @@ body:not(.sidebar-open) .close-btn {
 
     .landing-page-wrapper .hamburger {
         display: block;
+        opacity: 1;
         margin-top: -0.5rem;
     }
 
@@ -358,6 +418,14 @@ body:not(.sidebar-open) .close-btn {
     .landing-page-wrapper .landing-page .content .img-cont {
         width: 80%;
         margin-top: 50px;
+    }
+
+    .landing-page-wrapper .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .landing-page-wrapper .sidebar.sidebar-open {
+        transform: translateX(0);
     }
 }
 

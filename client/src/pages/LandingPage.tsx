@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Link as ScrollLink } from "react-scroll";
 
 import { Line, Pie } from "react-chartjs-2";
@@ -37,18 +37,28 @@ ChartJS.register(
 
 export const LandingPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeCard, setActiveCard] = useState(1); // default active card (red)
+  const [activeCard, setActiveCard] = useState<number | null>(null);
+  const location = useLocation(); 
+
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.classList.add("sidebar-open");
+    } else {
+      document.body.classList.remove("sidebar-open");
+    }
+  }, [sidebarOpen]);
 
   const menuLinks = [
-    { label: "Home", path: "home" },
-    { label: "Features", path: "features" },
-    { label: "Who we serve", path: "who-we-serve" },
+    { label: "Home", path: "/" },
+    { label: "Features", path: "/#features" },
+    { label: "Who we serve", path: "/#who-we-serve" },
     { label: "Sign In / Sign Up", path: "/login" },
-    { label: "Contact", path: "contact" },
+    { label: "Contact", path: "/#contact" },
   ];
 
-  const openSidebar = () => setSidebarOpen(true);
-  const closeSidebar = () => setSidebarOpen(false);
+  const closeSidebar = () => {
+    setSidebarOpen(false);
+  };
 
   // ============================
   // 📊 MEMOIZED CHART DATA
@@ -102,69 +112,67 @@ export const LandingPage = () => {
       {/* =================== HEADER =================== */}
       <header>
         <div className="logo">
-          <Link to="/">
-            <img src={logo} alt="SCI-ELD Logo" className="logo-img" />
-          </Link>
+          <Link to="/"><img src={logo} alt="Logo" /></Link>
         </div>
 
-        <nav>
-          {menuLinks.map((link, idx) =>
-            link.path.startsWith("/") ? (
-              <Link key={idx} to={link.path} className={idx === 0 ? "active" : ""}>
-                {link.label}
-              </Link>
-            ) : (
-              <ScrollLink
-                key={idx}
-                to={link.path}
-                smooth={true}
-                duration={500}
-                offset={-70} // adjust if header is fixed
-                className={idx === 0 ? "active" : ""}
-              >
-                {link.label}
-              </ScrollLink>
-            )
-          )}
+        <nav className="desktop-nav">
+          {menuLinks.map((link, idx) => (
+            <Link key={idx} to={link.path} className={location.pathname === link.path ? "active" : ""}>
+              {link.label}
+            </Link>
+          ))}
         </nav>
 
-        <button className="hamburger" onClick={openSidebar}>
+        {/* Single hamburger button for mobile */}
+        <button
+          className="hamburger"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
           &#9776;
         </button>
       </header>
 
       {/* =================== SIDEBAR =================== */}
-      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
+      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
         <h2>Menu</h2>
-        <button className="close-btn" onClick={closeSidebar}>
-          &times;
-        </button>
 
-        {menuLinks.map((link, idx) =>
-          link.path.startsWith("/") ? (
-            <Link
-              key={idx}
-              to={link.path}
-              className={idx === 0 ? "active" : ""}
-              onClick={closeSidebar}
-            >
-              {link.label}
-            </Link>
-          ) : (
-            <ScrollLink
-              key={idx}
-              to={link.path}
-              smooth={true}
-              duration={500}
-              offset={-70}
-              onClick={closeSidebar}
-              className={idx === 0 ? "active" : ""}
-            >
-              {link.label}
-            </ScrollLink>
-          )
+        {/* STATIC-STYLE CLOSE BUTTON */}
+        {sidebarOpen && (
+          <div className="close-wrapper">
+            <div className="toggle close-btn">
+              <input
+                type="checkbox"
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    closeSidebar();
+                    e.target.checked = false; // reset animation same as static
+                  }
+                }}
+              />
+              <span className="button"></span>
+              <span className="label">X</span>
+            </div>
+          </div>
         )}
+
+        {menuLinks.map((link, idx) => (
+          <Link
+            key={idx}
+            to={link.path}
+            className={location.pathname === link.path ? "active" : ""}
+            onClick={closeSidebar}
+          >
+            {link.label}
+          </Link>
+        ))}
       </div>
+
+      {/* Hamburger */}
+      {!sidebarOpen && (
+        <button className="hamburger" onClick={() => setSidebarOpen(true)}>
+          &#9776;
+        </button>
+      )}
 
       {/* =================== HERO =================== */}
       <section id="home" className="landing-page" data-aos="fade-up">
