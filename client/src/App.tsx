@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { LandingPage } from "./pages/LandingPage";
-import { OrgLoginPage } from "./pages/OrgLoginPage";
+
 
 import DashboardPage from "./pages/DashboardPage";
 
@@ -52,7 +52,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
 
           {/* ORGANIZATION LOGIN */}
-          <Route path="/org-login" element={<OrgLoginPage />} />
+        
           <Route path="/org-dashboard" element={<DashboardPage />} />
 
           {/* MAIN DASHBOARD */}
