@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import headerLogo from '../../assets/headerlogo.png';
 
 const loginSchema = z.object({
@@ -12,9 +13,6 @@ const loginSchema = z.object({
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
-
-const DEFAULT_EMAIL = 'shield@devtest.com';
-const DEFAULT_PASSWORD = 'SCI-ELD';
 
 export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -27,18 +25,30 @@ export const LoginForm = () => {
 
   const navigate = useNavigate();
 
-  const onSubmit = (data: LoginFormData) => {
-    if (data.email === DEFAULT_EMAIL && data.password === DEFAULT_PASSWORD) {
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      // Send login request to backend
+      const response = await axios.post('http://localhost:3000/api/auth/login', {
+        email: data.email,
+        password: data.password,
+      });
+
+      // If successful, store JWT in localStorage (or cookie)
+      const token = response.data.token;
+      localStorage.setItem('token', token);
+
       setError('');
       setShowSuccessCard(true);
 
-      // Redirect after 3 seconds
+      // Redirect after 2 seconds
       setTimeout(() => {
         setShowSuccessCard(false);
         navigate('/dashboard');
-      }, 3000);
-    } else {
-      setError('Invalid email or password.');
+      }, 2000);
+
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.response?.data?.message || 'Invalid email or password');
       setShowSuccessCard(false);
     }
   };
@@ -65,7 +75,6 @@ export const LoginForm = () => {
           <div className="field input-field">
             <input
               type={showPassword ? 'text' : 'password'}
-              id="password"
               required
               {...register('password')}
             />
