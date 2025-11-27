@@ -117,6 +117,7 @@ const MinistryDashboard: React.FC = () => {
         <a href="/ministry/dashboard" className="active">
           Dashboard
         </a>
+        <a href="/ministry/pastors">Pastors &amp; Clergy</a>
         <a href="/ministry/teams">Teams</a>
         <a href="/ministry/members">Members</a>
         <a href="/ministry/reports">Reports</a>

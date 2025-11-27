@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { LandingPage } from "./pages/LandingPage";
-import { OrgLoginPage } from "./pages/OrgLoginPage"; // <-- updated import
+import { OrgLoginPage } from "./pages/OrgLoginPage";
 
 import DashboardPage from "./pages/DashboardPage";
 
@@ -23,10 +23,20 @@ import ClassDashboard from "./pages/class/dashboard";
 // NEW — Asset Module Dashboard
 import AssetDashboard from "./pages/assets/dashboard";
 
+// HR Module Functional Pages
+import StaffDirectory from "./pages/hr/staff-directory";
+
 // Asset Module Functional Pages
 import AssetsPage from "./pages/assets/assets";
 import DepreciationPage from "./pages/assets/depreciation";
 import AddAssetPage from "./pages/assets/addAsset";
+import MaintenancePage from "./pages/assets/maintenance";
+
+// Ministry Module Functional Pages
+import PastorsPage from "./pages/ministry/pastors";
+
+// ✅ NEW — Categories Page
+import CategoriesPage from "./pages/assets/categories";
 
 import { AuthProvider } from "./context/AuthContext";
 
@@ -43,7 +53,7 @@ function App() {
 
           {/* ORGANIZATION LOGIN */}
           <Route path="/org-login" element={<OrgLoginPage />} />
-          <Route path="/org-dashboard" element={<DashboardPage />} /> {/* Replace with actual org dashboard if you have one */}
+          <Route path="/org-dashboard" element={<DashboardPage />} />
 
           {/* MAIN DASHBOARD */}
           <Route path="/dashboard" element={<DashboardPage />} />
@@ -61,6 +71,17 @@ function App() {
           <Route path="/congregation/dashboard" element={<CongregationDashboard />} />
           <Route path="/class/dashboard" element={<ClassDashboard />} />
           <Route path="/assets/dashboard" element={<AssetDashboard />} />
+
+          {/* ------------------------------
+                      ASSETS MODULE
+          --------------------------------*/}
+          <Route path="/assets/assets" element={<AssetsPage />} />
+          <Route path="/assets/add" element={<AddAssetPage />} />
+          <Route path="/assets/depreciation" element={<DepreciationPage />} />
+          <Route path="/assets/maintenance" element={<MaintenancePage />} />
+
+          {/* ✅ Correct Route for Categories */}
+          <Route path="/assets/categories" element={<CategoriesPage />} />
 
           {/* ------------------------------
                 CONGREGATION SUB-ROUTES
@@ -83,21 +104,12 @@ function App() {
           <Route path="/finance/reports" element={<FinanceDashboard />} />
 
           {/* ------------------------------
-                         HR SUB-ROUTES
-          --------------------------------*/}
-          <Route path="/hr/staff-directory" element={<HRDashboard />} />
-          <Route path="/hr/attendance" element={<HRDashboard />} />
-          <Route path="/hr/leave" element={<HRDashboard />} />
-          <Route path="/hr/departments" element={<HRDashboard />} />
-
-          {/* ------------------------------
-                       ASSETS MODULE
-          --------------------------------*/}
-          <Route path="/assets/assets" element={<AssetsPage />} />
-          <Route path="/assets/add" element={<AddAssetPage />} />
-          <Route path="/assets/depreciation" element={<DepreciationPage />} />
-          <Route path="/assets/maintenance" element={<AssetsPage />} />
-          <Route path="/assets/categories" element={<AssetsPage />} />
+                HR SUB-ROUTES
+        --------------------------------*/}
+        <Route path="/hr/staff-directory" element={<StaffDirectory />} />
+        <Route path="/hr/attendance" element={<HRDashboard />} />
+        <Route path="/hr/leave" element={<HRDashboard />} />
+        <Route path="/hr/departments" element={<HRDashboard />} />
 
           {/* ------------------------------
                     PROGRAMS SUB-ROUTES
@@ -118,11 +130,12 @@ function App() {
           <Route path="/class/reports" element={<ClassDashboard />} />
 
           {/* ------------------------------
-                    MINISTRY SUB-ROUTES
+                  MINISTRY SUB-ROUTES
           --------------------------------*/}
           <Route path="/ministry/teams" element={<MinistryDashboard />} />
           <Route path="/ministry/members" element={<MinistryDashboard />} />
           <Route path="/ministry/reports" element={<MinistryDashboard />} />
+          <Route path="/ministry/pastors" element={<PastorsPage />} />
 
           {/* ------------------------------
                   PASTORAL SUB-ROUTES
