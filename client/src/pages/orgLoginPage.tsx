@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { OrgLoginForm } from "../components/Auth/OrgLogin";
+import { OrgLoginForm } from "../components/Auth/orgLogin";
 
 export const OrgLoginPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
