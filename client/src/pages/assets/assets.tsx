@@ -36,7 +36,7 @@ const AssetsPage: React.FC = () => {
   const [showFilterPopup, setShowFilterPopup] = useState(false);
 
   const openFilter = () => {
-    setTempFilter(filter); // Reset popup selections to applied filter
+    setTempFilter(filter);
     setShowFilterPopup(true);
   };
   const closeFilter = () => setShowFilterPopup(false);
@@ -72,7 +72,12 @@ const AssetsPage: React.FC = () => {
   }, [inventory, filter]);
 
   // ------------------- Handlers -------------------
-  const handleAdd = () => navigate("/assets/add");
+  const handleAdd = () => {
+    // Pass setInventory to AddAssetPage so new asset can be appended
+    console.log("Navigating to add asset page...");
+    navigate("/assets/add", { state: { addAssetCallback: setInventory } });
+  };
+
   const handleEdit = (id: string) => navigate(`/assets/edit/${id}`);
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this asset?")) {

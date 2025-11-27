@@ -26,6 +26,7 @@ import AssetDashboard from "./pages/assets/dashboard";
 // Asset Module Functional Pages
 import AssetsPage from "./pages/assets/assets";
 import DepreciationPage from "./pages/assets/depreciation";
+import AddAssetPage from "./pages/assets/addAsset";
 
 import { AuthProvider } from "./context/AuthContext";
 
@@ -93,6 +94,7 @@ function App() {
                        ASSETS MODULE
           --------------------------------*/}
           <Route path="/assets/assets" element={<AssetsPage />} />
+          <Route path="/assets/add" element={<AddAssetPage />} />
           <Route path="/assets/depreciation" element={<DepreciationPage />} />
           <Route path="/assets/maintenance" element={<AssetsPage />} />
           <Route path="/assets/categories" element={<AssetsPage />} />
