@@ -142,13 +142,15 @@ const DepartmentsPage: React.FC = () => {
           </div>
         </div>
 
-        <h2>ASSET MANAGER</h2>
-        <a href="/assets/dashboard">Dashboard</a>
-        <a href="/assets/assets">Asset Inventory</a>
-        <a href="/assets/depreciation">Depreciation Info</a>
-        <a href="/assets/maintenance">Maintenance</a>
-        <a href="/assets/categories">Categories</a>
-        <a href="/assets/departments" className="active">Departments</a>
+        <h2>HR MANAGER</h2>
+        <a href="/hr/dashboard">Dashboard</a>
+        <a href="/hr/staff" className="active">Staff Directory</a>
+        <a href="/hr/attendance">Attendance</a>
+        <a href="/hr/leave">Leave Management</a>
+        <a href="/hr/departments" className="active">Departments</a>
+        {/*<a href="#">Volunteers</a>
+        <a href="#">Training</a>
+        <a href="#">HR Documents</a>*/}
 
         <hr className="sidebar-separator" />
 
