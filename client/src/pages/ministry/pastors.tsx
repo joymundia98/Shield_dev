@@ -84,7 +84,7 @@ const PastorsPage: React.FC = () => {
   }, [sidebarOpen]);
 
   // ------------------- Filtered Staff -------------------
-  const filteredStaff = useMemo(() => {
+  const _filteredStaff = useMemo(() => {
     if (!searchQuery.trim()) return staffData;
     return staffData.filter((staff) =>
       staff.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -125,12 +125,13 @@ const PastorsPage: React.FC = () => {
   // ------------------- Departments Grouping -------------------
   const departments = useMemo(() => {
     const groups: Record<string, Staff[]> = {};
-    staffData.forEach((staff) => {
+    _filteredStaff.forEach((staff) => {
       if (!groups[staff.department]) groups[staff.department] = [];
       groups[staff.department].push(staff);
     });
     return groups;
-  }, [staffData]);
+  }, [_filteredStaff]);
+
 
   return (
     <div className="dashboard-wrapper">

@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Link as ScrollLink } from "react-scroll";
 
 import { Line, Pie } from "react-chartjs-2";
 import {
