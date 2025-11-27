@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import pkg from 'pg';
 
 import userRoutes from './modules/user/userRoutes.js';
+import rolesRoutes from './modules/role/roleRoutes.js'
 import authRoutes from './modules/auth/authRoutes.js';
 import denominationRoutes from './modules/denomination/denominationRoutes.js';
 import organizationRoutes from './modules/organization/OrgRoutes.js';
@@ -30,6 +31,7 @@ app.use(express.json());
 app.get("/api/organizations/public", OrganizationController.listPublic);
 
 // Protected routes
+app.use("/api/roles", rolesRoutes)
 app.use("/api/auth", authRoutes);
 app.use("/api/users", verifyJWT, userRoutes);
 app.use("/api/denominations", verifyJWT, denominationRoutes);
