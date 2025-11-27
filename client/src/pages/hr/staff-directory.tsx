@@ -151,9 +151,9 @@ const StaffDirectoryPage: React.FC = () => {
         <a href="/hr/attendance">Attendance</a>
         <a href="/hr/leave">Leave Management</a>
         <a href="/hr/departments">Departments</a>
-        <a href="#">Volunteers</a>
+        {/*<a href="#">Volunteers</a>
         <a href="#">Training</a>
-        <a href="#">HR Related Documents</a>
+        <a href="#">HR Documents</a>*/}
 
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>

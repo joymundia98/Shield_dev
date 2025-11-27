@@ -80,9 +80,10 @@ const LeaveManagementPage: React.FC = () => {
         <a href="/staff-directory">Staff Directory</a>
         <a href="/attendance">Attendance</a>
         <a href="/leave-management" className="active">Leave Management</a>
-        <a href="#">Volunteers</a>
+        <a href="/departments">Departments</a>
+        {/*<a href="#">Volunteers</a>
         <a href="#">Training</a>
-        <a href="#">HR Documents</a>
+        <a href="#">HR Documents</a>*/}
 
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
