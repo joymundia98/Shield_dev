@@ -38,7 +38,7 @@ export const OrganizationController = {
     }
   },
 
-  // LIST ALL
+  // LIST ALL (protected)
   async list(req, res) {
     try {
       const organizations = await Organization.getAll();
@@ -46,6 +46,19 @@ export const OrganizationController = {
 
     } catch (err) {
       console.error("List org error:", err);
+      res.status(500).json({ message: "Server error" });
+    }
+  },
+
+  // LIST PUBLIC (for registration dropdown)
+  async listPublic(req, res) {
+    try {
+      // Only return id and name
+      const organizations = await Organization.getAll();
+      const publicOrgs = organizations.map(org => ({ id: org.id, name: org.name }));
+      res.json(publicOrgs);
+    } catch (err) {
+      console.error("List public org error:", err);
       res.status(500).json({ message: "Server error" });
     }
   },
