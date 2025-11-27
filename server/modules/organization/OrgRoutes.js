@@ -1,4 +1,4 @@
-// routes/organization.routes.js
+// server/modules/organization/OrgRoutes.js
 
 import express from "express";
 import { OrganizationController } from "./organizationController.js";
@@ -8,6 +8,11 @@ import { requirePermission } from "../../middleware/accessControl.js";
 
 const router = express.Router();
 
+// =====================
+// Protected routes
+// =====================
+
+// Create a new organization
 router.post(
   "/register",
   verifyJWT,
@@ -15,6 +20,7 @@ router.post(
   createOrg
 );
 
+// List all organizations (admin only)
 router.get(
   "/",
   verifyJWT,
@@ -22,6 +28,7 @@ router.get(
   OrganizationController.list
 );
 
+// Get organization by ID
 router.get(
   "/:id",
   verifyJWT,
@@ -29,6 +36,7 @@ router.get(
   OrganizationController.getById
 );
 
+// Update organization
 router.put(
   "/:id",
   verifyJWT,
@@ -36,11 +44,18 @@ router.put(
   OrganizationController.update
 );
 
+// Delete organization
 router.delete(
   "/:id",
   verifyJWT,
   requirePermission("organization.delete"),
   OrganizationController.delete
 );
+
+// =====================
+// Public route for registration form dropdown
+// =====================
+
+router.get("/public", OrganizationController.listPublic);
 
 export default router;
