@@ -31,8 +31,8 @@ export const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showSuccessCard, setShowSuccessCard] = useState(false);
-  const [roles, setRoles] = useState<{id: number, name: string}[]>([]);
-  const [organizations, setOrganizations] = useState<{id: number, name: string}[]>([]);
+  const [roles, setRoles] = useState<{ id: number; name: string }[]>([]);
+  const [organizations, setOrganizations] = useState<{ id: number; name: string }[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({
@@ -43,28 +43,27 @@ export const RegisterForm = () => {
 
   // Fetch roles and organizations on mount
   useEffect(() => {
-    // Roles (adjust API endpoint as needed)
-    axios.get("http://localhost:5000/api/roles") 
+    // Roles
+    axios.get("http://localhost:3000/api/roles")
       .then(res => setRoles(res.data))
       .catch(err => console.error("Error fetching roles:", err));
 
-    // Organizations (public endpoint)
-    axios.get("http://localhost:5000/api/organizations/public") 
+    // Organizations
+    axios.get("http://localhost:3000/api/organizations/public")
       .then(res => setOrganizations(res.data))
       .catch(err => console.error("Error fetching organizations:", err));
   }, []);
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      // Send registration data to backend
-      await axios.post("http://localhost:5000/api/auth/register", {
+      await axios.post("http://localhost:3000/api/auth/register", {
         first_name: data.first_name,
         last_name: data.last_name,
         email: data.email,
         phone: data.phone,
         position: data.position,
-        role: data.role,
-        organization: data.organization,
+        role_id: data.role,          // send role id
+        organization_id: data.organization, // send organization id
         password: data.password,
       });
 
@@ -127,7 +126,7 @@ export const RegisterForm = () => {
             <select {...register("role")}>
               <option value="">Select Role</option>
               {roles.map(role => (
-                <option key={role.id} value={role.name}>{role.name}</option>
+                <option key={role.id} value={role.id}>{role.name}</option>
               ))}
             </select>
             {errors.role && <p className="form-error">{errors.role.message}</p>}
@@ -138,7 +137,7 @@ export const RegisterForm = () => {
             <select {...register("organization")}>
               <option value="">Select Organization</option>
               {organizations.map(org => (
-                <option key={org.id} value={org.name}>{org.name}</option>
+                <option key={org.id} value={org.id}>{org.name}</option>
               ))}
             </select>
             {errors.organization && <p className="form-error">{errors.organization.message}</p>}
