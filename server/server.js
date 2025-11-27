@@ -7,8 +7,8 @@ import userRoutes from './modules/user/userRoutes.js';
 import authRoutes from './modules/auth/authRoutes.js';
 import denominationRoutes from './modules/denomination/denominationRoutes.js';
 import organizationRoutes from './modules/organization/OrgRoutes.js';
-
 import { verifyJWT } from './middleware/auth.js';
+import { OrganizationController } from './modules/organization/organizationController.js';
 
 dotenv.config();
 const { Pool } = pkg;
@@ -26,15 +26,16 @@ export { pool };
 app.use(cors());
 app.use(express.json());
 
-// ========================================
-// 🔥 API ROUTES PREFIX
-// ========================================
+// Public route for dropdown
+app.get("/api/organizations/public", OrganizationController.listPublic);
+
+// Protected routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", verifyJWT, userRoutes);
 app.use("/api/denominations", verifyJWT, denominationRoutes);
 app.use("/api/organizations", verifyJWT, organizationRoutes);
 
-// Health Check
+// Health check
 app.get("/", (req, res) => {
   res.json({ message: "API is running..." });
 });
