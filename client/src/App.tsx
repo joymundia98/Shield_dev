@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { LandingPage } from "./pages/LandingPage";
-import { OrgLoginPage } from "../src/pages/orgLoginPage";
+import { OrgLoginPage } from "./pages/OrgLoginPage";
 
 import DashboardPage from "./pages/DashboardPage";
 
