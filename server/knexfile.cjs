@@ -12,7 +12,7 @@ module.exports = {
     migrations: {
       tableName: "knex_migrations",
       directory: "./migrations",
-      extension: "js"
+      extension: "cjs"
     },
     seeds: {
       directory: "./seeds"

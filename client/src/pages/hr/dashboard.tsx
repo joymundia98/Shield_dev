@@ -147,14 +147,12 @@ const HRDashboard: React.FC = () => {
         <h2>HR MANAGEMENT</h2>
         <a href="/hr/dashboard" className="active">Dashboard</a>
         <a href="/hr/staff-directory">Staff Directory</a>
-        <a href="/hr/pastors">Pastors & Clergy</a>
         <a href="/hr/attendance">Attendance</a>
         <a href="/hr/leave">Leave Management</a>
         <a href="/hr/departments">Departments</a>
-        <a href="/hr/payroll">Payroll</a>
         <a href="#">Volunteers</a>
         <a href="#">Training</a>
-        <a href="#">Documents</a>
+        <a href="#">HR Related Documents</a>
 
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
@@ -175,6 +173,7 @@ const HRDashboard: React.FC = () => {
       <div className="dashboard-content">
         <h1>HR Dashboard Overview</h1>
 
+        <br/><br/>
         <div className="kpi-container">
           <div className="kpi-card"><h3>Total Staff</h3><p>58</p></div>
           <div className="kpi-card"><h3>Paid Staff</h3><p>35</p></div>
