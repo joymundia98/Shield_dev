@@ -9,7 +9,7 @@ import { requirePermission } from "../../middleware/accessControl.js";
 const router = express.Router();
 
 // =====================
-// Protected routes
+// Protected routes (require JWT & permissions)
 // =====================
 
 // Create a new organization
@@ -56,6 +56,7 @@ router.delete(
 // Public route for registration form dropdown
 // =====================
 
+// This route does NOT require JWT or permissions
 router.get("/public", OrganizationController.listPublic);
 
 export default router;
