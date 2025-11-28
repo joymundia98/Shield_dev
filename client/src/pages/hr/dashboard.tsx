@@ -3,7 +3,7 @@ import "../../styles/global.css";
 import Chart from "chart.js/auto";
 import { useNavigate } from "react-router-dom";
 
-const HRDashboard: React.FC = () => {
+  const HRDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
