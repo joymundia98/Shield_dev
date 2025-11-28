@@ -834,6 +834,34 @@
             box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
         }
 
+        /* Payroll Status Pills */
+        .status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        /* Paid = Green */
+        .status.paid {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        /* Pending = Orange */
+        .status.pending {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        /* Overdue = Red */
+        .status.overdue {
+            background-color: #f44336;
+            color: white;
+        }
+
         /* ---------- Modal Styles ---------- */
         .modal {
             display: none;
