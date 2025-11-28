@@ -148,6 +148,20 @@ const DashboardPage: React.FC = () => {
   const attendanceChartRef = useRef<Chart | null>(null);
   const givingChartRef = useRef<Chart | null>(null);
 
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  // Add/remove sidebar-open class on body for proper animation
+      useEffect(() => {
+        const body = document.body;
+        if (sidebarOpen) {
+          body.classList.add("sidebar-open");
+        } else {
+          body.classList.remove("sidebar-open");
+        }
+        // Clean up on unmount
+        return () => body.classList.remove("sidebar-open");
+      }, [sidebarOpen]);
+
   useEffect(() => {
     const initialState: Record<string, boolean> = {};
     dropdowns.forEach((d) => (initialState[d.label] = false));
@@ -206,18 +220,24 @@ const DashboardPage: React.FC = () => {
   return (
     <div className="dashboard-wrapper">
       {/* Hamburger */}
-      {!sidebarOpen && (
-        <button className="hamburger" onClick={() => setSidebarOpen(true)}>
-          &#9776;
-        </button>
-      )}
+      <button className="hamburger" onClick={toggleSidebar}>
+        &#9776;
+      </button>
 
       {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
+        {/* Close Button (Styled like ClassDashboard) */}
         <div className="close-wrapper">
-          <button className="close-btn" onClick={() => setSidebarOpen(false)}>
-            X
-          </button>
+          <div className="toggle close-btn">
+            <input
+              type="checkbox"
+              id="closeSidebarButton"
+              checked={sidebarOpen}
+              onChange={toggleSidebar}
+            />
+            <span className="button"></span>
+            <span className="label">X</span>
+          </div>
         </div>
 
         <h2>CHURCH DASHBOARD</h2>
