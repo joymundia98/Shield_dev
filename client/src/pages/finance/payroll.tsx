@@ -8,7 +8,13 @@ interface PayrollRecord {
   salary: number;
   status: "Paid" | "Pending" | "Overdue";
   date: string;
+  department: string;
 }
+
+const monthNames = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
 
 const PayrollPage: React.FC = () => {
   const navigate = useNavigate();
@@ -16,13 +22,16 @@ const PayrollPage: React.FC = () => {
 
   // ------------------- Payroll Data -------------------
   const [payrollData, setPayrollData] = useState<PayrollRecord[]>([
-    { name: "John Doe", position: "Pastor", salary: 1500, status: "Paid", date: "2025-11-10" },
-    { name: "Mary Smith", position: "Secretary", salary: 800, status: "Pending", date: "2025-11-15" },
-    { name: "James Wilson", position: "Choir Director", salary: 600, status: "Paid", date: "2025-11-10" },
+    { name: "John Doe", position: "Pastor", salary: 1500, status: "Paid", date: "2025-11-10", department: "Finance" },
+    { name: "Mary Smith", position: "Secretary", salary: 800, status: "Pending", date: "2025-11-15", department: "Finance" },
+    { name: "James Wilson", position: "Choir Director", salary: 600, status: "Paid", date: "2025-11-10", department: "Logistics" },
+    { name: "Anna Brown", position: "Driver", salary: 700, status: "Overdue", date: "2025-11-12", department: "Transport" },
   ]);
 
   const [search, setSearch] = useState("");
-  const [filterDate, setFilterDate] = useState("");
+  const [filterMonth, setFilterMonth] = useState<string | "all">("all");
+  const [filterYear, setFilterYear] = useState<number | "all">("all");
+  const [filterDepartment, setFilterDepartment] = useState<string | "all">("all");
 
   // ------------------- Modal State -------------------
   const [showModal, setShowModal] = useState(false);
@@ -34,6 +43,7 @@ const PayrollPage: React.FC = () => {
     salary: 0,
     status: "Paid",
     date: "",
+    department: "",
   });
 
   // ------------------- Sidebar -------------------
@@ -44,25 +54,52 @@ const PayrollPage: React.FC = () => {
     else document.body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
-  // ------------------- Filtered + Searched Payroll -------------------
+  // ------------------- Filtered Payroll -------------------
   const filteredPayroll = useMemo(() => {
     return payrollData.filter((rec) => {
-      if (filterDate && rec.date !== filterDate) return false;
+      const dateObj = new Date(rec.date);
+      if (filterMonth !== "all" && monthNames[dateObj.getMonth()] !== filterMonth) return false;
+      if (filterYear !== "all" && dateObj.getFullYear() !== filterYear) return false;
+      if (filterDepartment !== "all" && rec.department !== filterDepartment) return false;
       if (search && !JSON.stringify(rec).toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
-  }, [payrollData, filterDate, search]);
+  }, [payrollData, filterMonth, filterYear, filterDepartment, search]);
+
+  // ------------------- Group by Department -------------------
+  const groupedByDepartment = useMemo(() => {
+    const groups: Record<string, PayrollRecord[]> = {};
+    filteredPayroll.forEach((rec) => {
+      if (!groups[rec.department]) groups[rec.department] = [];
+      groups[rec.department].push(rec);
+    });
+    return groups;
+  }, [filteredPayroll]);
 
   // ------------------- KPI Calculations -------------------
-  const kpiTotalStaff = payrollData.length;
-  const kpiPaid = payrollData.filter((p) => p.status === "Paid").length;
-  const kpiPending = payrollData.filter((p) => p.status === "Pending").length;
-  const kpiTotalSalary = payrollData.reduce((sum, p) => sum + p.salary, 0);
+  const selectedMonthIndex = filterMonth === "all" ? new Date().getMonth() : monthNames.indexOf(filterMonth);
+  const selectedYearValue = filterYear === "all" ? new Date().getFullYear() : filterYear;
+
+  const payrollThisMonth = payrollData.filter((p) => {
+    const d = new Date(p.date);
+    return d.getMonth() === selectedMonthIndex && d.getFullYear() === selectedYearValue;
+  });
+
+  const kpiTotalPaid = payrollThisMonth
+    .filter((p) => p.status === "Paid")
+    .reduce((sum, p) => sum + p.salary, 0);
+
+  const kpiTotalDue = payrollThisMonth
+    .filter((p) => p.status !== "Paid")
+    .reduce((sum, p) => sum + p.salary, 0);
+
+  const kpiPaidCount = payrollThisMonth.filter((p) => p.status === "Paid").length;
+  const kpiUnpaidCount = payrollThisMonth.filter((p) => p.status !== "Paid").length;
 
   // ------------------- Modal Handlers -------------------
   const openAddModal = () => {
     setEditingIndex(null);
-    setModalRecord({ name: "", position: "", salary: 0, status: "Paid", date: "" });
+    setModalRecord({ name: "", position: "", salary: 0, status: "Paid", date: "", department: "" });
     setShowModal(true);
   };
 
@@ -86,9 +123,7 @@ const PayrollPage: React.FC = () => {
   return (
     <div className="dashboard-wrapper">
       {/* Hamburger */}
-      <button className="hamburger" onClick={toggleSidebar}>
-        &#9776;
-      </button>
+      <button className="hamburger" onClick={toggleSidebar}>&#9776;</button>
 
       {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
@@ -126,7 +161,7 @@ const PayrollPage: React.FC = () => {
             navigate("/");
           }}
         >
-          ➜] Logout
+          ➜ Logout
         </a>
       </div>
 
@@ -146,51 +181,89 @@ const PayrollPage: React.FC = () => {
           <button className="add-btn" onClick={openAddModal}>+ Add Payroll Record</button>
         </div>
 
-        {/* Date Filter */}
-        <div className="filters" style={{ margin: "10px 0" }}>
+        {/* Filters */}
+        <div className="filters" style={{ margin: "10px 0", display: "flex", gap: "10px" }}>
           <label>
-            Filter by Payment Date:
-            <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} />
+            Month:
+            <select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)}>
+              <option value="all">All</option>
+              {monthNames.map((month) => (
+                <option key={month} value={month}>{month}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Year:
+            <select value={filterYear} onChange={(e) => setFilterYear(e.target.value === "all" ? "all" : parseInt(e.target.value))}>
+              <option value="all">All</option>
+              {[2020, 2021, 2022, 2023, 2024, 2025].map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Department:
+            <select value={filterDepartment} onChange={(e) => setFilterDepartment(e.target.value)}>
+              <option value="all">All</option>
+              {Array.from(new Set(payrollData.map(p => p.department))).map(dep => (
+                <option key={dep} value={dep}>{dep}</option>
+              ))}
+            </select>
           </label>
         </div>
 
-        {/* KPI Cards */}
-        <div className="kpi-container">
-          <div className="kpi-card"><h3>Total Staff</h3><p>{kpiTotalStaff}</p></div>
-          <div className="kpi-card"><h3>Paid</h3><p>{kpiPaid}</p></div>
-          <div className="kpi-card"><h3>Pending</h3><p>{kpiPending}</p></div>
-          <div className="kpi-card"><h3>Total Salary</h3><p>${kpiTotalSalary.toLocaleString()}</p></div>
+        {/* KPI Cards (OLD STYLE) */}
+        <div className="kpi-container" id="kpiContainer">
+          <div className="kpi-card">
+            <h3>Total Paid (This Month)</h3>
+            <p id="kpiTotalPaid">${kpiTotalPaid.toLocaleString()}</p>
+          </div>
+          <div className="kpi-card">
+            <h3>Total Due (This Month)</h3>
+            <p id="kpiTotalDue">${kpiTotalDue.toLocaleString()}</p>
+          </div>
+          <div className="kpi-card">
+            <h3>Employees Paid</h3>
+            <p id="kpiPaidCount">{kpiPaidCount}</p>
+          </div>
+          <div className="kpi-card">
+            <h3>Employees Unpaid</h3>
+            <p id="kpiUnpaidCount">{kpiUnpaidCount}</p>
+          </div>
         </div>
 
-        {/* Payroll Table */}
-        <table className="responsive-table">
-          <thead>
-            <tr>
-              <th>Staff Name</th>
-              <th>Position</th>
-              <th>Salary</th>
-              <th>Status</th>
-              <th>Payment Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredPayroll.map((p, i) => (
-              <tr key={i}>
-                <td>{p.name}</td>
-                <td>{p.position}</td>
-                <td>${p.salary.toLocaleString()}</td>
-                <td><span className={`status ${p.status.toLowerCase()}`}>{p.status}</span></td>
-                <td>{p.date}</td>
-                <td>
-                  <button className="edit-btn" onClick={() => openEditModal(i)}>
-                    Edit
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {/* Payroll Table Grouped by Department */}
+        {Object.entries(groupedByDepartment).map(([dept, records]) => (
+          <div key={dept} style={{ marginTop: "20px" }}>
+            <h2>{dept} Department</h2>
+            <table className="responsive-table">
+              <thead>
+                <tr>
+                  <th>Staff Name</th>
+                  <th>Position</th>
+                  <th>Salary</th>
+                  <th>Status</th>
+                  <th>Payment Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {records.map((p, i) => (
+                  <tr key={i}>
+                    <td>{p.name}</td>
+                    <td>{p.position}</td>
+                    <td>${p.salary.toLocaleString()}</td>
+                    <td><span className={`status ${p.status.toLowerCase()}`}>{p.status}</span></td>
+                    <td>{p.date}</td>
+                    <td>
+                      <button className="edit-btn" onClick={() => openEditModal(payrollData.indexOf(p))}>Edit</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
 
         {/* Modal */}
         <div className="overlay" style={{ display: showModal ? "block" : "none" }} onClick={closeModal}></div>
@@ -227,6 +300,13 @@ const PayrollPage: React.FC = () => {
             <option value="Pending">Pending</option>
             <option value="Overdue">Overdue</option>
           </select>
+
+          <label>Department</label>
+          <input
+            type="text"
+            value={modalRecord.department}
+            onChange={(e) => setModalRecord({ ...modalRecord, department: e.target.value })}
+          />
 
           <label>Payment Date</label>
           <input
