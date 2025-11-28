@@ -34,6 +34,10 @@ import DepreciationPage from "./pages/assets/depreciation";
 import AddAssetPage from "./pages/assets/addAsset";
 import MaintenancePage from "./pages/assets/maintenance";
 
+// Finance Module Functional Pages
+import PayrollPage from "./pages/finance/payroll";
+
+
 // Ministry Module Functional Pages
 import PastorsPage from "./pages/ministry/pastors";
 
@@ -101,7 +105,7 @@ function App() {
           <Route path="/finance/transactions" element={<FinanceDashboard />} />
           <Route path="/finance/add-transaction" element={<FinanceDashboard />} />
           <Route path="/finance/expenses" element={<FinanceDashboard />} />
-          <Route path="/finance/payroll" element={<FinanceDashboard />} />
+          <Route path="/finance/payroll" element={<PayrollPage />} />
           <Route path="/finance/budgets" element={<FinanceDashboard />} />
           <Route path="/finance/reports" element={<FinanceDashboard />} />
 
