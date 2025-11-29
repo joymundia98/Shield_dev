@@ -2,24 +2,24 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
-interface ExpenseItem {
+interface IncomeItem {
   date: string;
-  department: string;
+  giver: string;
   description: string;
   amount: number;
   status: "Pending" | "Approved" | "Rejected";
 }
 
-interface ExpenseGroup {
+interface IncomeGroup {
   name: string;
-  items: ExpenseItem[];
+  items: IncomeItem[];
 }
 
-interface ExpenseCategories {
-  [category: string]: ExpenseGroup[];
+interface IncomeCategories {
+  [category: string]: IncomeGroup[];
 }
 
-const ExpenseTrackerPage: React.FC = () => {
+const IncomeTrackerPage: React.FC = () => {
   const navigate = useNavigate();
 
   // ------------------- Sidebar -------------------
@@ -32,30 +32,33 @@ const ExpenseTrackerPage: React.FC = () => {
   }, [sidebarOpen]);
 
   // ------------------- Categories & Items -------------------
-  const [categories, setCategories] = useState<ExpenseCategories>({
-    "Operational Expenses": [
-      { name: "Rent", items: [{ date: "2025-11-01", department: "Finance", description: "Office Rent", amount: 5000, status: "Pending" }] },
-      { name: "Utilities", items: [{ date: "2025-11-05", department: "Operations", description: "Electricity", amount: 800, status: "Pending" }] },
-      { name: "Office Supplies", items: [{ date: "2025-11-06", department: "Admin", description: "Stationery", amount: 150, status: "Pending" }] },
-      { name: "Equipment & Software", items: [{ date: "2025-11-07", department: "IT", description: "Software Subscription", amount: 400, status: "Pending" }] }
+  const [categories, setCategories] = useState<IncomeCategories>({
+    "Tithes & Regular Giving": [
+      {
+        name: "Tithes",
+        items: [
+          { date: "2025-11-01", giver: "John Doe", description: "Monthly tithe", amount: 200, status: "Pending" },
+          { date: "2025-11-02", giver: "Mary Jane", description: "Monthly tithe", amount: 180, status: "Pending" }
+        ]
+      },
+      {
+        name: "General Offering",
+        items: [
+          { date: "2025-11-03", giver: "Jane Smith", description: "Sunday offering", amount: 150, status: "Pending" },
+          { date: "2025-11-04", giver: "Church Online", description: "Digital offering", amount: 220, status: "Pending" }
+        ]
+      },
+      {
+        name: "Digital Giving",
+        items: [
+          { date: "2025-11-05", giver: "Anonymous", description: "Online donation", amount: 300, status: "Pending" },
+          { date: "2025-11-06", giver: "Tom H.", description: "App donation", amount: 120, status: "Pending" }
+        ]
+      }
     ],
-    "Employee Expenses": [
-      { name: "Salaries & Wages", items: [{ date: "2025-11-10", department: "Finance", description: "Salary", amount: 1500, status: "Pending" }] },
-      { name: "Reimbursements", items: [{ date: "2025-11-05", department: "Admin", description: "Travel Reimbursement", amount: 300, status: "Pending" }] }
-    ],
-    "Project / Department Expenses": [
-      { name: "Project Costs", items: [{ date: "2025-11-07", department: "Project A", description: "Consultant Fee", amount: 1500, status: "Pending" }] },
-      { name: "Materials / Consultants / Outsourcing", items: [] }
-    ],
-    "Financial & Regulatory Expenses": [
-      { name: "Taxes, Fees, Insurance", items: [{ date: "2025-11-08", department: "Finance", description: "Insurance Payment", amount: 1200, status: "Pending" }] },
-      { name: "Compliance Costs", items: [] }
-    ],
-    "Capital Expenses": [
-      { name: "Investments / Assets", items: [
-          { date: "2025-11-08", department: "Operations", description: "New Server Purchase", amount: 12000, status: "Pending" },
-          { date: "2025-11-10", department: "Logistics", description: "Delivery Van", amount: 25000, status: "Pending" }
-        ] }
+    "Special Offerings": [
+      { name: "Thanksgiving Offering", items: [{ date: "2025-11-10", giver: "Missions Ministry", description: "Annual thanksgiving", amount: 400, status: "Pending" }] },
+      { name: "Building Fund Offering", items: [{ date: "2025-11-11", giver: "John Doe", description: "Church building", amount: 500, status: "Pending" }] }
     ]
   });
 
@@ -91,6 +94,7 @@ const ExpenseTrackerPage: React.FC = () => {
   // ------------------- KPI Calculations -------------------
   const { totalApproved, totalPending, totalRejected } = useMemo(() => {
     let approved = 0, pending = 0, rejected = 0;
+
     Object.values(categories).forEach(groups =>
       groups.forEach(g =>
         g.items.forEach(item => {
@@ -100,12 +104,14 @@ const ExpenseTrackerPage: React.FC = () => {
         })
       )
     );
+
     return { totalApproved: approved, totalPending: pending, totalRejected: rejected };
   }, [categories]);
 
   // ------------------- Filtered Rendering -------------------
   const filteredCategories = useMemo(() => {
     if (selectedFilter === "All") return categories;
+    // If category exists, return it; else return empty group array
     return { [selectedFilter]: categories[selectedFilter] || [] };
   }, [categories, selectedFilter]);
 
@@ -123,7 +129,7 @@ const ExpenseTrackerPage: React.FC = () => {
           </div>
         </div>
 
-        <h2>FINANCE</h2>
+        <h2>INCOME</h2>
         <a href="/finance/dashboard">Dashboard</a>
         <a href="/finance/incometracker">Track Income</a>
         <a href="/finance/expensetracker" className="active">Track Expenses</a>
@@ -134,7 +140,15 @@ const ExpenseTrackerPage: React.FC = () => {
 
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
-        <a href="/" className="logout-link" onClick={e => { e.preventDefault(); localStorage.clear(); navigate("/"); }}>
+        <a
+          href="/"
+          className="logout-link"
+          onClick={e => {
+            e.preventDefault();
+            localStorage.clear();
+            navigate("/");
+          }}
+        >
           ➜ Logout
         </a>
       </div>
@@ -143,13 +157,15 @@ const ExpenseTrackerPage: React.FC = () => {
       <div className="dashboard-content">
 
         {/* HEADER */}
-        <header className="page-header expense-header">
-          <h1>Expense Tracker</h1>
+        <header className="page-header income-header">
+          <h1>Church Income Tracker</h1>
+
           <div>
             <br /><br />
-            <button className="add-btn" style={{ marginRight: "10px" }} onClick={() => navigate("/finance/expenseDashboard")}>
+            <button className="add-btn" onClick={() => navigate("/income/income-dashboard")} style={{ marginRight: "10px" }}>
               View Summary
             </button>
+
             <button className="hamburger" onClick={toggleSidebar}>
               &#9776;
             </button>
@@ -160,35 +176,35 @@ const ExpenseTrackerPage: React.FC = () => {
         {/* KPI Cards */}
         <div className="kpi-container">
           <div className="kpi-card kpi-approved">
-            <h3>Total Approved Expenses</h3>
+            <h3>Total Approved Income</h3>
             <p>${totalApproved.toLocaleString()}</p>
           </div>
           <div className="kpi-card kpi-pending">
-            <h3>Total Pending Expenses</h3>
+            <h3>Total Pending Income</h3>
             <p>${totalPending.toLocaleString()}</p>
           </div>
           <div className="kpi-card kpi-rejected">
-            <h3>Total Rejected Expenses</h3>
+            <h3>Total Rejected Income</h3>
             <p>${totalRejected.toLocaleString()}</p>
           </div>
         </div>
 
-        {/* Add Expense Button */}
-        <button className="add-btn" onClick={() => navigate("/expenses/add")} style={{ margin: "10px 0" }}>
-          + Add Expense
+        {/* Add Income Button */}
+        <button className="add-btn" onClick={() => navigate("/income/add-income")} style={{ margin: "10px 0" }}>
+          + Add Income
         </button>
 
         {/* Filters */}
-        <div className="expense-filter-box">
+        <div className="income-filter-box">
           <h3>Filter by Category</h3>
-          <select className="expense-filter-select" value={selectedFilter} onChange={e => setSelectedFilter(e.target.value)}>
-            {["All","Operational Expenses","Employee Expenses","Project / Department Expenses","Financial & Regulatory Expenses","Capital Expenses"].map(cat => (
+          <select className="income-filter-select" value={selectedFilter} onChange={e => setSelectedFilter(e.target.value)}>
+            {["All", "Tithes & Regular Giving", "Special Offerings", "Event-Based Income", "Functional Fees / Services", "Donations", "Pledges", "Fundraising Campaigns", "Grants"].map(cat => (
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
         </div>
 
-        {/* Expense Tables */}
+        {/* Income Tables */}
         {Object.entries(filteredCategories).map(([catName, groups]) => (
           <div key={catName}>
             <h2>{catName}</h2>
@@ -200,7 +216,7 @@ const ExpenseTrackerPage: React.FC = () => {
                     <thead>
                       <tr>
                         <th>Date</th>
-                        <th>Department/Project</th>
+                        <th>Source/Giver</th>
                         <th>Description</th>
                         <th>Amount</th>
                         <th>Status</th>
@@ -212,7 +228,7 @@ const ExpenseTrackerPage: React.FC = () => {
                         group.items.map((item, idx) => (
                           <tr key={idx}>
                             <td>{item.date}</td>
-                            <td>{item.department}</td>
+                            <td>{item.giver}</td>
                             <td>{item.description}</td>
                             <td>${item.amount.toLocaleString()}</td>
                             <td><span className={`status ${item.status}`}>{item.status}</span></td>
@@ -237,13 +253,14 @@ const ExpenseTrackerPage: React.FC = () => {
                 </div>
               ))
             ) : (
+              // If the selected category exists but has no groups, show a placeholder empty table
               <div>
                 <h3>No groups</h3>
                 <table className="responsive-table">
                   <thead>
                     <tr>
                       <th>Date</th>
-                      <th>Department/Project</th>
+                      <th>Source/Giver</th>
                       <th>Description</th>
                       <th>Amount</th>
                       <th>Status</th>
@@ -263,13 +280,13 @@ const ExpenseTrackerPage: React.FC = () => {
 
         {/* Modal */}
         {modalOpen && (
-          <div className="expenseModal" style={{ display: "flex" }}>
-            <div className="expenseModal-content">
-              <h2>{modalType === "approve" ? "Approve Expense?" : "Reject Expense?"}</h2>
+          <div className="incomeModal" style={{ display: "flex" }}>
+            <div className="incomeModal-content">
+              <h2>{modalType === "approve" ? "Approve Income?" : "Reject Income?"}</h2>
               <p>This action cannot be undone.</p>
-              <div className="expenseModal-buttons">
-                <button className="expenseModal-cancel" onClick={() => setModalOpen(false)}>Cancel</button>
-                <button className={`expenseModal-confirm ${modalType === "reject" ? "reject" : ""}`} onClick={confirmModal}>Confirm</button>
+              <div className="incomeModal-buttons">
+                <button className="incomeModal-cancel" onClick={() => setModalOpen(false)}>Cancel</button>
+                <button className={`incomeModal-confirm ${modalType === "reject" ? "reject" : ""}`} onClick={confirmModal}>Confirm</button>
               </div>
             </div>
           </div>
@@ -279,4 +296,4 @@ const ExpenseTrackerPage: React.FC = () => {
   );
 };
 
-export default ExpenseTrackerPage;
+export default IncomeTrackerPage;
