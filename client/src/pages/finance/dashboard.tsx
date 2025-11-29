@@ -92,7 +92,7 @@ const FinanceDashboard: React.FC = () => {
 
         <a href="/finance/dashboard" className="active">Dashboard</a>
         <a href="/finance/add-transaction">Add Transaction</a>
-        <a href="/finance/transactions">Transactions</a>
+        <a href="/finance/expensetracker">Track Expenses</a>
         <a href="/finance/expenses">Expenses</a>
         <a href="/finance/payroll">Payroll</a>
         <a href="/finance/reports">Reports</a>

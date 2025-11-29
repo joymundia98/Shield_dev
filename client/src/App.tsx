@@ -37,12 +37,15 @@ import MaintenancePage from "./pages/assets/maintenance";
 // Finance Module Functional Pages
 import PayrollPage from "./pages/finance/payroll";
 
-
 // Ministry Module Functional Pages
 import PastorsPage from "./pages/ministry/pastors";
 
-// ✅ NEW — Categories Page
+// Categories Page
 import CategoriesPage from "./pages/assets/categories";
+
+// ⭐ NEW — Expense Module Pages
+import ExpenseDashboardPage from "./pages/finance/expenseDashboard";
+import ExpenseTrackerPage from "./pages/finance/expensetracker";
 
 import { AuthProvider } from "./context/AuthContext";
 
@@ -85,10 +88,8 @@ function App() {
           <Route path="/assets/add" element={<AddAssetPage />} />
           <Route path="/assets/depreciation" element={<DepreciationPage />} />
           <Route path="/assets/maintenance" element={<MaintenancePage />} />
-
-          {/* ✅ Correct Route for Categories */}
           <Route path="/assets/categories" element={<CategoriesPage />} />
-
+          
           {/* ------------------------------
                 CONGREGATION SUB-ROUTES
           --------------------------------*/}
@@ -103,19 +104,19 @@ function App() {
                     FINANCE SUB-ROUTES
           --------------------------------*/}
           <Route path="/finance/transactions" element={<FinanceDashboard />} />
-          <Route path="/finance/add-transaction" element={<FinanceDashboard />} />
-          <Route path="/finance/expenses" element={<FinanceDashboard />} />
+          <Route path="/finance/expensetracker" element={<ExpenseTrackerPage />} />
+          <Route path="/finance/expenseDashboard" element={<ExpenseDashboardPage />} />
           <Route path="/finance/payroll" element={<PayrollPage />} />
           <Route path="/finance/budgets" element={<FinanceDashboard />} />
           <Route path="/finance/reports" element={<FinanceDashboard />} />
 
           {/* ------------------------------
                 HR SUB-ROUTES
-        --------------------------------*/}
-        <Route path="/hr/staff-directory" element={<StaffDirectory />} />
-        <Route path="/hr/attendance" element={<HRDashboard />} />
-        <Route path="/hr/leave" element={<LeaveManagementPage />} />
-        <Route path="/hr/departments" element={<DepartmentsPage />} />
+          --------------------------------*/}
+          <Route path="/hr/staff-directory" element={<StaffDirectory />} />
+          <Route path="/hr/attendance" element={<HRDashboard />} />
+          <Route path="/hr/leave" element={<LeaveManagementPage />} />
+          <Route path="/hr/departments" element={<DepartmentsPage />} />
 
           {/* ------------------------------
                     PROGRAMS SUB-ROUTES

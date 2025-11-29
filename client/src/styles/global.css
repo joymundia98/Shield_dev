@@ -662,6 +662,10 @@
             color: #1A3D7C; /* deep royal blue */
         }
 
+        .kpi-approved { background-color: rgba(212, 237, 218, 0.67); color: #155724; }
+        .kpi-pending { background-color: rgb(255, 243, 205, 0.67); color: #856404; }
+        .kpi-rejected { background-color: rgb(248, 215, 218, 0.67); color: #721c24; }
+
     /* --------------------------------------------
     CHART STYLING
     ----------------------------------------------- */
@@ -711,6 +715,12 @@
         padding: 1rem 2rem;
         text-align: center;
         box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    }
+
+    .expense-header{
+        display: "flex"; 
+        align-items: center; 
+        justify-content: "space-between";
     }
 
     /* --------------------------------------------
@@ -834,6 +844,42 @@
             box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
         }
 
+        /* Approve Button */
+        .approve-btn {
+            background: #22a745;
+            color: white;
+            padding: 6px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.25s ease;
+            box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+        }
+
+        .approve-btn:hover {
+            background: #198437;
+        }
+
+        /* Reject Button */
+        .reject-btn {
+            background: #d9534f;
+            color: white;
+            padding: 6px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.25s ease;
+            box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+        }
+
+        .reject-btn:hover {
+            background: #c12e2a;
+        }
+
         /* Payroll Status Pills */
         .status {
             display: inline-block;
@@ -860,6 +906,38 @@
         .status.overdue {
             background-color: #f44336;
             color: white;
+        }
+
+        /* -----------------------------------------------------------
+        STATUS TAG COLORS (Modern + Clean)
+        ----------------------------------------------------------- */
+        .status {
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* Pending = Gold */
+        .status.Pending {
+            background: #fff4cc;
+            color: #a67c00;
+            border: 1px solid #f2d98a;
+        }
+
+        /* Approved = Green */
+        .status.Approved {
+            background: #d9f8d9;
+            color: #1a7f1a;
+            border: 1px solid #94d694;
+        }
+
+        /* Rejected = Red */
+        .status.Rejected {
+            background: #fde1e1;
+            color: #b30000;
+            border: 1px solid #f5a1a1;
         }
 
         /* ---------- Modal Styles ---------- */
@@ -1077,4 +1155,146 @@
 
         .cancel-btn:hover {
             background-color: #da190b;
+        }
+
+        /*--------Expense Tracker -------*/
+        /* -----------------------------------------------------------
+        EXPENSE RADIO FILTER BUTTONS (Modern Pill Style)
+        ----------------------------------------------------------- */
+        .expense-filter-box {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-family: inherit;
+        }
+
+        .expense-filter-box label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #ffffff;
+            border: 1px solid #ddd;
+            transition: all 0.25s ease;
+        }
+
+        .expense-filter-box label:hover {
+            background: #f0f0f0;
+        }
+
+        /* Hide default radio */
+        .expense-filter-box input[type="radio"] {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #777;
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+            transition: all 0.25s ease;
+        }
+
+        .expense-filter-box input[type="radio"]:checked {
+            border-color: #007bff;
+            background: #007bff;
+        }
+
+        /* Smooth inner dot */
+        .expense-filter-box input[type="radio"]::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transform: scale(0);
+            transition: all 0.25s ease;
+        }
+
+        .expense-filter-box input[type="radio"]:checked::before {
+            transform: scale(1);
+        }
+
+        /* Highlight selected label */
+        .expense-filter-box input[type="radio"]:checked + span,
+        .expense-filter-box input[type="radio"]:checked ~ label {
+            font-weight: 600;
+        }
+
+        /* ---------- expenseModal BACKDROP ---------- */
+        .expenseModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.45);
+            -webkit-backdrop-filter: blur(3px);
+            backdrop-filter: blur(3px);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        /* ---------- expenseModal CARD ---------- */
+        .expenseModal-content {
+            background: #fff;
+            padding: 25px;
+            width: 380px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            text-align: center;
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        .expenseModal-content h2 {
+            margin-top: 0;
+            font-size: 22px;
+            color: #333;
+        }
+
+        .expenseModal-content p {
+            font-size: 16px;
+            color: #555;
+            margin: 12px 0 25px;
+        }
+
+        /* ---------- BUTTONS ---------- */
+        .expenseModal-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .expenseModal-cancel {
+            background: #ccc;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .expenseModal-confirm {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .expenseModal-confirm.reject {
+            background: #d9534f;
+        }
+
+        /* ---------- ANIMATION ---------- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to   { opacity: 1; transform: scale(1); }
         }
