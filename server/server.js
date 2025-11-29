@@ -4,6 +4,9 @@ import dotenv from 'dotenv';
 import pkg from 'pg';
 
 import userRoutes from './modules/user/userRoutes.js';
+import staffRoutes from './modules/hr/staff/staffRoutes.js'
+import leaveRoutes from './modules/hr/leave/leaveRoutes.js'
+import departmentRoutes from './modules/hr/departments/departmentRoutes.js'
 import rolesRoutes from './modules/role/roleRoutes.js'
 import authRoutes from './modules/auth/authRoutes.js';
 import denominationRoutes from './modules/denomination/denominationRoutes.js';
@@ -31,9 +34,12 @@ app.use(express.json());
 app.get("/api/organizations/public", OrganizationController.listPublic);
 
 // Protected routes
-app.use("/api/roles", rolesRoutes)
+app.use("/api/roles", rolesRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", verifyJWT, userRoutes);
+app.use("/api/staff", staffRoutes);
+app.use("/api/departments", departmentRoutes);
+app.use("/api/leave_requests", leaveRoutes);
 app.use("/api/denominations", verifyJWT, denominationRoutes);
 app.use("/api/organizations", verifyJWT, organizationRoutes);
 
