@@ -93,10 +93,10 @@ const FinanceDashboard: React.FC = () => {
         <a href="/finance/dashboard" className="active">Dashboard</a>
         <a href="/finance/incometracker">Track Income</a>
         <a href="/finance/expensetracker">Track Expenses</a>
-        <a href="/finance/expenses">Expenses</a>
+        <a href="/finance/budgets">Budget</a>
         <a href="/finance/payroll">Payroll</a>
-        <a href="/finance/reports">Reports</a>
-        <a href="/finance/budgets">Budgets</a>
+        <a href="/finance/financeCategory">Finance Categories</a>
+        
 
         <hr className="sidebar-separator" />
 

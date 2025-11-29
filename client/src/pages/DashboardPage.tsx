@@ -35,12 +35,13 @@ const dropdowns: Dropdown[] = [
     label: "Finance",
     links: [
       { name: "Dashboard", href: "/finance/dashboard" },
-      { name: "Transactions", href: "/finance/transactions" },
-      { name: "Budgets", href: "/finance/budgets" },
-      { name: "Expenses", href: "/finance/expenses" },
+      { name: "Track Income", href: "/finance/incometracker" },
+      { name: "Track Expenses", href: "/finance/expensetracker" },
+      { name: "Budget", href: "/finance/budgets" },
       { name: "Payroll", href: "/finance/payroll" },
-      { name: "Reports", href: "/finance/reports" },
+      { name: "Finance Categories", href: "/finance/financeCategory" },
     ],
+    
   },
   {
     label: "HR Management",
