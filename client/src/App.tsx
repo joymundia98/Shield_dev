@@ -36,16 +36,15 @@ import MaintenancePage from "./pages/assets/maintenance";
 
 // Finance Module Functional Pages
 import PayrollPage from "./pages/finance/payroll";
+import ExpenseDashboardPage from "./pages/finance/expenseDashboard";
+import ExpenseTrackerPage from "./pages/finance/expensetracker";
+import IncomeTrackerPage from "./pages/finance/incometracker";
 
 // Ministry Module Functional Pages
 import PastorsPage from "./pages/ministry/pastors";
 
 // Categories Page
 import CategoriesPage from "./pages/assets/categories";
-
-// ⭐ NEW — Expense Module Pages
-import ExpenseDashboardPage from "./pages/finance/expenseDashboard";
-import ExpenseTrackerPage from "./pages/finance/expensetracker";
 
 import { AuthProvider } from "./context/AuthContext";
 
@@ -105,6 +104,7 @@ function App() {
           --------------------------------*/}
           <Route path="/finance/transactions" element={<FinanceDashboard />} />
           <Route path="/finance/expensetracker" element={<ExpenseTrackerPage />} />
+          <Route path="/finance/incometracker" element={<IncomeTrackerPage />} />
           <Route path="/finance/expenseDashboard" element={<ExpenseDashboardPage />} />
           <Route path="/finance/payroll" element={<PayrollPage />} />
           <Route path="/finance/budgets" element={<FinanceDashboard />} />
