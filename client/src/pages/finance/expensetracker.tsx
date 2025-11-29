@@ -8,6 +8,8 @@ interface ExpenseItem {
   description: string;
   amount: number;
   status: "Pending" | "Approved" | "Rejected";
+  attachments?: { url: string; type: string }[];
+  extraFields?: Record<string, string>;
 }
 
 interface ExpenseGroup {
@@ -62,7 +64,7 @@ const ExpenseTrackerPage: React.FC = () => {
   // ------------------- Category Filter -------------------
   const [selectedFilter, setSelectedFilter] = useState("All");
 
-  // ------------------- Modal -------------------
+  // ------------------- Approve / Reject Modal -------------------
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"approve" | "reject">("approve");
   const [modalAction, setModalAction] = useState<() => void>(() => {});
@@ -76,6 +78,20 @@ const ExpenseTrackerPage: React.FC = () => {
   const confirmModal = () => {
     modalAction();
     setModalOpen(false);
+  };
+
+  // ------------------- View Details Modal -------------------
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [viewRecord, setViewRecord] = useState<ExpenseItem | null>(null);
+
+  const openViewModal = (item: ExpenseItem) => {
+    setViewRecord(item);
+    setViewModalOpen(true);
+  };
+
+  const closeViewModal = () => {
+    setViewRecord(null);
+    setViewModalOpen(false);
   };
 
   // ------------------- Approve / Reject Logic -------------------
@@ -103,7 +119,7 @@ const ExpenseTrackerPage: React.FC = () => {
     return { totalApproved: approved, totalPending: pending, totalRejected: rejected };
   }, [categories]);
 
-  // ------------------- Filtered Rendering -------------------
+  // ------------------- Filtered Categories -------------------
   const filteredCategories = useMemo(() => {
     if (selectedFilter === "All") return categories;
     return { [selectedFilter]: categories[selectedFilter] || [] };
@@ -114,7 +130,7 @@ const ExpenseTrackerPage: React.FC = () => {
     <div className="dashboard-wrapper">
 
       {/* Sidebar */}
-      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
+      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="close-wrapper">
           <div className="toggle close-btn">
             <input type="checkbox" checked={sidebarOpen} onChange={toggleSidebar} />
@@ -127,10 +143,9 @@ const ExpenseTrackerPage: React.FC = () => {
         <a href="/finance/dashboard">Dashboard</a>
         <a href="/finance/incometracker">Track Income</a>
         <a href="/finance/expensetracker" className="active">Track Expenses</a>
-        <a href="/finance/expenses">Expenses</a>
+        <a href="/finance/budgets">Budget</a>
         <a href="/finance/payroll">Payroll</a>
-        <a href="/finance/reports">Reports</a>
-        <a href="/finance/budgets">Budgets</a>
+        <a href="/finance/financeCategory">Finance Categories</a>
 
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
@@ -142,11 +157,11 @@ const ExpenseTrackerPage: React.FC = () => {
       {/* Main Content */}
       <div className="dashboard-content">
 
-        {/* HEADER */}
+        {/* Header */}
         <header className="page-header expense-header">
           <h1>Expense Tracker</h1>
           <div>
-            <br /><br />
+            <br/><br/>
             <button className="add-btn" style={{ marginRight: "10px" }} onClick={() => navigate("/finance/expenseDashboard")}>
               View Summary
             </button>
@@ -156,8 +171,8 @@ const ExpenseTrackerPage: React.FC = () => {
           </div>
         </header>
 
-        <br /><br />
         {/* KPI Cards */}
+        <br/><br/>
         <div className="kpi-container">
           <div className="kpi-card kpi-approved">
             <h3>Total Approved Expenses</h3>
@@ -174,7 +189,7 @@ const ExpenseTrackerPage: React.FC = () => {
         </div>
 
         {/* Add Expense Button */}
-        <button className="add-btn" onClick={() => navigate("/expenses/add")} style={{ margin: "10px 0" }}>
+        <button className="add-btn" onClick={() => navigate("/expenses/addExpense")} style={{ margin: "10px 0" }}>
           + Add Expense
         </button>
 
@@ -192,51 +207,47 @@ const ExpenseTrackerPage: React.FC = () => {
         {Object.entries(filteredCategories).map(([catName, groups]) => (
           <div key={catName}>
             <h2>{catName}</h2>
-            {groups.length > 0 ? (
-              groups.map(group => (
-                <div key={group.name}>
-                  <h3>{group.name}</h3>
-                  <table className="responsive-table">
-                    <thead>
-                      <tr>
-                        <th>Date</th>
-                        <th>Department/Project</th>
-                        <th>Description</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+            {groups.length > 0 ? groups.map(group => (
+              <div key={group.name}>
+                <h3>{group.name}</h3>
+                <table className="responsive-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Department/Project</th>
+                      <th>Description</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {group.items.length > 0 ? group.items.map((item, idx) => (
+                      <tr key={idx}>
+                        <td>{item.date}</td>
+                        <td>{item.department}</td>
+                        <td>{item.description}</td>
+                        <td>${item.amount.toLocaleString()}</td>
+                        <td><span className={`status ${item.status}`}>{item.status}</span></td>
+                        <td>
+                          <button className="add-btn" onClick={() => openViewModal(item)}>View</button>&nbsp;&nbsp;
+                          {item.status === "Pending" && (
+                            <>
+                              <button className="approve-btn" onClick={() => openModal(() => updateStatus(catName, group.name, idx, "Approved"), "approve")}>Approve</button>&nbsp;&nbsp;
+                              <button className="reject-btn" onClick={() => openModal(() => updateStatus(catName, group.name, idx, "Rejected"), "reject")}>Reject</button>
+                            </>
+                          )}
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {group.items.length > 0 ? (
-                        group.items.map((item, idx) => (
-                          <tr key={idx}>
-                            <td>{item.date}</td>
-                            <td>{item.department}</td>
-                            <td>{item.description}</td>
-                            <td>${item.amount.toLocaleString()}</td>
-                            <td><span className={`status ${item.status}`}>{item.status}</span></td>
-                            <td>
-                              {item.status === "Pending" && (
-                                <>
-                                  <button className="approve-btn" onClick={() => openModal(() => updateStatus(catName, group.name, idx, "Approved"), "approve")}>Approve</button>
-                                  &nbsp;&nbsp;
-                                  <button className="reject-btn" onClick={() => openModal(() => updateStatus(catName, group.name, idx, "Rejected"), "reject")}>Reject</button>
-                                </>
-                              )}
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={6} style={{ textAlign: "center", fontStyle: "italic" }}>No items</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              ))
-            ) : (
+                    )) : (
+                      <tr>
+                        <td colSpan={6} style={{ textAlign: "center", fontStyle: "italic" }}>No items</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )) : (
               <div>
                 <h3>No groups</h3>
                 <table className="responsive-table">
@@ -261,7 +272,7 @@ const ExpenseTrackerPage: React.FC = () => {
           </div>
         ))}
 
-        {/* Modal */}
+        {/* Approve/Reject Modal */}
         {modalOpen && (
           <div className="expenseModal" style={{ display: "flex" }}>
             <div className="expenseModal-content">
@@ -274,6 +285,41 @@ const ExpenseTrackerPage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* View Details Modal */}
+        {viewModalOpen && viewRecord && (
+          <div className="expenseModal" style={{ display: "flex" }} onClick={closeViewModal}>
+            <div className="expenseModal-content" onClick={e => e.stopPropagation()}>
+              <h2>Expense Details</h2>
+              <table>
+                <tbody>
+                  <tr><th>Date</th><td>{viewRecord.date}</td></tr>
+                  <tr><th>Department / Project</th><td>{viewRecord.department}</td></tr>
+                  <tr><th>Description</th><td>{viewRecord.description}</td></tr>
+                  <tr><th>Amount</th><td>${viewRecord.amount.toLocaleString()}</td></tr>
+                  <tr><th>Status</th><td>{viewRecord.status}</td></tr>
+                  {viewRecord.extraFields && Object.entries(viewRecord.extraFields).map(([key, val]) => (
+                    <tr key={key}><th>{key}</th><td>{val}</td></tr>
+                  ))}
+                  {viewRecord.attachments && viewRecord.attachments.length > 0 && (
+                    <tr>
+                      <th>Attachments</th>
+                      <td>
+                        {viewRecord.attachments.map((file, idx) => (
+                          <a key={idx} href={file.url} target="_blank" rel="noopener noreferrer">
+                            {file.type === "application/pdf" ? "View PDF" : "View File"}
+                          </a>
+                        ))}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+              <button className="expenseModal-cancel" onClick={closeViewModal}>Close</button>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

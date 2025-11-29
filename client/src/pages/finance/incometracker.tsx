@@ -8,6 +8,8 @@ interface IncomeItem {
   description: string;
   amount: number;
   status: "Pending" | "Approved" | "Rejected";
+  attachments?: { url: string; type: string }[];
+  extraFields?: Record<string, string>;
 }
 
 interface IncomeGroup {
@@ -47,13 +49,6 @@ const IncomeTrackerPage: React.FC = () => {
           { date: "2025-11-03", giver: "Jane Smith", description: "Sunday offering", amount: 150, status: "Pending" },
           { date: "2025-11-04", giver: "Church Online", description: "Digital offering", amount: 220, status: "Pending" }
         ]
-      },
-      {
-        name: "Digital Giving",
-        items: [
-          { date: "2025-11-05", giver: "Anonymous", description: "Online donation", amount: 300, status: "Pending" },
-          { date: "2025-11-06", giver: "Tom H.", description: "App donation", amount: 120, status: "Pending" }
-        ]
       }
     ],
     "Special Offerings": [
@@ -65,7 +60,7 @@ const IncomeTrackerPage: React.FC = () => {
   // ------------------- Category Filter -------------------
   const [selectedFilter, setSelectedFilter] = useState("All");
 
-  // ------------------- Modal -------------------
+  // ------------------- Approve / Reject Modal -------------------
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"approve" | "reject">("approve");
   const [modalAction, setModalAction] = useState<() => void>(() => {});
@@ -79,6 +74,20 @@ const IncomeTrackerPage: React.FC = () => {
   const confirmModal = () => {
     modalAction();
     setModalOpen(false);
+  };
+
+  // ------------------- View Details Modal -------------------
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [viewRecord, setViewRecord] = useState<IncomeItem | null>(null);
+
+  const openViewModal = (item: IncomeItem) => {
+    setViewRecord(item);
+    setViewModalOpen(true);
+  };
+
+  const closeViewModal = () => {
+    setViewRecord(null);
+    setViewModalOpen(false);
   };
 
   // ------------------- Approve / Reject Logic -------------------
@@ -111,7 +120,6 @@ const IncomeTrackerPage: React.FC = () => {
   // ------------------- Filtered Rendering -------------------
   const filteredCategories = useMemo(() => {
     if (selectedFilter === "All") return categories;
-    // If category exists, return it; else return empty group array
     return { [selectedFilter]: categories[selectedFilter] || [] };
   }, [categories, selectedFilter]);
 
@@ -130,13 +138,13 @@ const IncomeTrackerPage: React.FC = () => {
         </div>
 
         <h2>INCOME</h2>
+        <h2>FINANCE</h2>
         <a href="/finance/dashboard">Dashboard</a>
-        <a href="/finance/incometracker">Track Income</a>
-        <a href="/finance/expensetracker" className="active">Track Expenses</a>
-        <a href="/finance/expenses">Expenses</a>
+        <a href="/finance/incometracker" className="active">Track Income</a>
+        <a href="/finance/expensetracker">Track Expenses</a>
+        <a href="/finance/budgets">Budget</a>
         <a href="/finance/payroll">Payroll</a>
-        <a href="/finance/reports">Reports</a>
-        <a href="/finance/budgets">Budgets</a>
+        <a href="/finance/financeCategory">Finance Categories</a>
 
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
@@ -162,7 +170,7 @@ const IncomeTrackerPage: React.FC = () => {
 
           <div>
             <br /><br />
-            <button className="add-btn" onClick={() => navigate("/income/income-dashboard")} style={{ marginRight: "10px" }}>
+            <button className="add-btn" style={{ marginRight: "10px" }} onClick={() => navigate("/finance/incomeDashboard")}>
               View Summary
             </button>
 
@@ -190,7 +198,7 @@ const IncomeTrackerPage: React.FC = () => {
         </div>
 
         {/* Add Income Button */}
-        <button className="add-btn" onClick={() => navigate("/income/add-income")} style={{ margin: "10px 0" }}>
+        <button className="add-btn" onClick={() => navigate("/income/addIncome")} style={{ margin: "10px 0" }}>
           + Add Income
         </button>
 
@@ -233,10 +241,10 @@ const IncomeTrackerPage: React.FC = () => {
                             <td>${item.amount.toLocaleString()}</td>
                             <td><span className={`status ${item.status}`}>{item.status}</span></td>
                             <td>
+                              <button className="add-btn" onClick={() => openViewModal(item)}>View</button>&nbsp;&nbsp;
                               {item.status === "Pending" && (
                                 <>
-                                  <button className="approve-btn" onClick={() => openModal(() => updateStatus(catName, group.name, idx, "Approved"), "approve")}>Approve</button>
-                                  &nbsp;&nbsp;
+                                  <button className="approve-btn" onClick={() => openModal(() => updateStatus(catName, group.name, idx, "Approved"), "approve")}>Approve</button>&nbsp;&nbsp;
                                   <button className="reject-btn" onClick={() => openModal(() => updateStatus(catName, group.name, idx, "Rejected"), "reject")}>Reject</button>
                                 </>
                               )}
@@ -253,7 +261,6 @@ const IncomeTrackerPage: React.FC = () => {
                 </div>
               ))
             ) : (
-              // If the selected category exists but has no groups, show a placeholder empty table
               <div>
                 <h3>No groups</h3>
                 <table className="responsive-table">
@@ -278,7 +285,7 @@ const IncomeTrackerPage: React.FC = () => {
           </div>
         ))}
 
-        {/* Modal */}
+        {/* Approve/Reject Modal */}
         {modalOpen && (
           <div className="incomeModal" style={{ display: "flex" }}>
             <div className="incomeModal-content">
@@ -291,6 +298,41 @@ const IncomeTrackerPage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* View Details Modal */}
+        {viewModalOpen && viewRecord && (
+          <div className="incomeModal" style={{ display: "flex" }} onClick={closeViewModal}>
+            <div className="incomeModal-content" onClick={e => e.stopPropagation()}>
+              <h2>Income Details</h2>
+              <table>
+                <tbody>
+                  <tr><th>Date</th><td>{viewRecord.date}</td></tr>
+                  <tr><th>Source / Giver</th><td>{viewRecord.giver}</td></tr>
+                  <tr><th>Description</th><td>{viewRecord.description}</td></tr>
+                  <tr><th>Amount</th><td>${viewRecord.amount.toLocaleString()}</td></tr>
+                  <tr><th>Status</th><td>{viewRecord.status}</td></tr>
+                  {viewRecord.extraFields && Object.entries(viewRecord.extraFields).map(([key, val]) => (
+                    <tr key={key}><th>{key}</th><td>{val}</td></tr>
+                  ))}
+                  {viewRecord.attachments && viewRecord.attachments.length > 0 && (
+                    <tr>
+                      <th>Attachments</th>
+                      <td>
+                        {viewRecord.attachments.map((file, idx) => (
+                          <a key={idx} href={file.url} target="_blank" rel="noopener noreferrer">
+                            {file.type === "application/pdf" ? "View PDF" : "View File"}
+                          </a>
+                        ))}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+              <button className="incomeModal-cancel" onClick={closeViewModal}>Close</button>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

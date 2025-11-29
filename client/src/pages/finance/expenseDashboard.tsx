@@ -125,12 +125,11 @@ const ExpenseDashboardPage: React.FC = () => {
 
         <h2>FINANCE</h2>
         <a href="/finance/dashboard">Dashboard</a>
-        <a href="/finance/add-transaction">Add Transaction</a>
+        <a href="/finance/incometracker">Track Income</a>
         <a href="/finance/expensetracker" className="active">Track Expenses</a>
-        <a href="/finance/expenses">Expenses</a>
+        <a href="/finance/budgets">Budget</a>
         <a href="/finance/payroll">Payroll</a>
-        <a href="/finance/reports">Reports</a>
-        <a href="/finance/budgets">Budgets</a>
+        <a href="/finance/financeCategory">Finance Categories</a>
 
         <hr className="sidebar-separator" />
 

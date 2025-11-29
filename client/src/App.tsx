@@ -38,7 +38,11 @@ import MaintenancePage from "./pages/assets/maintenance";
 import PayrollPage from "./pages/finance/payroll";
 import ExpenseDashboardPage from "./pages/finance/expenseDashboard";
 import ExpenseTrackerPage from "./pages/finance/expensetracker";
+import AddExpensePage from "./pages/finance/addExpense";
 import IncomeTrackerPage from "./pages/finance/incometracker";
+import AddIncomePage from "./pages/finance/addIncome";
+import IncomeDashboardPage from "./pages/finance/incomeDashboard";
+import FinanceCategoryPage from "./pages/finance/financeCategory";
 
 // Ministry Module Functional Pages
 import PastorsPage from "./pages/ministry/pastors";
@@ -106,7 +110,11 @@ function App() {
           <Route path="/finance/expensetracker" element={<ExpenseTrackerPage />} />
           <Route path="/finance/incometracker" element={<IncomeTrackerPage />} />
           <Route path="/finance/expenseDashboard" element={<ExpenseDashboardPage />} />
+          <Route path="/finance/incomeDashboard" element={<IncomeDashboardPage />} />
+          <Route path="/finance/addExpense" element={<AddExpensePage />} />
+          <Route path="/finance/addIncome" element={<AddIncomePage />} />
           <Route path="/finance/payroll" element={<PayrollPage />} />
+          <Route path="/finance/financeCategory" element={<FinanceCategoryPage />} />
           <Route path="/finance/budgets" element={<FinanceDashboard />} />
           <Route path="/finance/reports" element={<FinanceDashboard />} />
 

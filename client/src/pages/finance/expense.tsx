@@ -119,6 +119,7 @@ const ExpensePage: React.FC = () => {
 
       {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
+        
         <h2>FINANCE</h2>
         <a href="/finance/dashboard">Dashboard</a>
         <a href="/finance/add-transaction">Add Transaction</a>
@@ -126,6 +127,7 @@ const ExpensePage: React.FC = () => {
         <a href="/finance/expenses" className="active">Expenses</a>
         <a href="/finance/reports">Reports</a>
         <a href="/finance/budgets">Budgets</a>
+
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
         <a href="/" className="logout-link" onClick={(e) => { e.preventDefault(); localStorage.clear(); navigate("/"); }}>➜ Logout</a>
