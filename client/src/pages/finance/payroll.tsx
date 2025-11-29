@@ -182,6 +182,7 @@ const PayrollPage: React.FC = () => {
         </div>
 
         {/* Filters */}
+        <br/>
         <div className="filters" style={{ margin: "10px 0", display: "flex", gap: "10px" }}>
           <label>
             Month:
@@ -213,6 +214,7 @@ const PayrollPage: React.FC = () => {
         </div>
 
         {/* KPI Cards (OLD STYLE) */}
+        <br/>
         <div className="kpi-container" id="kpiContainer">
           <div className="kpi-card">
             <h3>Total Paid (This Month)</h3>
