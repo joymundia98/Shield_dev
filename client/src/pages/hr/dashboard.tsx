@@ -146,11 +146,11 @@ import { useNavigate } from "react-router-dom";
 
         <h2>HR MANAGEMENT</h2>
         <a href="/hr/dashboard" className="active">Dashboard</a>
-        <a href="/hr/staff-directory">Staff Directory</a>
-        <a href="/hr/attendance">Attendance</a>
+        <a href="/staffDirectory">Staff Directory</a>
         <a href="/hr/leave">Leave Management</a>
         <a href="/hr/departments">Departments</a>
         {/*<a href="#">Volunteers</a>
+        <a href="/hr/attendance">Attendance</a>
         <a href="#">Training</a>
         <a href="#">HR Documents</a>*/}
 

@@ -1,17 +1,16 @@
-// models/departmentsModel.js
 import { pool } from "../../../server.js";
 
 const Department = {
   async getAll() {
     const result = await pool.query(
-      `SELECT * FROM departments ORDER BY id ASC`
+      `SELECT department_id AS id, name, description, category FROM departments ORDER BY department_id ASC`
     );
     return result.rows;
   },
 
   async getById(id) {
     const result = await pool.query(
-      `SELECT * FROM departments WHERE id = $1`,
+      `SELECT department_id AS id, name, description, category FROM departments WHERE department_id = $1`,
       [id]
     );
     return result.rows[0] || null;
@@ -24,7 +23,7 @@ const Department = {
       `
       INSERT INTO departments (name, description, category)
       VALUES ($1, $2, $3)
-      RETURNING *
+      RETURNING department_id AS id, name, description, category
       `,
       [name, description, category]
     );
@@ -42,8 +41,8 @@ const Department = {
         name = $1,
         description = $2,
         category = $3
-      WHERE id = $4
-      RETURNING *
+      WHERE department_id = $4
+      RETURNING department_id AS id, name, description, category
       `,
       [name, description, category, id]
     );
@@ -53,7 +52,7 @@ const Department = {
 
   async delete(id) {
     const result = await pool.query(
-      `DELETE FROM departments WHERE id = $1 RETURNING *`,
+      `DELETE FROM departments WHERE department_id = $1 RETURNING department_id AS id, name, description, category`,
       [id]
     );
     return result.rows[0];
