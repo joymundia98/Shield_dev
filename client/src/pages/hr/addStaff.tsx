@@ -52,16 +52,13 @@ const AddStaff: React.FC = () => {
     document.body.classList.toggle("sidebar-open", sidebarOpen);
   }, [sidebarOpen]);
 
-  // Fetch departments (public) and users/roles (protected)
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Public endpoint
         const depRes = await fetch("http://localhost:3000/api/departments");
         if (!depRes.ok) throw new Error("Failed fetching departments");
         const depData = await depRes.json();
 
-        // Protected endpoints
         const [userData, roleData] = await Promise.all([
           authFetch("http://localhost:3000/api/users"),
           authFetch("http://localhost:3000/api/roles"),
@@ -73,9 +70,7 @@ const AddStaff: React.FC = () => {
       } catch (err: any) {
         console.error(err);
         alert(err.message);
-
         if (err.message.includes("JWT") || err.message.includes("token")) {
-          // Redirect to login if token missing/invalid
           navigate("/");
         }
       }
@@ -117,20 +112,17 @@ const AddStaff: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.department_id) {
-      alert("Please select a department.");
+    if (!form.user_id || !form.department_id) {
+      alert("Please select both a user and a department.");
       return;
     }
 
-    const selectedDept = departments.find((d) => d.id === form.department_id);
-    const deptName = selectedDept ? selectedDept.name : "";
-
-    console.log("Submitting staff:", { ...form, department: deptName });
+    console.log("Submitting staff:", form);
 
     try {
       await authFetch("http://localhost:3000/api/staff", {
         method: "POST",
-        body: JSON.stringify({ ...form, department: deptName }),
+        body: JSON.stringify(form),
       });
 
       alert("Staff member added successfully!");
@@ -160,7 +152,17 @@ const AddStaff: React.FC = () => {
 
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
-        <a href="/" className="logout-link" onClick={(e) => { e.preventDefault(); localStorage.clear(); navigate("/"); }}>➜ Logout</a>
+        <a
+          href="/"
+          className="logout-link"
+          onClick={(e) => {
+            e.preventDefault();
+            localStorage.clear();
+            navigate("/");
+          }}
+        >
+          ➜ Logout
+        </a>
       </div>
 
       {/* Page Content */}
@@ -168,7 +170,9 @@ const AddStaff: React.FC = () => {
         <header className="page-header">
           <h1>Add Staff</h1>
           <div>
-            <button className="add-btn" style={{ margin: "10px 0" }} onClick={() => navigate("/hr/staffDirectory")}>← Back</button>
+            <button className="add-btn" style={{ margin: "10px 0" }} onClick={() => navigate("/hr/staffDirectory")}>
+              ← Back
+            </button>
             <button className="hamburger" onClick={toggleSidebar}>&#9776;</button>
           </div>
         </header>
@@ -177,7 +181,19 @@ const AddStaff: React.FC = () => {
           <form className="add-form-styling" onSubmit={handleSubmit}>
             {/* USER */}
             <label>User (Select Existing User)</label>
-            <select required value={form.user_id || ""} onChange={(e) => setForm({ ...form, user_id: Number(e.target.value) })}>
+            <select
+              required
+              value={form.user_id || ""}
+              onChange={(e) => {
+                const selectedUserId = Number(e.target.value);
+                const selectedUser = users.find(u => u.id === selectedUserId);
+                setForm({
+                  ...form,
+                  user_id: selectedUserId,
+                  name: selectedUser ? `${selectedUser.first_name} ${selectedUser.last_name}` : "",
+                });
+              }}
+            >
               <option value="">-- Select User --</option>
               {users.map(u => (
                 <option key={u.id} value={u.id}>
@@ -188,9 +204,25 @@ const AddStaff: React.FC = () => {
 
             {/* DEPARTMENT */}
             <label>Department</label>
-            <select required value={form.department_id || ""} onChange={(e) => setForm({ ...form, department_id: Number(e.target.value) })}>
+            <select
+              required
+              value={form.department_id || ""}
+              onChange={(e) => {
+                const depId = Number(e.target.value);
+                const selectedDept = departments.find(d => d.id === depId);
+                setForm({
+                  ...form,
+                  department_id: depId,
+                  department: selectedDept ? selectedDept.name : "",
+                });
+              }}
+            >
               <option value="">-- Select Department --</option>
-              {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+              {departments.map(d => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
             </select>
 
             {/* ROLE */}
