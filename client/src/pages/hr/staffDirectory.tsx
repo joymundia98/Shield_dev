@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
 interface Staff {
+  id?: number;
   name: string;
   department: string;
   role: string;
@@ -35,36 +36,36 @@ const StaffDirectoryPage: React.FC = () => {
   }, [sidebarOpen]);
 
   // ---------------- Staff Data ----------------
-  const [staffData, setStaffData] = useState<Staff[]>([
-    {
-      name: "Kofi Appiah",
-      department: "Finance/Admin",
-      role: "Accountant",
-      status: "active",
-      joinDate: "2021-03-15",
-      gender: "Male",
-      NRC: "12345678/12/1",
-      address: "123 Lusaka St, Lusaka",
-      phone: "+260971234567",
-      email: "kofi@appiah.com",
-      photo: "https://via.placeholder.com/120",
-      paid: true
-    },
-    {
-      name: "Sarah Owusu",
-      department: "Youth Ministry",
-      role: "Youth Leader",
-      status: "on-leave",
-      joinDate: "2019-08-20",
-      gender: "Female",
-      NRC: "87654321/12/2",
-      address: "456 Livingstone Rd, Lusaka",
-      phone: "+260971112233",
-      email: "sarah@church.org",
-      photo: "https://via.placeholder.com/120",
-      paid: false
-    }
-  ]);
+  const [staffData, setStaffData] = useState<Staff[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchStaff = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // ---------------- Updated fetch URL ----------------
+        const response = await fetch("http://localhost:3000/api/staff");
+        if (!response.ok) throw new Error("Failed to fetch staff data");
+
+        const data = await response.json();
+        const mappedData = data.map((s: any) => ({
+          ...s,
+          joinDate: s.join_date,
+          NRC: s.nrc,
+        }));
+        setStaffData(mappedData);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStaff();
+  }, []);
 
   // ---------------- Filters/Search ----------------
   const [searchQuery, setSearchQuery] = useState("");
@@ -88,7 +89,7 @@ const StaffDirectoryPage: React.FC = () => {
   };
 
   const filteredStaff = useMemo(() => {
-    return staffData.filter(s => {
+    return staffData.filter((s) => {
       if (filter.department && s.department !== filter.department) return false;
       if (filter.status && s.status !== filter.status) return false;
       if (searchQuery && !s.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
@@ -123,7 +124,7 @@ const StaffDirectoryPage: React.FC = () => {
     navigate("/hr/addStaff"); // just navigate, no state
   };
 
-
+  // ---------------- Render ----------------
   return (
     <div className="dashboard-wrapper">
       {/* Hamburger */}
@@ -151,10 +152,6 @@ const StaffDirectoryPage: React.FC = () => {
         <a href="/hr/staffDirectory">Staff Directory</a>
         <a href="/hr/leave">Leave Management</a>
         <a href="/hr/departments">Departments</a>
-        {/*<a href="#">Volunteers</a>
-        <a href="/hr/attendance">Attendance</a>
-        <a href="#">Training</a>
-        <a href="#">HR Documents</a>*/}
 
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
@@ -174,8 +171,10 @@ const StaffDirectoryPage: React.FC = () => {
       {/* Main Content */}
       <div className="dashboard-content">
         <h1>Staff Directory</h1>
+        <br /><br />
 
-        <br/><br/>
+        {loading && <p>Loading staff data...</p>}
+        {error && <p style={{ color: "red" }}>Error: {error}</p>}
 
         {/* Add + Search */}
         <div className="table-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -200,7 +199,7 @@ const StaffDirectoryPage: React.FC = () => {
             if (!groups[s.department]) groups[s.department] = [];
             groups[s.department].push(s);
             return groups;
-          }, {})
+          }, {} as Record<string, Staff[]>)
         ).map(([dept, staffList]) => (
           <div className="department-block" key={dept}>
             <h2>{dept}</h2>
@@ -226,8 +225,8 @@ const StaffDirectoryPage: React.FC = () => {
                       </td>
                       <td data-title="Join Date">{s.joinDate}</td>
                       <td className="actions" data-title="Actions">
-                        <button onClick={() => openViewModal(s)}>View</button>
-                        <button onClick={() => openEditModal(s, index)}>Edit</button>
+                        <button className="add-btn" onClick={() => openViewModal(s)}>View</button>
+                        <button className="edit-btn" onClick={() => openEditModal(s, index)}>Edit</button>
                       </td>
                     </tr>
                   );
