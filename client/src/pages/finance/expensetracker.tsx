@@ -189,7 +189,7 @@ const ExpenseTrackerPage: React.FC = () => {
         </div>
 
         {/* Add Expense Button */}
-        <button className="add-btn" onClick={() => navigate("/expenses/addExpense")} style={{ margin: "10px 0" }}>
+        <button className="add-btn" onClick={() => navigate("/finance/addExpense")} style={{ margin: "10px 0" }}>
           + Add Expense
         </button>
 

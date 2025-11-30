@@ -33,9 +33,13 @@ export const LoginForm = () => {
         password: data.password,
       });
 
+      console.log("Login response full:", response.data); // <-- this is critical for debugging
+
       // If successful, store JWT in localStorage (or cookie)
-      const token = response.data.token;
-      localStorage.setItem('token', token);
+      // Store the correct JWT
+      const token = response.data.accessToken;  // <-- use accessToken
+      if (!token) throw new Error("No accessToken returned from backend");
+      localStorage.setItem("token", token);
 
       setError('');
       setShowSuccessCard(true);

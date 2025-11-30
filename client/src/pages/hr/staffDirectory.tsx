@@ -120,8 +120,9 @@ const StaffDirectoryPage: React.FC = () => {
   };
 
   const handleAddStaff = () => {
-    navigate("/staff/add", { state: { addStaffCallback: setStaffData } });
+    navigate("/hr/addStaff"); // just navigate, no state
   };
+
 
   return (
     <div className="dashboard-wrapper">
@@ -147,7 +148,7 @@ const StaffDirectoryPage: React.FC = () => {
 
         <h2>HR MANAGER</h2>
         <a href="/hr/dashboard">Dashboard</a>
-        <a href="/staffDirectory">Staff Directory</a>
+        <a href="/hr/staffDirectory">Staff Directory</a>
         <a href="/hr/leave">Leave Management</a>
         <a href="/hr/departments">Departments</a>
         {/*<a href="#">Volunteers</a>
