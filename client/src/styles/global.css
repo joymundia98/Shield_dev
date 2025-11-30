@@ -1536,3 +1536,118 @@
             .view-btn:hover {
                 background-color: #0056b3;
             }
+
+            /* ---------------- BUDGET FORM CONTAINER ---------------- */
+            #budgetFormContainer {
+                display: flex;
+                flex-direction: column;
+                gap: 25px;
+            }
+
+            /* ---------------- CATEGORY HEADINGS ---------------- */
+            #budgetFormContainer h3 {
+                font-size: 1.2rem;
+                color: #2E3B55;
+                margin-bottom: 10px;
+                border-bottom: 2px solid #ff7f50;
+                padding-bottom: 5px;
+            }
+
+            /* ---------------- BUDGET INPUT ROW ---------------- */
+            .budget-input-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 20px;
+                margin-bottom: 12px;
+            }
+
+            .budget-input-row label {
+                flex: 1;
+                font-weight: 500;
+                color: #333;
+            }
+
+            .budget-input-row input {
+                flex: 1;
+                padding: 10px 12px;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                font-size: 1rem;
+                transition: border-color 0.3s, box-shadow 0.3s;
+            }
+
+            .budget-input-row input:focus {
+                border-color: #ff7f50;
+                box-shadow: 0 0 6px rgba(255, 127, 80, 0.3);
+                outline: none;
+            }
+
+            /* ---------------- SAVE BUTTON ---------------- */
+            #budgetFormContainer + .add-btn {
+                align-self: flex-end;
+                padding: 12px 25px;
+                background-color: #2E3B55;
+                color: #fff;
+                border-radius: 8px;
+                font-weight: 600;
+                transition: background 0.3s;
+            }
+
+            #budgetFormContainer + .add-btn:hover {
+                background-color: #ff7f50;
+            }
+
+            /* ---------------- RESPONSIVE ---------------- */
+            @media (max-width: 768px) {
+                .budget-input-row {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+
+                .budget-input-row input {
+                    width: 100%;
+                }
+
+                #budgetFormContainer + .add-btn {
+                    width: 100%;
+                }
+            }
+
+            /* Budget Category Cards */
+                .budget-card {
+                background: #ffffff;
+                border-radius: 10px;
+                padding: 20px;
+                margin: 20px 0;
+                border: 1px solid #ddd;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+                }
+
+                .budget-card-title {
+                margin-top: 0;
+                margin-bottom: 15px;
+                font-size: 20px;
+                font-weight: bold;
+                color: #2E3B55;
+                }
+
+                /* Row layout inside cards */
+                .budget-input-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 12px;
+                }
+
+                .budget-input-row label {
+                font-weight: 600;
+                flex: 1;
+                }
+
+                .budget-input-row input {
+                flex: 1;
+                padding: 8px;
+                border-radius: 6px;
+                border: 1px solid #ccc;
+                }
