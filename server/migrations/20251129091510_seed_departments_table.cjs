@@ -7,22 +7,22 @@ exports.up = async function seed(knex) {
     {
       name: "IT Department",
       description: "Handles software, hardware, and technical operations",
-      category: "Technical"
+      category: "corporate"
     },
     {
       name: "Finance Department",
       description: "Manages budgeting, payments, and financial reporting",
-      category: "Administration"
+      category: "church"
     },
     {
       name: "Human Resources Department",
       description: "Responsible for recruitment, welfare, and staff management",
-      category: "Administration"
+      category: "church"
     },
     {
       name: "Operations Department",
       description: "Oversees general business operations",
-      category: "Management"
+      category: "corporate"
     }
   ]);
 }

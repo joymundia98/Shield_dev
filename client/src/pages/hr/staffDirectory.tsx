@@ -147,11 +147,11 @@ const StaffDirectoryPage: React.FC = () => {
 
         <h2>HR MANAGER</h2>
         <a href="/hr/dashboard">Dashboard</a>
-        <a href="/hr/staff" className="active">Staff Directory</a>
-        <a href="/hr/attendance">Attendance</a>
+        <a href="/staffDirectory">Staff Directory</a>
         <a href="/hr/leave">Leave Management</a>
         <a href="/hr/departments">Departments</a>
         {/*<a href="#">Volunteers</a>
+        <a href="/hr/attendance">Attendance</a>
         <a href="#">Training</a>
         <a href="#">HR Documents</a>*/}
 

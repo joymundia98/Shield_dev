@@ -14,19 +14,8 @@ const DepartmentsPage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   /* -------------------- Department States -------------------- */
-  const [churchDepartments, setChurchDepartments] = useState<Department[]>([
-    { id: 1, name: "Ushering", desc: "Greeters and sanctuary order maintainers", total: 28 },
-    { id: 2, name: "Choir", desc: "Worship and praise team", total: 45 },
-    { id: 3, name: "Media", desc: "Audio, video, livestream team", total: 17 },
-    { id: 4, name: "Intercessory", desc: "Prayer and spiritual support team", total: 22 }
-  ]);
-
-  const [corporateDepartments, setCorporateDepartments] = useState<Department[]>([
-    { id: 1, name: "Accounting", desc: "Financial records and reporting", total: 6 },
-    { id: 2, name: "Human Resources", desc: "Staff management & HR policies", total: 4 },
-    { id: 3, name: "IT & Systems", desc: "Technical and software management", total: 3 },
-    { id: 4, name: "Administration", desc: "General admin & documentation", total: 5 }
-  ]);
+  const [churchDepartments, setChurchDepartments] = useState<Department[]>([]);
+  const [corporateDepartments, setCorporateDepartments] = useState<Department[]>([]);
 
   /* -------------------- Popup States -------------------- */
   const [showPopup, setShowPopup] = useState(false);
@@ -43,6 +32,45 @@ const DepartmentsPage: React.FC = () => {
     if (sidebarOpen) document.body.classList.add("sidebar-open");
     else document.body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
+
+  /* -------------------- Fetch Departments from Backend -------------------- */
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/departments"); // <--- full backend URL
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+        const data = await res.json();
+
+        // Split departments by category
+        setChurchDepartments(
+          data
+            .filter((d: any) => d.category === "church")
+            .map((d: any) => ({
+              id: d.id,
+              name: d.name,
+              desc: d.description,
+              total: d.total || 0
+            }))
+        );
+
+        setCorporateDepartments(
+          data
+            .filter((d: any) => d.category === "corporate")
+            .map((d: any) => ({
+              id: d.id,
+              name: d.name,
+              desc: d.description,
+              total: d.total || 0
+            }))
+        );
+      } catch (err) {
+        console.error("Error fetching departments:", err);
+      }
+    };
+
+    fetchDepartments();
+  }, []);
 
   /* -------------------- Popup Logic -------------------- */
   const openPopup = (group: "church" | "corporate", index: number | null = null) => {
@@ -120,6 +148,7 @@ const DepartmentsPage: React.FC = () => {
     }
   };
 
+  /* -------------------- Render -------------------- */
   return (
     <div className="dashboard-wrapper">
 
@@ -144,13 +173,9 @@ const DepartmentsPage: React.FC = () => {
 
         <h2>HR MANAGER</h2>
         <a href="/hr/dashboard">Dashboard</a>
-        <a href="/hr/staff">Staff Directory</a>
-        <a href="/hr/attendance">Attendance</a>
+        <a href="/hr/staffDirectory">Staff Directory</a>
         <a href="/hr/leave">Leave Management</a>
         <a href="/hr/departments" className="active">Departments</a>
-        {/*<a href="#">Volunteers</a>
-        <a href="#">Training</a>
-        <a href="#">HR Documents</a>*/}
 
         <hr className="sidebar-separator" />
 
