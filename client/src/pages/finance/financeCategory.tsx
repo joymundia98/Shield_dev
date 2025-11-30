@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
 interface Category {
@@ -12,8 +13,11 @@ interface PaymentMethod {
 
 type GroupType = "income" | "expense" | "payment";
 
-const FinanceCategories: React.FC = () => {
-  // Data state
+const FinanceCategoriesPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  /* -------------------- Finance States -------------------- */
   const [incomeCategories, setIncomeCategories] = useState<Category[]>([
     { name: "Tithes & Offerings", subcategories: ["Tithes", "Offerings", "Digital Giving"] },
   ]);
@@ -26,44 +30,95 @@ const FinanceCategories: React.FC = () => {
     { name: "Bank Transfer" },
   ]);
 
-  // Popup state
-  const [popupOpen, setPopupOpen] = useState(false);
-  const [editingGroup, setEditingGroup] = useState<GroupType | null>(null);
+  /* -------------------- Popup States -------------------- */
+  const [showPopup, setShowPopup] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
-  const [categoryName, setCategoryName] = useState("");
+  const [editingGroup, setEditingGroup] = useState<GroupType | null>(null);
+
+  const [itemName, setItemName] = useState("");
   const [subcategories, setSubcategories] = useState<string[]>([]);
 
-  // Open popup for add/edit
+  /* -------------------- Sidebar -------------------- */
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  useEffect(() => {
+    if (sidebarOpen) document.body.classList.add("sidebar-open");
+    else document.body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
+
+  /* -------------------- Popup Logic -------------------- */
   const openPopup = (group: GroupType, index: number | null = null) => {
     setEditingGroup(group);
     setEditIndex(index);
+
     if (index !== null) {
       if (group === "income") {
-        setCategoryName(incomeCategories[index].name);
+        setItemName(incomeCategories[index].name);
         setSubcategories([...incomeCategories[index].subcategories!]);
       } else if (group === "expense") {
-        setCategoryName(expenseCategories[index].name);
+        setItemName(expenseCategories[index].name);
         setSubcategories([...expenseCategories[index].subcategories!]);
       } else if (group === "payment") {
-        setCategoryName(paymentMethods[index].name);
+        setItemName(paymentMethods[index].name);
         setSubcategories([]);
       }
     } else {
-      setCategoryName("");
+      setItemName("");
       setSubcategories([]);
     }
-    setPopupOpen(true);
+
+    setShowPopup(true);
   };
 
   const closePopup = () => {
-    setPopupOpen(false);
-    setCategoryName("");
-    setSubcategories([]);
+    setShowPopup(false);
     setEditIndex(null);
     setEditingGroup(null);
+    setItemName("");
+    setSubcategories([]);
   };
 
-  // Add/Delete subcategory field
+  /* -------------------- Add/Edit/Delete Handlers -------------------- */
+  const saveItem = () => {
+    if (!itemName.trim()) {
+      alert("Name is required");
+      return;
+    }
+
+    if ((editingGroup === "income" || editingGroup === "expense") && subcategories.length === 0) {
+      alert("Add at least one subcategory");
+      return;
+    }
+
+    if (editingGroup === "income") {
+      const updated = [...incomeCategories];
+      if (editIndex !== null) updated[editIndex] = { name: itemName, subcategories };
+      else updated.push({ name: itemName, subcategories });
+      setIncomeCategories(updated);
+    } else if (editingGroup === "expense") {
+      const updated = [...expenseCategories];
+      if (editIndex !== null) updated[editIndex] = { name: itemName, subcategories };
+      else updated.push({ name: itemName, subcategories });
+      setExpenseCategories(updated);
+    } else if (editingGroup === "payment") {
+      const updated = [...paymentMethods];
+      if (editIndex !== null) updated[editIndex] = { name: itemName };
+      else updated.push({ name: itemName });
+      setPaymentMethods(updated);
+    }
+
+    closePopup();
+  };
+
+  const deleteItem = (group: GroupType, index: number) => {
+    if (!window.confirm("Are you sure you want to delete this item?")) return;
+
+    if (group === "income") setIncomeCategories(prev => prev.filter((_, i) => i !== index));
+    if (group === "expense") setExpenseCategories(prev => prev.filter((_, i) => i !== index));
+    if (group === "payment") setPaymentMethods(prev => prev.filter((_, i) => i !== index));
+    closePopup();
+  };
+
   const addSubcategory = (name?: string) => setSubcategories([...subcategories, name || ""]);
   const deleteSubcategory = (index: number) => setSubcategories(subcategories.filter((_, i) => i !== index));
   const updateSubcategory = (index: number, value: string) => {
@@ -72,152 +127,153 @@ const FinanceCategories: React.FC = () => {
     setSubcategories(updated);
   };
 
-  // Save category/payment
-  const saveItem = () => {
-    if (!categoryName.trim()) {
-      alert("Name is required");
-      return;
-    }
-    if ((editingGroup === "income" || editingGroup === "expense") && subcategories.length === 0) {
-      alert("Add at least one subcategory");
-      return;
-    }
-
-    if (editingGroup === "income") {
-      const updated = [...incomeCategories];
-      if (editIndex !== null) updated[editIndex] = { name: categoryName, subcategories };
-      else updated.push({ name: categoryName, subcategories });
-      setIncomeCategories(updated);
-    } else if (editingGroup === "expense") {
-      const updated = [...expenseCategories];
-      if (editIndex !== null) updated[editIndex] = { name: categoryName, subcategories };
-      else updated.push({ name: categoryName, subcategories });
-      setExpenseCategories(updated);
-    } else if (editingGroup === "payment") {
-      const updated = [...paymentMethods];
-      if (editIndex !== null) updated[editIndex] = { name: categoryName };
-      else updated.push({ name: categoryName });
-      setPaymentMethods(updated);
-    }
-    closePopup();
-  };
-
-  // Delete item
-  const deleteItem = (group: GroupType, index: number) => {
-    if (!window.confirm("Are you sure you want to delete this item?")) return;
-
-    if (group === "income") setIncomeCategories(incomeCategories.filter((_, i) => i !== index));
-    if (group === "expense") setExpenseCategories(expenseCategories.filter((_, i) => i !== index));
-    if (group === "payment") setPaymentMethods(paymentMethods.filter((_, i) => i !== index));
-  };
-
-  // Render table rows
+  /* -------------------- Render Table Rows -------------------- */
   const renderCategoryRows = (group: GroupType, data: Category[] | PaymentMethod[]) =>
     data.map((item, idx) => (
       <tr key={idx}>
+        <td>{idx + 1}</td>
         <td>{item.name}</td>
         {group !== "payment" && <td>{(item as Category).subcategories?.join(", ")}</td>}
-        <td>
+        <td className="actions">
           <button className="edit-btn" onClick={() => openPopup(group, idx)}>Edit</button>
           <button className="delete-btn" onClick={() => deleteItem(group, idx)}>Delete</button>
         </td>
       </tr>
     ));
 
+  /* -------------------- Main Render -------------------- */
   return (
-    <div className="container">
-      {/* Income Categories */}
-      <div className="table-section">
-        <div className="table-header">
-          <h2>Income Categories</h2>
-          <button className="add-btn" onClick={() => openPopup("income")}>+ Add Income Category</button>
+    <div className="dashboard-wrapper">
+
+      {/* Hamburger */}
+      <button className="hamburger" onClick={toggleSidebar}>&#9776;</button>
+
+      {/* Sidebar */}
+      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
+        <div className="close-wrapper">
+          <div className="toggle close-btn">
+            <input type="checkbox" checked={sidebarOpen} onChange={toggleSidebar} />
+            <span className="button"></span>
+            <span className="label">X</span>
+          </div>
         </div>
-        <table className="responsive-table">
-          <thead>
-            <tr>
-              <th>Category Name</th>
-              <th>Subcategories</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>{renderCategoryRows("income", incomeCategories)}</tbody>
-        </table>
+
+        <h2>FINANCE MANAGER</h2>
+        <a href="/finance/dashboard">Dashboard</a>
+        <a href="/finance/incometracker">Track Income</a>
+        <a href="/finance/expensetracker">Track Expenses</a>
+        <a href="/finance/budgets">Budget</a>
+        <a href="/finance/payroll">Payroll</a>
+        <a href="/finance/financeCategory" className="active">Finance Categories</a>
+
+        <hr className="sidebar-separator" />
+        <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
+        <a
+          href="/"
+          className="logout-link"
+          onClick={(e) => {
+            e.preventDefault();
+            localStorage.clear();
+            navigate("/");
+          }}
+        >
+          ➜ Logout
+        </a>
       </div>
 
-      {/* Expense Categories */}
-      <div className="table-section">
-        <div className="table-header">
-          <h2>Expense Categories</h2>
-          <button className="add-btn" onClick={() => openPopup("expense")}>+ Add Expense Category</button>
+      {/* Main Content */}
+      <div className="dashboard-content">
+
+        {/* Income Categories */}
+        <div className="table-section">
+          <div className="table-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h2>Income Categories</h2>
+            <button className="add-btn" onClick={() => openPopup("income")}>+ Add Income Category</button>
+          </div>
+          <table className="responsive-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Category Name</th>
+                <th>Subcategories</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>{renderCategoryRows("income", incomeCategories)}</tbody>
+          </table>
         </div>
-        <table className="responsive-table">
-          <thead>
-            <tr>
-              <th>Category Name</th>
-              <th>Subcategories</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>{renderCategoryRows("expense", expenseCategories)}</tbody>
-        </table>
+
+        {/* Expense Categories */}
+        <div className="table-section" style={{ marginTop: "2rem" }}>
+          <div className="table-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h2>Expense Categories</h2>
+            <button className="add-btn" onClick={() => openPopup("expense")}>+ Add Expense Category</button>
+          </div>
+          <table className="responsive-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Category Name</th>
+                <th>Subcategories</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>{renderCategoryRows("expense", expenseCategories)}</tbody>
+          </table>
+        </div>
+
+        {/* Payment Methods */}
+        <div className="table-section" style={{ marginTop: "2rem" }}>
+          <div className="table-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h2>Payment Methods</h2>
+            <button className="add-btn" onClick={() => openPopup("payment")}>+ Add Payment Method</button>
+          </div>
+          <table className="responsive-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Method Name</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>{renderCategoryRows("payment", paymentMethods)}</tbody>
+          </table>
+        </div>
+
       </div>
 
-      {/* Payment Methods */}
-      <div className="table-section">
-        <div className="table-header">
-          <h2>Payment Methods</h2>
-          <button className="add-btn" onClick={() => openPopup("payment")}>+ Add Payment Method</button>
-        </div>
-        <table className="responsive-table">
-          <thead>
-            <tr>
-              <th>Method Name</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>{renderCategoryRows("payment", paymentMethods)}</tbody>
-        </table>
-      </div>
+      {/* Popup Overlay */}
+      {showPopup && <div className="overlay" onClick={closePopup}></div>}
 
       {/* Popup Form */}
-      {popupOpen && (
-        <>
-          <div className="overlay" onClick={closePopup}></div>
-          <div className="filter-popup">
-            <h3>{editIndex === null ? "Add " : "Edit "} 
-              {editingGroup === "income" ? "Income Category" : editingGroup === "expense" ? "Expense Category" : "Payment Method"}
-            </h3>
-            <div className="popup-content">
-              <label>Name</label>
-              <input type="text" value={categoryName} onChange={e => setCategoryName(e.target.value)} />
+      <div className="filter-popup" style={{ display: showPopup ? "block" : "none", width: "380px", padding: "2rem" }}>
+        <h3>{editIndex !== null ? "Edit" : "Add"} {editingGroup === "income" ? "Income Category" : editingGroup === "expense" ? "Expense Category" : "Payment Method"}</h3>
 
-              {(editingGroup === "income" || editingGroup === "expense") && (
-                <>
-                  <label>Subcategories</label>
-                  {subcategories.map((sub, idx) => (
-                    <div className="subcategory-row" key={idx}>
-                      <input type="text" value={sub} onChange={e => updateSubcategory(idx, e.target.value)} />
-                      <button type="button" onClick={() => deleteSubcategory(idx)}>Delete</button>
-                    </div>
-                  ))}
-                  <div className="subcategory-row">
-                    <input type="text" placeholder="New subcategory" value="" onChange={() => {}} />
-                    <button type="button" onClick={() => addSubcategory()}>Add</button>
-                  </div>
-                  <button type="button" onClick={() => addSubcategory()}>+ Add another subcategory field</button>
-                </>
-              )}
-            </div>
-            <div className="filter-popup-buttons">
-              <button className="add-btn" onClick={saveItem}>Save</button>
-              <button className="cancel-btn" onClick={closePopup}>Cancel</button>
-              {editIndex !== null && <button className="delete-btn" onClick={() => { deleteItem(editingGroup!, editIndex); closePopup(); }}>Delete</button>}
-            </div>
-          </div>
-        </>
-      )}
+        <label>Name</label>
+        <input type="text" value={itemName} onChange={(e) => setItemName(e.target.value)} placeholder="Enter Name" />
+
+        {(editingGroup === "income" || editingGroup === "expense") && (
+          <>
+            <label>Subcategories</label>
+            {subcategories.map((sub, idx) => (
+              <div className="subcategory-row" key={idx}>
+                <input type="text" value={sub} onChange={e => updateSubcategory(idx, e.target.value)} />
+                <button type="button" onClick={() => deleteSubcategory(idx)}>Delete</button>
+              </div>
+            ))}
+            <button type="button" className="add-btn" onClick={() => addSubcategory()}>+ Add another subcategory</button>
+          </>
+        )}
+
+        <div className="filter-popup-buttons" style={{ display: "flex", justifyContent: "flex-end", gap: "1rem", marginTop: "1rem" }}>
+          <button className="add-btn" onClick={saveItem}>Save</button>
+          <button className="cancel-btn" onClick={closePopup}>Cancel</button>
+          {editIndex !== null && <button className="delete-btn" onClick={() => deleteItem(editingGroup!, editIndex)}>Delete</button>}
+        </div>
+      </div>
+
     </div>
   );
 };
 
-export default FinanceCategories;
+export default FinanceCategoriesPage;

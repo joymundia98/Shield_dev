@@ -137,7 +137,6 @@ const IncomeTrackerPage: React.FC = () => {
           </div>
         </div>
 
-        <h2>INCOME</h2>
         <h2>FINANCE</h2>
         <a href="/finance/dashboard">Dashboard</a>
         <a href="/finance/incometracker" className="active">Track Income</a>
@@ -198,7 +197,7 @@ const IncomeTrackerPage: React.FC = () => {
         </div>
 
         {/* Add Income Button */}
-        <button className="add-btn" onClick={() => navigate("/income/addIncome")} style={{ margin: "10px 0" }}>
+        <button className="add-btn" onClick={() => navigate("/finance/addIncome")} style={{ margin: "10px 0" }}>
           + Add Income
         </button>
 

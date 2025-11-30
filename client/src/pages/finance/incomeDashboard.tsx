@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import Chart from "chart.js/auto";
 import "../../styles/global.css";
 
@@ -20,28 +20,41 @@ const IncomeDashboard: React.FC = () => {
   const categoryChartRef = useRef<HTMLCanvasElement>(null);
   const sourceChartRef = useRef<HTMLCanvasElement>(null);
 
-  // Calculate KPIs
-  const totalApproved = sampleIncomeData
-    .filter(i => i.status === "Approved")
-    .reduce((sum, i) => sum + i.amount, 0);
-  const totalPending = sampleIncomeData
-    .filter(i => i.status === "Pending")
-    .reduce((sum, i) => sum + i.amount, 0);
-  const totalRejected = sampleIncomeData
-    .filter(i => i.status === "Rejected")
-    .reduce((sum, i) => sum + i.amount, 0);
+  // Calculate KPIs using useMemo
+  const { totalApproved, totalPending, totalRejected } = useMemo(() => {
+    const totalApproved = sampleIncomeData
+      .filter(i => i.status === "Approved")
+      .reduce((sum, i) => sum + i.amount, 0);
+    const totalPending = sampleIncomeData
+      .filter(i => i.status === "Pending")
+      .reduce((sum, i) => sum + i.amount, 0);
+    const totalRejected = sampleIncomeData
+      .filter(i => i.status === "Rejected")
+      .reduce((sum, i) => sum + i.amount, 0);
 
-  // Prepare chart data
-  const categoryTotals: Record<string, number> = {};
-  const sourceTotals: Record<string, number> = {};
-  sampleIncomeData.forEach(i => {
-    categoryTotals[i.category] = (categoryTotals[i.category] || 0) + i.amount;
-    sourceTotals[i.giver] = (sourceTotals[i.giver] || 0) + i.amount;
-  });
+    return { totalApproved, totalPending, totalRejected };
+  }, []);
 
+  // Prepare chart data using useMemo
+  const { categoryTotals, sourceTotals } = useMemo(() => {
+    const categoryTotals: Record<string, number> = {};
+    const sourceTotals: Record<string, number> = {};
+
+    sampleIncomeData.forEach(i => {
+      categoryTotals[i.category] = (categoryTotals[i.category] || 0) + i.amount;
+      sourceTotals[i.giver] = (sourceTotals[i.giver] || 0) + i.amount;
+    });
+
+    return { categoryTotals, sourceTotals };
+  }, []);
+
+  // Initialize charts
   useEffect(() => {
+    let categoryChart: Chart | null = null;
+    let sourceChart: Chart | null = null;
+
     if (categoryChartRef.current) {
-      new Chart(categoryChartRef.current, {
+      categoryChart = new Chart(categoryChartRef.current, {
         type: "bar",
         data: {
           labels: Object.keys(categoryTotals),
@@ -58,7 +71,7 @@ const IncomeDashboard: React.FC = () => {
     }
 
     if (sourceChartRef.current) {
-      new Chart(sourceChartRef.current, {
+      sourceChart = new Chart(sourceChartRef.current, {
         type: "pie",
         data: {
           labels: Object.keys(sourceTotals),
@@ -72,18 +85,26 @@ const IncomeDashboard: React.FC = () => {
         options: { responsive: true }
       });
     }
-  }, []);
+
+    // Cleanup charts on unmount
+    return () => {
+      categoryChart?.destroy();
+      sourceChart?.destroy();
+    };
+  }, [categoryTotals, sourceTotals]);
 
   return (
     <div className="container">
       <header>
         <h1>Income Dashboard</h1>
-        <button className="add-btn" onClick={() => window.location.href = "/income/incometracker"}>
+        <br/><br/>
+        <button className="add-btn" onClick={() => window.location.href = "/finance/incometracker"}>
           ← Back to Income Tracker
         </button>
         <button className="hamburger" onClick={() => {/* Implement sidebar toggle if needed */}}>&#9776;</button>
       </header>
 
+      <br/><br/>
       <div className="kpi-container">
         <div className="kpi-card">
           <h3>Total Approved Income</h3>
