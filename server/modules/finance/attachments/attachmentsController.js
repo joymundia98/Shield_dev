@@ -1,5 +1,5 @@
 // modules/finance/attachments/attachmentController.js
-import Attachment from './attachmentModel.js';
+import Attachment from './attachmentsModel.js';
 
 const AttachmentController = {
   async list(req, res) {
@@ -14,7 +14,7 @@ const AttachmentController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const item = await Attachment.getById(id);
+      const item = await Attachment.getByExpense(id);
       if (!item) return res.status(404).json({ message: 'Not found' });
       return res.json(item);
     } catch (err) {

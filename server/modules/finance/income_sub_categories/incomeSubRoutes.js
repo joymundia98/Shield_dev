@@ -1,6 +1,6 @@
 // modules/finance/incomeSubcategories/incomeSubcategoryRoutes.js
 import express from 'express';
-import IncomeSubcategoryController from './incomeSubcategoryController.js';
+import IncomeSubcategoryController from './incomeSubController.js';
 
 const router = express.Router();
 

@@ -1,5 +1,5 @@
 // modules/finance/incomeSubcategories/incomeSubcategoryController.js
-import IncomeSubcategory from './incomeSubcategoryModel.js';
+import IncomeSubcategory from './incomeSubModel.js';
 
 const IncomeSubcategoryController = {
   async list(req, res) {
