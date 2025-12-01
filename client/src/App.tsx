@@ -52,6 +52,7 @@ import DonorsPage from "./pages/donor/donors";
 import AddDonorPage from "./pages/donor/addDonor";
 import DonationsManagementPage from "./pages/donor/donations";
 import AddDonationPage from "./pages/donor/addDonation";
+import DonorCategoriesPage from "./pages/donor/donorCategories";
 
 // Ministry Module Functional Pages
 import PastorsPage from "./pages/ministry/pastors";
@@ -109,7 +110,7 @@ function App() {
           <Route path="/donor/addDonor" element={<AddDonorPage />} />
           <Route path="/donor/donations" element={<DonationsManagementPage />} />
           <Route path="/donor/addDonation" element={<AddDonationPage />} />
-          <Route path="/donor/reports" element={<DonorsPage />} />
+          <Route path="/donor/donorCategories" element={<DonorCategoriesPage />} />
           
           {/* ------------------------------
                 CONGREGATION SUB-ROUTES
@@ -153,7 +154,7 @@ function App() {
                     PROGRAMS SUB-ROUTES
           --------------------------------*/}
           <Route path="/programs/donors" element={<ProgramsDashboard />} />
-          <Route path="/programs/add-donor" element={<ProgramsDashboard />} />
+          <Route path="/programs/addDonor" element={<ProgramsDashboard />} />
           <Route path="/programs/donations" element={<ProgramsDashboard />} />
           <Route path="/programs/reports" element={<ProgramsDashboard />} />
 
@@ -192,14 +193,7 @@ function App() {
           <Route path="/governance/documentation" element={<GovernanceDashboard />} />
           <Route path="/governance/certificates" element={<GovernanceDashboard />} />
 
-          {/* ------------------------------
-              DONOR MANAGEMENT SUB-ROUTES
-          --------------------------------*/}
-          <Route path="/donor/donors" element={<DonorDashboard />} />
-          <Route path="/donor/add-donor" element={<DonorDashboard />} />
-          <Route path="/donor/donations" element={<DonorDashboard />} />
-          <Route path="/donor/reports" element={<DonorDashboard />} />
-
+          
         </Routes>
       </BrowserRouter>
     </AuthProvider>
