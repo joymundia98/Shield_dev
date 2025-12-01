@@ -10,7 +10,7 @@ interface NewIncome {
   category: number | "";
   subcategory: number | "";
   date: string;
-  source: string; // the giver
+  source: string; // input field for giver
   description: string;
   amount: number | "";
   paymentMethod: string;
@@ -94,11 +94,11 @@ const AddIncome: React.FC = () => {
     }
 
     const payload = {
-      user_id: userId,           // store the logged-in user ID
+      user_id: userId,           // logged-in user
       category_id: form.category,
       subcategory_id: form.subcategory,
       date: form.date,
-      source: form.source,       // save the giver/source
+      giver: form.source,        // correctly mapped to backend
       description: form.description,
       amount: form.amount,
       payment_method: form.paymentMethod,
@@ -130,7 +130,7 @@ const AddIncome: React.FC = () => {
     <div className="dashboard-wrapper">
       {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
-        {/* sidebar content */}
+        {/* Add sidebar content as needed */}
       </div>
 
       {/* Main Content */}
@@ -178,7 +178,7 @@ const AddIncome: React.FC = () => {
             />
 
             {/* Source / Giver */}
-            <label>Source / Giver</label>
+            <label>Giver</label>
             <input
               type="text"
               placeholder="e.g. John Doe, Online Donor"
