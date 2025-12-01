@@ -148,7 +148,7 @@ const DonorDashboard: React.FC = () => {
         <a href="/donor/dashboard" className="active">
           Dashboard
         </a>
-        <a href="/donor/donors">Donors</a>
+        <a href="/donor/donors">Donors List</a>
         <a href="/donor/donations">Donations</a>
         <a href="/donor/reports">Reports</a>
 
