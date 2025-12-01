@@ -3,17 +3,19 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
 interface Donation {
-  donor: string;
-  registered: boolean;
+  donorName: string;
+  registered: string;
   date: string;
-  amount: number;
+  amount: number | null;
   type: string;
   method: string;
 }
 
 const AddDonation: React.FC = () => {
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Explicitly type boolean state to fix JSX template string issues
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
@@ -22,20 +24,18 @@ const AddDonation: React.FC = () => {
   }, [sidebarOpen]);
 
   const [form, setForm] = useState<Donation>({
-    donor: "John Doe",
-    registered: true,
-    date: "2025-12-01",
-    amount: 100,
-    type: "Widows Contributions",
-    method: "Cash",
+    donorName: "",
+    registered: "",
+    date: "",
+    amount: null,
+    type: "",
+    method: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Donation submitted (static values):", form);
+    console.log("Donation submitted (static values for now):", form);
     alert("Donation will be submitted to the database once backend is ready.");
-    // Optional: redirect after submission
-    // navigate("/donor/donations");
   };
 
   return (
@@ -72,15 +72,19 @@ const AddDonation: React.FC = () => {
       <div className="dashboard-content">
         <header className="page-header">
           <h1>Add Donation</h1>
-          <div>
-            <button
+          <button
               className="add-btn"
               style={{ margin: "10px 0" }}
               onClick={() => navigate("/donor/donations")}
             >
               ← Back
             </button>
-            <button className="hamburger" onClick={toggleSidebar}>
+          <div>
+            <button
+              className="hamburger"
+              onClick={toggleSidebar}
+              style={{ marginLeft: "10px" }}
+            >
               &#9776;
             </button>
           </div>
@@ -93,17 +97,20 @@ const AddDonation: React.FC = () => {
             <input
               type="text"
               required
-              value={form.donor}
-              onChange={(e) => setForm({ ...form, donor: e.target.value })}
+              value={form.donorName}
+              onChange={(e) =>
+                setForm({ ...form, donorName: e.target.value })
+              }
+              placeholder="Enter donor name"
             />
 
             {/* REGISTERED */}
             <label>Registered Donor?</label>
             <select
               required
-              value={form.registered ? "true" : "false"}
+              value={form.registered}
               onChange={(e) =>
-                setForm({ ...form, registered: e.target.value === "true" })
+                setForm({ ...form, registered: e.target.value })
               }
             >
               <option value="">Select</option>
@@ -125,13 +132,17 @@ const AddDonation: React.FC = () => {
             <input
               type="number"
               required
-              value={form.amount}
+              value={form.amount ?? ""}
               onChange={(e) =>
-                setForm({ ...form, amount: parseFloat(e.target.value) })
+                setForm({
+                  ...form,
+                  amount: e.target.value ? Number(e.target.value) : null,
+                })
               }
+              placeholder="Enter amount"
             />
 
-            {/* TYPE */}
+            {/* DONATION TYPE */}
             <label>Donation Type</label>
             <select
               required
@@ -145,7 +156,7 @@ const AddDonation: React.FC = () => {
               <option>Other</option>
             </select>
 
-            {/* METHOD */}
+            {/* PAYMENT METHOD */}
             <label>Payment Method</label>
             <select
               required
@@ -164,6 +175,7 @@ const AddDonation: React.FC = () => {
               <button type="submit" className="add-btn">
                 Add Donation
               </button>
+
               <button
                 type="button"
                 className="cancel-btn"
