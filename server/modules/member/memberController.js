@@ -1,160 +1,102 @@
-import Member from "../member/memberModel.js";
+// controllers/memberController.js
+import Member from "./memberModel.js";
 
 export const MemberController = {
-
-  // --------------------------------
-  // CREATE MEMBER
-  // --------------------------------
-  async create(req, res) {
+  // GET /members
+  async getAll(req, res) {
     try {
-      const {
-        first_name,
-        last_name,
-        email,
-        phone,
-        gender,
-        date_of_birth,
-        membership_status,
-        address
-      } = req.body;
-
-      // organization_id + created_by user_id come from JWT
-      const organization_id = req.user.organization_id;
-      const user_id = req.user.id; 
-
-      // Validate required fields
-      if (!first_name || !last_name || !email) {
-        return res.status(400).json({
-          message: "first_name, last_name, and email are required"
-        });
-      }
-
-      const newMember = await Member.create({
-        first_name,
-        last_name,
-        email,
-        phone,
-        gender,
-        date_of_birth,
-        organization_id,  // from JWT
-        user_id,          // from JWT
-        membership_status,
-        address
-      });
-
-      return res.status(201).json({
-        message: "Member created successfully",
-        member: newMember
-      });
-
+      const members = await Member.getAll();
+      res.status(200).json(members);
     } catch (error) {
-      console.error("Create Member Error:", error);
-      return res.status(500).json({ 
-        message: "Server error creating member" 
-      });
+      console.error("Error fetching members:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
   },
 
-  // --------------------------------
-  // GET MEMBER BY ID
-  // --------------------------------
+  // GET /members/:id
   async getById(req, res) {
+    const { id } = req.params;
     try {
-      const { id } = req.params;
       const member = await Member.getById(id);
-
       if (!member) {
         return res.status(404).json({ message: "Member not found" });
       }
-
-      res.json(member);
-
-    } catch (err) {
-      console.error("Error fetching member:", err);
-      res.status(500).json({ message: "Server error" });
+      res.status(200).json(member);
+    } catch (error) {
+      console.error("Error fetching member:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
   },
 
-  // --------------------------------
-  // GET MEMBER BY EMAIL
-  // --------------------------------
-  async getByEmail(req, res) {
+  // POST /members
+  async create(req, res) {
+    const data = req.body;
     try {
-      const { email } = req.params;
+      const newMember = await Member.create(data);
+      res.status(201).json(newMember);
+    } catch (error) {
+      console.error("Error creating member:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
 
+  // PUT /members/:id
+  async update(req, res) {
+    const { id } = req.params;
+    const data = req.body;
+    try {
+      const updatedMember = await Member.update(id, data);
+      if (!updatedMember) {
+        return res.status(404).json({ message: "Member not found" });
+      }
+      res.status(200).json(updatedMember);
+    } catch (error) {
+      console.error("Error updating member:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+
+  // DELETE /members/:id
+  async delete(req, res) {
+    const { id } = req.params;
+    try {
+      const deletedMember = await Member.delete(id);
+      if (!deletedMember) {
+        return res.status(404).json({ message: "Member not found" });
+      }
+      res.status(200).json({ message: "Member deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting member:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+
+  // GET /members/email/:email
+  async findByEmail(req, res) {
+    const { email } = req.params;
+    try {
       const member = await Member.findByEmail(email);
       if (!member) {
         return res.status(404).json({ message: "Member not found" });
       }
-
-      res.json(member);
-
-    } catch (err) {
-      console.error("Error finding member by email:", err);
-      res.status(500).json({ message: "Server error" });
+      res.status(200).json(member);
+    } catch (error) {
+      console.error("Error fetching member by email:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
   },
 
-  // --------------------------------
-  // LIST ALL MEMBERS OR BY ORG
-  // --------------------------------
-  async list(req, res) {
+  // GET /members/organization/:orgId
+  async findByOrganization(req, res) {
+    const { orgId } = req.params;
     try {
-      const { organization_id } = req.query;
-
-      const members = organization_id
-        ? await Member.findByOrganization(organization_id)
-        : await Member.getAll();
-
-      res.json(members);
-
-    } catch (err) {
-      console.error("Error listing members:", err);
-      res.status(500).json({ message: "Server error" });
+      const members = await Member.findByOrganization(orgId);
+      res.status(200).json(members);
+    } catch (error) {
+      console.error("Error fetching members by organization:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-  },
-
-  // --------------------------------
-  // UPDATE MEMBER
-  // --------------------------------
-  async update(req, res) {
-    try {
-      const { id } = req.params;
-
-      const member = await Member.getById(id);
-      if (!member) {
-        return res.status(404).json({ message: "Member not found" });
-      }
-
-      const updated = await Member.update(id, req.body);
-      res.json(updated);
-
-    } catch (err) {
-      console.error("Error updating member:", err);
-      res.status(500).json({ message: "Server error" });
-    }
-  },
-
-  // --------------------------------
-  // DELETE MEMBER
-  // --------------------------------
-  async delete(req, res) {
-    try {
-      const { id } = req.params;
-
-      const deleted = await Member.delete(id);
-      if (!deleted) {
-        return res.status(404).json({ message: "Member not found" });
-      }
-
-      res.json({ message: "Member deleted successfully", deleted });
-
-    } catch (err) {
-      console.error("Delete member error:", err);
-      res.status(500).json({ message: "Server error" });
-    }
-  },
-
+  }
 };
 
 export default MemberController;

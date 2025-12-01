@@ -5,6 +5,7 @@ import pkg from 'pg';
 
 import userRoutes from './modules/user/userRoutes.js';
 import staffRoutes from './modules/hr/staff/staffRoutes.js'
+import membersRoutes from './modules/member/memberRoutes.js'
 import leaveRoutes from './modules/hr/leave/leaveRoutes.js'
 import donorRoutes from './modules/donors/donorRoutes.js'
 import attachmentRoutes from './modules/finance/attachments/attachmentsRoutes.js'
@@ -48,6 +49,7 @@ app.use("/api/roles", rolesRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", verifyJWT, userRoutes);
 app.use("/api/staff", staffRoutes);
+app.use("/api/members", membersRoutes)
 app.use("/api/departments", departmentRoutes);
 app.use("/api/donors", donorRoutes)
 app.use("/api/finance/attachments", attachmentRoutes)
