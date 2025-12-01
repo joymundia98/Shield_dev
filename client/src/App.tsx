@@ -45,7 +45,11 @@ import AddIncomePage from "./pages/finance/addIncome";
 import IncomeDashboardPage from "./pages/finance/incomeDashboard";
 import FinanceCategoryPage from "./pages/finance/financeCategory";
 import BudgetsPage from "./pages/finance/budgets";          
-import SetBudgetsPage from "./pages/finance/setBudget";    
+import SetBudgetsPage from "./pages/finance/setBudget"; 
+
+// Donors Module Functional Pages
+import DonorsPage from "./pages/donor/donors";
+import AddDonorPage from "./pages/donor/addDonor";
 
 // Ministry Module Functional Pages
 import PastorsPage from "./pages/ministry/pastors";
@@ -95,6 +99,14 @@ function App() {
           <Route path="/assets/depreciation" element={<DepreciationPage />} />
           <Route path="/assets/maintenance" element={<MaintenancePage />} />
           <Route path="/assets/categories" element={<CategoriesPage />} />
+
+          {/* ------------------------------
+              DONOR MANAGEMENT ROUTES
+          --------------------------------*/}
+          <Route path="/donor/donors" element={<DonorsPage />} />
+          <Route path="/donor/addDonor" element={<AddDonorPage />} />
+          <Route path="/donor/donations" element={<DonorsPage />} />
+          <Route path="/donor/reports" element={<DonorsPage />} />
           
           {/* ------------------------------
                 CONGREGATION SUB-ROUTES
