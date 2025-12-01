@@ -286,13 +286,13 @@ const IncomeTrackerPage: React.FC = () => {
 
         {/* Approve/Reject Modal */}
         {modalOpen && (
-          <div className="incomeModal" style={{ display: "flex" }}>
-            <div className="incomeModal-content">
+          <div className="expenseModal" style={{ display: "flex" }}>
+            <div className="expenseModal-content">
               <h2>{modalType === "approve" ? "Approve Income?" : "Reject Income?"}</h2>
               <p>This action cannot be undone.</p>
-              <div className="incomeModal-buttons">
-                <button className="incomeModal-cancel" onClick={() => setModalOpen(false)}>Cancel</button>
-                <button className={`incomeModal-confirm ${modalType === "reject" ? "reject" : ""}`} onClick={confirmModal}>Confirm</button>
+              <div className="expenseModal-buttons">
+                <button className="expenseModal-cancel" onClick={() => setModalOpen(false)}>Cancel</button>
+                <button className={`expenseModal-confirm ${modalType === "reject" ? "reject" : ""}`} onClick={confirmModal}>Confirm</button>
               </div>
             </div>
           </div>
@@ -300,8 +300,8 @@ const IncomeTrackerPage: React.FC = () => {
 
         {/* View Details Modal */}
         {viewModalOpen && viewRecord && (
-          <div className="incomeModal" style={{ display: "flex" }} onClick={closeViewModal}>
-            <div className="incomeModal-content" onClick={e => e.stopPropagation()}>
+          <div className="expenseModal" style={{ display: "flex" }} onClick={closeViewModal}>
+            <div className="expenseModal-content" onClick={e => e.stopPropagation()}>
               <h2>Income Details</h2>
               <table>
                 <tbody>
@@ -327,7 +327,7 @@ const IncomeTrackerPage: React.FC = () => {
                   )}
                 </tbody>
               </table>
-              <button className="incomeModal-cancel" onClick={closeViewModal}>Close</button>
+              <button className="expenseModal-cancel" onClick={closeViewModal}>Close</button>
             </div>
           </div>
         )}
