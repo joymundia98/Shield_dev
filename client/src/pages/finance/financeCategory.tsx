@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "../../styles/global.css";
 
 interface Category {
+  id?: number;
   name: string;
   subcategories?: string[];
 }
@@ -18,9 +20,7 @@ const FinanceCategoriesPage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   /* -------------------- Finance States -------------------- */
-  const [incomeCategories, setIncomeCategories] = useState<Category[]>([
-    { name: "Tithes & Offerings", subcategories: ["Tithes", "Offerings", "Digital Giving"] },
-  ]);
+  const [incomeCategories, setIncomeCategories] = useState<Category[]>([]);
   const [expenseCategories, setExpenseCategories] = useState<Category[]>([
     { name: "Operational Expenses", subcategories: ["Rent", "Utilities", "Office Supplies"] },
   ]);
@@ -46,6 +46,31 @@ const FinanceCategoriesPage: React.FC = () => {
     else document.body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
+  /* -------------------- Fetch Income Categories -------------------- */
+  useEffect(() => {
+    const fetchIncomeCategories = async () => {
+      try {
+        const res = await axios.get("/api/income-categories");
+
+        let categories: Category[] = [];
+        if (Array.isArray(res.data)) {
+          categories = res.data;
+        } else if (res.data && Array.isArray(res.data.incomeCategories)) {
+          categories = res.data.incomeCategories;
+        } else if (res.data && typeof res.data === "object") {
+          categories = Object.values(res.data);
+        }
+
+        setIncomeCategories(categories);
+      } catch (err) {
+        console.error("Failed to fetch income categories", err);
+        setIncomeCategories([]);
+      }
+    };
+
+    fetchIncomeCategories();
+  }, []);
+
   /* -------------------- Popup Logic -------------------- */
   const openPopup = (group: GroupType, index: number | null = null) => {
     setEditingGroup(group);
@@ -54,7 +79,7 @@ const FinanceCategoriesPage: React.FC = () => {
     if (index !== null) {
       if (group === "income") {
         setItemName(incomeCategories[index].name);
-        setSubcategories([...incomeCategories[index].subcategories!]);
+        setSubcategories([...incomeCategories[index].subcategories || []]);
       } else if (group === "expense") {
         setItemName(expenseCategories[index].name);
         setSubcategories([...expenseCategories[index].subcategories!]);
@@ -92,7 +117,7 @@ const FinanceCategoriesPage: React.FC = () => {
 
     if (editingGroup === "income") {
       const updated = [...incomeCategories];
-      if (editIndex !== null) updated[editIndex] = { name: itemName, subcategories };
+      if (editIndex !== null) updated[editIndex] = { ...updated[editIndex], name: itemName, subcategories };
       else updated.push({ name: itemName, subcategories });
       setIncomeCategories(updated);
     } else if (editingGroup === "expense") {
@@ -128,8 +153,9 @@ const FinanceCategoriesPage: React.FC = () => {
   };
 
   /* -------------------- Render Table Rows -------------------- */
-  const renderCategoryRows = (group: GroupType, data: Category[] | PaymentMethod[]) =>
-    data.map((item, idx) => (
+  const renderCategoryRows = (group: GroupType, data: Category[] | PaymentMethod[]) => {
+    if (!Array.isArray(data)) return null; // Safety check
+    return data.map((item, idx) => (
       <tr key={idx}>
         <td>{idx + 1}</td>
         <td>{item.name}</td>
@@ -140,6 +166,7 @@ const FinanceCategoriesPage: React.FC = () => {
         </td>
       </tr>
     ));
+  };
 
   /* -------------------- Main Render -------------------- */
   return (
@@ -164,7 +191,7 @@ const FinanceCategoriesPage: React.FC = () => {
         <a href="/finance/expensetracker">Track Expenses</a>
         <a href="/finance/budgets">Budget</a>
         <a href="/finance/payroll">Payroll</a>
-        <a href="/finance/financeCategory" className="active">Finance Categories</a>
+        <a href="/finance/financeCategory">Finance Categories</a>
 
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
