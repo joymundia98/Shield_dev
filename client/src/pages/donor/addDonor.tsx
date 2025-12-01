@@ -56,11 +56,9 @@ const AddDonor: React.FC = () => {
 
         <h2>DONOR MANAGER</h2>
         <a href="/donor/dashboard">Dashboard</a>
-        <a href="/donor/donors" className="active">
-          Donors
-        </a>
+        <a href="/donor/donors" className="active">Donors List</a>
         <a href="/donor/donations">Donations</a>
-        <a href="/donor/reports">Reports</a>
+        <a href="/donor/donorCategories">Donor Categories</a>
 
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">

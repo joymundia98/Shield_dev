@@ -122,7 +122,7 @@ const DonorManagementPage: React.FC = () => {
         </a>
         <a href="/donor/donors" className="active">Donors List</a>
         <a href="/donor/donations">Donations</a>
-        <a href="/donor/reports">Reports</a>
+        <a href="/donor/donorCategories">Donor Categories</a>
 
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">

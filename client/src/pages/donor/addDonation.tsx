@@ -54,13 +54,11 @@ const AddDonation: React.FC = () => {
           </div>
         </div>
 
-        <h2>FINANCE</h2>
+        <h2>DONOR MANAGER</h2>
         <a href="/donor/dashboard">Dashboard</a>
-        <a href="/donor/donors">Donors</a>
-        <a href="/donor/donations" className="active">
-          Donations
-        </a>
-        <a href="/donor/reports">Reports</a>
+        <a href="/donor/donors">Donors List</a>
+        <a href="/donor/donations" className="active">Donations</a>
+        <a href="/donor/donorCategories">Donor Categories</a>
 
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">

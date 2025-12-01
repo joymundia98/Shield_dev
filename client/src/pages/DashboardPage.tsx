@@ -123,7 +123,7 @@ const dropdowns: Dropdown[] = [
       { name: "Donors", href: "/donor/donors" },
       { name: "Add Donor", href: "/donor/add-donor" },
       { name: "Donations", href: "/donor/donations" },
-      { name: "Reports", href: "/donor/reports" },
+      { name: "Donor Categories", href: "/donor/donorCategories" },
     ],
   },
 ];
