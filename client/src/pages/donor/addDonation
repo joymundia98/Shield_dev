@@ -1,0 +1,182 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "../../styles/global.css";
+
+interface Donation {
+  donor: string;
+  registered: boolean;
+  date: string;
+  amount: number;
+  type: string;
+  method: string;
+}
+
+const AddDonation: React.FC = () => {
+  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  useEffect(() => {
+    document.body.classList.toggle("sidebar-open", sidebarOpen);
+  }, [sidebarOpen]);
+
+  const [form, setForm] = useState<Donation>({
+    donor: "John Doe",
+    registered: true,
+    date: "2025-12-01",
+    amount: 100,
+    type: "Widows Contributions",
+    method: "Cash",
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Donation submitted (static values):", form);
+    alert("Donation will be submitted to the database once backend is ready.");
+    // Optional: redirect after submission
+    // navigate("/donor/donations");
+  };
+
+  return (
+    <div className="dashboard-wrapper">
+      {/* Sidebar */}
+      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
+        <div className="close-wrapper">
+          <div className="toggle close-btn">
+            <input
+              type="checkbox"
+              checked={sidebarOpen}
+              onChange={toggleSidebar}
+            />
+            <span className="button"></span>
+            <span className="label">X</span>
+          </div>
+        </div>
+
+        <h2>FINANCE</h2>
+        <a href="/donor/dashboard">Dashboard</a>
+        <a href="/donor/donors">Donors</a>
+        <a href="/donor/donations" className="active">
+          Donations
+        </a>
+        <a href="/donor/reports">Reports</a>
+
+        <hr className="sidebar-separator" />
+        <a href="/dashboard" className="return-main">
+          ← Back to Main Dashboard
+        </a>
+      </div>
+
+      {/* Page Content */}
+      <div className="dashboard-content">
+        <header className="page-header">
+          <h1>Add Donation</h1>
+          <div>
+            <button
+              className="add-btn"
+              style={{ margin: "10px 0" }}
+              onClick={() => navigate("/donor/donations")}
+            >
+              ← Back
+            </button>
+            <button className="hamburger" onClick={toggleSidebar}>
+              &#9776;
+            </button>
+          </div>
+        </header>
+
+        <div className="container">
+          <form className="add-form-styling" onSubmit={handleSubmit}>
+            {/* DONOR NAME */}
+            <label>Donor Name</label>
+            <input
+              type="text"
+              required
+              value={form.donor}
+              onChange={(e) => setForm({ ...form, donor: e.target.value })}
+            />
+
+            {/* REGISTERED */}
+            <label>Registered Donor?</label>
+            <select
+              required
+              value={form.registered ? "true" : "false"}
+              onChange={(e) =>
+                setForm({ ...form, registered: e.target.value === "true" })
+              }
+            >
+              <option value="">Select</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+
+            {/* DATE */}
+            <label>Donation Date</label>
+            <input
+              type="date"
+              required
+              value={form.date}
+              onChange={(e) => setForm({ ...form, date: e.target.value })}
+            />
+
+            {/* AMOUNT */}
+            <label>Amount ($)</label>
+            <input
+              type="number"
+              required
+              value={form.amount}
+              onChange={(e) =>
+                setForm({ ...form, amount: parseFloat(e.target.value) })
+              }
+            />
+
+            {/* TYPE */}
+            <label>Donation Type</label>
+            <select
+              required
+              value={form.type}
+              onChange={(e) => setForm({ ...form, type: e.target.value })}
+            >
+              <option value="">Select Donation Type</option>
+              <option>Widows Contributions</option>
+              <option>Special Fund</option>
+              <option>Disaster Relief</option>
+              <option>Other</option>
+            </select>
+
+            {/* METHOD */}
+            <label>Payment Method</label>
+            <select
+              required
+              value={form.method}
+              onChange={(e) => setForm({ ...form, method: e.target.value })}
+            >
+              <option value="">Select Payment Method</option>
+              <option>Cash</option>
+              <option>Bank Transfer</option>
+              <option>Mobile Money</option>
+              <option>Check</option>
+            </select>
+
+            {/* BUTTONS */}
+            <div className="form-buttons">
+              <button type="submit" className="add-btn">
+                Add Donation
+              </button>
+              <button
+                type="button"
+                className="cancel-btn"
+                onClick={() => navigate("/donor/donations")}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AddDonation;
