@@ -41,6 +41,10 @@ export const LoginForm = () => {
       if (!token) throw new Error("No accessToken returned from backend");
       localStorage.setItem("token", token);
 
+      //Store User
+      localStorage.getItem("user")
+
+
       setError('');
       setShowSuccessCard(true);
 
