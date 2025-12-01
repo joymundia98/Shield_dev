@@ -1,6 +1,6 @@
 // modules/finance/donors/donorsRoutes.js
 import express from "express";
-import DonorsController from "./donorsController.js";
+import DonorsController from "./donorController.js";
 
 const router = express.Router();
 
