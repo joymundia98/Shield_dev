@@ -50,6 +50,7 @@ import SetBudgetsPage from "./pages/finance/setBudget";
 // Donors Module Functional Pages
 import DonorsPage from "./pages/donor/donors";
 import AddDonorPage from "./pages/donor/addDonor";
+import DonationsManagementPage from "./pages/donor/donations";
 
 // Ministry Module Functional Pages
 import PastorsPage from "./pages/ministry/pastors";
@@ -105,7 +106,8 @@ function App() {
           --------------------------------*/}
           <Route path="/donor/donors" element={<DonorsPage />} />
           <Route path="/donor/addDonor" element={<AddDonorPage />} />
-          <Route path="/donor/donations" element={<DonorsPage />} />
+          <Route path="/donor/donations" element={<DonationsManagementPage />} />
+          <Route path="/donor/addDonation" element={<AddDonorPage />} />
           <Route path="/donor/reports" element={<DonorsPage />} />
           
           {/* ------------------------------
