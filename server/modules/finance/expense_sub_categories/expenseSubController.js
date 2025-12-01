@@ -1,5 +1,5 @@
 // modules/finance/expenseSubcategories/expenseSubcategoryController.js
-import ExpenseSubcategory from './expenseSubcategoryModel.js';
+import ExpenseSubcategory from './expenseSubModel.js';
 
 const ExpenseSubcategoryController = {
   async list(req, res) {

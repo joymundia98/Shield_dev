@@ -1,6 +1,6 @@
 // modules/finance/expenseSubcategories/expenseSubcategoryRoutes.js
 import express from 'express';
-import ExpenseSubcategoryController from './expenseSubcategoryController.js';
+import ExpenseSubcategoryController from './expenseSubController.js';
 
 const router = express.Router();
 

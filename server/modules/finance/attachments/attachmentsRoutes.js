@@ -1,6 +1,5 @@
-// modules/finance/attachments/attachmentRoutes.js
 import express from 'express';
-import AttachmentController from './attachmentController.js';
+import AttachmentController from './attachmentsController.js';
 
 const router = express.Router();
 

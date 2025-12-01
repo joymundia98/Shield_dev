@@ -6,13 +6,22 @@ import pkg from 'pg';
 import userRoutes from './modules/user/userRoutes.js';
 import staffRoutes from './modules/hr/staff/staffRoutes.js'
 import leaveRoutes from './modules/hr/leave/leaveRoutes.js'
-import departmentRoutes from './modules/hr/departments/departmentRoutes.js'
+import attachmentRoutes from './modules/finance/attachments/attachmentsRoutes.js'
+import departmentRoutes from './modules/hr/departments/departmentRoutes.js';
+import financeExpenseCategoriesRoutes from './modules/finance/expense_categories/expenseCategoryRoutes.js';
+import financeExpenseSubRoutes from './modules/finance/expense_sub_categories/expenseSubRoutes.js';
+import financeIncomeCategoriesRoutes from './modules/finance/income_categories/incomeCategoryRoutes.js';
+import financeIncomeSubRoutes from './modules/finance/income_sub_categories/incomeSubRoutes.js';
+import expensesRoutes from './modules/finance/expenses/expenseRoutes.js';
+import incomesRoutes from './modules/finance/incomes/incomeRoutes.js';
+import extraFieldsRoutes from './modules/finance/extra_fields/extraFieldRoutes.js';
+import budgetsRoutes from './modules/finance/budgets/budgetRoutes.js';
 import rolesRoutes from './modules/role/roleRoutes.js'
 import authRoutes from './modules/auth/authRoutes.js';
 import denominationRoutes from './modules/denomination/denominationRoutes.js';
 import organizationRoutes from './modules/organization/OrgRoutes.js';
 import { verifyJWT } from './middleware/auth.js';
-import { OrganizationController } from './modules/organization/organizationController.js';
+// import { OrganizationController } from './modules/organization/organizationController.js';
 
 dotenv.config();
 const { Pool } = pkg;
@@ -30,8 +39,8 @@ export { pool };
 app.use(cors());
 app.use(express.json());
 
-// Public route for dropdown
-app.get("/api/organizations/public", OrganizationController.listPublic);
+// // Public route for dropdown
+// app.get("/api/organizations/public", OrganizationController.listPublic);
 
 // Protected routes
 app.use("/api/roles", rolesRoutes);
@@ -39,6 +48,15 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", verifyJWT, userRoutes);
 app.use("/api/staff", staffRoutes);
 app.use("/api/departments", departmentRoutes);
+app.use("/api/finance/attachments", attachmentRoutes)
+app.use('/api/finance/expense_categories', financeExpenseCategoriesRoutes);
+app.use('/api/finance/expense_subcategories', financeExpenseSubRoutes);
+app.use('/api/finance/income_categories', financeIncomeCategoriesRoutes);
+app.use('/api/finance/income_subcategories', financeIncomeSubRoutes);
+app.use('/api/finance/expenses', expensesRoutes);
+app.use('/api/finance/incomes', incomesRoutes);
+app.use('/api/finance/extra_fields', extraFieldsRoutes);
+app.use('/api/finance/budgets', budgetsRoutes);
 app.use("/api/leave_requests", leaveRoutes);
 app.use("/api/denominations", verifyJWT, denominationRoutes);
 app.use("/api/organizations", verifyJWT, organizationRoutes);
