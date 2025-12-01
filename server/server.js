@@ -6,6 +6,7 @@ import pkg from 'pg';
 import userRoutes from './modules/user/userRoutes.js';
 import staffRoutes from './modules/hr/staff/staffRoutes.js'
 import leaveRoutes from './modules/hr/leave/leaveRoutes.js'
+import donorRoutes from './modules/donors/donorRoutes.js'
 import attachmentRoutes from './modules/finance/attachments/attachmentsRoutes.js'
 import departmentRoutes from './modules/hr/departments/departmentRoutes.js';
 import financeExpenseCategoriesRoutes from './modules/finance/expense_categories/expenseCategoryRoutes.js';
@@ -48,6 +49,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", verifyJWT, userRoutes);
 app.use("/api/staff", staffRoutes);
 app.use("/api/departments", departmentRoutes);
+app.use("/api/donors", donorRoutes)
 app.use("/api/finance/attachments", attachmentRoutes)
 app.use('/api/finance/expense_categories', financeExpenseCategoriesRoutes);
 app.use('/api/finance/expense_subcategories', financeExpenseSubRoutes);

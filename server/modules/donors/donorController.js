@@ -1,4 +1,3 @@
-// modules/finance/donors/donorsController.js
 import Donor from "./donorModel.js";
 
 const DonorsController = {
