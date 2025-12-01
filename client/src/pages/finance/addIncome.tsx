@@ -7,10 +7,10 @@ interface ExtraFields {
 }
 
 interface NewIncome {
-  category: number | ""; // now referencing backend category IDs
+  category: number | "";
   subcategory: number | "";
   date: string;
-  source: string;
+  source: string; // the giver
   description: string;
   amount: number | "";
   paymentMethod: string;
@@ -29,7 +29,7 @@ interface Subcategory {
   category_id: number;
 }
 
-const BACKEND_URL = "http://localhost:3000/api"; // adjust as needed
+const BACKEND_URL = "http://localhost:3000/api"; // replace with actual backend URL
 
 const AddIncome: React.FC = () => {
   const navigate = useNavigate();
@@ -53,7 +53,11 @@ const AddIncome: React.FC = () => {
   const [allSubcategories, setAllSubcategories] = useState<Subcategory[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
 
-  // Fetch categories and subcategories on mount
+  // Get logged-in user ID
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const userId = user.id;
+
+  // Fetch categories and subcategories
   useEffect(() => {
     fetch(`${BACKEND_URL}/finance/income_categories`)
       .then(res => res.json())
@@ -83,18 +87,25 @@ const AddIncome: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const payload = {
-        category_id: form.category,
-        subcategory_id: form.subcategory,
-        date: form.date,
-        source: form.source,
-        description: form.description,
-        amount: form.amount,
-        payment_method: form.paymentMethod,
-        extra_fields: form.extraFields,
-      };
 
+    if (!userId) {
+      alert("User not logged in");
+      return;
+    }
+
+    const payload = {
+      user_id: userId,           // store the logged-in user ID
+      category_id: form.category,
+      subcategory_id: form.subcategory,
+      date: form.date,
+      source: form.source,       // save the giver/source
+      description: form.description,
+      amount: form.amount,
+      payment_method: form.paymentMethod,
+      extra_fields: form.extraFields,
+    };
+
+    try {
       const res = await fetch(`${BACKEND_URL}/finance/incomes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -166,7 +177,7 @@ const AddIncome: React.FC = () => {
               onChange={(e) => setForm({ ...form, date: e.target.value })}
             />
 
-            {/* Source */}
+            {/* Source / Giver */}
             <label>Source / Giver</label>
             <input
               type="text"
@@ -220,19 +231,6 @@ const AddIncome: React.FC = () => {
               accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
               onChange={(e) => handleAttachments(e.target.files)}
             />
-
-            {/* Extra fields could be rendered dynamically based on subcategory */}
-            {form.extraFields &&
-              Object.keys(form.extraFields).map((key) => (
-                <div key={key}>
-                  <label>{key}</label>
-                  <input
-                    type="text"
-                    value={form.extraFields[key] as string}
-                    onChange={(e) => handleExtraFieldChange(key, e.target.value)}
-                  />
-                </div>
-              ))}
 
             <button type="submit" className="add-btn" style={{ marginTop: 20 }}>
               Submit Income
