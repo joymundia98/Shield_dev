@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
 interface IncomeItem {
+  id: number;
   date: string;
   giver: string;
   description: string;
@@ -10,6 +11,8 @@ interface IncomeItem {
   status: "Pending" | "Approved" | "Rejected";
   attachments?: { url: string; type: string }[];
   extraFields?: Record<string, string>;
+  category_name: string;
+  subcategory_name: string;
 }
 
 interface IncomeGroup {
@@ -20,6 +23,8 @@ interface IncomeGroup {
 interface IncomeCategories {
   [category: string]: IncomeGroup[];
 }
+
+const BACKEND_URL = "http://localhost:3000/api"; // replace with your backend URL
 
 const IncomeTrackerPage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,28 +39,36 @@ const IncomeTrackerPage: React.FC = () => {
   }, [sidebarOpen]);
 
   // ------------------- Categories & Items -------------------
-  const [categories, setCategories] = useState<IncomeCategories>({
-    "Tithes & Regular Giving": [
-      {
-        name: "Tithes",
-        items: [
-          { date: "2025-11-01", giver: "John Doe", description: "Monthly tithe", amount: 200, status: "Pending" },
-          { date: "2025-11-02", giver: "Mary Jane", description: "Monthly tithe", amount: 180, status: "Pending" }
-        ]
-      },
-      {
-        name: "General Offering",
-        items: [
-          { date: "2025-11-03", giver: "Jane Smith", description: "Sunday offering", amount: 150, status: "Pending" },
-          { date: "2025-11-04", giver: "Church Online", description: "Digital offering", amount: 220, status: "Pending" }
-        ]
-      }
-    ],
-    "Special Offerings": [
-      { name: "Thanksgiving Offering", items: [{ date: "2025-11-10", giver: "Missions Ministry", description: "Annual thanksgiving", amount: 400, status: "Pending" }] },
-      { name: "Building Fund Offering", items: [{ date: "2025-11-11", giver: "John Doe", description: "Church building", amount: 500, status: "Pending" }] }
-    ]
-  });
+  const [categories, setCategories] = useState<IncomeCategories>({});
+
+  const fetchIncomeData = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/finance/incomes`);
+      if (!res.ok) throw new Error("Failed to fetch incomes");
+      const data: IncomeItem[] = await res.json();
+
+      // Organize by category & subcategory
+      const grouped: IncomeCategories = {};
+      data.forEach(item => {
+        if (!grouped[item.category_name]) grouped[item.category_name] = [];
+        let group = grouped[item.category_name].find(g => g.name === item.subcategory_name);
+        if (!group) {
+          group = { name: item.subcategory_name, items: [] };
+          grouped[item.category_name].push(group);
+        }
+        group.items.push(item);
+      });
+
+      setCategories(grouped);
+    } catch (err) {
+      console.error(err);
+      alert("Error fetching income data");
+    }
+  };
+
+  useEffect(() => {
+    fetchIncomeData();
+  }, []);
 
   // ------------------- Category Filter -------------------
   const [selectedFilter, setSelectedFilter] = useState("All");
@@ -91,19 +104,34 @@ const IncomeTrackerPage: React.FC = () => {
   };
 
   // ------------------- Approve / Reject Logic -------------------
-  const updateStatus = (catName: string, groupName: string, index: number, status: "Approved" | "Rejected") => {
-    setCategories(prev => {
-      const updated = { ...prev };
-      const group = updated[catName]?.find(g => g.name === groupName);
-      if (group) group.items[index].status = status;
-      return updated;
-    });
+  const updateStatus = async (catName: string, groupName: string, index: number, status: "Approved" | "Rejected") => {
+    const item = categories[catName]?.find(g => g.name === groupName)?.items[index];
+    if (!item) return;
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/finance/incomes/${item.id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+      });
+      if (!res.ok) throw new Error("Failed to update status");
+
+      // Update locally
+      setCategories(prev => {
+        const updated = { ...prev };
+        const group = updated[catName]?.find(g => g.name === groupName);
+        if (group) group.items[index].status = status;
+        return updated;
+      });
+    } catch (err) {
+      console.error(err);
+      alert("Error updating status");
+    }
   };
 
   // ------------------- KPI Calculations -------------------
   const { totalApproved, totalPending, totalRejected } = useMemo(() => {
     let approved = 0, pending = 0, rejected = 0;
-
     Object.values(categories).forEach(groups =>
       groups.forEach(g =>
         g.items.forEach(item => {
@@ -113,7 +141,6 @@ const IncomeTrackerPage: React.FC = () => {
         })
       )
     );
-
     return { totalApproved: approved, totalPending: pending, totalRejected: rejected };
   }, [categories]);
 
@@ -233,7 +260,7 @@ const IncomeTrackerPage: React.FC = () => {
                     <tbody>
                       {group.items.length > 0 ? (
                         group.items.map((item, idx) => (
-                          <tr key={idx}>
+                          <tr key={item.id}>
                             <td>{item.date}</td>
                             <td>{item.giver}</td>
                             <td>{item.description}</td>
