@@ -25,30 +25,31 @@ export const LoginForm = () => {
 
   const navigate = useNavigate();
 
+  // ✅ FIXED FULL LOGIN LOGIC
   const onSubmit = async (data: LoginFormData) => {
     try {
-      // Send login request to backend
       const response = await axios.post('http://localhost:3000/api/auth/login', {
         email: data.email,
         password: data.password,
       });
 
-      console.log("Login response full:", response.data); // <-- this is critical for debugging
+      console.log("Login response full:", response.data);
 
-      // If successful, store JWT in localStorage (or cookie)
-      // Store the correct JWT
-      const token = response.data.accessToken;  // <-- use accessToken
+      // Save the access token
+      const token = response.data.accessToken;
       if (!token) throw new Error("No accessToken returned from backend");
       localStorage.setItem("token", token);
 
-      //Store User
-      localStorage.getItem("user")
+      // Save the user object
+      const user = response.data.user;
+      if (!user) throw new Error("No user object returned from backend");
+      localStorage.setItem("user", JSON.stringify(user));
 
+      console.log("Saved user:", user);
 
       setError('');
       setShowSuccessCard(true);
 
-      // Redirect after 2 seconds
       setTimeout(() => {
         setShowSuccessCard(false);
         navigate('/dashboard');
@@ -62,7 +63,7 @@ export const LoginForm = () => {
   };
 
   const handleOrgLogin = () => {
-    navigate('/org-login'); // redirect to orgLogin.tsx page
+    navigate('/org-login');
   };
 
   return (
@@ -98,19 +99,14 @@ export const LoginForm = () => {
           {/* Error Message */}
           {error && <div className="form-error">{error}</div>}
 
-          {/* Forgot Password */}
           <div className="form-link">
-            <a href="#" className="forgot-pass">
-              Forgot password?
-            </a>
+            <a href="#" className="forgot-pass">Forgot password?</a>
           </div>
 
-          {/* Submit Button */}
           <div className="field button-field">
             <button type="submit">Login</button>
           </div>
 
-          {/* Signup Link */}
           <div className="form-link sign-up">
             <span>Don't have an account?</span>
             <a href="/register"> Sign up now</a>
@@ -118,7 +114,6 @@ export const LoginForm = () => {
         </form>
       </div>
 
-      {/* Organization Login Button */}
       <div className="switchLogin">
         <button className="orgLogin" onClick={handleOrgLogin}>
           <div className="orgLogin-outer">
@@ -129,7 +124,6 @@ export const LoginForm = () => {
         </button>
       </div>
 
-      {/* Success Card */}
       {showSuccessCard && (
         <div className="success-card">
           <h3>✅ Login Successful!</h3>
