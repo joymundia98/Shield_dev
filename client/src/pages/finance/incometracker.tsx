@@ -61,7 +61,7 @@ const IncomeTrackerPage: React.FC = () => {
     setSubcategories(data);
   };
 
-  // Fetch income table + JOIN
+  // Fetch income table + JOIN with statuses
   const fetchIncomeData = async () => {
     const res = await fetch(`${BACKEND_URL}/finance/incomes`);
     const data = await res.json();
@@ -75,6 +75,7 @@ const IncomeTrackerPage: React.FC = () => {
         amount: Number(item.amount),
         subcategory_name: sub?.name || "Unknown",
         category_name: cat?.name || "Uncategorized",
+        status: item.status || "Pending", // status fetched from backend
       };
     });
 
