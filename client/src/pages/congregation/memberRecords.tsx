@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
@@ -46,6 +46,14 @@ const ChurchMembersPage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
+  // Add/remove body class for sidebar
+  useEffect(() => {
+    if (sidebarOpen) document.body.classList.add("sidebar-open");
+    else document.body.classList.remove("sidebar-open");
+
+    return () => document.body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
+
   // Members
   const [members, setMembers] = useState<Member[]>(initialMembers);
   const [searchQuery, setSearchQuery] = useState("");
@@ -74,7 +82,7 @@ const ChurchMembersPage: React.FC = () => {
   };
 
   const handleAddMember = () => {
-    navigate("/congregation/add-member");
+    navigate("/congregation/addMember");
   };
 
   // Filtered & grouped members by category
@@ -89,20 +97,21 @@ const ChurchMembersPage: React.FC = () => {
       if (!groups[m.category]) groups[m.category] = [];
       groups[m.category].push(m);
       return groups;
-    }, {});
+    }, {} as Record<string, Member[]>);
   }, [filteredMembers]);
 
   return (
-    <div className="dashboard-wrapper" style={{ display: "flex" }}>
-      {/* Sidebar */}
+    <div className="dashboard-wrapper members-wrapper">
+      {/* HAMBURGER */}
+      <button className="hamburger" onClick={toggleSidebar}>
+        &#9776;
+      </button>
+
+      {/* SIDEBAR */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="close-wrapper">
           <div className="toggle close-btn">
-            <input
-              type="checkbox"
-              checked={sidebarOpen}
-              onChange={toggleSidebar}
-            />
+            <input type="checkbox" checked={sidebarOpen} onChange={toggleSidebar} />
             <span className="button"></span>
             <span className="label">X</span>
           </div>
@@ -117,28 +126,26 @@ const ChurchMembersPage: React.FC = () => {
         <a href="/congregation/converts">New Converts</a>
 
         <hr className="sidebar-separator" />
-        <a href="/dashboard">← Back to Main Dashboard</a>
+        <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
         <a
           href="/"
+          className="logout-link"
           onClick={(e) => {
             e.preventDefault();
             localStorage.clear();
             navigate("/");
           }}
         >
-          Logout
+          ➜ Logout
         </a>
       </div>
 
-      {/* Main Content */}
-      <div
-        className="dashboard-content"
-        style={{ flex: 1, padding: "1rem", minWidth: 0 }}
-      >
-        {/* Header */}
+      {/* MAIN CONTENT */}
+      <div className="dashboard-content">
         <header>
           <h1>Church Members Records</h1>
-          <div>
+          
+          <div className="header-buttons">
             <br/>
             <button
               className="add-btn"
@@ -146,15 +153,11 @@ const ChurchMembersPage: React.FC = () => {
             >
               ← Members Overview
             </button>
-            <button className="hamburger" onClick={toggleSidebar}>
-              &#9776;
-            </button>
           </div>
         </header>
 
-        {/* Search + Add */}
+        {/* Search + Add button (original layout preserved) */}
         <div
-          className="table-header"
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -177,6 +180,7 @@ const ChurchMembersPage: React.FC = () => {
         {/* Members by Category */}
         {Object.entries(groupedMembers).map(([category, memberList]) => (
           <div className="category-block" key={category}>
+            <br/>
             <h2>{category}</h2>
             <table className="responsive-table">
               <thead>

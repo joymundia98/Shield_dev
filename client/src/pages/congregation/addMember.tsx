@@ -27,6 +27,14 @@ const AddMemberPage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
+  // Apply body class for sidebar
+  useEffect(() => {
+    if (sidebarOpen) document.body.classList.add("sidebar-open");
+    else document.body.classList.remove("sidebar-open");
+
+    return () => document.body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
+
   // Form state
   const [formData, setFormData] = useState<MemberForm>({
     photo: "",
@@ -46,7 +54,6 @@ const AddMemberPage: React.FC = () => {
     guardianPhone: "",
   });
 
-  // Show adult or minor fields
   const [isAdult, setIsAdult] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -55,7 +62,6 @@ const AddMemberPage: React.FC = () => {
     else setIsAdult(null);
   }, [formData.age]);
 
-  // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -64,25 +70,24 @@ const AddMemberPage: React.FC = () => {
     }));
   };
 
-  // Handle form submit
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("New Member Data:", formData);
     alert("Member added successfully (check console for data).");
-    // TODO: Send formData to backend via POST request
   };
 
   return (
-    <div className="dashboard-wrapper" style={{ display: "flex" }}>
+    <div className="dashboard-wrapper members-wrapper">
+      {/* Hamburger */}
+      <button className="hamburger" onClick={toggleSidebar}>
+        &#9776;
+      </button>
+
       {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="close-wrapper">
           <div className="toggle close-btn">
-            <input
-              type="checkbox"
-              checked={sidebarOpen}
-              onChange={() => setSidebarOpen(false)}
-            />
+            <input type="checkbox" checked={sidebarOpen} onChange={toggleSidebar} />
             <span className="button"></span>
             <span className="label">X</span>
           </div>
@@ -96,46 +101,44 @@ const AddMemberPage: React.FC = () => {
         <a href="/congregation/visitors">Visitors</a>
         <a href="/congregation/converts">New Converts</a>
 
-        <a href="/congregation/settings">Settings</a>
         <hr className="sidebar-separator" />
-        <a href="/dashboard">← Back to Main Dashboard</a>
-        <a href="/" onClick={() => { localStorage.clear(); navigate("/"); }}>Logout</a>
+
+        <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
+        <a
+          href="/"
+          className="logout-link"
+          onClick={(e) => {
+            e.preventDefault();
+            localStorage.clear();
+            navigate("/");
+          }}
+        >
+          ➜ Logout
+        </a>
       </div>
 
       {/* Main Content */}
-      <div className="dashboard-content" style={{ flex: 1, padding: "1rem", minWidth: 0 }}>
-        <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div className="dashboard-content">
+        <header>
           <h1>Add New Member</h1>
-          <div>
+          <div className="header-buttons">
+            <br/>
             <button className="add-btn" onClick={() => navigate("/congregation/members")}>
               ← Member Records
-            </button>
+            </button>&nbsp;&nbsp;
             <button className="add-btn" onClick={() => navigate("/congregation/members")}>
               ← Members Overview
             </button>
-            <button className="hamburger" onClick={toggleSidebar}>&#9776;</button>
           </div>
         </header>
 
-        <div className="FormContainer" style={{ marginTop: "1rem" }}>
+        <div className="FormContainer">
           <form onSubmit={handleSubmit}>
             <label>Photo</label>
-            <input
-              type="text"
-              placeholder="Photo URL"
-              name="photo"
-              value={formData.photo}
-              onChange={handleChange}
-            />
+            <input type="text" placeholder="Photo URL" name="photo" value={formData.photo} onChange={handleChange} />
 
             <label>Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
+            <input type="text" name="name" value={formData.name} onChange={handleChange} required />
 
             <label>Category</label>
             <select name="category" value={formData.category} onChange={handleChange} required>
@@ -148,15 +151,7 @@ const AddMemberPage: React.FC = () => {
             </select>
 
             <label>Age</label>
-            <input
-              type="number"
-              name="age"
-              min={0}
-              max={120}
-              value={formData.age}
-              onChange={handleChange}
-              required
-            />
+            <input type="number" name="age" min={0} max={120} value={formData.age} onChange={handleChange} required />
 
             <label>Gender</label>
             <select name="gender" value={formData.gender} onChange={handleChange} required>
@@ -166,42 +161,17 @@ const AddMemberPage: React.FC = () => {
             </select>
 
             <label>Join Date</label>
-            <input
-              type="date"
-              name="joinDate"
-              value={formData.joinDate}
-              onChange={handleChange}
-              required
-            />
+            <input type="date" name="joinDate" value={formData.joinDate} onChange={handleChange} required />
 
             <label>Address</label>
-            <input
-              type="text"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              required
-            />
+            <input type="text" name="address" value={formData.address} onChange={handleChange} required />
 
             <label>Phone</label>
-            <input
-              type="text"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-            />
+            <input type="text" name="phone" value={formData.phone} onChange={handleChange} required />
 
             <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
+            <input type="email" name="email" value={formData.email} onChange={handleChange} required />
 
-            {/* Additional Info */}
             <div className="additional-info">
               <label>
                 <input type="checkbox" name="disabled" checked={formData.disabled} onChange={handleChange} /> Disabled
@@ -214,7 +184,6 @@ const AddMemberPage: React.FC = () => {
               </label>
             </div>
 
-            {/* Conditional fields */}
             {isAdult ? (
               <div>
                 <label>NRC</label>
@@ -229,7 +198,7 @@ const AddMemberPage: React.FC = () => {
               </div>
             ) : null}
 
-            <div className="form-buttons" style={{ marginTop: "1rem" }}>
+            <div className="form-buttons">
               <button type="submit" className="add-btn">Add Member</button>
               <button type="button" className="cancel-btn" onClick={() => navigate("/congregation/members")}>
                 Cancel

@@ -133,7 +133,7 @@ const ChurchMembersDashboard: React.FC = () => {
           <h1>Church Members Overview</h1>
           <br/>
           <div className="header-buttons">
-            <button className="add-btn" onClick={() => navigate("/congregation/add-member")}>
+            <button className="add-btn" onClick={() => navigate("/congregation/addMember")}>
               + &nbsp; Add Member
             </button>&nbsp;&nbsp;
             <button className="add-btn" onClick={() => navigate("/congregation/memberRecords")}>
