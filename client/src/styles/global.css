@@ -1738,3 +1738,8 @@
                 .members-wrapper{
                     flex-direction: column;
                 }
+
+                .additional-info{
+                    display: flex;
+                    flex-direction: column;
+                }
