@@ -136,7 +136,7 @@ const ChurchMembersDashboard: React.FC = () => {
             <button className="add-btn" onClick={() => navigate("/congregation/add-member")}>
               + &nbsp; Add Member
             </button>&nbsp;&nbsp;
-            <button className="add-btn" onClick={() => navigate("/congregation/members")}>
+            <button className="add-btn" onClick={() => navigate("/congregation/memberRecords")}>
               View Members
             </button>
           </div>
