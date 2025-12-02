@@ -59,6 +59,7 @@ import PastorsPage from "./pages/ministry/pastors";
 
 // Congregation Module Functional Pages
 import AttendancePage from "./pages/congregation/attendance";
+import RecordAttendance from "./pages/congregation/RecordAttendance";
 
 // Categories Page
 import CategoriesPage from "./pages/assets/categories";
@@ -119,8 +120,8 @@ function App() {
                 CONGREGATION SUB-ROUTES
           --------------------------------*/}
           <Route path="/congregation/members" element={<CongregationDashboard />} />
-          <Route path="/congregation/families" element={<CongregationDashboard />} />
           <Route path="/congregation/attendance" element={<AttendancePage />} />
+          <Route path="/congregation/recordAttendance" element={<RecordAttendance />} />
           <Route path="/congregation/followups" element={<CongregationDashboard />} />
           <Route path="/congregation/reports" element={<CongregationDashboard />} />
           <Route path="/congregation/settings" element={<CongregationDashboard />} />

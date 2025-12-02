@@ -208,7 +208,7 @@ const AttendancePage: React.FC = () => {
           <button
             className="add-btn"
             style={{ margin: "10px 0" }}
-            onClick={() => navigate("/attendance/record")}
+            onClick={() => navigate("/congregation/recordAttendance")}
           >
             Record Attendance
           </button>
