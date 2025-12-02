@@ -1735,7 +1735,8 @@
                     margin-top: 20px;
                 }
 
-                .members-wrapper{
+                .members-wrapper,
+                .converts-wrapper{
                     flex-direction: column;
                 }
 
