@@ -8,6 +8,7 @@ router.get('/', IncomeController.list);
 router.get('/:id', IncomeController.getById);
 router.post('/', IncomeController.create);
 router.put('/:id', IncomeController.update);
+router.patch("/:id/status", IncomeController.updateStatus);
 router.delete('/:id', IncomeController.delete);
 
 export default router;
