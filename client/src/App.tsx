@@ -63,6 +63,9 @@ import RecordAttendance from "./pages/congregation/RecordAttendance";
 import ChurchMembersDashboard from "./pages/congregation/members";
 import MembersRecords from "./pages/congregation/memberRecords";
 import AddMemberPage from "./pages/congregation/addMember";
+import ConvertsDashboard from "./pages/congregation/converts";
+import ConvertsPage from "./pages/congregation/convertRecords";
+import AddConvert from "./pages/congregation/addConvert";
 
 // Categories Page
 import CategoriesPage from "./pages/assets/categories";
@@ -128,6 +131,9 @@ function App() {
           <Route path="/congregation/followups" element={<CongregationDashboard />} />
           <Route path="/congregation/memberRecords" element={<MembersRecords />} />
           <Route path="congregation/addMember" element={<AddMemberPage />} />
+          <Route path="congregation/converts" element={<ConvertsDashboard />} />
+          <Route path="congregation/convertRecords" element={<ConvertsPage />} />
+          <Route path="congregation/addConvert" element={<AddConvert />} />
 
           {/* ------------------------------
                     FINANCE SUB-ROUTES
