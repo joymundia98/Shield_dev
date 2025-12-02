@@ -666,6 +666,18 @@
         .kpi-pending { background-color: rgb(255, 243, 205, 0.67); color: #856404; }
         .kpi-rejected { background-color: rgb(248, 215, 218, 0.67); color: #721c24; }
 
+        .kpi-change {
+            display: flex;
+            align-items: center;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .kpi-change span {
+            margin-left: 5px;
+        }
+        .kpi-change.up { color: green; }
+        .kpi-change.down { color: red; }
+
     /* --------------------------------------------
     CHART STYLING
     ----------------------------------------------- */
@@ -1650,4 +1662,17 @@
                 padding: 8px;
                 border-radius: 6px;
                 border: 1px solid #ccc;
+                }
+
+                .records-heading {
+                    margin-top: 30px;
+                    margin-bottom: 10px;
+                }
+                .radio-container {
+                    margin-bottom: 20px;
+                }
+                .radio-container label {
+                    margin-right: 15px;
+                    font-weight: bold;
+                    cursor: pointer;
                 }

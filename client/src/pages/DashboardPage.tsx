@@ -25,11 +25,13 @@ const dropdowns: Dropdown[] = [
     label: "Congregation Management",
     links: [
       { name: "Dashboard", href: "/congregation/dashboard" },
-      { name: "Donors", href: "/congregation/donors" },
-      { name: "Add Donor", href: "/congregation/add-donor" },
-      { name: "Donations", href: "/congregation/donations" },
-      { name: "Reports", href: "/congregation/reports" },
+      { name: "Members", href: "/congregation/members" },
+      { name: "Attendance", href: "/congregation/attendance" },
+      { name: "Follow-ups", href: "/congregation/followups" },
+      { name: "Visitors", href: "/congregation/visitors" },
+      { name: "New Converts", href: "/congregation/converts" },
     ],
+
   },
   {
     label: "Finance",
