@@ -1734,3 +1734,7 @@
                 .attendance-group {
                     margin-top: 20px;
                 }
+
+                .members-wrapper{
+                    flex-direction: column;
+                }
