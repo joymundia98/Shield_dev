@@ -23,6 +23,13 @@ const RecordAttendance: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
+  useEffect(() => {
+    if (sidebarOpen) document.body.classList.add("sidebar-open");
+    else document.body.classList.remove("sidebar-open");
+
+    return () => document.body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
+
   // Category + Gender selection
   const [category, setCategory] = useState<Category>("Children");
   const [gender, setGender] = useState<Gender>("Male");
@@ -79,12 +86,11 @@ const RecordAttendance: React.FC = () => {
 
     localStorage.setItem("attendanceData", JSON.stringify(stored));
     alert("Attendance Saved!");
-    navigate("/attendance");
+    navigate("/congregation/attendance");
   };
 
   return (
     <div className="dashboard-wrapper">
-
       {/* HAMBURGER */}
       <button className="hamburger" onClick={toggleSidebar}>
         &#9776;
@@ -107,7 +113,9 @@ const RecordAttendance: React.FC = () => {
         <h2>CONGREGATION</h2>
         <a href="/congregation/dashboard">Dashboard</a>
         <a href="/congregation/members">Members</a>
-        <a href="/congregation/attendance" className="active">Attendance</a>
+        <a href="/congregation/attendance" className="active">
+          Attendance
+        </a>
         <a href="/congregation/followups">Follow-ups</a>
         <a href="/congregation/visitors">Visitors</a>
         <a href="/congregation/converts">New Converts</a>
@@ -132,22 +140,24 @@ const RecordAttendance: React.FC = () => {
 
       {/* MAIN CONTENT */}
       <div className="dashboard-content attendanceRollCall">
-        
         <header>
           <h1>Record Attendance</h1>
 
-          <br/>
+          <br />
 
-          <button className="add-btn" onClick={() => navigate("/attendance")}>
+          <button
+            className="add-btn"
+            onClick={() => navigate("/congregation/attendance")}
+          >
             ← Back to Attendance Records
           </button>
         </header>
 
+        <br />
+        <br />
+
         {/* KPI SELECTION CARDS */}
-        <br/><br/>
-        
         <div className="kpi-container">
-          
           {/* CATEGORY */}
           <div className="kpi-card selection-card">
             <h3>Select Category</h3>
@@ -222,7 +232,11 @@ const RecordAttendance: React.FC = () => {
         </div>
 
         {/* SAVE BUTTON */}
-        <button className="add-btn" onClick={saveAttendance} style={{ marginTop: 20 }}>
+        <button
+          className="add-btn"
+          onClick={saveAttendance}
+          style={{ marginTop: 20 }}
+        >
           Save Attendance
         </button>
       </div>
