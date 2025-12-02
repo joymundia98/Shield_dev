@@ -92,6 +92,18 @@ const Expense = {
     return result.rows[0];
   },
 
+  async updateStatus(id, status) {
+    const result = await pool.query(
+      `UPDATE expenses
+      SET status = $1
+      WHERE id = $2
+      RETURNING *`,
+      [status, id]
+    );
+
+    return result.rows[0];
+  },
+
   async delete(id) {
     const result = await pool.query(
       `DELETE FROM expenses WHERE id=$1 RETURNING *`,

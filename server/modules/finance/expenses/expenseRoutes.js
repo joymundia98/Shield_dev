@@ -8,6 +8,7 @@ router.get('/', ExpenseController.list);
 router.get('/:id', ExpenseController.getById);
 router.post('/', ExpenseController.create);
 router.put('/:id', ExpenseController.update);
+router.patch("/:id/status", ExpenseController.updateStatus);
 router.delete('/:id', ExpenseController.delete);
 
 export default router;
