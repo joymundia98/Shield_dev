@@ -5,7 +5,7 @@ import "../../styles/global.css";
 interface IncomeItem {
   id: number;
   date: string;
-  giver: string;
+  giver: string | null;
   description: string;
   amount: number;
   status: "Pending" | "Approved" | "Rejected";
@@ -24,63 +24,109 @@ interface IncomeCategories {
   [category: string]: IncomeGroup[];
 }
 
-const BACKEND_URL = "http://localhost:3000/api"; // replace with your backend URL
+const BACKEND_URL = "http://localhost:3000/api";
 
 const IncomeTrackerPage: React.FC = () => {
   const navigate = useNavigate();
 
-  // ------------------- Sidebar -------------------
+  // Sidebar
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   useEffect(() => {
-    if (sidebarOpen) document.body.classList.add("sidebar-open");
-    else document.body.classList.remove("sidebar-open");
+    sidebarOpen
+      ? document.body.classList.add("sidebar-open")
+      : document.body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
-  // ------------------- Categories & Items -------------------
+  // Data storage
   const [categories, setCategories] = useState<IncomeCategories>({});
+  const [categoryList, setCategoryList] = useState<string[]>([]);
+  const [subcategories, setSubcategories] = useState<any[]>([]);
+  const [incomeCategories, setIncomeCategories] = useState<any[]>([]);
 
+  // Fetch category table
+  const fetchIncomeCategories = async () => {
+    const res = await fetch(`${BACKEND_URL}/finance/income_categories`);
+    const data = await res.json();
+
+    setIncomeCategories(data);
+    setCategoryList(["All", ...data.map((c: any) => c.name)]);
+  };
+
+  // Fetch subcategory table
+  const fetchSubcategories = async () => {
+    const res = await fetch(`${BACKEND_URL}/finance/income_subcategories`);
+    const data = await res.json();
+    setSubcategories(data);
+  };
+
+  // Fetch income table + JOIN
   const fetchIncomeData = async () => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/finance/incomes`);
-      if (!res.ok) throw new Error("Failed to fetch incomes");
-      const data: IncomeItem[] = await res.json();
+    const res = await fetch(`${BACKEND_URL}/finance/incomes`);
+    const data = await res.json();
 
-      // Organize by category & subcategory
-      const grouped: IncomeCategories = {};
-      data.forEach(item => {
-        if (!grouped[item.category_name]) grouped[item.category_name] = [];
-        let group = grouped[item.category_name].find(g => g.name === item.subcategory_name);
-        if (!group) {
-          group = { name: item.subcategory_name, items: [] };
-          grouped[item.category_name].push(group);
-        }
-        group.items.push(item);
-      });
+    const mappedIncomes = data.map((item: any) => {
+      const sub = subcategories.find((s) => s.id === item.subcategory_id);
+      const cat = incomeCategories.find((c) => c.id === sub?.category_id);
 
-      setCategories(grouped);
-    } catch (err) {
-      console.error(err);
-      alert("Error fetching income data");
-    }
+      return {
+        ...item,
+        amount: Number(item.amount),
+        subcategory_name: sub?.name || "Unknown",
+        category_name: cat?.name || "Uncategorized",
+      };
+    });
+
+    // Group incomes
+    const grouped: IncomeCategories = {};
+    mappedIncomes.forEach((item: IncomeItem) => {
+      if (!grouped[item.category_name]) grouped[item.category_name] = [];
+
+      let group = grouped[item.category_name].find(
+        (g) => g.name === item.subcategory_name
+      );
+
+      if (!group) {
+        group = { name: item.subcategory_name, items: [] };
+        grouped[item.category_name].push(group);
+      }
+
+      group.items.push(item);
+    });
+
+    setCategories(grouped);
   };
 
   useEffect(() => {
-    fetchIncomeData();
+    (async () => {
+      await fetchIncomeCategories();
+      await fetchSubcategories();
+    })();
   }, []);
 
-  // ------------------- Category Filter -------------------
+  useEffect(() => {
+    if (subcategories.length && incomeCategories.length) {
+      fetchIncomeData();
+    }
+  }, [subcategories, incomeCategories]);
+
+  // Filter
   const [selectedFilter, setSelectedFilter] = useState("All");
 
-  // ------------------- Approve / Reject Modal -------------------
+  const filteredCategories = useMemo(() => {
+    if (selectedFilter === "All") return categories;
+    return { [selectedFilter]: categories[selectedFilter] || [] };
+  }, [categories, selectedFilter]);
+
+  // Approve/Reject Modals
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"approve" | "reject">("approve");
   const [modalAction, setModalAction] = useState<() => void>(() => {});
 
   const openModal = (action: () => void, type: "approve" | "reject") => {
-    setModalAction(() => action);
     setModalType(type);
+    setModalAction(() => action);
     setModalOpen(true);
   };
 
@@ -89,7 +135,7 @@ const IncomeTrackerPage: React.FC = () => {
     setModalOpen(false);
   };
 
-  // ------------------- View Details Modal -------------------
+  // View Modal
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewRecord, setViewRecord] = useState<IncomeItem | null>(null);
 
@@ -103,58 +149,57 @@ const IncomeTrackerPage: React.FC = () => {
     setViewModalOpen(false);
   };
 
-  // ------------------- Approve / Reject Logic -------------------
-  const updateStatus = async (catName: string, groupName: string, index: number, status: "Approved" | "Rejected") => {
-    const item = categories[catName]?.find(g => g.name === groupName)?.items[index];
+  // Update status (Approve/Reject)
+  const updateStatus = async (
+    catName: string,
+    groupName: string,
+    index: number,
+    status: "Approved" | "Rejected"
+  ) => {
+    const item = categories[catName]
+      ?.find((g) => g.name === groupName)
+      ?.items[index];
+
     if (!item) return;
 
-    try {
-      const res = await fetch(`${BACKEND_URL}/finance/incomes/${item.id}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status })
-      });
-      if (!res.ok) throw new Error("Failed to update status");
+    await fetch(`${BACKEND_URL}/finance/incomes/${item.id}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
 
-      // Update locally
-      setCategories(prev => {
-        const updated = { ...prev };
-        const group = updated[catName]?.find(g => g.name === groupName);
-        if (group) group.items[index].status = status;
-        return updated;
-      });
-    } catch (err) {
-      console.error(err);
-      alert("Error updating status");
-    }
+    // Update UI locally
+    setCategories((prev) => {
+      const updated = { ...prev };
+      const group = updated[catName]?.find((g) => g.name === groupName);
+      if (group) group.items[index].status = status;
+      return updated;
+    });
   };
 
-  // ------------------- KPI Calculations -------------------
+  // KPI totals
   const { totalApproved, totalPending, totalRejected } = useMemo(() => {
-    let approved = 0, pending = 0, rejected = 0;
-    Object.values(categories).forEach(groups =>
-      groups.forEach(g =>
-        g.items.forEach(item => {
+    let approved = 0,
+      pending = 0,
+      rejected = 0;
+
+    Object.values(categories).forEach((groups) =>
+      groups.forEach((g) =>
+        g.items.forEach((item) => {
           if (item.status === "Approved") approved += item.amount;
           if (item.status === "Pending") pending += item.amount;
           if (item.status === "Rejected") rejected += item.amount;
         })
       )
     );
+
     return { totalApproved: approved, totalPending: pending, totalRejected: rejected };
   }, [categories]);
 
-  // ------------------- Filtered Rendering -------------------
-  const filteredCategories = useMemo(() => {
-    if (selectedFilter === "All") return categories;
-    return { [selectedFilter]: categories[selectedFilter] || [] };
-  }, [categories, selectedFilter]);
-
-  // ------------------- Render -------------------
   return (
     <div className="dashboard-wrapper">
 
-      {/* Sidebar */}
+      {/* SIDEBAR */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
         <div className="close-wrapper">
           <div className="toggle close-btn">
@@ -177,7 +222,7 @@ const IncomeTrackerPage: React.FC = () => {
         <a
           href="/"
           className="logout-link"
-          onClick={e => {
+          onClick={(e) => {
             e.preventDefault();
             localStorage.clear();
             navigate("/");
@@ -187,27 +232,29 @@ const IncomeTrackerPage: React.FC = () => {
         </a>
       </div>
 
-      {/* Main Content */}
+      {/* MAIN */}
       <div className="dashboard-content">
-
-        {/* HEADER */}
         <header className="page-header income-header">
           <h1>Church Income Tracker</h1>
 
           <div>
             <br /><br />
-            <button className="add-btn" style={{ marginRight: "10px" }} onClick={() => navigate("/finance/incomeDashboard")}>
+            <button
+              className="add-btn"
+              onClick={() => navigate("/finance/incomeDashboard")}
+            >
               View Summary
             </button>
-
+            &nbsp;
             <button className="hamburger" onClick={toggleSidebar}>
-              &#9776;
+              ☰
             </button>
           </div>
         </header>
 
         <br /><br />
-        {/* KPI Cards */}
+
+        {/* KPI CARDS */}
         <div className="kpi-container">
           <div className="kpi-card kpi-approved">
             <h3>Total Approved Income</h3>
@@ -223,29 +270,41 @@ const IncomeTrackerPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Add Income Button */}
-        <button className="add-btn" onClick={() => navigate("/finance/addIncome")} style={{ margin: "10px 0" }}>
+        {/* Add Income */}
+        <button
+          className="add-btn"
+          onClick={() => navigate("/finance/addIncome")}
+          style={{ margin: "10px 0" }}
+        >
           + Add Income
         </button>
 
-        {/* Filters */}
+        {/* Filter */}
         <div className="income-filter-box">
           <h3>Filter by Category</h3>
-          <select className="income-filter-select" value={selectedFilter} onChange={e => setSelectedFilter(e.target.value)}>
-            {["All", "Tithes & Regular Giving", "Special Offerings", "Event-Based Income", "Functional Fees / Services", "Donations", "Pledges", "Fundraising Campaigns", "Grants"].map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
+          <select
+            className="income-filter-select"
+            value={selectedFilter}
+            onChange={(e) => setSelectedFilter(e.target.value)}
+          >
+            {categoryList.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
             ))}
           </select>
         </div>
 
-        {/* Income Tables */}
+        {/* TABLE RENDER */}
         {Object.entries(filteredCategories).map(([catName, groups]) => (
           <div key={catName}>
             <h2>{catName}</h2>
+
             {groups.length > 0 ? (
-              groups.map(group => (
+              groups.map((group) => (
                 <div key={group.name}>
                   <h3>{group.name}</h3>
+
                   <table className="responsive-table">
                     <thead>
                       <tr>
@@ -257,96 +316,159 @@ const IncomeTrackerPage: React.FC = () => {
                         <th>Actions</th>
                       </tr>
                     </thead>
+
                     <tbody>
-                      {group.items.length > 0 ? (
-                        group.items.map((item, idx) => (
-                          <tr key={item.id}>
-                            <td>{item.date}</td>
-                            <td>{item.giver}</td>
-                            <td>{item.description}</td>
-                            <td>${item.amount.toLocaleString()}</td>
-                            <td><span className={`status ${item.status}`}>{item.status}</span></td>
-                            <td>
-                              <button className="add-btn" onClick={() => openViewModal(item)}>View</button>&nbsp;&nbsp;
-                              {item.status === "Pending" && (
-                                <>
-                                  <button className="approve-btn" onClick={() => openModal(() => updateStatus(catName, group.name, idx, "Approved"), "approve")}>Approve</button>&nbsp;&nbsp;
-                                  <button className="reject-btn" onClick={() => openModal(() => updateStatus(catName, group.name, idx, "Rejected"), "reject")}>Reject</button>
-                                </>
-                              )}
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={6} style={{ textAlign: "center", fontStyle: "italic" }}>No items</td>
+                      {group.items.map((item, idx) => (
+                        <tr key={item.id}>
+                          <td>{item.date}</td>
+                          <td>{item.giver || "N/A"}</td>
+                          <td>{item.description}</td>
+                          <td>${item.amount.toLocaleString()}</td>
+                          <td>
+                            <span className={`status ${item.status}`}>
+                              {item.status}
+                            </span>
+                          </td>
+
+                          <td>
+                            <button className="add-btn" onClick={() => openViewModal(item)}>
+                              View
+                            </button>
+                            &nbsp;&nbsp;
+
+                            {item.status === "Pending" && (
+                              <>
+                                <button
+                                  className="approve-btn"
+                                  onClick={() =>
+                                    openModal(
+                                      () =>
+                                        updateStatus(
+                                          catName,
+                                          group.name,
+                                          idx,
+                                          "Approved"
+                                        ),
+                                      "approve"
+                                    )
+                                  }
+                                >
+                                  Approve
+                                </button>
+                                &nbsp;&nbsp;
+
+                                <button
+                                  className="reject-btn"
+                                  onClick={() =>
+                                    openModal(
+                                      () =>
+                                        updateStatus(
+                                          catName,
+                                          group.name,
+                                          idx,
+                                          "Rejected"
+                                        ),
+                                      "reject"
+                                    )
+                                  }
+                                >
+                                  Reject
+                                </button>
+                              </>
+                            )}
+                          </td>
                         </tr>
-                      )}
+                      ))}
                     </tbody>
                   </table>
                 </div>
               ))
             ) : (
-              <div>
-                <h3>No groups</h3>
-                <table className="responsive-table">
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Source/Giver</th>
-                      <th>Description</th>
-                      <th>Amount</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td colSpan={6} style={{ textAlign: "center", fontStyle: "italic" }}>No items</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+              <p>No items</p>
             )}
           </div>
         ))}
 
-        {/* Approve/Reject Modal */}
+        {/* Confirmation Modal */}
         {modalOpen && (
           <div className="expenseModal" style={{ display: "flex" }}>
             <div className="expenseModal-content">
-              <h2>{modalType === "approve" ? "Approve Income?" : "Reject Income?"}</h2>
+              <h2>
+                {modalType === "approve" ? "Approve Income?" : "Reject Income?"}
+              </h2>
               <p>This action cannot be undone.</p>
+
               <div className="expenseModal-buttons">
-                <button className="expenseModal-cancel" onClick={() => setModalOpen(false)}>Cancel</button>
-                <button className={`expenseModal-confirm ${modalType === "reject" ? "reject" : ""}`} onClick={confirmModal}>Confirm</button>
+                <button
+                  className="expenseModal-cancel"
+                  onClick={() => setModalOpen(false)}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  className={`expenseModal-confirm ${
+                    modalType === "reject" ? "reject" : ""
+                  }`}
+                  onClick={confirmModal}
+                >
+                  Confirm
+                </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* View Details Modal */}
+        {/* View Modal */}
         {viewModalOpen && viewRecord && (
-          <div className="expenseModal" style={{ display: "flex" }} onClick={closeViewModal}>
-            <div className="expenseModal-content" onClick={e => e.stopPropagation()}>
+          <div
+            className="expenseModal"
+            style={{ display: "flex" }}
+            onClick={closeViewModal}
+          >
+            <div
+              className="expenseModal-content"
+              onClick={(e) => e.stopPropagation()}
+            >
               <h2>Income Details</h2>
+
               <table>
                 <tbody>
-                  <tr><th>Date</th><td>{viewRecord.date}</td></tr>
-                  <tr><th>Source / Giver</th><td>{viewRecord.giver}</td></tr>
-                  <tr><th>Description</th><td>{viewRecord.description}</td></tr>
-                  <tr><th>Amount</th><td>${viewRecord.amount.toLocaleString()}</td></tr>
-                  <tr><th>Status</th><td>{viewRecord.status}</td></tr>
-                  {viewRecord.extraFields && Object.entries(viewRecord.extraFields).map(([key, val]) => (
-                    <tr key={key}><th>{key}</th><td>{val}</td></tr>
-                  ))}
-                  {viewRecord.attachments && viewRecord.attachments.length > 0 && (
+                  <tr>
+                    <th>Date</th>
+                    <td>{viewRecord.date}</td>
+                  </tr>
+                  <tr>
+                    <th>Source / Giver</th>
+                    <td>{viewRecord.giver || "N/A"}</td>
+                  </tr>
+                  <tr>
+                    <th>Description</th>
+                    <td>{viewRecord.description}</td>
+                  </tr>
+                  <tr>
+                    <th>Amount</th>
+                    <td>${viewRecord.amount.toLocaleString()}</td>
+                  </tr>
+                  <tr>
+                    <th>Status</th>
+                    <td>{viewRecord.status}</td>
+                  </tr>
+
+                  {viewRecord.attachments?.length > 0 && (
                     <tr>
                       <th>Attachments</th>
                       <td>
                         {viewRecord.attachments.map((file, idx) => (
-                          <a key={idx} href={file.url} target="_blank" rel="noopener noreferrer">
-                            {file.type === "application/pdf" ? "View PDF" : "View File"}
+                          <a
+                            key={idx}
+                            href={file.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {file.type === "application/pdf"
+                              ? "View PDF"
+                              : "View File"}
                           </a>
                         ))}
                       </td>
@@ -354,11 +476,16 @@ const IncomeTrackerPage: React.FC = () => {
                   )}
                 </tbody>
               </table>
-              <button className="expenseModal-cancel" onClick={closeViewModal}>Close</button>
+
+              <button
+                className="expenseModal-cancel"
+                onClick={closeViewModal}
+              >
+                Close
+              </button>
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
