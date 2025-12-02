@@ -61,6 +61,8 @@ import PastorsPage from "./pages/ministry/pastors";
 import AttendancePage from "./pages/congregation/attendance";
 import RecordAttendance from "./pages/congregation/RecordAttendance";
 import ChurchMembersDashboard from "./pages/congregation/members";
+import MembersRecords from "./pages/congregation/memberRecords";
+import AddMemberPage from "./pages/congregation/addMember";
 
 // Categories Page
 import CategoriesPage from "./pages/assets/categories";
@@ -124,8 +126,8 @@ function App() {
           <Route path="/congregation/attendance" element={<AttendancePage />} />
           <Route path="/congregation/recordAttendance" element={<RecordAttendance />} />
           <Route path="/congregation/followups" element={<CongregationDashboard />} />
-          <Route path="/congregation/reports" element={<CongregationDashboard />} />
-          <Route path="/congregation/settings" element={<CongregationDashboard />} />
+          <Route path="/congregation/memberRecords" element={<MembersRecords />} />
+          <Route path="congregation/addMember" element={<AddMemberPage />} />
 
           {/* ------------------------------
                     FINANCE SUB-ROUTES
