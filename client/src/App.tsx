@@ -57,6 +57,9 @@ import DonorCategoriesPage from "./pages/donor/donorCategories";
 // Ministry Module Functional Pages
 import PastorsPage from "./pages/ministry/pastors";
 
+// Congregation Module Functional Pages
+import AttendancePage from "./pages/congregation/attendance";
+
 // Categories Page
 import CategoriesPage from "./pages/assets/categories";
 
@@ -117,7 +120,7 @@ function App() {
           --------------------------------*/}
           <Route path="/congregation/members" element={<CongregationDashboard />} />
           <Route path="/congregation/families" element={<CongregationDashboard />} />
-          <Route path="/congregation/attendance" element={<CongregationDashboard />} />
+          <Route path="/congregation/attendance" element={<AttendancePage />} />
           <Route path="/congregation/followups" element={<CongregationDashboard />} />
           <Route path="/congregation/reports" element={<CongregationDashboard />} />
           <Route path="/congregation/settings" element={<CongregationDashboard />} />

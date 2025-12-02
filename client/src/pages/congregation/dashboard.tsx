@@ -159,11 +159,10 @@ const CongregationDashboard: React.FC = () => {
 
         <a href="/congregation/dashboard" className="active">Dashboard</a>
         <a href="/congregation/members">Members</a>
-        <a href="/congregation/families">Families</a>
         <a href="/congregation/attendance">Attendance</a>
         <a href="/congregation/followups">Follow-ups</a>
-        <a href="/congregation/reports">Reports</a>
-        <a href="/congregation/settings">Settings</a>
+        <a href="/congregation/visitors">Visitors</a>
+        <a href="/congregation/converts">New Converts</a>
 
         <hr className="sidebar-separator" />
 
