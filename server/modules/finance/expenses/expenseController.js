@@ -41,6 +41,22 @@ const ExpenseController = {
     }
   },
 
+  async updateStatus(req, res) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      if (!status) {
+        return res.status(400).json({ error: "Status is required" });
+      }
+
+      const updated = await Expense.updateStatus(id, status);
+      return res.json(updated);
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  },
+
   async delete(req, res) {
     try {
       const { id } = req.params;
