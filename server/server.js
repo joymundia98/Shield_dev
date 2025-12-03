@@ -52,6 +52,7 @@ app.use("/api/staff", staffRoutes);
 app.use("/api/members", membersRoutes)
 app.use("/api/departments", departmentRoutes);
 app.use("/api/donors", donorRoutes)
+app.use("/api/finance/budgets", budgetsRoutes)
 app.use("/api/finance/attachments", attachmentRoutes)
 app.use('/api/finance/expense_categories', financeExpenseCategoriesRoutes);
 app.use('/api/finance/expense_subcategories', financeExpenseSubRoutes);
