@@ -5,7 +5,8 @@ import "../../styles/global.css";
 interface ExpenseItem {
   id: number;
   date: string;
-  department: string | null;
+  department_id: number | null;
+  department?: string;
   description: string;
   amount: number;
   status: "Pending" | "Approved" | "Rejected";
@@ -22,6 +23,13 @@ interface ExpenseGroup {
 
 interface ExpenseCategories {
   [category: string]: ExpenseGroup[];
+}
+
+interface Department {
+  id: number;
+  name: string;
+  description?: string;
+  category?: string;
 }
 
 const BACKEND_URL = "http://localhost:3000/api";
@@ -44,6 +52,7 @@ const ExpenseTrackerPage: React.FC = () => {
   const [categoryList, setCategoryList] = useState<string[]>([]);
   const [subcategories, setSubcategories] = useState<any[]>([]);
   const [expenseCategories, setExpenseCategories] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
 
   // ------------------- FETCH CATEGORY TABLE -------------------
   const fetchExpenseCategories = async () => {
@@ -60,7 +69,19 @@ const ExpenseTrackerPage: React.FC = () => {
     setSubcategories(data);
   };
 
-  // ------------------- FETCH EXPENSE TABLE (JOINED DATA) -------------------
+  // ------------------- FETCH DEPARTMENTS -------------------
+  const fetchDepartments = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/departments`);
+      if (!res.ok) throw new Error("Failed to fetch departments");
+      const data: Department[] = await res.json();
+      setDepartments(data);
+    } catch (err) {
+      console.error("Error fetching departments:", err);
+    }
+  };
+
+  // ------------------- FETCH EXPENSE TABLE -------------------
   const fetchExpenseData = async () => {
     const res = await fetch(`${BACKEND_URL}/finance/expenses`);
     const data = await res.json();
@@ -68,11 +89,12 @@ const ExpenseTrackerPage: React.FC = () => {
     const mapped = data.map((item: any) => {
       const sub = subcategories.find((s) => s.id === item.subcategory_id);
       const cat = expenseCategories.find((c) => c.id === sub?.category_id);
+      const dept = departments.find((d) => d.id === item.department_id);
 
       return {
         ...item,
         amount: Number(item.amount),
-        department: item.department || "N/A",
+        department: dept?.name || "N/A",
         subcategory_name: sub?.name || "Unknown",
         category_name: cat?.name || "Uncategorized",
         status: item.status || "Pending",
@@ -99,20 +121,25 @@ const ExpenseTrackerPage: React.FC = () => {
     setCategories(grouped);
   };
 
-  // Load categories & subcategories first
+  // Load categories, subcategories, and departments first
   useEffect(() => {
     (async () => {
       await fetchExpenseCategories();
       await fetchSubcategories();
+      await fetchDepartments();
     })();
   }, []);
 
-  // Load actual expenses once cats + subs are ready
+  // Load actual expenses once cats + subs + depts are ready
   useEffect(() => {
-    if (subcategories.length && expenseCategories.length) {
+    if (
+      subcategories.length &&
+      expenseCategories.length &&
+      departments.length
+    ) {
       fetchExpenseData();
     }
-  }, [subcategories, expenseCategories]);
+  }, [subcategories, expenseCategories, departments]);
 
   // ------------------- FILTER -------------------
   const [selectedFilter, setSelectedFilter] = useState("All");
@@ -201,7 +228,6 @@ const ExpenseTrackerPage: React.FC = () => {
 
   return (
     <div className="dashboard-wrapper">
-
       {/* SIDEBAR */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="close-wrapper">
@@ -334,13 +360,7 @@ const ExpenseTrackerPage: React.FC = () => {
                                   className="approve-btn"
                                   onClick={() =>
                                     openModal(
-                                      () =>
-                                        updateStatus(
-                                          catName,
-                                          group.name,
-                                          idx,
-                                          "Approved"
-                                        ),
+                                      () => updateStatus(catName, group.name, idx, "Approved"),
                                       "approve"
                                     )
                                   }
@@ -353,13 +373,7 @@ const ExpenseTrackerPage: React.FC = () => {
                                   className="reject-btn"
                                   onClick={() =>
                                     openModal(
-                                      () =>
-                                        updateStatus(
-                                          catName,
-                                          group.name,
-                                          idx,
-                                          "Rejected"
-                                        ),
+                                      () => updateStatus(catName, group.name, idx, "Rejected"),
                                       "reject"
                                     )
                                   }
@@ -385,21 +399,14 @@ const ExpenseTrackerPage: React.FC = () => {
         {modalOpen && (
           <div className="expenseModal" style={{ display: "flex" }}>
             <div className="expenseModal-content">
-              <h2>
-                {modalType === "approve"
-                  ? "Approve Expense?"
-                  : "Reject Expense?"}
-              </h2>
+              <h2>{modalType === "approve" ? "Approve Expense?" : "Reject Expense?"}</h2>
               <p>This action cannot be undone.</p>
-
               <div className="expenseModal-buttons">
                 <button className="expenseModal-cancel" onClick={() => setModalOpen(false)}>
                   Cancel
                 </button>
                 <button
-                  className={`expenseModal-confirm ${
-                    modalType === "reject" ? "reject" : ""
-                  }`}
+                  className={`expenseModal-confirm ${modalType === "reject" ? "reject" : ""}`}
                   onClick={confirmModal}
                 >
                   Confirm
@@ -411,17 +418,9 @@ const ExpenseTrackerPage: React.FC = () => {
 
         {/* View Modal */}
         {viewModalOpen && viewRecord && (
-          <div
-            className="expenseModal"
-            style={{ display: "flex" }}
-            onClick={closeViewModal}
-          >
-            <div
-              className="expenseModal-content"
-              onClick={(e) => e.stopPropagation()}
-            >
+          <div className="expenseModal" style={{ display: "flex" }} onClick={closeViewModal}>
+            <div className="expenseModal-content" onClick={(e) => e.stopPropagation()}>
               <h2>Expense Details</h2>
-
               <table>
                 <tbody>
                   <tr>
@@ -444,21 +443,13 @@ const ExpenseTrackerPage: React.FC = () => {
                     <th>Status</th>
                     <td>{viewRecord.status}</td>
                   </tr>
-
                   {viewRecord.attachments?.length > 0 && (
                     <tr>
                       <th>Attachments</th>
                       <td>
                         {viewRecord.attachments.map((file, idx) => (
-                          <a
-                            key={idx}
-                            href={file.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {file.type === "application/pdf"
-                              ? "View PDF"
-                              : "View File"}
+                          <a key={idx} href={file.url} target="_blank" rel="noopener noreferrer">
+                            {file.type === "application/pdf" ? "View PDF" : "View File"}
                           </a>
                         ))}
                       </td>
@@ -466,7 +457,6 @@ const ExpenseTrackerPage: React.FC = () => {
                   )}
                 </tbody>
               </table>
-
               <button className="expenseModal-cancel" onClick={closeViewModal}>
                 Close
               </button>
