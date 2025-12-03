@@ -21,9 +21,7 @@ const FinanceCategoriesPage: React.FC = () => {
 
   /* -------------------- Finance States -------------------- */
   const [incomeCategories, setIncomeCategories] = useState<Category[]>([]);
-  const [expenseCategories, setExpenseCategories] = useState<Category[]>([
-    { name: "Operational Expenses", subcategories: ["Rent", "Utilities", "Office Supplies"] },
-  ]);
+  const [expenseCategories, setExpenseCategories] = useState<Category[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([
     { name: "Cash" },
     { name: "Credit Card" },
@@ -48,18 +46,26 @@ const FinanceCategoriesPage: React.FC = () => {
 
   /* -------------------- Fetch Income Categories -------------------- */
   useEffect(() => {
-    const fetchIncomeCategories = async () => {
+    const fetchIncomeData = async () => {
       try {
-        const res = await axios.get("/api/income-categories");
+        const [categoriesRes, subcategoriesRes] = await Promise.all([
+          axios.get("http://localhost:3000/api/finance/income_categories"),
+          axios.get("http://localhost:3000/api/finance/income_subcategories"),
+        ]);
 
-        let categories: Category[] = [];
-        if (Array.isArray(res.data)) {
-          categories = res.data;
-        } else if (res.data && Array.isArray(res.data.incomeCategories)) {
-          categories = res.data.incomeCategories;
-        } else if (res.data && typeof res.data === "object") {
-          categories = Object.values(res.data);
-        }
+        const categories: Category[] = categoriesRes.data.map((cat: any) => ({
+          id: cat.id,
+          name: cat.name,
+          subcategories: [],
+        }));
+
+        const subcategoriesData: any[] = subcategoriesRes.data;
+
+        categories.forEach(cat => {
+          cat.subcategories = subcategoriesData
+            .filter(sub => sub.category_id === cat.id)
+            .map(sub => sub.name);
+        });
 
         setIncomeCategories(categories);
       } catch (err) {
@@ -68,7 +74,40 @@ const FinanceCategoriesPage: React.FC = () => {
       }
     };
 
-    fetchIncomeCategories();
+    fetchIncomeData();
+  }, []);
+
+  /* -------------------- Fetch Expense Categories -------------------- */
+  useEffect(() => {
+    const fetchExpenseData = async () => {
+      try {
+        const [categoriesRes, subcategoriesRes] = await Promise.all([
+          axios.get("http://localhost:3000/api/finance/expense_categories"),
+          axios.get("http://localhost:3000/api/finance/expense_subcategories"),
+        ]);
+
+        const categories: Category[] = categoriesRes.data.map((cat: any) => ({
+          id: cat.id,
+          name: cat.name,
+          subcategories: [],
+        }));
+
+        const subcategoriesData: any[] = subcategoriesRes.data;
+
+        categories.forEach(cat => {
+          cat.subcategories = subcategoriesData
+            .filter(sub => sub.category_id === cat.id)
+            .map(sub => sub.name);
+        });
+
+        setExpenseCategories(categories);
+      } catch (err) {
+        console.error("Failed to fetch expense categories", err);
+        setExpenseCategories([]);
+      }
+    };
+
+    fetchExpenseData();
   }, []);
 
   /* -------------------- Popup Logic -------------------- */
@@ -82,7 +121,7 @@ const FinanceCategoriesPage: React.FC = () => {
         setSubcategories([...incomeCategories[index].subcategories || []]);
       } else if (group === "expense") {
         setItemName(expenseCategories[index].name);
-        setSubcategories([...expenseCategories[index].subcategories!]);
+        setSubcategories([...expenseCategories[index].subcategories || []]);
       } else if (group === "payment") {
         setItemName(paymentMethods[index].name);
         setSubcategories([]);
@@ -122,7 +161,7 @@ const FinanceCategoriesPage: React.FC = () => {
       setIncomeCategories(updated);
     } else if (editingGroup === "expense") {
       const updated = [...expenseCategories];
-      if (editIndex !== null) updated[editIndex] = { name: itemName, subcategories };
+      if (editIndex !== null) updated[editIndex] = { ...updated[editIndex], name: itemName, subcategories };
       else updated.push({ name: itemName, subcategories });
       setExpenseCategories(updated);
     } else if (editingGroup === "payment") {
@@ -154,7 +193,7 @@ const FinanceCategoriesPage: React.FC = () => {
 
   /* -------------------- Render Table Rows -------------------- */
   const renderCategoryRows = (group: GroupType, data: Category[] | PaymentMethod[]) => {
-    if (!Array.isArray(data)) return null; // Safety check
+    if (!Array.isArray(data)) return null;
     return data.map((item, idx) => (
       <tr key={idx}>
         <td>{idx + 1}</td>
@@ -171,11 +210,8 @@ const FinanceCategoriesPage: React.FC = () => {
   /* -------------------- Main Render -------------------- */
   return (
     <div className="dashboard-wrapper">
-
-      {/* Hamburger */}
       <button className="hamburger" onClick={toggleSidebar}>&#9776;</button>
 
-      {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="close-wrapper">
           <div className="toggle close-btn">
@@ -208,7 +244,6 @@ const FinanceCategoriesPage: React.FC = () => {
         </a>
       </div>
 
-      {/* Main Content */}
       <div className="dashboard-content">
 
         {/* Income Categories */}
@@ -269,10 +304,8 @@ const FinanceCategoriesPage: React.FC = () => {
 
       </div>
 
-      {/* Popup Overlay */}
       {showPopup && <div className="overlay" onClick={closePopup}></div>}
 
-      {/* Popup Form */}
       <div className="filter-popup" style={{ display: showPopup ? "block" : "none", width: "380px", padding: "2rem" }}>
         <h3>{editIndex !== null ? "Edit" : "Add"} {editingGroup === "income" ? "Income Category" : editingGroup === "expense" ? "Expense Category" : "Payment Method"}</h3>
 
