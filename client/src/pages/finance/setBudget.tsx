@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "../../styles/global.css";
 
 interface BudgetCategories {
@@ -34,16 +35,34 @@ const SetBudgetsPage: React.FC = () => {
   // ---------------- Budget State ----------------
   const [budgets, setBudgets] = useState<Budgets>({});
 
-  // Initialize budget state with zeros
+  // ---------------- Fetch existing budgets from backend ----------------
   useEffect(() => {
-    const initialBudgets: Budgets = {};
-    for (const cat in budgetCategories) {
-      initialBudgets[cat] = {};
-      budgetCategories[cat].forEach(sub => {
-        initialBudgets[cat][sub] = 0;
-      });
-    }
-    setBudgets(initialBudgets);
+    const fetchBudgets = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/api/finance/budgets");
+        if (res.data) {
+          setBudgets(res.data);
+        } else {
+          initializeBudgets();
+        }
+      } catch (err) {
+        console.error("Failed to fetch budgets", err);
+        initializeBudgets();
+      }
+    };
+
+    const initializeBudgets = () => {
+      const initialBudgets: Budgets = {};
+      for (const cat in budgetCategories) {
+        initialBudgets[cat] = {};
+        budgetCategories[cat].forEach(sub => {
+          initialBudgets[cat][sub] = 0;
+        });
+      }
+      setBudgets(initialBudgets);
+    };
+
+    fetchBudgets();
   }, []);
 
   // ---------------- Handle Input Change ----------------
@@ -58,9 +77,14 @@ const SetBudgetsPage: React.FC = () => {
   };
 
   // ---------------- Save Budgets ----------------
-  const saveBudgets = () => {
-    console.log("Budgets Saved:", budgets);
-    alert("Budgets have been saved successfully!");
+  const saveBudgets = async () => {
+    try {
+      await axios.post("http://localhost:3000/api/finance/budgets", budgets);
+      alert("Budgets have been saved successfully!");
+    } catch (err) {
+      console.error("Failed to save budgets", err);
+      alert("Error saving budgets. Please try again.");
+    }
   };
 
   return (
