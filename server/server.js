@@ -26,7 +26,7 @@ import attendanceRoutes from './modules/congregation/attandance/attendanceRoutes
 import visitorRoutes from './modules/congregation/visitors/visitorRoutes.js';
 import visitorServiceRoutes from './modules/congregation/visitors/visitorService/visitorServiceRoutes.js';
 import visitorReferralRoutes from './modules/congregation/referral/visitorReferral/visitorRefferalRoutes.js';
-import serviceRoutes from './modules/services/serviceRoutes';
+import serviceRoutes from './modules/services/serviceRoutes.js';
 import referralRoutes from './modules/congregation/referral/referralRoutes.js';
 import purposeRoutes from './modules/congregation/purposes/purposeRoutes.js'
 import sessionRoutes from './modules/congregation/sessions/sessionRoutes.js'
