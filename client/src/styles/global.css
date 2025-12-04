@@ -1134,6 +1134,8 @@
 
         .FormContainer input[type="text"],
         .FormContainer input[type="number"],
+        .FormContainer input[type="email"],
+        .FormContainer input[type="tel"]
         .FormContainer select {
             padding: 10px 12px;
             border-radius: 4px;
