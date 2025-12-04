@@ -66,6 +66,9 @@ import AddMemberPage from "./pages/congregation/addMember";
 import ConvertsDashboard from "./pages/congregation/converts";
 import ConvertsPage from "./pages/congregation/convertRecords";
 import AddConvert from "./pages/congregation/addConvert";
+import VisitorsDashboard from "./pages/congregation/visitors";
+import AddVisitorPage from "./pages/congregation/addVisitors";
+import VisitorRecordsPage from "./pages/congregation/visitorRecords";
 
 // Categories Page
 import CategoriesPage from "./pages/assets/categories";
@@ -134,6 +137,9 @@ function App() {
           <Route path="congregation/converts" element={<ConvertsDashboard />} />
           <Route path="congregation/convertRecords" element={<ConvertsPage />} />
           <Route path="congregation/addConvert" element={<AddConvert />} />
+          <Route path="congregation/visitors" element={<VisitorsDashboard />} />
+          <Route path="congregation/addVisitors" element={<AddVisitorPage />} />
+          <Route path="congregation/visitorRecords" element={<VisitorRecordsPage />} />
 
           {/* ------------------------------
                     FINANCE SUB-ROUTES

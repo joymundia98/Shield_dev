@@ -123,7 +123,7 @@ const AddMemberPage: React.FC = () => {
           <h1>Add New Member</h1>
           <div className="header-buttons">
             <br/>
-            <button className="add-btn" onClick={() => navigate("/congregation/members")}>
+            <button className="add-btn" onClick={() => navigate("/congregation/memberRecords")}>
               ← Member Records
             </button>&nbsp;&nbsp;
             <button className="add-btn" onClick={() => navigate("/congregation/members")}>

@@ -227,7 +227,7 @@ const FinanceCategoriesPage: React.FC = () => {
         <a href="/finance/expensetracker">Track Expenses</a>
         <a href="/finance/budgets">Budget</a>
         <a href="/finance/payroll">Payroll</a>
-        <a href="/finance/financeCategory">Finance Categories</a>
+        <a href="/finance/financeCategory" className="active">Finance Categories</a>
 
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>

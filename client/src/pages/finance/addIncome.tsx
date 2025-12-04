@@ -10,7 +10,7 @@ interface NewIncome {
   category: number | "";
   subcategory: number | "";
   date: string;
-  source: string; // input field for giver
+  source: string;
   description: string;
   amount: number | "";
   paymentMethod: string;
@@ -29,14 +29,22 @@ interface Subcategory {
   category_id: number;
 }
 
-const BACKEND_URL = "http://localhost:3000/api"; // replace with actual backend URL
+const BACKEND_URL = "http://localhost:3000/api";
 
 const AddIncome: React.FC = () => {
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Sidebar
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
+  useEffect(() => {
+    sidebarOpen
+      ? document.body.classList.add("sidebar-open")
+      : document.body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
+
+  // Form State
   const [form, setForm] = useState<NewIncome>({
     category: "",
     subcategory: "",
@@ -53,21 +61,19 @@ const AddIncome: React.FC = () => {
   const [allSubcategories, setAllSubcategories] = useState<Subcategory[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
 
-  // Get logged-in user ID
+  // Current User ID
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const userId = user.id;
 
-  // Fetch categories and subcategories
+  // Fetch categories + subcategories
   useEffect(() => {
     fetch(`${BACKEND_URL}/finance/income_categories`)
       .then(res => res.json())
-      .then(data => setCategories(data))
-      .catch(err => console.error("Failed to fetch categories:", err));
+      .then(data => setCategories(data));
 
     fetch(`${BACKEND_URL}/finance/income_subcategories`)
       .then(res => res.json())
-      .then(data => setAllSubcategories(data))
-      .catch(err => console.error("Failed to fetch subcategories:", err));
+      .then(data => setAllSubcategories(data));
   }, []);
 
   const handleCategoryChange = (categoryId: number) => {
@@ -85,6 +91,7 @@ const AddIncome: React.FC = () => {
     setForm({ ...form, extraFields: { ...form.extraFields, [key]: value } });
   };
 
+  // Submit Form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -94,11 +101,11 @@ const AddIncome: React.FC = () => {
     }
 
     const payload = {
-      user_id: userId,           // logged-in user
+      user_id: userId,
       category_id: form.category,
       subcategory_id: form.subcategory,
       date: form.date,
-      giver: form.source,        // correctly mapped to backend
+      giver: form.source,
       description: form.description,
       amount: form.amount,
       payment_method: form.paymentMethod,
@@ -128,12 +135,43 @@ const AddIncome: React.FC = () => {
 
   return (
     <div className="dashboard-wrapper">
-      {/* Sidebar */}
+      
+      {/* ---------------- SIDEBAR ---------------- */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
-        {/* Add sidebar content as needed */}
+        <div className="close-wrapper">
+          <div className="toggle close-btn">
+            <input type="checkbox" checked={sidebarOpen} onChange={toggleSidebar} />
+            <span className="button"></span>
+            <span className="label">X</span>
+          </div>
+        </div>
+
+        <h2>FINANCE</h2>
+        <a href="/finance/dashboard">Dashboard</a>
+        <a href="/finance/incometracker" className="active">Track Income</a>
+        <a href="/finance/expensetracker">Track Expenses</a>
+        <a href="/finance/budgets">Budget</a>
+        <a href="/finance/payroll">Payroll</a>
+        <a href="/finance/financeCategory">Finance Categories</a>
+
+        <hr className="sidebar-separator" />
+
+        <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
+
+        <a
+          href="/"
+          className="logout-link"
+          onClick={(e) => {
+            e.preventDefault();
+            localStorage.clear();
+            navigate("/");
+          }}
+        >
+          ➜ Logout
+        </a>
       </div>
 
-      {/* Main Content */}
+      {/* ---------------- MAIN CONTENT ---------------- */}
       <div className="dashboard-content">
         <header className="page-header income-header">
           <h1>Add Income</h1>
@@ -142,6 +180,7 @@ const AddIncome: React.FC = () => {
 
         <div className="container">
           <form className="add-form-styling" onSubmit={handleSubmit}>
+
             {/* Category */}
             <label>Income Category</label>
             <select
@@ -177,7 +216,7 @@ const AddIncome: React.FC = () => {
               onChange={(e) => setForm({ ...form, date: e.target.value })}
             />
 
-            {/* Source / Giver */}
+            {/* Source */}
             <label>Giver</label>
             <input
               type="text"
@@ -190,8 +229,8 @@ const AddIncome: React.FC = () => {
             {/* Description */}
             <label>Description</label>
             <textarea
-              placeholder="What is this income for?"
               required
+              placeholder="What is this income for?"
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
             />
@@ -203,16 +242,14 @@ const AddIncome: React.FC = () => {
               step="0.01"
               required
               value={form.amount}
-              onChange={(e) =>
-                setForm({ ...form, amount: parseFloat(e.target.value) })
-              }
+              onChange={(e) => setForm({ ...form, amount: parseFloat(e.target.value) })}
             />
 
             {/* Payment Method */}
             <label>Payment Method</label>
             <select
-              value={form.paymentMethod}
               required
+              value={form.paymentMethod}
               onChange={(e) => setForm({ ...form, paymentMethod: e.target.value })}
             >
               <option>Cash</option>
@@ -235,6 +272,7 @@ const AddIncome: React.FC = () => {
             <button type="submit" className="add-btn" style={{ marginTop: 20 }}>
               Submit Income
             </button>
+
           </form>
         </div>
       </div>

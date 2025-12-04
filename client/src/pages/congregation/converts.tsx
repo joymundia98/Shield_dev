@@ -113,11 +113,13 @@ const ConvertsDashboard: React.FC = () => {
           </div>
         </div>
 
-        <h2>CONVERTS</h2>
-        <a href="/congregation/converts" className="active">Dashboard</a>
-        <a href="/congregation/convertRecords">All Converts</a>
-        <a href="/congregation/convertReports">Reports</a>
-        <a href="/congregation/convertSettings">Settings</a>
+        <h2>CONGREGATION</h2>
+        <a href="/congregation/dashboard" className="active">Dashboard</a>
+        <a href="/congregation/members">Members</a>
+        <a href="/congregation/attendance">Attendance</a>
+        <a href="/congregation/followups">Follow-ups</a>
+        <a href="/congregation/visitors">Visitors</a>
+        <a href="/congregation/converts">New Converts</a>
 
         <hr className="sidebar-separator" />
 
