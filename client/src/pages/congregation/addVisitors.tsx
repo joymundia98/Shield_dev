@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "../../styles/global.css";
 
 interface VisitorForm {
@@ -22,20 +23,15 @@ interface VisitorForm {
 const AddVisitorPage: React.FC = () => {
   const navigate = useNavigate();
 
-  // Sidebar
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   useEffect(() => {
     if (sidebarOpen) document.body.classList.add("sidebar-open");
     else document.body.classList.remove("sidebar-open");
-
     return () => document.body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
-  // -------------------------
-  // FORM STATE
-  // -------------------------
   const [formData, setFormData] = useState<VisitorForm>({
     photoFile: null,
     photoUrl: "",
@@ -53,7 +49,6 @@ const AddVisitorPage: React.FC = () => {
     needsFollowUp: false,
   });
 
-  // Handle input changes
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -73,21 +68,55 @@ const AddVisitorPage: React.FC = () => {
     setFormData((prev) => ({ ...prev, photoFile: file }));
   };
 
-  // -------------------------
-  // SUBMIT FORM
-  // -------------------------
-  const handleSubmit = (e: React.FormEvent) => {
+  // ---------------------------------------------------
+  // SUBMIT: Create visitor → then create visitor_service
+  // ---------------------------------------------------
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const visitor = {
-      ...formData,
-      photo: formData.photoUrl || (formData.photoFile ? formData.photoFile.name : ""),
+    const payload = {
+      name: formData.name,
+      gender: formData.gender,
+      age: formData.age || null,
+      visit_date: formData.visitDate,
+      address: formData.address,
+      phone: formData.phone,
+      email: formData.email,
+      invited_by: formData.invitedBy,
+      photo_url:
+        formData.photoUrl ||
+        (formData.photoFile ? formData.photoFile.name : null),
+      first_time: formData.firstTime,
+      needs_follow_up: formData.needsFollowUp,
     };
 
-    console.log("New Visitor Data:", visitor);
-    alert("Visitor added successfully (check console for data).");
+    try {
+      // 1️⃣ CREATE VISITOR
+      const visitorRes = await axios.post(
+        "http://localhost:3000/api/visitor",
+        payload
+      );
 
-    // TODO: Add POST API call here.
+      const newVisitor = visitorRes.data;
+
+      console.log("Visitor created:", newVisitor);
+
+      // 2️⃣ ADD SERVICE RELATIONSHIP
+      if (formData.serviceAttended) {
+        await axios.post("http://localhost:3000/api/visitor-services", {
+          visitor_id: newVisitor.id, // IMPORTANT
+          service_id: formData.serviceAttended,
+        });
+
+        console.log("Visitor linked to service.");
+      }
+
+      alert("Visitor added successfully!");
+      navigate("/congregation/visitorRecords");
+    } catch (error) {
+      console.error("Error saving visitor:", error);
+      alert("Error saving visitor.");
+    }
   };
 
   return (
@@ -101,7 +130,11 @@ const AddVisitorPage: React.FC = () => {
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="close-wrapper">
           <div className="toggle close-btn">
-            <input type="checkbox" checked={sidebarOpen} onChange={toggleSidebar} />
+            <input
+              type="checkbox"
+              checked={sidebarOpen}
+              onChange={toggleSidebar}
+            />
             <span className="button"></span>
             <span className="label">X</span>
           </div>
@@ -112,12 +145,15 @@ const AddVisitorPage: React.FC = () => {
         <a href="/congregation/members">Members</a>
         <a href="/congregation/attendance">Attendance</a>
         <a href="/congregation/followups">Follow-ups</a>
-        <a href="/congregation/visitors" className="active">Visitors</a>
+        <a href="/congregation/visitors" className="active">
+          Visitors
+        </a>
         <a href="/congregation/converts">New Converts</a>
 
         <hr className="sidebar-separator" />
-
-        <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
+        <a href="/dashboard" className="return-main">
+          ← Back to Main Dashboard
+        </a>
         <a
           href="/"
           className="logout-link"
@@ -136,11 +172,17 @@ const AddVisitorPage: React.FC = () => {
         <header>
           <h1>Add New Visitor</h1>
           <div className="header-buttons" style={{ marginTop: 10 }}>
-            <button className="add-btn" onClick={() => navigate("/congregation/visitorRecords")}>
+            <button
+              className="add-btn"
+              onClick={() => navigate("/congregation/visitorRecords")}
+            >
               ← Visitor Records
             </button>
             &nbsp;&nbsp;
-            <button className="add-btn" onClick={() => navigate("/congregation/visitors")}>
+            <button
+              className="add-btn"
+              onClick={() => navigate("/congregation/visitors")}
+            >
               ← Visitors Overview
             </button>
           </div>
@@ -228,7 +270,6 @@ const AddVisitorPage: React.FC = () => {
             <input
               type="text"
               name="invitedBy"
-              placeholder="Member/Family Name"
               value={formData.invitedBy}
               onChange={handleChange}
             />
@@ -241,10 +282,10 @@ const AddVisitorPage: React.FC = () => {
               onChange={handleChange}
             >
               <option value="">Choose Service</option>
-              <option>Sunday Service</option>
-              <option>Midweek Service</option>
-              <option>Youth Service</option>
-              <option>Special Program</option>
+              <option value="1">Sunday Service</option>
+              <option value="2">Midweek Service</option>
+              <option value="3">Youth Service</option>
+              <option value="4">Special Program</option>
             </select>
 
             <label>How did you find out about the church?</label>
@@ -255,11 +296,11 @@ const AddVisitorPage: React.FC = () => {
               onChange={handleChange}
             >
               <option value="">Select Option</option>
-              <option>Friend/Family</option>
-              <option>Online Search</option>
-              <option>Social Media</option>
-              <option>Church Event</option>
-              <option>Walk-in</option>
+              <option value="1">Friend/Family</option>
+              <option value="2">Online Search</option>
+              <option value="3">Social Media</option>
+              <option value="4">Church Event</option>
+              <option value="5">Walk-in</option>
             </select>
 
             <div className="additional-info">
