@@ -13,8 +13,24 @@ interface Member {
   gender: Gender;
 }
 
+interface Visitor {
+  id: number;
+  name: string;
+  age: number;
+  gender: Gender;
+}
+
+interface Person {
+  id: number; // member_id or visitor id
+  full_name: string;
+  age: number;
+  gender: Gender;
+  type: "member" | "visitor";
+}
+
 interface AttendanceRecord {
-  member_id: number;
+  person_id: number;
+  type: "member" | "visitor";
   date: string;
   status: "Present" | "Absent";
 }
@@ -22,26 +38,15 @@ interface AttendanceRecord {
 const RecordAttendance: React.FC = () => {
   const navigate = useNavigate();
 
-  // Sidebar control
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  useEffect(() => {
-    if (sidebarOpen) document.body.classList.add("sidebar-open");
-    else document.body.classList.remove("sidebar-open");
-
-    return () => document.body.classList.remove("sidebar-open");
-  }, [sidebarOpen]);
-
-  // Category + Gender selection
   const [category, setCategory] = useState<Category>("Children");
   const [gender, setGender] = useState<Gender>("Male");
 
-  // Members from backend
-  const [members, setMembers] = useState<Member[]>([]);
+  const [people, setPeople] = useState<Person[]>([]);
   const [attendance, setAttendance] = useState<Record<number, boolean>>({});
 
-  // Map age to category
   const getCategory = (age: number): Category => {
     if (age < 18) return "Children";
     if (age <= 30) return "Youth";
@@ -49,43 +54,63 @@ const RecordAttendance: React.FC = () => {
     return "Elderly";
   };
 
-  // Fetch members from backend when category or gender changes
   useEffect(() => {
-    const fetchMembers = async () => {
+    const fetchPeople = async () => {
       try {
-        const res = await axios.get<Member[]>("http://localhost:3000/api/members");
-        // Filter by selected category and gender
-        const filtered = res.data
-          .filter((m) => getCategory(m.age) === category && m.gender === gender)
-          .sort((a, b) => a.full_name.localeCompare(b.full_name)); // alphabetical order
+        const [membersRes, visitorsRes] = await Promise.all([
+          axios.get<Member[]>("http://localhost:3000/api/members"),
+          axios.get<Visitor[]>("http://localhost:3000/api/visitor"),
+        ]);
 
-        setMembers(filtered);
+        const allPeople: Person[] = [
+          ...membersRes.data.map((m) => ({
+            id: m.member_id,
+            full_name: m.full_name,
+            age: m.age,
+            gender: m.gender,
+            type: "member",
+          })),
+          ...visitorsRes.data.map((v) => ({
+            id: v.id,
+            full_name: v.name,
+            age: v.age,
+            gender: v.gender,
+            type: "visitor",
+          })),
+        ];
+
+        // Filter by selected category & gender, then sort alphabetically
+        const filtered = allPeople
+          .filter((p) => getCategory(p.age) === category && p.gender === gender)
+          .sort((a, b) => a.full_name.localeCompare(b.full_name));
+
+        setPeople(filtered);
 
         // Initialize attendance state
-        const initialState: Record<number, boolean> = {};
-        filtered.forEach((m) => { initialState[m.member_id] = false; });
-        setAttendance(initialState);
+        const initialAttendance: Record<number, boolean> = {};
+        filtered.forEach((p) => { initialAttendance[p.id] = false; });
+        setAttendance(initialAttendance);
+
       } catch (err) {
-        console.error("Error fetching members:", err);
+        console.error("Error fetching people:", err);
       }
     };
 
-    fetchMembers();
+    fetchPeople();
   }, [category, gender]);
 
-  // Handle checkbox toggle
-  const toggleCheck = (member_id: number) => {
-    setAttendance((prev) => ({ ...prev, [member_id]: !prev[member_id] }));
+  const toggleCheck = (id: number) => {
+    setAttendance((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // Save attendance
   const saveAttendance = async () => {
     const today = new Date().toISOString().split("T")[0];
 
-    const records: AttendanceRecord[] = members.map((m) => ({
-      member_id: m.member_id,
+    const records: AttendanceRecord[] = people.map((p) => ({
+      person_id: p.id,
+      type: p.type,
       date: today,
-      status: attendance[m.member_id] ? "Present" : "Absent",
+      status: attendance[p.id] ? "Present" : "Absent",
     }));
 
     try {
@@ -100,12 +125,7 @@ const RecordAttendance: React.FC = () => {
 
   return (
     <div className="dashboard-wrapper">
-      {/* HAMBURGER */}
-      <button className="hamburger" onClick={toggleSidebar}>
-        &#9776;
-      </button>
-
-      {/* SIDEBAR */}
+      <button className="hamburger" onClick={toggleSidebar}>&#9776;</button>
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="close-wrapper">
           <div className="toggle close-btn">
@@ -122,31 +142,24 @@ const RecordAttendance: React.FC = () => {
         <a href="/congregation/followups">Follow-ups</a>
         <a href="/congregation/visitors">Visitors</a>
         <a href="/congregation/converts">New Converts</a>
-
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
         <a href="/" className="logout-link" onClick={(e) => { e.preventDefault(); localStorage.clear(); navigate("/"); }}>➜ Logout</a>
       </div>
 
-      {/* MAIN CONTENT */}
       <div className="dashboard-content attendanceRollCall">
         <header>
           <h1>Record Attendance</h1>
           <br />
-          <button className="add-btn" onClick={() => navigate("/congregation/attendance")}>
-            ← Back to Attendance Records
-          </button>
+          <button className="add-btn" onClick={() => navigate("/congregation/attendance")}>← Back to Attendance Records</button>
         </header>
-
         <br /><br />
 
-        {/* KPI SELECTION CARDS */}
         <div className="kpi-container">
-          {/* CATEGORY */}
           <div className="kpi-card selection-card">
             <h3>Select Category</h3>
             <div className="rollcall-radio">
-              {(["Children", "Youth", "Adults", "Elderly"] as Category[]).map((cat) => (
+              {(["Children","Youth","Adults","Elderly"] as Category[]).map((cat) => (
                 <label key={cat}>
                   <input type="radio" name="category" checked={category === cat} onChange={() => setCategory(cat)} />
                   {cat}
@@ -155,11 +168,10 @@ const RecordAttendance: React.FC = () => {
             </div>
           </div>
 
-          {/* GENDER */}
           <div className="kpi-card selection-card">
             <h3>Select Gender</h3>
             <div className="rollcall-radio">
-              {(["Male", "Female"] as Gender[]).map((g) => (
+              {(["Male","Female"] as Gender[]).map((g) => (
                 <label key={g}>
                   <input type="radio" name="gender" checked={gender === g} onChange={() => setGender(g)} />
                   {g}
@@ -169,27 +181,19 @@ const RecordAttendance: React.FC = () => {
           </div>
         </div>
 
-        {/* ATTENDANCE LIST */}
         <div className="attendance-group">
           <h3>{category} — {gender}</h3>
           <div className="rollcall-list">
-            {members.map((m) => (
-              <label key={m.member_id}>
-                <input
-                  type="checkbox"
-                  checked={attendance[m.member_id] || false}
-                  onChange={() => toggleCheck(m.member_id)}
-                />
-                {m.full_name}
+            {people.map((p) => (
+              <label key={`${p.type}-${p.id}`}>
+                <input type="checkbox" checked={attendance[p.id] || false} onChange={() => toggleCheck(p.id)} />
+                {p.full_name} {p.type === "visitor" ? "(Visitor)" : ""}
               </label>
             ))}
           </div>
         </div>
 
-        {/* SAVE BUTTON */}
-        <button className="add-btn" style={{ marginTop: 20 }} onClick={saveAttendance}>
-          Save Attendance
-        </button>
+        <button className="add-btn" style={{ marginTop: 20 }} onClick={saveAttendance}>Save Attendance</button>
       </div>
     </div>
   );
