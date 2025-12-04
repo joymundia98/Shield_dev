@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -27,18 +28,14 @@ ChartJS.register(
   Filler
 );
 
-type AttendanceStatus = "Present" | "Absent";
 type Gender = "Male" | "Female";
 
-interface AttendanceRecord {
-  date: string;
+interface Visitor {
+  id: number;
   name: string;
   gender: Gender;
-  status: AttendanceStatus;
-}
-
-interface AttendanceData {
-  [category: string]: AttendanceRecord[];
+  age: number;
+  visit_date: string;
 }
 
 const AttendancePage: React.FC = () => {
@@ -53,119 +50,74 @@ const AttendancePage: React.FC = () => {
     return () => document.body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedMonth, setSelectedMonth] = useState("All");
-  const [selectedYear, setSelectedYear] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState<"All" | "Youth" | "Adults">("All");
+  const [selectedMonth, setSelectedMonth] = useState<string>("All");
+  const [selectedYear, setSelectedYear] = useState<string>("All");
   const [kpiMode, setKpiMode] = useState<"sum" | "average">("sum");
+  const [visitors, setVisitors] = useState<Visitor[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
 
-  const [expandedTables, setExpandedTables] = useState<Record<string, boolean>>({});
-  const toggleExpand = (category: string) => {
-    setExpandedTables((prev) => ({
-      ...prev,
-      [category]: !prev[category],
-    }));
-  };
+  useEffect(() => {
+    const fetchVisitors = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/api/visitor");
+        if (Array.isArray(res.data)) {
+          setVisitors(res.data);
+        } else {
+          setError("API did not return an array");
+        }
+      } catch (err) {
+        setError("Error fetching visitors: " + (err as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // ------------------------------------------
-  // STATIC DATA
-  // ------------------------------------------
-  const attendanceData: AttendanceData = useMemo(
-    () => ({
-      Children: [
-        { date: "2025-11-01", name: "Tommy", gender: "Male", status: "Present" },
-        { date: "2025-11-01", name: "Lucy", gender: "Female", status: "Absent" },
-        { date: "2025-11-08", name: "Tommy", gender: "Male", status: "Present" },
-        { date: "2025-11-08", name: "Lucy", gender: "Female", status: "Present" },
-        { date: "2025-11-15", name: "Anna", gender: "Female", status: "Present" },
-        { date: "2025-11-15", name: "Sam", gender: "Male", status: "Present" },
-      ],
-      Adults: [
-        { date: "2025-11-01", name: "John Doe", gender: "Male", status: "Present" },
-        { date: "2025-11-01", name: "Mary Smith", gender: "Female", status: "Present" },
-        { date: "2025-11-08", name: "John Doe", gender: "Male", status: "Absent" },
-        { date: "2025-11-08", name: "Mary Smith", gender: "Female", status: "Present" },
-        { date: "2025-11-15", name: "Alice", gender: "Female", status: "Present" },
-        { date: "2025-11-15", name: "Bob", gender: "Male", status: "Present" },
-      ],
-    }),
-    []
-  );
+    fetchVisitors();
+  }, []);
 
-  // FILTERED DATA
-  const filteredRecords = useMemo(() => {
-    let allRecords: AttendanceRecord[] = [];
+  // Filter visitors
+  const filteredVisitors = useMemo(() => {
+    return visitors.filter((v) => {
+      const date = new Date(v.visit_date);
+      const monthCheck = selectedMonth === "All" || date.getMonth().toString() === selectedMonth;
+      const yearCheck = selectedYear === "All" || date.getFullYear().toString() === selectedYear;
+      let categoryCheck = true;
 
-    Object.entries(attendanceData).forEach(([category, records]) => {
-      if (selectedCategory !== "All" && selectedCategory !== category) return;
+      if (selectedCategory === "Youth") categoryCheck = v.age <= 30;
+      if (selectedCategory === "Adults") categoryCheck = v.age > 30;
 
-      const filtered = records.filter((r) => {
-        const d = new Date(r.date);
-        const monthCheck = selectedMonth === "All" || d.getMonth().toString() === selectedMonth;
-        const yearCheck = selectedYear === "All" || d.getFullYear().toString() === selectedYear;
-        return monthCheck && yearCheck;
-      });
-
-      allRecords = allRecords.concat(filtered);
+      return monthCheck && yearCheck && categoryCheck;
     });
+  }, [visitors, selectedCategory, selectedMonth, selectedYear]);
 
-    return allRecords;
-  }, [attendanceData, selectedCategory, selectedMonth, selectedYear]);
+  const overallKPI = filteredVisitors.length;
+  const femaleKPI = filteredVisitors.filter((v) => v.gender === "Female").length;
+  const maleKPI = filteredVisitors.filter((v) => v.gender === "Male").length;
 
-  // KPI CALCULATIONS
-  const calcSum = (records: AttendanceRecord[]) =>
-    records.filter((r) => r.status === "Present").length;
-
-  const calcAverage = (records: AttendanceRecord[]) => {
-    const grouped: Record<string, number> = {};
-
-    records.forEach((r) => {
-      if (!grouped[r.date]) grouped[r.date] = 0;
-      if (r.status === "Present") grouped[r.date]++;
-    });
-
-    const dates = Object.keys(grouped);
-    if (dates.length === 0) return 0;
-
-    return dates.reduce((sum, d) => sum + grouped[d], 0) / dates.length;
-  };
-
-  const overallKPI = kpiMode === "sum"
-    ? calcSum(filteredRecords)
-    : Math.round(calcAverage(filteredRecords));
-
-  const femaleKPI = kpiMode === "sum"
-    ? calcSum(filteredRecords.filter((r) => r.gender === "Female"))
-    : Math.round(calcAverage(filteredRecords.filter((r) => r.gender === "Female")));
-
-  const maleKPI = kpiMode === "sum"
-    ? calcSum(filteredRecords.filter((r) => r.gender === "Male"))
-    : Math.round(calcAverage(filteredRecords.filter((r) => r.gender === "Male")));
-
-  // WEEKLY CHARTS
+  // Weekly chart calculation
   const weeklyData = useMemo(() => {
     const weeks = [0, 0, 0, 0];
     const maleWeeks = [0, 0, 0, 0];
     const femaleWeeks = [0, 0, 0, 0];
 
-    filteredRecords.forEach((r) => {
-      const week = Math.min(Math.floor((new Date(r.date).getDate() - 1) / 7), 3);
-      if (r.status === "Present") weeks[week]++;
-      if (r.gender === "Male" && r.status === "Present") maleWeeks[week]++;
-      if (r.gender === "Female" && r.status === "Present") femaleWeeks[week]++;
+    filteredVisitors.forEach((v) => {
+      const week = Math.min(Math.floor(new Date(v.visit_date).getDate() / 7), 3);
+      weeks[week]++;
+      if (v.gender === "Male") maleWeeks[week]++;
+      if (v.gender === "Female") femaleWeeks[week]++;
     });
 
     return { weeks, maleWeeks, femaleWeeks };
-  }, [filteredRecords]);
+  }, [filteredVisitors]);
 
   return (
     <div className="dashboard-wrapper">
-
-      {/* HAMBURGER */}
+      {/* Sidebar & hamburger */}
       <button className="hamburger" onClick={toggleSidebar}>
         &#9776;
       </button>
-
-      {/* SIDEBAR */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
         <div className="close-wrapper">
           <div className="toggle close-btn">
@@ -174,19 +126,19 @@ const AttendancePage: React.FC = () => {
             <span className="label">X</span>
           </div>
         </div>
-
         <h2>CONGREGATION</h2>
         <a href="/congregation/dashboard">Dashboard</a>
         <a href="/congregation/members">Members</a>
-        <a href="/congregation/attendance" className="active">Attendance</a>
+        <a href="/congregation/attendance" className="active">
+          Attendance
+        </a>
         <a href="/congregation/followups">Follow-ups</a>
         <a href="/congregation/visitors">Visitors</a>
         <a href="/congregation/converts">New Converts</a>
-
         <hr className="sidebar-separator" />
-
-        <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
-
+        <a href="/dashboard" className="return-main">
+          ← Back to Main Dashboard
+        </a>
         <a
           href="/"
           className="logout-link"
@@ -200,23 +152,19 @@ const AttendancePage: React.FC = () => {
         </a>
       </div>
 
-      {/* MAIN CONTENT */}
+      {/* Main content */}
       <div className="dashboard-content">
-
         <header className="page-header attendance-header">
           <h1>Attendance Tracker</h1>
-          <button
-            className="add-btn"
-            style={{ margin: "10px 0" }}
-            onClick={() => navigate("/congregation/recordAttendance")}
-          >
+          <button className="add-btn" style={{ margin: "10px 0" }} onClick={() => navigate("/congregation/recordAttendance")}>
             Record Attendance
           </button>
         </header>
 
-        <br /><br />
+        <br />
+        <br />
 
-        {/* KPI CARDS */}
+        {/* KPI Cards */}
         <div className="kpi-container">
           <div className="kpi-card">
             <h3>Overall Attendance</h3>
@@ -232,14 +180,14 @@ const AttendancePage: React.FC = () => {
           </div>
         </div>
 
-        {/* FILTERS */}
+        {/* Filters */}
         <div className="attendance-filter-box">
           <h3>Filter Attendance</h3>
 
-          <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+          <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value as any)}>
             <option value="All">All Categories</option>
-            <option value="Children">Children</option>
-            <option value="Adults">Adults</option>
+            <option value="Youth">Youth (≤30)</option>
+            <option value="Adults">Adults (&gt;30)</option>
           </select>
 
           &nbsp; &nbsp;
@@ -262,34 +210,22 @@ const AttendancePage: React.FC = () => {
             <option value="2027">2027</option>
           </select>
 
-          <br /><br />
+          <br />
+          <br />
 
           <div className="radio-container">
             <label>
-              <input
-                type="radio"
-                name="kpiMode"
-                value="sum"
-                checked={kpiMode === "sum"}
-                onChange={() => setKpiMode("sum")}
-              />
+              <input type="radio" name="kpiMode" value="sum" checked={kpiMode === "sum"} onChange={() => setKpiMode("sum")} />
               Sum
             </label>
-
             <label>
-              <input
-                type="radio"
-                name="kpiMode"
-                value="average"
-                checked={kpiMode === "average"}
-                onChange={() => setKpiMode("average")}
-              />
+              <input type="radio" name="kpiMode" value="average" checked={kpiMode === "average"} onChange={() => setKpiMode("average")} />
               Average
             </label>
           </div>
         </div>
 
-        {/* WEEKLY CHARTS */}
+        {/* Weekly Charts */}
         <div className="chart-grid">
           <div className="chart-box">
             <h3>Weekly Overall Attendance</h3>
@@ -326,64 +262,37 @@ const AttendancePage: React.FC = () => {
           </div>
         </div>
 
-        {/* TABLES */}
+        {/* Records Table */}
         <h2 className="records-heading">Records</h2>
 
-        {["Children", "Adults"].map((cat) => {
-          const visibleRecords = attendanceData[cat].filter((r) => {
-            const d = new Date(r.date);
-            const monthCheck =
-              selectedMonth === "All" || d.getMonth().toString() === selectedMonth;
-            const yearCheck =
-              selectedYear === "All" || d.getFullYear().toString() === selectedYear;
-            return monthCheck && yearCheck;
-          });
-
-          if (selectedCategory !== "All" && selectedCategory !== cat) return null;
-
-          return (
-            <div key={cat}>
-                <br/><br/>
-              <h3>{cat}</h3>
-
-              <table className="responsive-table">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Name</th>
-                    <th>Gender</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {visibleRecords.map((r, idx) => {
-                    const hidden = !expandedTables[cat] && idx > 2;
-
-                    return (
-                      <tr key={idx} style={{ display: hidden ? "none" : "table-row" }}>
-                        <td>{r.date}</td>
-                        <td>{r.name}</td>
-                        <td>{r.gender}</td>
-                        <td>{r.status}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-
-              {visibleRecords.length > 3 && (
-                <button
-                  className="add-btn"
-                  onClick={() => toggleExpand(cat)}
-                  style={{ marginTop: "10px" }}
-                >
-                  {expandedTables[cat] ? "View Less" : "View More"}
-                </button>
-              )}
-            </div>
-          );
-        })}
+        {loading ? (
+          <p>Loading visitors...</p>
+        ) : error ? (
+          <p style={{ color: "red" }}>{error}</p>
+        ) : filteredVisitors.length === 0 ? (
+          <p>No records found.</p>
+        ) : (
+          <table className="responsive-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Gender</th>
+                <th>Age</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredVisitors.map((v) => (
+                <tr key={v.id}>
+                  <td>{new Date(v.visit_date).toLocaleDateString()}</td>
+                  <td>{v.name}</td>
+                  <td>{v.gender}</td>
+                  <td>{v.age}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

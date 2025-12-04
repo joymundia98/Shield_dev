@@ -63,9 +63,17 @@ app.use("/api/users", verifyJWT, userRoutes);
 app.use("/api/staff", staffRoutes);
 app.use("/api/members", membersRoutes)
 app.use("/api/departments", departmentRoutes);
-app.use("/api/donors", donorRoutes)
+
+// Donor types first
 app.use("/api/donors/donor_types", donorTypeRoutes);
+
+// Donor subcategories
 app.use("/api/donors/donor_sub_category", donorSubCategoryRoutes);
+
+// Then the generic donors route
+app.use("/api/donors", donorRoutes);
+
+
 app.use("/api/congregation/congregants/", congregantRoutes)
 app.use("/api/congregation/member_statistics", memberStatsRoutes)
 app.use("/api/congregation/attendance", attendanceRoutes)

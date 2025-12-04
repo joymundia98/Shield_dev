@@ -2,9 +2,20 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
+interface DonorType {
+  id: number;
+  name: string;
+}
+
+interface DonorSubcategory {
+  id: number;
+  donor_type_id: number;
+  name: string;
+}
+
 interface DonorForm {
-  donorType: string;
-  location: string;
+  donorTypeId: number | null;
+  donorSubcategoryId: number | null;
   firstName: string;
   lastName: string;
   gender: string;
@@ -19,10 +30,11 @@ interface DonorForm {
 
 const AddDonor: React.FC = () => {
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Form state
   const [form, setForm] = useState<DonorForm>({
-    donorType: "",
-    location: "",
+    donorTypeId: null,
+    donorSubcategoryId: null,
     firstName: "",
     lastName: "",
     gender: "",
@@ -35,96 +47,148 @@ const AddDonor: React.FC = () => {
     address: "",
   });
 
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  // Dynamic dropdowns
+  const [donorTypes, setDonorTypes] = useState<DonorType[]>([]);
+  const [subcategories, setSubcategories] = useState<DonorSubcategory[]>([]);
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  // Fetch donor types
   useEffect(() => {
-    document.body.classList.toggle("sidebar-open", sidebarOpen);
-  }, [sidebarOpen]);
+    fetch("http://localhost:3000/api/donors/donor_types")
+      .then((res) => res.json())
+      .then((data) => setDonorTypes(data))
+      .catch((err) => console.error("Failed to load donor types", err));
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Fetch subcategories when donor type changes
+  useEffect(() => {
+    if (!form.donorTypeId) {
+      setSubcategories([]);
+      return;
+    }
+    fetch(
+      `http://localhost:3000/api/donors/donor_sub_category?donor_type_id=${form.donorTypeId}`
+    )
+      .then((res) => res.json())
+      .then((data) => setSubcategories(data))
+      .catch((err) => console.error("Failed to load subcategories", err));
+  }, [form.donorTypeId]);
+
+  const isIndividual = form.donorTypeId === 1; // assuming 1 = Individual
+  const isOrganization = form.donorTypeId === 2; // assuming 2 = Corporate
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Donor submitted (no backend yet):", form);
-    alert("Donor will be submitted to the database once backend is ready.");
-  };
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
 
-  const isIndividual = form.donorType === "individual";
-  const isOrganization = form.donorType === "organization";
+    try {
+      const payload: any = {
+        donor_type_id: form.donorTypeId,
+        donor_subcategory_id: form.donorSubcategoryId || null,
+        address: form.address,
+        phone: isIndividual ? form.phone : form.orgPhone,
+        email: isIndividual ? form.email : form.orgEmail,
+        preferred_contact_method: form.preferredContact || null,
+        is_active: true,
+      };
+
+      if (isIndividual) {
+        payload.name = `${form.firstName} ${form.lastName}`;
+        payload.organization_id = null;
+      } else if (isOrganization) {
+        payload.name = form.companyName;
+        payload.organization_id = 1; // adjust logic if needed
+      }
+
+      const res = await fetch("http://localhost:3000/api/donors", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Failed to add donor");
+      }
+
+      setSuccess(true);
+      setForm({
+        donorTypeId: null,
+        donorSubcategoryId: null,
+        firstName: "",
+        lastName: "",
+        gender: "",
+        email: "",
+        phone: "",
+        preferredContact: "",
+        companyName: "",
+        orgEmail: "",
+        orgPhone: "",
+        address: "",
+      });
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="dashboard-wrapper">
-      {/* Sidebar */}
-      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
-        <div className="close-wrapper">
-          <div className="toggle close-btn">
-            <input
-              type="checkbox"
-              checked={sidebarOpen}
-              onChange={toggleSidebar}
-            />
-            <span className="button"></span>
-            <span className="label">X</span>
-          </div>
-        </div>
-        <h2>DONOR MANAGER</h2>
-        <a href="/donor/dashboard">Dashboard</a>
-        <a href="/donor/donors" className="active">
-          Donors List
-        </a>
-        <a href="/donor/donations">Donations</a>
-        <a href="/donor/donorCategories">Donor Categories</a>
-        <hr className="sidebar-separator" />
-        <a href="/dashboard" className="return-main">
-          ← Back to Main Dashboard
-        </a>
-      </div>
-
-      {/* Page Content */}
       <div className="dashboard-content">
         <header className="page-header">
           <h1>Add Donor</h1>
-          <div>
-            <button
-              className="add-btn"
-              style={{ margin: "10px 0" }}
-              onClick={() => navigate("/donor/donors")}
-            >
-              ← Back
-            </button>
-            <button className="hamburger" onClick={toggleSidebar}>
-              &#9776;
-            </button>
-          </div>
+          <button className="add-btn" onClick={() => navigate("/donor/donors")}>
+            ← Back
+          </button>
         </header>
 
         <div className="container">
           <form className="add-form-styling" onSubmit={handleSubmit}>
-            {/* DONOR TYPE */}
+            {error && <p style={{ color: "red" }}>{error}</p>}
+            {success && <p style={{ color: "green" }}>Donor added successfully!</p>}
+
+            {/* Donor Type */}
             <label>Donor Type</label>
             <select
               required
-              value={form.donorType}
+              value={form.donorTypeId ?? ""}
               onChange={(e) =>
-                setForm({ ...form, donorType: e.target.value })
+                setForm({ ...form, donorTypeId: Number(e.target.value) })
               }
             >
               <option value="">Select Donor Type</option>
-              <option value="individual">Individual</option>
-              <option value="organization">Organization</option>
+              {donorTypes.map((dt) => (
+                <option key={dt.id} value={dt.id}>
+                  {dt.name}
+                </option>
+              ))}
             </select>
 
-            {/* LOCATION */}
-            <label>Location</label>
-            <select
-              required
-              value={form.location}
-              onChange={(e) =>
-                setForm({ ...form, location: e.target.value })
-              }
-            >
-              <option value="">Select Location</option>
-              <option value="Local">Local</option>
-              <option value="International">International</option>
-            </select>
+            {/* Donor Subcategory */}
+            {subcategories.length > 0 && (
+              <>
+                <label>Donor Subcategory</label>
+                <select
+                  value={form.donorSubcategoryId ?? ""}
+                  onChange={(e) =>
+                    setForm({ ...form, donorSubcategoryId: Number(e.target.value) })
+                  }
+                >
+                  <option value="">Select Subcategory</option>
+                  {subcategories.map((sc) => (
+                    <option key={sc.id} value={sc.id}>
+                      {sc.name}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
 
             {/* Individual Fields */}
             {isIndividual && (
@@ -138,7 +202,6 @@ const AddDonor: React.FC = () => {
                     setForm({ ...form, firstName: e.target.value })
                   }
                 />
-
                 <label>Last Name</label>
                 <input
                   type="text"
@@ -148,7 +211,6 @@ const AddDonor: React.FC = () => {
                     setForm({ ...form, lastName: e.target.value })
                   }
                 />
-
                 <label>Gender</label>
                 <select
                   value={form.gender}
@@ -159,7 +221,6 @@ const AddDonor: React.FC = () => {
                   <option>Female</option>
                   <option>Other</option>
                 </select>
-
                 <label>Email</label>
                 <input
                   type="email"
@@ -167,14 +228,12 @@ const AddDonor: React.FC = () => {
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                 />
-
                 <label>Phone</label>
                 <input
                   type="text"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 />
-
                 <label>Preferred Contact Method</label>
                 <select
                   value={form.preferredContact}
@@ -201,24 +260,18 @@ const AddDonor: React.FC = () => {
                     setForm({ ...form, companyName: e.target.value })
                   }
                 />
-
                 <label>Email</label>
                 <input
                   type="email"
                   required
                   value={form.orgEmail}
-                  onChange={(e) =>
-                    setForm({ ...form, orgEmail: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, orgEmail: e.target.value })}
                 />
-
                 <label>Phone</label>
                 <input
                   type="text"
                   value={form.orgPhone}
-                  onChange={(e) =>
-                    setForm({ ...form, orgPhone: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, orgPhone: e.target.value })}
                 />
               </>
             )}
@@ -231,10 +284,9 @@ const AddDonor: React.FC = () => {
               onChange={(e) => setForm({ ...form, address: e.target.value })}
             />
 
-            {/* Buttons */}
             <div className="form-buttons">
-              <button type="submit" className="add-btn">
-                Add Donor
+              <button type="submit" className="add-btn" disabled={loading}>
+                {loading ? "Submitting..." : "Add Donor"}
               </button>
               <button
                 type="button"

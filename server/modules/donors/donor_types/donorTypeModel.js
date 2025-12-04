@@ -1,51 +1,46 @@
 import { pool } from "../../../server.js";
 
-const Congregant = {
+const DonorType = {
   async getAll() {
     const result = await pool.query(
-      `SELECT id, name, gender, category_id FROM congregants ORDER BY id ASC`
+      `SELECT id, name FROM donor_types ORDER BY id ASC`
     );
     return result.rows;
   },
 
   async getById(id) {
     const result = await pool.query(
-      `SELECT id, name, gender, category_id FROM congregants WHERE id = $1`,
+      `SELECT id, name FROM donor_types WHERE id = $1`,
       [id]
     );
     return result.rows[0] || null;
   },
 
   async create(data) {
-    const { name, gender, category_id } = data;
+    const { name } = data;
     const result = await pool.query(
-      `INSERT INTO congregants (name, gender, category_id)
-       VALUES ($1, $2, $3)
-       RETURNING id, name, gender, category_id`,
-      [name, gender, category_id]
+      `INSERT INTO donor_types (name) VALUES ($1) RETURNING id, name`,
+      [name]
     );
     return result.rows[0];
   },
 
   async update(id, data) {
-    const { name, gender, category_id } = data;
+    const { name } = data;
     const result = await pool.query(
-      `UPDATE congregants
-       SET name = $1, gender = $2, category_id = $3
-       WHERE id = $4
-       RETURNING id, name, gender, category_id`,
-      [name, gender, category_id, id]
+      `UPDATE donor_types SET name = $1 WHERE id = $2 RETURNING id, name`,
+      [name, id]
     );
     return result.rows[0];
   },
 
   async delete(id) {
     const result = await pool.query(
-      `DELETE FROM congregants WHERE id = $1 RETURNING id, name, gender, category_id`,
+      `DELETE FROM donor_types WHERE id = $1 RETURNING id, name`,
       [id]
     );
     return result.rows[0];
   }
 };
 
-export default Congregant;
+export default DonorType;
