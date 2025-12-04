@@ -2,19 +2,38 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
-interface Donor {
+interface DonorForm {
+  donorType: string;
+  location: string;
   firstName: string;
   lastName: string;
   gender: string;
   email: string;
   phone: string;
+  preferredContact: string;
+  companyName: string;
+  orgEmail: string;
+  orgPhone: string;
   address: string;
-  donorType: string;
 }
 
 const AddDonor: React.FC = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [form, setForm] = useState<DonorForm>({
+    donorType: "",
+    location: "",
+    firstName: "",
+    lastName: "",
+    gender: "",
+    email: "",
+    phone: "",
+    preferredContact: "",
+    companyName: "",
+    orgEmail: "",
+    orgPhone: "",
+    address: "",
+  });
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
@@ -22,21 +41,14 @@ const AddDonor: React.FC = () => {
     document.body.classList.toggle("sidebar-open", sidebarOpen);
   }, [sidebarOpen]);
 
-  const [form, setForm] = useState<Donor>({
-    firstName: "",
-    lastName: "",
-    gender: "",
-    email: "",
-    phone: "",
-    address: "",
-    donorType: "",
-  });
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Donor submitted (no DB yet):", form);
+    console.log("Donor submitted (no backend yet):", form);
     alert("Donor will be submitted to the database once backend is ready.");
   };
+
+  const isIndividual = form.donorType === "individual";
+  const isOrganization = form.donorType === "organization";
 
   return (
     <div className="dashboard-wrapper">
@@ -53,13 +65,13 @@ const AddDonor: React.FC = () => {
             <span className="label">X</span>
           </div>
         </div>
-
         <h2>DONOR MANAGER</h2>
         <a href="/donor/dashboard">Dashboard</a>
-        <a href="/donor/donors" className="active">Donors List</a>
+        <a href="/donor/donors" className="active">
+          Donors List
+        </a>
         <a href="/donor/donations">Donations</a>
         <a href="/donor/donorCategories">Donor Categories</a>
-
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">
           ← Back to Main Dashboard
@@ -86,65 +98,6 @@ const AddDonor: React.FC = () => {
 
         <div className="container">
           <form className="add-form-styling" onSubmit={handleSubmit}>
-            {/* FIRST NAME */}
-            <label>First Name</label>
-            <input
-              type="text"
-              required
-              value={form.firstName}
-              onChange={(e) =>
-                setForm({ ...form, firstName: e.target.value })
-              }
-            />
-
-            {/* LAST NAME */}
-            <label>Last Name</label>
-            <input
-              type="text"
-              required
-              value={form.lastName}
-              onChange={(e) =>
-                setForm({ ...form, lastName: e.target.value })
-              }
-            />
-
-            {/* GENDER */}
-            <label>Gender</label>
-            <select
-              required
-              value={form.gender}
-              onChange={(e) => setForm({ ...form, gender: e.target.value })}
-            >
-              <option value="">Select Gender</option>
-              <option>Male</option>
-              <option>Female</option>
-              <option>Other</option>
-            </select>
-
-            {/* EMAIL */}
-            <label>Email</label>
-            <input
-              type="email"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-            />
-
-            {/* PHONE */}
-            <label>Phone</label>
-            <input
-              type="text"
-              value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            />
-
-            {/* ADDRESS */}
-            <label>Address</label>
-            <textarea
-              rows={3}
-              value={form.address}
-              onChange={(e) => setForm({ ...form, address: e.target.value })}
-            />
-
             {/* DONOR TYPE */}
             <label>Donor Type</label>
             <select
@@ -155,17 +108,134 @@ const AddDonor: React.FC = () => {
               }
             >
               <option value="">Select Donor Type</option>
-              <option>Individual</option>
-              <option>Organization</option>
-              <option>Anonymous</option>
+              <option value="individual">Individual</option>
+              <option value="organization">Organization</option>
             </select>
 
-            {/* BUTTONS */}
+            {/* LOCATION */}
+            <label>Location</label>
+            <select
+              required
+              value={form.location}
+              onChange={(e) =>
+                setForm({ ...form, location: e.target.value })
+              }
+            >
+              <option value="">Select Location</option>
+              <option value="Local">Local</option>
+              <option value="International">International</option>
+            </select>
+
+            {/* Individual Fields */}
+            {isIndividual && (
+              <>
+                <label>First Name</label>
+                <input
+                  type="text"
+                  required
+                  value={form.firstName}
+                  onChange={(e) =>
+                    setForm({ ...form, firstName: e.target.value })
+                  }
+                />
+
+                <label>Last Name</label>
+                <input
+                  type="text"
+                  required
+                  value={form.lastName}
+                  onChange={(e) =>
+                    setForm({ ...form, lastName: e.target.value })
+                  }
+                />
+
+                <label>Gender</label>
+                <select
+                  value={form.gender}
+                  onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                >
+                  <option value="">Select Gender</option>
+                  <option>Male</option>
+                  <option>Female</option>
+                  <option>Other</option>
+                </select>
+
+                <label>Email</label>
+                <input
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                />
+
+                <label>Phone</label>
+                <input
+                  type="text"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                />
+
+                <label>Preferred Contact Method</label>
+                <select
+                  value={form.preferredContact}
+                  onChange={(e) =>
+                    setForm({ ...form, preferredContact: e.target.value })
+                  }
+                >
+                  <option value="">Select Contact Method</option>
+                  <option>Email</option>
+                  <option>Phone</option>
+                </select>
+              </>
+            )}
+
+            {/* Organization Fields */}
+            {isOrganization && (
+              <>
+                <label>Company Name</label>
+                <input
+                  type="text"
+                  required
+                  value={form.companyName}
+                  onChange={(e) =>
+                    setForm({ ...form, companyName: e.target.value })
+                  }
+                />
+
+                <label>Email</label>
+                <input
+                  type="email"
+                  required
+                  value={form.orgEmail}
+                  onChange={(e) =>
+                    setForm({ ...form, orgEmail: e.target.value })
+                  }
+                />
+
+                <label>Phone</label>
+                <input
+                  type="text"
+                  value={form.orgPhone}
+                  onChange={(e) =>
+                    setForm({ ...form, orgPhone: e.target.value })
+                  }
+                />
+              </>
+            )}
+
+            {/* Address */}
+            <label>Address</label>
+            <textarea
+              rows={3}
+              value={form.address}
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
+            />
+
+            {/* Buttons */}
             <div className="form-buttons">
               <button type="submit" className="add-btn">
                 Add Donor
               </button>
-
               <button
                 type="button"
                 className="cancel-btn"
