@@ -1,11 +1,25 @@
 import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "../../styles/global.css";
+
+interface Member {
+  member_id: number;
+  full_name: string;
+  age: number;
+  gender: "Male" | "Female";
+  date_joined: string;
+  widowed: boolean;
+  orphan: boolean;
+  disabled: boolean;
+  status: "Active" | "Visitor" | "New Convert" | "Inactive" | "Transferred";
+}
 
 const ChurchMembersDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [members, setMembers] = useState<Member[]>([]);
 
   const growthChartRef = useRef<Chart | null>(null);
   const genderChartRef = useRef<Chart | null>(null);
@@ -14,7 +28,6 @@ const ChurchMembersDashboard: React.FC = () => {
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  // Match sidebar logic from AttendancePage
   useEffect(() => {
     if (sidebarOpen) document.body.classList.add("sidebar-open");
     else document.body.classList.remove("sidebar-open");
@@ -22,26 +35,57 @@ const ChurchMembersDashboard: React.FC = () => {
     return () => document.body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
-  // Initialize charts
+  // Fetch members from backend
   useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/api/members");
+        setMembers(res.data);
+      } catch (err) {
+        console.error("Error fetching members:", err);
+      }
+    };
+    fetchMembers();
+  }, []);
+
+  // Render charts dynamically based on fetched members
+  useEffect(() => {
+    if (!members.length) return;
+
+    // Destroy old charts if they exist
     growthChartRef.current?.destroy();
     genderChartRef.current?.destroy();
     ageChartRef.current?.destroy();
     statusChartRef.current?.destroy();
 
+    // Growth chart (members per month)
     const growthCtx = document.getElementById("growthChart") as HTMLCanvasElement;
     if (growthCtx) {
+      const months = Array.from({ length: 12 }, (_, i) => {
+        const d = new Date();
+        d.setMonth(i);
+        return d.toLocaleString("default", { month: "short" });
+      });
+
+      const monthlyCounts = Array(12).fill(0);
+      members.forEach(m => {
+        const joinDate = new Date(m.date_joined);
+        if (!isNaN(joinDate.getTime())) {
+          monthlyCounts[joinDate.getMonth()] += 1;
+        }
+      });
+
       growthChartRef.current = new Chart(growthCtx, {
         type: "line",
         data: {
-          labels: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+          labels: months,
           datasets: [{
-            label: "Total Members",
-            data: [260,270,275,280,290,300,305,310,315,318,319,320],
+            label: "New Members",
+            data: monthlyCounts,
             borderColor: "#1A3D7C",
             backgroundColor: "rgba(26,61,124,0.25)",
-            borderWidth: 3,
             fill: true,
+            borderWidth: 3,
             tension: 0.3
           }]
         },
@@ -49,51 +93,66 @@ const ChurchMembersDashboard: React.FC = () => {
       });
     }
 
+    // Gender chart
     const genderCtx = document.getElementById("genderChart") as HTMLCanvasElement;
     if (genderCtx) {
+      const maleCount = members.filter(m => m.gender === "Male").length;
+      const femaleCount = members.filter(m => m.gender === "Female").length;
       genderChartRef.current = new Chart(genderCtx, {
         type: "doughnut",
         data: {
-          labels: ["Male","Female"],
-          datasets: [{ data: [180,140], backgroundColor: ["#1A3D7C","#AF907A"] }]
+          labels: ["Male", "Female"],
+          datasets: [{ data: [maleCount, femaleCount], backgroundColor: ["#1A3D7C","#AF907A"] }]
         },
         options: { responsive: true }
       });
     }
 
+    // Age group chart
     const ageCtx = document.getElementById("ageChart") as HTMLCanvasElement;
     if (ageCtx) {
+      const ageGroups = [0, 0, 0, 0, 0]; // 0-12, 13-18, 19-35, 36-60, 60+
+      members.forEach(m => {
+        if (m.age <= 12) ageGroups[0]++;
+        else if (m.age <= 18) ageGroups[1]++;
+        else if (m.age <= 35) ageGroups[2]++;
+        else if (m.age <= 60) ageGroups[3]++;
+        else ageGroups[4]++;
+      });
+
       ageChartRef.current = new Chart(ageCtx, {
         type: "doughnut",
         data: {
           labels: ["0-12","13-18","19-35","36-60","60+"],
-          datasets: [{ data: [50,40,120,80,30], backgroundColor: ["#5C4736","#817E7A","#AF907A","#1A3D7C","#20262C"] }]
+          datasets: [{ data: ageGroups, backgroundColor: ["#5C4736","#817E7A","#AF907A","#1A3D7C","#20262C"] }]
         },
         options: { responsive: true }
       });
     }
 
+    // Status chart
     const statusCtx = document.getElementById("statusChart") as HTMLCanvasElement;
     if (statusCtx) {
+      const statusCounts: Record<string, number> = { Active: 0, Visitor: 0, "New Convert": 0, Inactive: 0, Transferred: 0 };
+      members.forEach(m => {
+        if (statusCounts[m.status] !== undefined) statusCounts[m.status]++;
+      });
+
       statusChartRef.current = new Chart(statusCtx, {
         type: "pie",
         data: {
-          labels: ["Active","Visitor","New Convert","Inactive","Transferred"],
-          datasets: [{ data: [200,45,30,30,15], backgroundColor: ["#1A3D7C","#5C4736","#AF907A","#817E7A","#20262C"] }]
+          labels: Object.keys(statusCounts),
+          datasets: [{ data: Object.values(statusCounts), backgroundColor: ["#1A3D7C","#5C4736","#AF907A","#817E7A","#20262C"] }]
         },
         options: { responsive: true }
       });
     }
-  }, []);
+  }, [members]);
 
   return (
     <div className="dashboard-wrapper members-wrapper">
-      {/* HAMBURGER */}
-      <button className="hamburger" onClick={toggleSidebar}>
-        &#9776;
-      </button>
+      <button className="hamburger" onClick={toggleSidebar}>&#9776;</button>
 
-      {/* SIDEBAR */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="close-wrapper">
           <div className="toggle close-btn">
@@ -112,63 +171,39 @@ const ChurchMembersDashboard: React.FC = () => {
         <a href="/congregation/converts">New Converts</a>
 
         <hr className="sidebar-separator" />
-
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
         <a
           href="/"
           className="logout-link"
-          onClick={(e) => {
-            e.preventDefault();
-            localStorage.clear();
-            navigate("/");
-          }}
+          onClick={(e) => { e.preventDefault(); localStorage.clear(); navigate("/"); }}
         >
           ➜ Logout
         </a>
       </div>
 
-      {/* MAIN CONTENT */}
       <div className="dashboard-content">
         <header>
           <h1>Church Members Overview</h1>
           <br/>
           <div className="header-buttons">
-            <button className="add-btn" onClick={() => navigate("/congregation/addMember")}>
-              + &nbsp; Add Member
-            </button>&nbsp;&nbsp;
-            <button className="add-btn" onClick={() => navigate("/congregation/memberRecords")}>
-              View Members
-            </button>
+            <button className="add-btn" onClick={() => navigate("/congregation/addMember")}>+ &nbsp; Add Member</button>&nbsp;&nbsp;
+            <button className="add-btn" onClick={() => navigate("/congregation/memberRecords")}>View Members</button>
           </div>
         </header>
 
-        {/* KPI CARDS */}
         <br/><br/>
         <div className="kpi-container">
-          <div className="kpi-card"><h3>Total Members</h3><p>320</p></div>
-          <div className="kpi-card"><h3>Widows</h3><p>25</p></div>
-          <div className="kpi-card"><h3>Orphans</h3><p>15</p></div>
-          <div className="kpi-card"><h3>Disabled Members</h3><p>10</p></div>
+          <div className="kpi-card"><h3>Total Members</h3><p>{members.length}</p></div>
+          <div className="kpi-card"><h3>Widows</h3><p>{members.filter(m => m.widowed).length}</p></div>
+          <div className="kpi-card"><h3>Orphans</h3><p>{members.filter(m => m.orphan).length}</p></div>
+          <div className="kpi-card"><h3>Disabled Members</h3><p>{members.filter(m => m.disabled).length}</p></div>
         </div>
 
-        {/* CHART GRID */}
         <div className="chart-grid">
-          <div className="chart-box">
-            <h3>Church Growth (12 Months)</h3>
-            <canvas id="growthChart"></canvas>
-          </div>
-          <div className="chart-box">
-            <h3>Gender Distribution</h3>
-            <canvas id="genderChart"></canvas>
-          </div>
-          <div className="chart-box">
-            <h3>Age Group Distribution</h3>
-            <canvas id="ageChart"></canvas>
-          </div>
-          <div className="chart-box">
-            <h3>Members by Status</h3>
-            <canvas id="statusChart"></canvas>
-          </div>
+          <div className="chart-box"><h3>Church Growth (12 Months)</h3><canvas id="growthChart"></canvas></div>
+          <div className="chart-box"><h3>Gender Distribution</h3><canvas id="genderChart"></canvas></div>
+          <div className="chart-box"><h3>Age Group Distribution</h3><canvas id="ageChart"></canvas></div>
+          <div className="chart-box"><h3>Members by Status</h3><canvas id="statusChart"></canvas></div>
         </div>
       </div>
     </div>
