@@ -32,9 +32,16 @@ const BACKEND_URL = "http://localhost:3000/api";
 
 const AddExpense: React.FC = () => {
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // ---------------- SIDEBAR ----------------
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  useEffect(() => {
+    sidebarOpen
+      ? document.body.classList.add("sidebar-open")
+      : document.body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
 
   const [form, setForm] = useState<NewExpense>({
     subcategory: "",
@@ -55,21 +62,18 @@ const AddExpense: React.FC = () => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const userId = user.id;
 
-  // Fetch categories
   useEffect(() => {
     fetch(`${BACKEND_URL}/finance/expense_categories`)
       .then(res => res.json())
       .then(data => setCategories(data));
   }, []);
 
-  // Fetch all subcategories
   useEffect(() => {
     fetch(`${BACKEND_URL}/finance/expense_subcategories`)
       .then(res => res.json())
       .then(data => setAllSubcategories(data));
   }, []);
 
-  // Fetch departments (CORRECT ENDPOINT)
   useEffect(() => {
     fetch(`${BACKEND_URL}/departments`)
       .then(res => res.json())
@@ -77,7 +81,6 @@ const AddExpense: React.FC = () => {
       .catch(err => console.error("Failed to fetch departments:", err));
   }, []);
 
-  // Filter subcategories by category
   const handleCategoryChange = (categoryId: number) => {
     const filtered = allSubcategories.filter(
       (sub) => sub.category_id === categoryId
@@ -86,13 +89,11 @@ const AddExpense: React.FC = () => {
     setForm({ ...form, subcategory: "", extraFields: {} });
   };
 
-  // Handle attachments
   const handleAttachments = (files: FileList | null) => {
     if (!files) return;
     setForm({ ...form, attachments: Array.from(files) });
   };
 
-  // Submit form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -115,7 +116,6 @@ const AddExpense: React.FC = () => {
 
       if (!res.ok) {
         const error = await res.json();
-        console.log(error);
         alert("Error: " + error.message);
         return;
       }
@@ -130,10 +130,46 @@ const AddExpense: React.FC = () => {
 
   return (
     <div className="dashboard-wrapper">
-      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
-        {/* your sidebar code */}
+      
+      {/* ---------------- SIDEBAR ---------------- */}
+      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
+        <div className="close-wrapper">
+          <div className="toggle close-btn">
+            <input type="checkbox" checked={sidebarOpen} onChange={toggleSidebar} />
+            <span className="button"></span>
+            <span className="label">X</span>
+          </div>
+        </div>
+
+        <h2>FINANCE</h2>
+
+        <a href="/finance/dashboard">Dashboard</a>
+        <a href="/finance/incometracker">Track Income</a>
+        <a href="/finance/expensetracker" className="active">Track Expenses</a>
+        <a href="/finance/budgets">Budget</a>
+        <a href="/finance/payroll">Payroll</a>
+        <a href="/finance/financeCategory">Finance Categories</a>
+
+        <hr className="sidebar-separator" />
+
+        <a href="/dashboard" className="return-main">
+          ← Back to Main Dashboard
+        </a>
+
+        <a
+          href="/"
+          className="logout-link"
+          onClick={(e) => {
+            e.preventDefault();
+            localStorage.clear();
+            navigate("/");
+          }}
+        >
+          ➜ Logout
+        </a>
       </div>
 
+      {/* ---------------- MAIN CONTENT ---------------- */}
       <div className="dashboard-content">
         <header className="page-header expense-header">
           <h1>Add Expense</h1>
@@ -144,6 +180,7 @@ const AddExpense: React.FC = () => {
           <h2 style={{ marginBottom: 20, textAlign: "center" }}>New Expense</h2>
 
           <form className="add-form-styling" onSubmit={handleSubmit}>
+            
             {/* Category */}
             <label>Category</label>
             <select

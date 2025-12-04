@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useMemo, useState } from "react";
 import Chart from "chart.js/auto";
 import axios from "axios";
 import "../../styles/global.css";
+import { useNavigate } from "react-router-dom";
 
 interface IncomeCategory {
   id: number;
@@ -18,11 +19,24 @@ interface Income {
   id: number;
   subcategory_id: number;
   giver: string | null;
-  amount: string; // stored as string in DB
+  amount: string;
   status: "Approved" | "Pending" | "Rejected";
 }
 
 const IncomeDashboard: React.FC = () => {
+  const navigate = useNavigate();
+
+  // ---------------- SIDEBAR ----------------
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  useEffect(() => {
+    sidebarOpen
+      ? document.body.classList.add("sidebar-open")
+      : document.body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
+
+  // ---------------- Charts ----------------
   const categoryChartRef = useRef<HTMLCanvasElement>(null);
   const sourceChartRef = useRef<HTMLCanvasElement>(null);
 
@@ -30,7 +44,7 @@ const IncomeDashboard: React.FC = () => {
   const [subcategories, setSubcategories] = useState<IncomeSubcategory[]>([]);
   const [incomes, setIncomes] = useState<Income[]>([]);
 
-  // ---------------- Fetch Data from Backend ----------------
+  // ---------------- Fetch Data ----------------
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -51,7 +65,7 @@ const IncomeDashboard: React.FC = () => {
     fetchData();
   }, []);
 
-  // ---------------- Join incomes with categories ----------------
+  // ---------------- JOIN + KPI ----------------
   const incomesWithCategory = useMemo(() => {
     const subMap = Object.fromEntries(subcategories.map(s => [s.id, s]));
     const catMap = Object.fromEntries(categories.map(c => [c.id, c]));
@@ -68,28 +82,28 @@ const IncomeDashboard: React.FC = () => {
     });
   }, [incomes, subcategories, categories]);
 
-  // ---------------- Calculate KPIs ----------------
   const { totalApproved, totalPending, totalRejected } = useMemo(() => {
-    const totalApproved = incomesWithCategory
-      .filter(i => i.status === "Approved")
-      .reduce((sum, i) => sum + i.amountNum, 0);
-    const totalPending = incomesWithCategory
-      .filter(i => i.status === "Pending")
-      .reduce((sum, i) => sum + i.amountNum, 0);
-    const totalRejected = incomesWithCategory
-      .filter(i => i.status === "Rejected")
-      .reduce((sum, i) => sum + i.amountNum, 0);
-
-    return { totalApproved, totalPending, totalRejected };
+    return {
+      totalApproved: incomesWithCategory
+        .filter(i => i.status === "Approved")
+        .reduce((sum, i) => sum + i.amountNum, 0),
+      totalPending: incomesWithCategory
+        .filter(i => i.status === "Pending")
+        .reduce((sum, i) => sum + i.amountNum, 0),
+      totalRejected: incomesWithCategory
+        .filter(i => i.status === "Rejected")
+        .reduce((sum, i) => sum + i.amountNum, 0)
+    };
   }, [incomesWithCategory]);
 
-  // ---------------- Prepare Chart Data ----------------
   const { categoryTotals, sourceTotals } = useMemo(() => {
     const categoryTotals: Record<string, number> = {};
     const sourceTotals: Record<string, number> = {};
 
     incomesWithCategory.forEach(i => {
-      categoryTotals[i.categoryName] = (categoryTotals[i.categoryName] || 0) + i.amountNum;
+      categoryTotals[i.categoryName] =
+        (categoryTotals[i.categoryName] || 0) + i.amountNum;
+
       const giver = i.giver || "Anonymous";
       sourceTotals[giver] = (sourceTotals[giver] || 0) + i.amountNum;
     });
@@ -97,7 +111,7 @@ const IncomeDashboard: React.FC = () => {
     return { categoryTotals, sourceTotals };
   }, [incomesWithCategory]);
 
-  // ---------------- Initialize Charts ----------------
+  // ---------------- Charts ----------------
   useEffect(() => {
     let categoryChart: Chart | null = null;
     let sourceChart: Chart | null = null;
@@ -108,14 +122,14 @@ const IncomeDashboard: React.FC = () => {
         data: {
           labels: Object.keys(categoryTotals),
           datasets: [
-            { label: "Income", data: Object.values(categoryTotals), backgroundColor: "#1A3D7C" }
+            {
+              label: "Income",
+              data: Object.values(categoryTotals),
+              backgroundColor: "#1A3D7C"
+            }
           ]
         },
-        options: {
-          responsive: true,
-          plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true } }
-        }
+        options: { responsive: true, plugins: { legend: { display: false } } }
       });
     }
 
@@ -130,8 +144,7 @@ const IncomeDashboard: React.FC = () => {
               backgroundColor: ["#5C4736", "#817E7A", "#AF907A", "#20262C", "#858796"]
             }
           ]
-        },
-        options: { responsive: true }
+        }
       });
     }
 
@@ -142,40 +155,94 @@ const IncomeDashboard: React.FC = () => {
   }, [categoryTotals, sourceTotals]);
 
   return (
-    <div className="container">
-      <header>
-        <h1>Income Dashboard</h1>
-        <br /><br />
-        <button className="add-btn" onClick={() => window.location.href = "/finance/incometracker"}>
-          ← Back to Income Tracker
-        </button>
-        <button className="hamburger" onClick={() => { /* sidebar toggle */ }}>&#9776;</button>
-      </header>
+    <div className="dashboard-wrapper">
 
-      <br /><br />
-      <div className="kpi-container">
-        <div className="kpi-card">
-          <h3>Total Approved Income</h3>
-          <p>${totalApproved.toLocaleString()}</p>
+      {/* ---------------- SIDEBAR ---------------- */}
+      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
+        <div className="close-wrapper">
+          <div className="toggle close-btn">
+            <input type="checkbox" checked={sidebarOpen} onChange={toggleSidebar} />
+            <span className="button"></span>
+            <span className="label">X</span>
+          </div>
         </div>
-        <div className="kpi-card">
-          <h3>Pending Income</h3>
-          <p>${totalPending.toLocaleString()}</p>
-        </div>
-        <div className="kpi-card">
-          <h3>Rejected Income</h3>
-          <p>${totalRejected.toLocaleString()}</p>
-        </div>
+
+        <h2>FINANCE</h2>
+        <a href="/finance/dashboard">Dashboard</a>
+        <a href="/finance/incometracker" className="active">Track Income</a>
+        <a href="/finance/expensetracker">Track Expenses</a>
+        <a href="/finance/budgets">Budget</a>
+        <a href="/finance/payroll">Payroll</a>
+        <a href="/finance/financeCategory">Finance Categories</a>
+
+        <hr className="sidebar-separator" />
+
+        <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
+
+        <a
+          href="/"
+          className="logout-link"
+          onClick={(e) => {
+            e.preventDefault();
+            localStorage.clear();
+            navigate("/");
+          }}
+        >
+          ➜ Logout
+        </a>
       </div>
 
-      <div className="chart-grid">
-        <div className="chart-box">
-          <h3>Income by Category</h3>
-          <canvas ref={categoryChartRef}></canvas>
+      {/* ---------------- MAIN CONTENT ---------------- */}
+      <div className="dashboard-content">
+        <header className="page-header income-header">
+          <h1>Income Dashboard</h1>
+
+          <div>
+            <br/>
+            <button
+              className="add-btn"
+              onClick={() => navigate("/finance/incometracker")}
+            >
+              ← Back to Income Tracker
+            </button>
+
+            &nbsp;
+            <button className="hamburger" onClick={toggleSidebar}>
+              ☰
+            </button>
+          </div>
+        </header>
+
+        <br /><br />
+
+        {/* KPIs */}
+        <div className="kpi-container">
+          <div className="kpi-card kpi-approved">
+            <h3>Total Approved Income</h3>
+            <p>${totalApproved.toLocaleString()}</p>
+          </div>
+
+          <div className="kpi-card kpi-pending">
+            <h3>Pending Income</h3>
+            <p>${totalPending.toLocaleString()}</p>
+          </div>
+
+          <div className="kpi-card kpi-rejected">
+            <h3>Rejected Income</h3>
+            <p>${totalRejected.toLocaleString()}</p>
+          </div>
         </div>
-        <div className="chart-box">
-          <h3>Income by Source</h3>
-          <canvas ref={sourceChartRef}></canvas>
+
+        <div className="chart-grid">
+          <div className="chart-box">
+            <h3>Income by Category</h3>
+            <canvas ref={categoryChartRef}></canvas>
+          </div>
+
+          <div className="chart-box">
+            <h3>Income by Source</h3>
+            <canvas ref={sourceChartRef}></canvas>
+          </div>
         </div>
       </div>
     </div>
