@@ -4,11 +4,11 @@ import dotenv from 'dotenv';
 import pkg from 'pg';
 
 import userRoutes from './modules/user/userRoutes.js';
-import staffRoutes from './modules/hr/staff/staffRoutes.js'
-import membersRoutes from './modules/member/memberRoutes.js'
-import leaveRoutes from './modules/hr/leave/leaveRoutes.js'
-import donorRoutes from './modules/donors/donorRoutes.js'
-import attachmentRoutes from './modules/finance/attachments/attachmentsRoutes.js'
+import staffRoutes from './modules/hr/staff/staffRoutes.js';
+import membersRoutes from './modules/member/memberRoutes.js';
+import leaveRoutes from './modules/hr/leave/leaveRoutes.js';
+import donorRoutes from './modules/donors/donorRoutes.js';
+import attachmentRoutes from './modules/finance/attachments/attachmentsRoutes.js';
 import departmentRoutes from './modules/hr/departments/departmentRoutes.js';
 import financeExpenseCategoriesRoutes from './modules/finance/expense_categories/expenseCategoryRoutes.js';
 import financeExpenseSubRoutes from './modules/finance/expense_sub_categories/expenseSubRoutes.js';
@@ -18,7 +18,11 @@ import expensesRoutes from './modules/finance/expenses/expenseRoutes.js';
 import incomesRoutes from './modules/finance/incomes/incomeRoutes.js';
 import extraFieldsRoutes from './modules/finance/extra_fields/extraFieldRoutes.js';
 import budgetsRoutes from './modules/finance/budgets/budgetRoutes.js';
-import rolesRoutes from './modules/role/roleRoutes.js'
+import memberStatsRoutes from './modules/congregation/member_statistics/memberStatisticsRoutes.js';
+import congregantRoutes from './modules/congregation/congregants/congregantsRoutes.js';
+import attendanceRoutes from './modules/congregation/attandance/attendanceRoutes.js'
+import sessionRoutes from './modules/congregation/sessions/sessionRoutes.js'
+import rolesRoutes from './modules/role/roleRoutes.js';
 import authRoutes from './modules/auth/authRoutes.js';
 import denominationRoutes from './modules/denomination/denominationRoutes.js';
 import organizationRoutes from './modules/organization/OrgRoutes.js';
@@ -52,6 +56,10 @@ app.use("/api/staff", staffRoutes);
 app.use("/api/members", membersRoutes)
 app.use("/api/departments", departmentRoutes);
 app.use("/api/donors", donorRoutes)
+app.use("/api/congregations/congregants/", congregantRoutes)
+app.use("/api/congregation/member_statistics", memberStatsRoutes)
+app.use("/api/congregation/attendance", attendanceRoutes)
+app.use("/api/congregation/sessions", sessionRoutes)
 app.use("/api/finance/budgets", budgetsRoutes)
 app.use("/api/finance/attachments", attachmentRoutes)
 app.use('/api/finance/expense_categories', financeExpenseCategoriesRoutes);
