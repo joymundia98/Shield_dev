@@ -4,6 +4,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { LandingPage } from "./pages/LandingPage";
 import { OrgLoginPage } from "./pages/orgLoginPage";
+import { OrgRegisterPage } from "./pages/orgRegisterPage";
 
 import DashboardPage from "./pages/DashboardPage";
 
@@ -34,6 +35,7 @@ import AssetsPage from "./pages/assets/assets";
 import DepreciationPage from "./pages/assets/depreciation";
 import AddAssetPage from "./pages/assets/addAsset";
 import MaintenancePage from "./pages/assets/maintenance";
+import CategoriesPage from "./pages/assets/categories";
 
 // Finance Module Functional Pages
 import PayrollPage from "./pages/finance/payroll";
@@ -70,9 +72,6 @@ import VisitorsDashboard from "./pages/congregation/visitors";
 import AddVisitorPage from "./pages/congregation/addVisitors";
 import VisitorRecordsPage from "./pages/congregation/visitorRecords";
 
-// Categories Page
-import CategoriesPage from "./pages/assets/categories";
-
 import { AuthProvider } from "./context/AuthContext";
 
 function App() {
@@ -81,20 +80,27 @@ function App() {
       <BrowserRouter>
         <Routes>
 
-          {/* PUBLIC PAGES */}
+          {/* ------------------------------
+                  PUBLIC PAGES
+          --------------------------------*/}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* ORGANIZATION LOGIN */}
+          {/* ------------------------------
+                  ORGANIZATION PAGES
+          --------------------------------*/}
           <Route path="/org-login" element={<OrgLoginPage />} />
+          <Route path="/org-register" element={<OrgRegisterPage />} />
           <Route path="/org-dashboard" element={<DashboardPage />} />
 
-          {/* MAIN DASHBOARD */}
+          {/* ------------------------------
+                  MAIN DASHBOARD
+          --------------------------------*/}
           <Route path="/dashboard" element={<DashboardPage />} />
 
           {/* ------------------------------
-                DEPT ROOT DASHBOARDS
+                  DEPARTMENT DASHBOARDS
           --------------------------------*/}
           <Route path="/pastoral/dashboard" element={<PastoralDashboard />} />
           <Route path="/programs/dashboard" element={<ProgramsDashboard />} />
@@ -108,7 +114,7 @@ function App() {
           <Route path="/assets/dashboard" element={<AssetDashboard />} />
 
           {/* ------------------------------
-                      ASSETS MODULE
+                  ASSETS MODULE
           --------------------------------*/}
           <Route path="/assets/assets" element={<AssetsPage />} />
           <Route path="/assets/add" element={<AddAssetPage />} />
@@ -117,32 +123,32 @@ function App() {
           <Route path="/assets/categories" element={<CategoriesPage />} />
 
           {/* ------------------------------
-              DONOR MANAGEMENT ROUTES
+                  DONOR MANAGEMENT
           --------------------------------*/}
           <Route path="/donor/donors" element={<DonorsPage />} />
           <Route path="/donor/addDonor" element={<AddDonorPage />} />
           <Route path="/donor/donations" element={<DonationsManagementPage />} />
           <Route path="/donor/addDonation" element={<AddDonationPage />} />
           <Route path="/donor/donorCategories" element={<DonorCategoriesPage />} />
-          
+
           {/* ------------------------------
-                CONGREGATION SUB-ROUTES
+                  CONGREGATION MODULE
           --------------------------------*/}
           <Route path="/congregation/members" element={<ChurchMembersDashboard />} />
           <Route path="/congregation/attendance" element={<AttendancePage />} />
           <Route path="/congregation/recordAttendance" element={<RecordAttendance />} />
           <Route path="/congregation/followups" element={<CongregationDashboard />} />
           <Route path="/congregation/memberRecords" element={<MembersRecords />} />
-          <Route path="congregation/addMember" element={<AddMemberPage />} />
-          <Route path="congregation/converts" element={<ConvertsDashboard />} />
-          <Route path="congregation/convertRecords" element={<ConvertsPage />} />
-          <Route path="congregation/addConvert" element={<AddConvert />} />
-          <Route path="congregation/visitors" element={<VisitorsDashboard />} />
-          <Route path="congregation/addVisitors" element={<AddVisitorPage />} />
-          <Route path="congregation/visitorRecords" element={<VisitorRecordsPage />} />
+          <Route path="/congregation/addMember" element={<AddMemberPage />} />
+          <Route path="/congregation/converts" element={<ConvertsDashboard />} />
+          <Route path="/congregation/convertRecords" element={<ConvertsPage />} />
+          <Route path="/congregation/addConvert" element={<AddConvert />} />
+          <Route path="/congregation/visitors" element={<VisitorsDashboard />} />
+          <Route path="/congregation/addVisitors" element={<AddVisitorPage />} />
+          <Route path="/congregation/visitorRecords" element={<VisitorRecordsPage />} />
 
           {/* ------------------------------
-                    FINANCE SUB-ROUTES
+                  FINANCE MODULE
           --------------------------------*/}
           <Route path="/finance/transactions" element={<FinanceDashboard />} />
           <Route path="/finance/expensetracker" element={<ExpenseTrackerPage />} />
@@ -153,15 +159,12 @@ function App() {
           <Route path="/finance/addIncome" element={<AddIncomePage />} />
           <Route path="/finance/payroll" element={<PayrollPage />} />
           <Route path="/finance/financeCategory" element={<FinanceCategoryPage />} />
-
-          {/* NEW BUDGET ROUTES */}
-          <Route path="/finance/budgets" element={<BudgetsPage />} />       {/* Dashboard view */}
-          <Route path="/finance/setBudget" element={<SetBudgetsPage />} /> {/* Set budgets form */}
-
+          <Route path="/finance/budgets" element={<BudgetsPage />} />
+          <Route path="/finance/setBudget" element={<SetBudgetsPage />} />
           <Route path="/finance/reports" element={<FinanceDashboard />} />
 
           {/* ------------------------------
-                HR SUB-ROUTES
+                  HR MODULE
           --------------------------------*/}
           <Route path="/hr/staffDirectory" element={<StaffDirectory />} />
           <Route path="/hr/attendance" element={<HRDashboard />} />
@@ -170,7 +173,7 @@ function App() {
           <Route path="/hr/addStaff" element={<AddStaffPage />} />
 
           {/* ------------------------------
-                    PROGRAMS SUB-ROUTES
+                  PROGRAMS MODULE
           --------------------------------*/}
           <Route path="/programs/donors" element={<ProgramsDashboard />} />
           <Route path="/programs/addDonor" element={<ProgramsDashboard />} />
@@ -178,7 +181,7 @@ function App() {
           <Route path="/programs/reports" element={<ProgramsDashboard />} />
 
           {/* ------------------------------
-                      CLASS MODULE
+                  CLASS MODULE
           --------------------------------*/}
           <Route path="/class/classes" element={<ClassDashboard />} />
           <Route path="/class/add-class" element={<ClassDashboard />} />
@@ -188,7 +191,7 @@ function App() {
           <Route path="/class/reports" element={<ClassDashboard />} />
 
           {/* ------------------------------
-                  MINISTRY SUB-ROUTES
+                  MINISTRY MODULE
           --------------------------------*/}
           <Route path="/ministry/teams" element={<MinistryDashboard />} />
           <Route path="/ministry/members" element={<MinistryDashboard />} />
@@ -196,7 +199,7 @@ function App() {
           <Route path="/ministry/pastors" element={<PastorsPage />} />
 
           {/* ------------------------------
-                  PASTORAL SUB-ROUTES
+                  PASTORAL MODULE
           --------------------------------*/}
           <Route path="/pastoral/donors" element={<PastoralDashboard />} />
           <Route path="/pastoral/add-donor" element={<PastoralDashboard />} />
@@ -204,7 +207,7 @@ function App() {
           <Route path="/pastoral/reports" element={<PastoralDashboard />} />
 
           {/* ------------------------------
-                GOVERNANCE SUB-ROUTES
+                  GOVERNANCE MODULE
           --------------------------------*/}
           <Route path="/governance/policies" element={<GovernanceDashboard />} />
           <Route path="/governance/audit-reports" element={<GovernanceDashboard />} />
@@ -212,7 +215,6 @@ function App() {
           <Route path="/governance/documentation" element={<GovernanceDashboard />} />
           <Route path="/governance/certificates" element={<GovernanceDashboard />} />
 
-          
         </Routes>
       </BrowserRouter>
     </AuthProvider>
