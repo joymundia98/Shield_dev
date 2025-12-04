@@ -20,6 +20,8 @@ interface MemberForm {
   guardianPhone?: string;
 }
 
+const BACKEND_URL = "http://localhost:3000/api/members";
+
 const AddMemberPage: React.FC = () => {
   const navigate = useNavigate();
 
@@ -27,11 +29,10 @@ const AddMemberPage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  // Apply body class for sidebar
   useEffect(() => {
-    if (sidebarOpen) document.body.classList.add("sidebar-open");
-    else document.body.classList.remove("sidebar-open");
-
+    sidebarOpen
+      ? document.body.classList.add("sidebar-open")
+      : document.body.classList.remove("sidebar-open");
     return () => document.body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
@@ -62,18 +63,67 @@ const AddMemberPage: React.FC = () => {
     else setIsAdult(null);
   }, [formData.age]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : type === "number" ? Number(value) : value,
+      [name]:
+        type === "checkbox" ? checked : type === "number" ? Number(value) : value,
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // --- Backend submission ---
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("New Member Data:", formData);
-    alert("Member added successfully (check console for data).");
+
+    // Map frontend fields to backend-required fields
+    const payload: Record<string, any> = {
+      photo: formData.photo || null,
+      full_name: formData.name || null, // backend expects "full_name"
+      category: formData.category || null,
+      age: formData.age !== "" ? Number(formData.age) : null,
+      gender: formData.gender || null,
+      join_date: formData.joinDate || null, // backend expects "join_date"
+      address: formData.address || null,
+      phone: formData.phone || null,
+      email: formData.email || null,
+      disabled: Boolean(formData.disabled),
+      orphan: Boolean(formData.orphan),
+      widowed: Boolean(formData.widowed),
+    };
+
+    // Optional adult/minor fields
+    if (isAdult) {
+      payload.nrc = formData.NRC || null;
+    } else if (isAdult === false) {
+      payload.guardian_name = formData.guardianName || null;
+      payload.guardian_phone = formData.guardianPhone || null;
+    }
+
+    // DEBUG: log the payload before sending
+    console.log("Submitting Member Payload:", JSON.stringify(payload, null, 2));
+
+    try {
+      const res = await fetch(BACKEND_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({ message: "Unknown error" }));
+        alert("Error: " + error.message);
+        return;
+      }
+
+      alert("Member added successfully!");
+      navigate("/congregation/members"); // redirect to members overview
+    } catch (err) {
+      console.error("Failed to submit member:", err);
+      alert("Server error. Check console for details.");
+    }
   };
 
   return (
@@ -102,7 +152,6 @@ const AddMemberPage: React.FC = () => {
         <a href="/congregation/converts">New Converts</a>
 
         <hr className="sidebar-separator" />
-
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
         <a
           href="/"
@@ -146,8 +195,7 @@ const AddMemberPage: React.FC = () => {
               <option>Adult</option>
               <option>Youth</option>
               <option>Child</option>
-              <option>Widow/Widower</option>
-              <option>Orphan</option>
+              <option>Elderly</option>
             </select>
 
             <label>Age</label>
