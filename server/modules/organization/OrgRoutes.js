@@ -13,12 +13,7 @@ const router = express.Router();
 // =====================
 
 // Create a new organization
-router.post(
-  "/register",
-  verifyJWT,
-  requirePermission("organization.create"),
-  createOrg
-);
+router.post("/register", OrganizationController.create);
 
 // List all organizations (admin only)
 router.get(

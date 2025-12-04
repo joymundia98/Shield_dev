@@ -25,23 +25,24 @@ const Member = {
       gender,
       date_of_birth,
       date_joined,
-      user_id
+      user_id,
+      age = null,
+      disabled = false,
+      orphan = false,
+      widowed = false,
+      nrc = null,
+      guardian_name = null,
+      guardian_phone = null,
+      status = "Active",
     } = data;
 
     const result = await pool.query(
       `
       INSERT INTO members (
-        full_name,
-        email,
-        phone,
-        gender,
-        date_of_birth,
-        date_joined,
-        user_id,
-        created_at,
-        updated_at
+        full_name, email, phone, gender, date_of_birth, date_joined, 
+        user_id, age, disabled, orphan, widowed, nrc, guardian_name, guardian_phone, status, created_at, updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,NOW(),NOW())
       RETURNING *
       `,
       [
@@ -51,7 +52,15 @@ const Member = {
         gender,
         date_of_birth,
         date_joined || new Date(),
-        user_id
+        user_id,
+        age,
+        disabled,
+        orphan,
+        widowed,
+        nrc,
+        guardian_name,
+        guardian_phone,
+        status
       ]
     );
 
@@ -66,7 +75,15 @@ const Member = {
       gender,
       date_of_birth,
       date_joined,
-      user_id
+      user_id,
+      age,
+      disabled,
+      orphan,
+      widowed,
+      nrc,
+      guardian_name,
+      guardian_phone,
+      status,
     } = data;
 
     const result = await pool.query(
@@ -80,8 +97,16 @@ const Member = {
         date_of_birth = $5,
         date_joined = $6,
         user_id = $7,
+        age = $8,
+        disabled = $9,
+        orphan = $10,
+        widowed = $11,
+        nrc = $12,
+        guardian_name = $13,
+        guardian_phone = $14,
+        status = $15,
         updated_at = NOW()
-      WHERE member_id = $8
+      WHERE member_id = $16
       RETURNING *
       `,
       [
@@ -92,6 +117,14 @@ const Member = {
         date_of_birth,
         date_joined,
         user_id,
+        age,
+        disabled,
+        orphan,
+        widowed,
+        nrc,
+        guardian_name,
+        guardian_phone,
+        status,
         member_id
       ]
     );
