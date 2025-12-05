@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
 interface Donor {
-  id: string;
+  id: number;
   name: string;
   email: string;
   phone: string;
-  type: "Individual" | "Organization" | "Anonymous";
+  donor_type_id: number | null;
+  donor_type?: string; // optional, fetched from backend
 }
 
 const DonorManagementPage: React.FC = () => {
@@ -22,45 +23,51 @@ const DonorManagementPage: React.FC = () => {
     else document.body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
-  // ---------------- Static Donor Data (temporary) ----------------
-  const [donorData, setDonorData] = useState<Donor[]>([
-    {
-      id: "D001",
-      name: "John Doe",
-      email: "john@example.com",
-      phone: "+123456789",
-      type: "Individual",
-    },
-    {
-      id: "D002",
-      name: "Acme Corp.",
-      email: "contact@acme.org",
-      phone: "+987654321",
-      type: "Organization",
-    },
-    {
-      id: "D003",
-      name: "Anonymous Donor",
-      email: "N/A",
-      phone: "N/A",
-      type: "Anonymous",
-    },
-  ]);
+  // ---------------- Donor Data ----------------
+  const [donorData, setDonorData] = useState<Donor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchDonors = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/donors");
+        if (!res.ok) throw new Error("Failed to fetch donors");
+        const data = await res.json();
+
+        // Optional: Map donor_type_id to donor_type name if your backend provides it
+        const donorsWithType = data.map((d: any) => ({
+          ...d,
+          donor_type: d.donor_type_id === 1 ? "Individual" : "Organization",
+        }));
+
+        setDonorData(donorsWithType);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDonors();
+  }, []);
 
   // ---------------- Search ----------------
   const [searchQuery, setSearchQuery] = useState("");
-
   const filteredDonors = useMemo(() => {
-    return donorData.filter((d) =>
-      d.name.toLowerCase().includes(searchQuery.toLowerCase())
+    return donorData.filter(
+      (d) =>
+        d.name &&
+        d.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        d.donor_type !== "Anonymous" // exclude anonymous
     );
   }, [donorData, searchQuery]);
 
   // ---------------- Grouping ----------------
   const donorGroups = useMemo(() => {
     return filteredDonors.reduce((groups: Record<string, Donor[]>, donor) => {
-      if (!groups[donor.type]) groups[donor.type] = [];
-      groups[donor.type].push(donor);
+      if (!groups[donor.donor_type!]) groups[donor.donor_type!] = [];
+      groups[donor.donor_type!].push(donor);
       return groups;
     }, {});
   }, [filteredDonors]);
@@ -68,7 +75,6 @@ const DonorManagementPage: React.FC = () => {
   // ---------------- Modals ----------------
   const [editDonor, setEditDonor] = useState<Donor | null>(null);
   const [editIndex, setEditIndex] = useState<number | null>(null);
-
   const [viewDonor, setViewDonor] = useState<Donor | null>(null);
 
   const openEditModal = (donor: Donor, index: number) => {
@@ -80,20 +86,33 @@ const DonorManagementPage: React.FC = () => {
   const openViewModal = (donor: Donor) => setViewDonor(donor);
   const closeViewModal = () => setViewDonor(null);
 
-  const saveDonor = () => {
+  const saveDonor = async () => {
     if (editDonor && editIndex !== null) {
-      const updated = [...donorData];
-      updated[editIndex] = editDonor;
-      setDonorData(updated);
+      try {
+        const res = await fetch(`http://localhost:3000/api/donors/${editDonor.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(editDonor),
+        });
+        if (!res.ok) throw new Error("Failed to update donor");
+
+        const updated = [...donorData];
+        updated[editIndex] = editDonor;
+        setDonorData(updated);
+      } catch (err: any) {
+        alert(err.message);
+      } finally {
+        closeEditModal();
+      }
     }
-    closeEditModal();
   };
 
-  const handleAddDonor = () => {
-    navigate("/donor/addDonor"); // route to your Add Donor page
-  };
+  const handleAddDonor = () => navigate("/donor/addDonor");
 
   // ---------------- Rendering ----------------
+  if (loading) return <p>Loading donors...</p>;
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
+
   return (
     <div className="dashboard-wrapper">
       {/* Hamburger */}
@@ -116,19 +135,16 @@ const DonorManagementPage: React.FC = () => {
         </div>
 
         <h2>DONOR MGMT</h2>
-
-        <a href="/donor/dashboard">
-          Dashboard
+        <a href="/donor/dashboard">Dashboard</a>
+        <a href="/donor/donors" className="active">
+          Donors List
         </a>
-        <a href="/donor/donors" className="active">Donors List</a>
         <a href="/donor/donations">Donations</a>
         <a href="/donor/donorCategories">Donor Categories</a>
-
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">
           ← Back to Main Dashboard
         </a>
-
         <a
           href="/"
           className="logout-link"
@@ -138,7 +154,7 @@ const DonorManagementPage: React.FC = () => {
             navigate("/");
           }}
         >
-          ➜] Logout
+          ➜ Logout
         </a>
       </div>
 
@@ -146,11 +162,13 @@ const DonorManagementPage: React.FC = () => {
       <div className="dashboard-content">
         <h1>Donors</h1>
         <br />
-
-        {/* Search + Add Button */}
         <div
           className="table-header"
-          style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
         >
           <input
             type="text"
@@ -168,7 +186,6 @@ const DonorManagementPage: React.FC = () => {
         {Object.entries(donorGroups).map(([type, donors]) => (
           <div className="department-block" key={type}>
             <h2>{type} Donors</h2>
-
             <table className="responsive-table">
               <thead>
                 <tr>
@@ -183,7 +200,7 @@ const DonorManagementPage: React.FC = () => {
                 {donors.map((d, i) => {
                   const index = donorData.indexOf(d);
                   return (
-                    <tr key={i}>
+                    <tr key={d.id}>
                       <td data-title="ID">{d.id}</td>
                       <td data-title="Name">{d.name}</td>
                       <td data-title="Email">{d.email}</td>
@@ -192,7 +209,10 @@ const DonorManagementPage: React.FC = () => {
                         <button className="add-btn" onClick={() => openViewModal(d)}>
                           View
                         </button>
-                        <button className="edit-btn" onClick={() => openEditModal(d, index)}>
+                        <button
+                          className="edit-btn"
+                          onClick={() => openEditModal(d, index)}
+                        >
                           Edit
                         </button>
                       </td>
@@ -208,10 +228,8 @@ const DonorManagementPage: React.FC = () => {
         {editDonor && (
           <>
             <div className="overlay" onClick={closeEditModal}></div>
-
             <div className="filter-popup modal-wide">
               <h3>Edit Donor</h3>
-
               <label>Name</label>
               <input
                 type="text"
@@ -220,7 +238,6 @@ const DonorManagementPage: React.FC = () => {
                   setEditDonor({ ...editDonor, name: e.target.value })
                 }
               />
-
               <label>Email</label>
               <input
                 type="email"
@@ -229,7 +246,6 @@ const DonorManagementPage: React.FC = () => {
                   setEditDonor({ ...editDonor, email: e.target.value })
                 }
               />
-
               <label>Phone</label>
               <input
                 type="text"
@@ -238,25 +254,13 @@ const DonorManagementPage: React.FC = () => {
                   setEditDonor({ ...editDonor, phone: e.target.value })
                 }
               />
-
-              <label>Type</label>
-              <select
-                value={editDonor.type}
-                onChange={(e) =>
-                  setEditDonor({
-                    ...editDonor,
-                    type: e.target.value as Donor["type"],
-                  })
-                }
-              >
-                <option value="Individual">Individual</option>
-                <option value="Organization">Organization</option>
-                <option value="Anonymous">Anonymous</option>
-              </select>
-
               <div className="filter-popup-buttons">
-                <button className="add-btn" onClick={saveDonor}>Save</button>
-                <button className="delete-btn" onClick={closeEditModal}>Close</button>
+                <button className="add-btn" onClick={saveDonor}>
+                  Save
+                </button>
+                <button className="delete-btn" onClick={closeEditModal}>
+                  Close
+                </button>
               </div>
             </div>
           </>
@@ -266,20 +270,32 @@ const DonorManagementPage: React.FC = () => {
         {viewDonor && (
           <>
             <div className="overlay" onClick={closeViewModal}></div>
-
             <div className="filter-popup modal-wide">
               <h3>Donor Details</h3>
-
               <table className="responsive-table view-table">
                 <tbody>
-                  <tr><td>Donor ID</td><td>{viewDonor.id}</td></tr>
-                  <tr><td>Name</td><td>{viewDonor.name}</td></tr>
-                  <tr><td>Email</td><td>{viewDonor.email}</td></tr>
-                  <tr><td>Phone</td><td>{viewDonor.phone}</td></tr>
-                  <tr><td>Type</td><td>{viewDonor.type}</td></tr>
+                  <tr>
+                    <td>Donor ID</td>
+                    <td>{viewDonor.id}</td>
+                  </tr>
+                  <tr>
+                    <td>Name</td>
+                    <td>{viewDonor.name}</td>
+                  </tr>
+                  <tr>
+                    <td>Email</td>
+                    <td>{viewDonor.email}</td>
+                  </tr>
+                  <tr>
+                    <td>Phone</td>
+                    <td>{viewDonor.phone}</td>
+                  </tr>
+                  <tr>
+                    <td>Type</td>
+                    <td>{viewDonor.donor_type}</td>
+                  </tr>
                 </tbody>
               </table>
-
               <div className="filter-popup-buttons">
                 <button className="delete-btn" onClick={closeViewModal}>
                   Close
