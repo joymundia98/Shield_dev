@@ -99,7 +99,7 @@ app.use('/api/finance/extra_fields', extraFieldsRoutes);
 app.use('/api/finance/budgets', budgetsRoutes);
 app.use("/api/leave_requests", leaveRoutes);
 app.use("/api/denominations", verifyJWT, denominationRoutes);
-app.use("/api/organizations", verifyJWT, organizationRoutes);
+app.use("/api/organizations", organizationRoutes);
 
 // Health check
 app.get("/", (req, res) => {
