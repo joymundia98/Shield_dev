@@ -24,6 +24,7 @@ import memberStatsRoutes from './modules/congregation/member_statistics/memberSt
 import congregantRoutes from './modules/congregation/congregants/congregantsRoutes.js';
 import attendanceRoutes from './modules/congregation/attandance/attendanceRoutes.js'
 import visitorRoutes from './modules/congregation/visitors/visitorRoutes.js';
+import donationRoutes from './modules/donation/donationRoutes.js';
 import visitorServiceRoutes from './modules/congregation/visitors/visitorService/visitorServiceRoutes.js';
 import visitorReferralRoutes from './modules/congregation/referral/visitorReferral/visitorRefferalRoutes.js';
 import serviceRoutes from './modules/services/serviceRoutes.js';
@@ -93,6 +94,7 @@ app.use('/api/finance/income_categories', financeIncomeCategoriesRoutes);
 app.use('/api/finance/income_subcategories', financeIncomeSubRoutes);
 app.use('/api/finance/expenses', expensesRoutes);
 app.use('/api/finance/incomes', incomesRoutes);
+app.use("/api/donations", donationRoutes);
 app.use('/api/finance/extra_fields', extraFieldsRoutes);
 app.use('/api/finance/budgets', budgetsRoutes);
 app.use("/api/leave_requests", leaveRoutes);
