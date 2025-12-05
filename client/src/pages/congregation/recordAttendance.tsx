@@ -6,24 +6,17 @@ import "../../styles/global.css";
 type Gender = "Male" | "Female";
 type Category = "Children" | "Youth" | "Adults" | "Elderly";
 
-interface Member {
-  member_id: number;
-  full_name: string;
-  age: number;
-  gender: Gender;
-}
-
 interface Person {
-  member_id: number;
-  full_name: string;
+  id: number;       // member_id or visitor id
+  name: string;     // full_name for members, name for visitors
   age: number;
   gender: Gender;
-  type: "member";
+  type: "member" | "visitor";
 }
 
 interface AttendanceRecord {
   person_id: number;
-  type: "member";
+  type: "member" | "visitor";
   date: string;
   status: "Present" | "Absent";
 }
@@ -38,7 +31,7 @@ const RecordAttendance: React.FC = () => {
   const [gender, setGender] = useState<Gender>("Male");
 
   const [people, setPeople] = useState<Person[]>([]);
-  const [attendance, setAttendance] = useState<Record<number, boolean>>({});
+  const [attendance, setAttendance] = useState<Record<string, boolean>>({});
 
   const getCategory = (age: number): Category => {
     if (age < 18) return "Children";
@@ -48,49 +41,64 @@ const RecordAttendance: React.FC = () => {
   };
 
   useEffect(() => {
-    const fetchMembers = async () => {
+    const fetchPeople = async () => {
       try {
-        const res = await axios.get<Member[]>("http://localhost:3000/api/members");
+        const [membersRes, visitorsRes] = await Promise.all([
+          axios.get("http://localhost:3000/api/members"),
+          axios.get("http://localhost:3000/api/visitor")
+        ]);
 
-        const allMembers: Person[] = res.data.map((m) => ({
-          member_id: m.member_id,
-          full_name: m.full_name,
+        const allMembers: Person[] = membersRes.data.map((m: any) => ({
+          id: m.member_id,
+          name: m.full_name,
           age: m.age,
           gender: m.gender,
           type: "member",
         }));
 
-        const filtered = allMembers
-          .filter((p) => getCategory(p.age) === category && p.gender === gender)
-          .sort((a, b) => a.full_name.localeCompare(b.full_name));
+        const allVisitors: Person[] = visitorsRes.data.map((v: any) => ({
+          id: v.id,
+          name: v.name,
+          age: v.age,
+          gender: v.gender,
+          type: "visitor",
+        }));
+
+        const allPeople = [...allMembers, ...allVisitors];
+
+        const filtered = allPeople
+          .filter(p => getCategory(p.age) === category && p.gender === gender)
+          .sort((a, b) => a.name.localeCompare(b.name));
 
         setPeople(filtered);
 
-        // Initialize attendance state
-        const initialAttendance: Record<number, boolean> = {};
-        filtered.forEach((p) => { initialAttendance[p.member_id] = false; });
+        // Initialize attendance state using composite key: type_id
+        const initialAttendance: Record<string, boolean> = {};
+        filtered.forEach(p => {
+          initialAttendance[`${p.type}_${p.id}`] = false;
+        });
         setAttendance(initialAttendance);
 
       } catch (err) {
-        console.error("Error fetching members:", err);
+        console.error("Error fetching people:", err);
       }
     };
 
-    fetchMembers();
+    fetchPeople();
   }, [category, gender]);
 
-  const toggleCheck = (id: number) => {
-    setAttendance((prev) => ({ ...prev, [id]: !prev[id] }));
+  const toggleCheck = (key: string) => {
+    setAttendance(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   const saveAttendance = async () => {
     const today = new Date().toISOString().split("T")[0];
 
-    const records: AttendanceRecord[] = people.map((p) => ({
-      person_id: p.member_id,
-      type: "member",
+    const records: AttendanceRecord[] = people.map(p => ({
+      person_id: p.id,
+      type: p.type,
       date: today,
-      status: attendance[p.member_id] ? "Present" : "Absent",
+      status: attendance[`${p.type}_${p.id}`] ? "Present" : "Absent",
     }));
 
     try {
@@ -164,10 +172,14 @@ const RecordAttendance: React.FC = () => {
         <div className="attendance-group">
           <h3>{category} — {gender}</h3>
           <div className="rollcall-list">
-            {people.map((p) => (
-              <label key={p.member_id}>
-                <input type="checkbox" checked={attendance[p.member_id] || false} onChange={() => toggleCheck(p.member_id)} />
-                {p.full_name}
+            {people.map(p => (
+              <label key={`${p.type}_${p.id}`}>
+                <input
+                  type="checkbox"
+                  checked={attendance[`${p.type}_${p.id}`] || false}
+                  onChange={() => toggleCheck(`${p.type}_${p.id}`)}
+                />
+                {p.name} {p.type === "visitor" ? "(Visitor)" : ""}
               </label>
             ))}
           </div>
