@@ -73,12 +73,12 @@ const AddDonation: React.FC = () => {
   });
 
   // ------------------------------------------------------
-  // SUBMIT DONATION TO BACKEND
+  // SUBMIT DONATION TO BACKEND AND FINANCE
   // ------------------------------------------------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const payload = {
+    const donationPayload = {
       donor_registered: form.donorRegistered,
       donor_id: form.donorRegistered ? form.donorId : null,
       donor_type_id: form.donorRegistered
@@ -113,15 +113,57 @@ const AddDonation: React.FC = () => {
     };
 
     try {
+      // 1️⃣ Submit to Donations table
       const res = await fetch("http://localhost:3000/api/donations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(donationPayload),
       });
 
       if (!res.ok) throw new Error("Failed to add donation");
 
-      alert("Donation added successfully!");
+      // 2️⃣ Submit to Finance table (incomes) in the Donations category
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+      // Map payment method to finance subcategory
+      let financeSubcategoryId = 1; // default Online Donations
+      if (form.method === "Cash") financeSubcategoryId = 2;
+
+      const financePayload = {
+        user_id: user.id,
+        category_id: 1, // Donations
+        subcategory_id: financeSubcategoryId, // Online or Cash Donations
+        date: form.date,
+        giver:
+          form.donorRegistered || form.isAnonymous === "false"
+            ? form.donorName
+            : "Anonymous",
+        description: form.notes || "Donation",
+        amount: form.amount,
+        payment_method: form.method,
+        extra_fields: {
+          registered: form.donorRegistered,
+          donor_type: form.donorType || null,
+          donor_email: form.donorEmail || null,
+        },
+      };
+
+      const financeRes = await fetch(
+        "http://localhost:3000/api/finance/incomes",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(financePayload),
+        }
+      );
+
+      if (!financeRes.ok) {
+        alert("Donation added, but failed to record in Finance");
+        navigate("/donor/donations");
+        return;
+      }
+
+      alert("Donation added successfully and recorded in Finance!");
       navigate("/donor/donations");
     } catch (err) {
       console.error(err);
