@@ -1,6 +1,13 @@
 // models/organization.model.js
 
 import { pool } from "../../server.js";
+import crypto from "crypto"; // for random ID generation
+
+function generateAccountId() {
+  // Example: ORG-8F3A9C1D
+  const random = crypto.randomBytes(4).toString("hex").toUpperCase();
+  return `ORG-${random}`;
+}
 
 const Organization = {
   // CREATE
@@ -11,18 +18,40 @@ const Organization = {
       address,
       region,
       district,
-      status = "active"
+      status = "active",
+      organization_email,
+      type
     } = data;
+
+    const organization_account_id = generateAccountId();
 
     const result = await pool.query(
       `
       INSERT INTO organizations (
-        name, denomination, address, region, district, status
+        name,
+        denomination,
+        address,
+        region,
+        district,
+        status,
+        organization_email,
+        organization_account_id,
+        type
       )
-      VALUES ($1, $2, $3, $4, $5, $6)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *
       `,
-      [name, denomination, address, region, district, status]
+      [
+        name,
+        denomination,
+        address,
+        region,
+        district,
+        status,
+        organization_email,
+        organization_account_id,
+        type
+      ]
     );
 
     return result.rows[0];
@@ -39,7 +68,9 @@ const Organization = {
 
   // LIST ALL
   async getAll() {
-    const result = await pool.query(`SELECT * FROM organizations ORDER BY id ASC`);
+    const result = await pool.query(
+      `SELECT * FROM organizations ORDER BY id ASC`
+    );
     return result.rows;
   },
 
@@ -51,7 +82,9 @@ const Organization = {
       address,
       region,
       district,
-      status
+      status,
+      organization_email,
+      type
     } = data;
 
     const result = await pool.query(
@@ -63,11 +96,23 @@ const Organization = {
         address = $3,
         region = $4,
         district = $5,
-        status = $6
-      WHERE id = $7
+        status = $6,
+        organization_email = $7,
+        type = $8
+      WHERE id = $9
       RETURNING *
       `,
-      [name, denomination, address, region, district, status, id]
+      [
+        name,
+        denomination,
+        address,
+        region,
+        district,
+        status,
+        organization_email,
+        type,
+        id
+      ]
     );
 
     return result.rows[0];
