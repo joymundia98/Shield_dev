@@ -81,14 +81,29 @@ const AddDonation: React.FC = () => {
     const payload = {
       donor_registered: form.donorRegistered,
       donor_id: form.donorRegistered ? form.donorId : null,
-      donor_type_id: form.donorRegistered ? form.donorTypeId : null,
+      donor_type_id: form.donorRegistered
+        ? form.donorTypeId
+        : form.isAnonymous === "true"
+        ? null
+        : form.donorType === "individual"
+        ? 1
+        : 2,
       donor_subcategory_id: form.donorRegistered ? form.subcategoryId : null,
 
       is_anonymous: form.isAnonymous === "true",
 
-      donor_name: form.donorName,
-      donor_phone: form.donorPhone,
-      donor_email: form.donorEmail,
+      donor_name:
+        form.donorRegistered || form.isAnonymous === "false"
+          ? form.donorName
+          : "N/A",
+      donor_phone:
+        form.donorRegistered || form.isAnonymous === "false"
+          ? form.donorPhone
+          : "N/A",
+      donor_email:
+        form.donorRegistered || form.isAnonymous === "false"
+          ? form.donorEmail
+          : "N/A",
 
       date: form.date,
       amount: form.amount,
@@ -126,7 +141,11 @@ const AddDonation: React.FC = () => {
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="close-wrapper">
           <div className="toggle close-btn">
-            <input type="checkbox" checked={sidebarOpen} onChange={toggleSidebar} />
+            <input
+              type="checkbox"
+              checked={sidebarOpen}
+              onChange={toggleSidebar}
+            />
             <span className="button"></span>
             <span className="label">X</span>
           </div>
@@ -135,18 +154,24 @@ const AddDonation: React.FC = () => {
         <h2>FINANCE</h2>
         <a href="/donor/dashboard">Dashboard</a>
         <a href="/donor/donors">Donors</a>
-        <a href="/donor/donations" className="active">Donations</a>
+        <a href="/donor/donations" className="active">
+          Donations
+        </a>
         <a href="/donor/reports">Reports</a>
 
         <hr className="sidebar-separator" />
-        <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
+        <a href="/dashboard" className="return-main">
+          ← Back to Main Dashboard
+        </a>
       </div>
 
       {/* MAIN CONTENT */}
       <div className="dashboard-content">
         <header className="page-header">
           <h1>Add Donation</h1>
-          <button className="hamburger" onClick={toggleSidebar}>&#9776;</button>
+          <button className="hamburger" onClick={toggleSidebar}>
+            &#9776;
+          </button>
         </header>
 
         <div className="container">
@@ -155,7 +180,13 @@ const AddDonation: React.FC = () => {
             <label>Registered Donor?</label>
             <select
               required
-              value={form.donorRegistered === null ? "" : form.donorRegistered ? "true" : "false"}
+              value={
+                form.donorRegistered === null
+                  ? ""
+                  : form.donorRegistered
+                  ? "true"
+                  : "false"
+              }
               onChange={(e) =>
                 setForm({
                   ...form,
@@ -165,6 +196,7 @@ const AddDonation: React.FC = () => {
                   donorPhone: "",
                   donorEmail: "",
                   donorId: null,
+                  isAnonymous: "",
                 })
               }
             >
@@ -179,7 +211,9 @@ const AddDonation: React.FC = () => {
                 <label>Donor Type</label>
                 <select
                   value={form.donorType}
-                  onChange={(e) => setForm({ ...form, donorType: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, donorType: e.target.value })
+                  }
                 >
                   <option value="">Select</option>
                   <option value="individual">Individual</option>
@@ -228,19 +262,24 @@ const AddDonation: React.FC = () => {
                 <label>Anonymous?</label>
                 <select
                   value={form.isAnonymous}
-                  onChange={(e) => setForm({ ...form, isAnonymous: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, isAnonymous: e.target.value })
+                  }
                 >
                   <option value="">Select</option>
                   <option value="true">Yes</option>
                   <option value="false">No</option>
                 </select>
 
+                {/* ONLY SHOW INFO IF NOT ANONYMOUS */}
                 {form.isAnonymous === "false" && (
                   <>
                     <label>Donor Type</label>
                     <select
                       value={form.donorType}
-                      onChange={(e) => setForm({ ...form, donorType: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, donorType: e.target.value })
+                      }
                     >
                       <option value="">Select</option>
                       <option value="individual">Individual</option>
@@ -251,7 +290,9 @@ const AddDonation: React.FC = () => {
                     <input
                       type="text"
                       value={form.donorName}
-                      onChange={(e) => setForm({ ...form, donorName: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, donorName: e.target.value })
+                      }
                       placeholder="Enter donor name"
                     />
 
@@ -259,14 +300,18 @@ const AddDonation: React.FC = () => {
                     <input
                       type="tel"
                       value={form.donorPhone}
-                      onChange={(e) => setForm({ ...form, donorPhone: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, donorPhone: e.target.value })
+                      }
                     />
 
                     <label>Email</label>
                     <input
                       type="email"
                       value={form.donorEmail}
-                      onChange={(e) => setForm({ ...form, donorEmail: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, donorEmail: e.target.value })
+                      }
                     />
                   </>
                 )}
@@ -309,7 +354,9 @@ const AddDonation: React.FC = () => {
             <select
               required
               value={form.purpose}
-              onChange={(e) => setForm({ ...form, purpose: Number(e.target.value) })}
+              onChange={(e) =>
+                setForm({ ...form, purpose: Number(e.target.value) })
+              }
             >
               <option value="">Select</option>
               <option value={1}>Tithes</option>
@@ -327,8 +374,14 @@ const AddDonation: React.FC = () => {
             />
 
             <div className="form-buttons">
-              <button className="add-btn" type="submit">Add Donation</button>
-              <button className="cancel-btn" type="button" onClick={() => navigate("/donor/donations")}>
+              <button className="add-btn" type="submit">
+                Add Donation
+              </button>
+              <button
+                className="cancel-btn"
+                type="button"
+                onClick={() => navigate("/donor/donations")}
+              >
                 Cancel
               </button>
             </div>

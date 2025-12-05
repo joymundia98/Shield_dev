@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
 interface Donation {
-  id: string;
+  id: number | string;
   donor: string;
   registered: boolean;
   date: string;
@@ -24,36 +24,37 @@ const DonationsManagementPage: React.FC = () => {
     else document.body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
-  /* ---------------- STATIC TEMP DONATION DATA ---------------- */
-  const [donationData] = useState<Donation[]>([
-    {
-      id: "DN001",
-      donor: "John Doe",
-      registered: true,
-      date: "2025-11-15",
-      amount: 500,
-      type: "Widows Contributions",
-      method: "Cash",
-    },
-    {
-      id: "DN002",
-      donor: "Acme Corp.",
-      registered: true,
-      date: "2025-11-16",
-      amount: 2000,
-      type: "Special Fund",
-      method: "Bank Transfer",
-    },
-    {
-      id: "DN003",
-      donor: "Walk-in Guest",
-      registered: false,
-      date: "2025-11-18",
-      amount: 150,
-      type: "Disaster Relief",
-      method: "Cash",
-    },
-  ]);
+  /* ---------------- DONATION DATA FROM BACKEND ---------------- */
+  const [donationData, setDonationData] = useState<Donation[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("http://localhost:3000/api/donations")
+      .then((res) => res.json())
+      .then((data) => {
+        // Map backend fields to table-friendly format
+        const mapped: Donation[] = data.map((d: any) => ({
+          id: d.id,
+          donor:
+            d.donor_registered && d.donor
+              ? d.donor
+              : d.is_anonymous
+              ? "Anonymous"
+              : d.donor_name ?? "Walk-in Guest",
+          registered: d.donor_registered,
+          date: d.date.slice(0, 10), // format YYYY-MM-DD
+          amount: Number(d.amount),
+          type: d.purpose || "Other",
+          method: d.method,
+        }));
+        setDonationData(mapped);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to load donations", err);
+        setLoading(false);
+      });
+  }, []);
 
   /* ---------------- SEARCH ---------------- */
   const [searchQuery, setSearchQuery] = useState("");
@@ -105,10 +106,11 @@ const DonationsManagementPage: React.FC = () => {
         </div>
 
         <h2>DONOR MANAGER</h2>
-
         <a href="/donor/dashboard">Dashboard</a>
         <a href="/donor/donors">Donors</a>
-        <a href="/donor/donations" className="active">Donations</a>
+        <a href="/donor/donations" className="active">
+          Donations
+        </a>
         <a href="/donor/donorCategories">Donor Categories</a>
 
         <hr className="sidebar-separator" />
@@ -125,7 +127,7 @@ const DonationsManagementPage: React.FC = () => {
             navigate("/");
           }}
         >
-          ➜] Logout
+          ➜ Logout
         </a>
       </div>
 
@@ -151,6 +153,9 @@ const DonationsManagementPage: React.FC = () => {
             + Add Donation
           </button>
         </div>
+
+        {/* Loading */}
+        {loading && <p>Loading donations...</p>}
 
         {/* Donation Groups */}
         {Object.entries(donationGroups).map(([groupName, records]) => (
