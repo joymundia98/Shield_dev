@@ -153,6 +153,16 @@ const DepreciationPage: React.FC = () => {
         <a href="/assets/depreciation" className="active">Depreciation Info</a>
         <a href="/assets/maintenance">Maintenance</a>
         <a href="/assets/categories">Categories</a>
+
+        <hr className="sidebar-separator" />
+        <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
+        <a
+          href="/"
+          className="logout-link"
+          onClick={(e) => { e.preventDefault(); localStorage.clear(); navigate("/"); }}
+        >
+          ➜ Logout
+        </a>
       </div>
 
       {/* Main Content */}

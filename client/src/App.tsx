@@ -117,7 +117,7 @@ function App() {
                   ASSETS MODULE
           --------------------------------*/}
           <Route path="/assets/assets" element={<AssetsPage />} />
-          <Route path="/assets/add" element={<AddAssetPage />} />
+          <Route path="/assets/addAsset" element={<AddAssetPage />} />
           <Route path="/assets/depreciation" element={<DepreciationPage />} />
           <Route path="/assets/maintenance" element={<MaintenancePage />} />
           <Route path="/assets/categories" element={<CategoriesPage />} />
