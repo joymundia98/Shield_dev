@@ -34,6 +34,7 @@ import sessionRoutes from './modules/congregation/sessions/sessionRoutes.js'
 import assetRoutes from './modules/organization_assets/assets_/assetRoutes.js';
 import assetCategoryRoutes from './modules/organization_assets/asset_categories/assetCategoryRoutes.js';
 import assetRequestRoutes from './modules/organization_assets/asset_request/assetRequestRoutes.js';
+import assetLocationRoutes from './modules/organization_assets/asset_location/assetLocationRoutes.js'
 import assetMaintenaceCategoryRoutes from './modules/organization_assets/maintenance_categories/maintenanceCategoryRoutes.js';
 import assetMaintenaceRecordRoutes from './modules/organization_assets/maintenance_records/maintenanceRecordRoutes.js'; 
 import rolesRoutes from './modules/role/roleRoutes.js';
@@ -104,6 +105,7 @@ app.use('/api/finance/extra_fields', extraFieldsRoutes);
 app.use('/api/finance/budgets', budgetsRoutes);
 app.use('/api/assets/categories', assetCategoryRoutes);
 app.use('/api/assets/requests', assetRequestRoutes);
+app.use('/api/assets/location', assetLocationRoutes)
 app.use('/api/assets', assetRoutes);
 app.use('/api/assets/maintenance_categories', assetMaintenaceCategoryRoutes);
 app.use('/api/assets/maintenace_records', assetMaintenaceRecordRoutes);
