@@ -16,7 +16,7 @@ const monthNames = [
   "July", "August", "September", "October", "November", "December"
 ];
 
-const PayrollPage: React.FC = () => {
+const HrPayrollPage: React.FC = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -35,6 +35,8 @@ const PayrollPage: React.FC = () => {
 
   // ------------------- Modal State -------------------
   const [showModal, setShowModal] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
   const [modalRecord, setModalRecord] = useState<PayrollRecord>({
     name: "",
     position: "",
@@ -95,24 +97,28 @@ const PayrollPage: React.FC = () => {
   const kpiUnpaidCount = payrollThisMonth.filter((p) => p.status !== "Paid").length;
 
   // ------------------- Modal Handlers -------------------
-  const openViewModal = (record: PayrollRecord) => {
-    setModalRecord(record);
+  const openAddModal = () => {
+    setEditingIndex(null);
+    setModalRecord({ name: "", position: "", salary: 0, status: "Paid", date: "", department: "" });
     setShowModal(true);
   };
 
-  const handleApprove = (index: number) => {
-    const updatedData = [...payrollData];
-    updatedData[index].status = "Paid";
-    setPayrollData(updatedData);
-  };
-
-  const handleReject = (index: number) => {
-    const updatedData = [...payrollData];
-    updatedData[index].status = "Overdue";
-    setPayrollData(updatedData);
+  const openEditModal = (index: number) => {
+    setEditingIndex(index);
+    setModalRecord(payrollData[index]);
+    setShowModal(true);
   };
 
   const closeModal = () => setShowModal(false);
+
+  const handleSave = () => {
+    if (editingIndex === null) {
+      setPayrollData((prev) => [...prev, modalRecord]);
+    } else {
+      setPayrollData((prev) => prev.map((p, i) => (i === editingIndex ? modalRecord : p)));
+    }
+    closeModal();
+  };
 
   return (
     <div className="dashboard-wrapper">
@@ -134,13 +140,12 @@ const PayrollPage: React.FC = () => {
           </div>
         </div>
 
-        <h2>FINANCE</h2>
-        <a href="/finance/dashboard">Dashboard</a>
-        <a href="/finance/incometracker">Track Income</a>
-        <a href="/finance/expensetracker">Track Expenses</a>
-        <a href="/finance/budgets">Budget</a>
-        <a href="/finance/payroll" className="active">Payroll</a>
-        <a href="/finance/financeCategory">Finance Categories</a>
+        <h2>HR MANAGER</h2>
+        <a href="/hr/dashboard">Dashboard</a>
+        <a href="/hr/staffDirectory">Staff Directory</a>
+        <a href="/hr/payroll" className="active">Payroll</a>
+        <a href="/hr/leave">Leave Management</a>
+        <a href="/hr/departments" className="active">Departments</a>
 
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
@@ -162,7 +167,7 @@ const PayrollPage: React.FC = () => {
       <div className="dashboard-content">
         <h1>Payroll</h1>
 
-        {/* Search */}
+        {/* Search + Add */}
         <div className="table-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <input
             type="text"
@@ -171,6 +176,7 @@ const PayrollPage: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          <button className="add-btn" onClick={openAddModal}>+ Add Payroll Record</button>
         </div>
 
         {/* Filters */}
@@ -205,7 +211,7 @@ const PayrollPage: React.FC = () => {
           </label>
         </div>
 
-        {/* KPI Cards */}
+        {/* KPI Cards (OLD STYLE) */}
         <br/>
         <div className="kpi-container" id="kpiContainer">
           <div className="kpi-card">
@@ -250,13 +256,7 @@ const PayrollPage: React.FC = () => {
                     <td><span className={`status ${p.status.toLowerCase()}`}>{p.status}</span></td>
                     <td>{p.date}</td>
                     <td>
-                      <button className="view-btn" onClick={() => openViewModal(p)}>View</button>
-                      {p.status !== "Paid" && (
-                        <>
-                          <button className="approve-btn" onClick={() => handleApprove(i)}>Approve</button>
-                          <button className="reject-btn" onClick={() => handleReject(i)}>Reject</button>
-                        </>
-                      )}
+                      <button className="edit-btn" onClick={() => openEditModal(payrollData.indexOf(p))}>Edit</button>
                     </td>
                   </tr>
                 ))}
@@ -268,31 +268,34 @@ const PayrollPage: React.FC = () => {
         {/* Modal */}
         <div className="overlay" style={{ display: showModal ? "block" : "none" }} onClick={closeModal}></div>
         <div className="filter-popup modal-wide" style={{ display: showModal ? "block" : "none" }}>
-          <h3>View Payroll</h3>
+          <h3>{editingIndex === null ? "Add Payroll" : "Edit Payroll"}</h3>
 
           <label>Staff Name</label>
           <input
             type="text"
             value={modalRecord.name}
-            readOnly
+            onChange={(e) => setModalRecord({ ...modalRecord, name: e.target.value })}
           />
 
           <label>Position</label>
           <input
             type="text"
             value={modalRecord.position}
-            readOnly
+            onChange={(e) => setModalRecord({ ...modalRecord, position: e.target.value })}
           />
 
           <label>Salary</label>
           <input
             type="number"
             value={modalRecord.salary}
-            readOnly
+            onChange={(e) => setModalRecord({ ...modalRecord, salary: parseFloat(e.target.value) })}
           />
 
           <label>Status</label>
-          <select value={modalRecord.status} readOnly>
+          <select
+            value={modalRecord.status}
+            onChange={(e) => setModalRecord({ ...modalRecord, status: e.target.value as any })}
+          >
             <option value="Paid">Paid</option>
             <option value="Pending">Pending</option>
             <option value="Overdue">Overdue</option>
@@ -302,17 +305,18 @@ const PayrollPage: React.FC = () => {
           <input
             type="text"
             value={modalRecord.department}
-            readOnly
+            onChange={(e) => setModalRecord({ ...modalRecord, department: e.target.value })}
           />
 
           <label>Payment Date</label>
           <input
             type="date"
             value={modalRecord.date}
-            readOnly
+            onChange={(e) => setModalRecord({ ...modalRecord, date: e.target.value })}
           />
 
           <div className="filter-popup-buttons">
+            <button className="add-btn" onClick={handleSave}>Save</button>
             <button className="delete-btn" onClick={closeModal}>Close</button>
           </div>
         </div>
@@ -321,4 +325,4 @@ const PayrollPage: React.FC = () => {
   );
 };
 
-export default PayrollPage;
+export default HrPayrollPage;

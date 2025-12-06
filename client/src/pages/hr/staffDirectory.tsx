@@ -150,6 +150,7 @@ const StaffDirectoryPage: React.FC = () => {
         <h2>HR MANAGER</h2>
         <a href="/hr/dashboard">Dashboard</a>
         <a href="/hr/staffDirectory" className="active">Staff Directory</a>
+        <a href="/hr/payroll">Payroll</a>
         <a href="/hr/leave">Leave Management</a>
         <a href="/hr/departments">Departments</a>
 

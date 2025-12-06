@@ -104,18 +104,33 @@ const OrgRegister = () => {
       const subToSend = data.subDenomination === "Not Listed" ? data.customSubDenomination : data.subDenomination;
       const fullDenomination = `${data.mainDenomination}-${subToSend}`;
 
+      // Debugging: Log form data before sending it to the backend
+      console.log("Form data before sending to backend:", {
+        name: data.name,
+        email: data.organization_email,
+        denomination: fullDenomination,
+        address: data.address,
+        region: data.region,
+        district: districtToSend,
+        status: data.status || "active"
+      });
+
       await axios.post(
         "http://localhost:3000/api/organizations/register",
         {
           name: data.name,
-          email: data.organization_email, // included email
+          email: data.organization_email,
           denomination: fullDenomination,
           address: data.address,
           region: data.region,
           district: districtToSend,
           status: data.status || "active"
         },
-        { withCredentials: true }
+        {
+          headers: {
+            'Content-Type': 'application/json'  // Ensure you're sending JSON data
+          }
+        }
       );
 
       setShowSuccessCard(true);
@@ -124,7 +139,7 @@ const OrgRegister = () => {
         navigate("/dashboard");
       }, 2000);
     } catch (err: any) {
-      console.error(err);
+      console.error("Error in onSubmit:", err);
       setErrorMessage(err.response?.data?.message || "Organization registration failed");
     }
   };
