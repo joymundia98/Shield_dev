@@ -50,7 +50,7 @@ const dropdowns: Dropdown[] = [
     links: [
       { name: "Dashboard", href: "/hr/dashboard" },
       { name: "Staff Directory", href: "/hr/staffDirectory" },
-      { name: "Attendance Management", href: "/hr/attendance" },
+      { name: "Payroll", href: "/hr/payroll" },
       { name: "Leave Management", href: "/hr/leave" },
       { name: "Departments", href: "/hr/departments" },
     ],

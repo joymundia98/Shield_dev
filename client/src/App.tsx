@@ -27,6 +27,7 @@ import AssetDashboard from "./pages/assets/dashboard";
 // HR Module Functional Pages
 import StaffDirectory from "./pages/hr/staffDirectory";
 import LeaveManagementPage from "./pages/hr/leave";
+import HrPayrollPage from "./pages/hr/payroll";
 import DepartmentsPage from "./pages/hr/departments";
 import AddStaffPage from "./pages/hr/addStaff";
 
@@ -168,6 +169,7 @@ function App() {
           --------------------------------*/}
           <Route path="/hr/staffDirectory" element={<StaffDirectory />} />
           <Route path="/hr/attendance" element={<HRDashboard />} />
+          <Route path="/hr/payroll" element={<HrPayrollPage />} />
           <Route path="/hr/leave" element={<LeaveManagementPage />} />
           <Route path="/hr/departments" element={<DepartmentsPage />} />
           <Route path="/hr/addStaff" element={<AddStaffPage />} />

@@ -23,46 +23,67 @@ const SetBudgetsPage: React.FC = () => {
     else document.body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
-  // ---------------- Categories ----------------
-  const budgetCategories: BudgetCategories = {
-    "Operational Expenses": ["Rent", "Utilities", "Office Supplies", "Equipment & Software"],
-    "Employee Expenses": ["Salaries & Wages", "Reimbursements"],
-    "Project / Department Expenses": ["Project Costs", "Materials / Consultants / Outsourcing"],
-    "Financial & Regulatory Expenses": ["Taxes, Fees, Insurance", "Compliance Costs"],
-    "Capital Expenses": ["Investments / Assets"]
-  };
+  // ---------------- Budget Categories ----------------
+  const [budgetCategories, setBudgetCategories] = useState<{ [category: string]: string[] }>({});
+  const [categoryIds, setCategoryIds] = useState<{ [category: string]: number }>({}); // To store category_id
+  const [subcategoryIds, setSubcategoryIds] = useState<{ [subCategory: string]: number }>({}); // To store subcategory_id
 
   // ---------------- Budget State ----------------
   const [budgets, setBudgets] = useState<Budgets>({});
+  const [selectedMonth, setSelectedMonth] = useState<string>("01"); // Default to January
+  const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString()); // Default to current year
 
-  // ---------------- Fetch existing budgets from backend ----------------
+  // ---------------- Fetch Categories and Existing Budgets ----------------
   useEffect(() => {
-    const fetchBudgets = async () => {
+    const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/finance/budgets");
-        if (res.data) {
-          setBudgets(res.data);
-        } else {
-          initializeBudgets();
-        }
-      } catch (err) {
-        console.error("Failed to fetch budgets", err);
-        initializeBudgets();
-      }
-    };
-
-    const initializeBudgets = () => {
-      const initialBudgets: Budgets = {};
-      for (const cat in budgetCategories) {
-        initialBudgets[cat] = {};
-        budgetCategories[cat].forEach(sub => {
-          initialBudgets[cat][sub] = 0;
+        const res = await axios.get("http://localhost:3000/api/finance/expense_categories");
+        const categories: { [category: string]: string[] } = {};
+        const categoryIdsMap: { [category: string]: number } = {};
+        
+        res.data.forEach((category: any) => {
+          categories[category.name] = []; // Initialize empty array for subcategories
+          categoryIdsMap[category.name] = category.id; // Store category_id
         });
+
+        // Fetch expense subcategories and group by category
+        const subCategoriesRes = await axios.get("http://localhost:3000/api/finance/expense_subcategories");
+        
+        const subcategoryIdsMap: { [subCategory: string]: number } = {};
+        subCategoriesRes.data.forEach((subCategory: any) => {
+          const categoryName = res.data.find((cat: any) => cat.id === subCategory.category_id)?.name;
+          if (categoryName) {
+            categories[categoryName].push(subCategory.name);
+            subcategoryIdsMap[subCategory.name] = subCategory.id; // Map subcategory name to ID
+          }
+        });
+
+        setBudgetCategories(categories);
+        setCategoryIds(categoryIdsMap); // Set the category_id map
+        setSubcategoryIds(subcategoryIdsMap); // Set the subcategory_id map
+
+        // Fetch existing budgets
+        const budgetsRes = await axios.get("http://localhost:3000/api/finance/budgets");
+        const initialBudgets: Budgets = {};
+        
+        // Initialize budgets if they exist
+        budgetsRes.data.forEach((budget: any) => {
+          const category = categories[budget.category];
+          if (!initialBudgets[category]) {
+            initialBudgets[category] = {};
+          }
+          initialBudgets[category][budget.subCategory] = budget.amount;
+        });
+
+        setBudgets(initialBudgets);
+
+      } catch (err) {
+        console.error("Error fetching data", err);
+        alert("Error fetching data. Please try again.");
       }
-      setBudgets(initialBudgets);
     };
 
-    fetchBudgets();
+    fetchCategories();
   }, []);
 
   // ---------------- Handle Input Change ----------------
@@ -76,15 +97,81 @@ const SetBudgetsPage: React.FC = () => {
     }));
   };
 
+  // ---------------- Handle Month Change ----------------
+  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedMonth(e.target.value);
+  };
+
+  // ---------------- Handle Year Change ----------------
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedYear(e.target.value);
+  };
+
   // ---------------- Save Budgets ----------------
   const saveBudgets = async () => {
     try {
-      await axios.post("http://localhost:3000/api/finance/budgets", budgets);
+      // Flatten the data into an array of objects
+      const dataToSave = [];
+
+      // Iterate over each category and subcategory to flatten the structure
+      for (const category in budgets) {
+        if (category !== 'month' && category !== 'year') {
+          for (const subCategory in budgets[category]) {
+            const amount = budgets[category][subCategory];
+
+            // Only include entries with valid amounts
+            if (amount !== undefined && !isNaN(amount) && amount > 0) {
+              // Mapping category_id and subcategory_id
+              const categoryId = categoryIds[category]; // Get category_id from the categoryIds map
+              const subcategoryId = subcategoryIds[subCategory]; // Get subcategory_id from the subcategoryIds map
+
+              dataToSave.push({
+                title: subCategory,  // Title is the subcategory name
+                amount,
+                year: parseInt(selectedYear, 10),
+                month: parseInt(selectedMonth, 10),
+                category_id: categoryId,  // Send the category_id
+                expense_subcategory_id: subcategoryId, // Send the subcategory_id
+                income_subcategory_id: null, // Assuming this is not used for budgets, adjust as needed
+              });
+            }
+          }
+        }
+      }
+
+      // Validate that there's data to send
+      if (dataToSave.length === 0) {
+        alert("No valid budget data to save.");
+        return;
+      }
+
+      console.log("Data to save:", dataToSave);  // Log data to confirm the structure
+
+      // Make the POST request to save the budgets
+      const response = await axios.post("http://localhost:3000/api/finance/budgets", dataToSave);
+
+      console.log("Response from backend:", response.data); // Log the response
+
       alert("Budgets have been saved successfully!");
     } catch (err) {
-      console.error("Failed to save budgets", err);
+      console.error("Failed to save budgets:", err);
+
+      if (err.response) {
+        console.error("Error response:", err.response.data);
+      }
+
       alert("Error saving budgets. Please try again.");
     }
+  };
+
+  // ---------------- Generate Year Options ----------------
+  const generateYearOptions = () => {
+    const currentYear = new Date().getFullYear();
+    let years = [];
+    for (let i = currentYear; i <= currentYear + 5; i++) {
+      years.push(i.toString());
+    }
+    return years;
   };
 
   return (
@@ -144,6 +231,32 @@ const SetBudgetsPage: React.FC = () => {
         </div>
 
         <h2>Set Budget for Categories</h2>
+
+        {/* Month and Year Dropdowns */}
+        <div style={{ marginBottom: "20px" }}>
+          <label>Select Month: </label>
+          <select value={selectedMonth} onChange={handleMonthChange} style={{ marginRight: "10px" }}>
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+
+          <label>Select Year: </label>
+          <select value={selectedYear} onChange={handleYearChange}>
+            {generateYearOptions().map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
+        </div>
 
         {/* Render Budget Form with Cards */}
         {Object.entries(budgetCategories).map(([category, subCategories]) => (

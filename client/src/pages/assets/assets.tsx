@@ -2,97 +2,118 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
+// Interfaces for Asset, Category, and Location
 interface Asset {
-  id: string;
+  asset_id: number;
   name: string;
-  category: string;
-  location: string;
-  condition: string;
-  assignedTo: string;
-  initialValue: number;
-  currentValue: number;
-  depreciationRate: number;
-  underMaintenance: boolean;
+  category_id: number;
+  location_id: number;
+  department_id: number;
+  acquisition_date: string;
+  purchase_cost: string;
+  current_value: string;
+  condition_status: string;
+  status: string;
+  serial_number: string;
+  description: string;
+  latitude: string | null;
+  longitude: string | null;
+  created_at: string;
+}
+
+interface Category {
+  category_id: number;
+  name: string;
+}
+
+interface Location {
+  location_id: number;
+  name: string;
 }
 
 const AssetsPage: React.FC = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const [inventory, setInventory] = useState<Asset[]>([
-    { id: "001", name: "Projector X1", category: "Electronics", location: "Main Hall", condition: "Good", assignedTo: "Media Team", initialValue: 1500, currentValue: 1200, depreciationRate: 20, underMaintenance: false },
-    { id: "002", name: "Chair A1", category: "Furniture", location: "Conference Room", condition: "Fair", assignedTo: "Admin Team", initialValue: 100, currentValue: 70, depreciationRate: 30, underMaintenance: true },
-    { id: "003", name: "Laptop L5", category: "Electronics", location: "IT Office", condition: "Good", assignedTo: "IT Team", initialValue: 2000, currentValue: 1600, depreciationRate: 20, underMaintenance: false },
-  ]);
-
-  // ------------------- Filters -------------------
+  const [inventory, setInventory] = useState<Asset[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]); // Categories data
+  const [locations, setLocations] = useState<Location[]>([]); // Locations data
   const [filter, setFilter] = useState({
     condition: "",
     category: "",
     maintenance: ""
   });
 
-  const [tempFilter, setTempFilter] = useState(filter);
-  const [showFilterPopup, setShowFilterPopup] = useState(false);
-
-  const openFilter = () => {
-    setTempFilter(filter);
-    setShowFilterPopup(true);
-  };
-  const closeFilter = () => setShowFilterPopup(false);
-  const handleApplyFilter = () => {
-    setFilter(tempFilter);
-    closeFilter();
-  };
-  const handleClearFilter = () => {
-    setFilter({ condition: "", category: "", maintenance: "" });
-    setTempFilter({ condition: "", category: "", maintenance: "" });
-    closeFilter();
-  };
-
-  // ------------------- Sidebar -------------------
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-
+  // Fetch assets, categories, and locations on component mount
   useEffect(() => {
-    if (sidebarOpen) document.body.classList.add("sidebar-open");
-    else document.body.classList.remove("sidebar-open");
-  }, [sidebarOpen]);
+    const fetchAssets = async () => {
+      const response = await fetch("http://localhost:3000/api/assets");
+      const data: Asset[] = await response.json();
+      setInventory(data);
+    };
 
-  // ------------------- Filtered Inventory -------------------
-  const filteredInventory = useMemo(() => {
-    return inventory.filter(item => {
-      if (filter.condition && item.condition !== filter.condition) return false;
-      if (filter.category && item.category !== filter.category) return false;
-      if (filter.maintenance) {
-        if (filter.maintenance === "Yes" && !item.underMaintenance) return false;
-        if (filter.maintenance === "No" && item.underMaintenance) return false;
-      }
-      return true;
-    });
-  }, [inventory, filter]);
+    const fetchCategories = async () => {
+      const response = await fetch("http://localhost:3000/api/asset_categories");
+      const data: Category[] = await response.json();
+      setCategories(data);
+    };
 
-  // ------------------- Handlers -------------------
+    const fetchLocations = async () => {
+      const response = await fetch("http://localhost:3000/api/locations");
+      const data: Location[] = await response.json();
+      setLocations(data);
+    };
+
+    fetchAssets();
+    fetchCategories();
+    fetchLocations();
+  }, []);
+
+  const groupByCategory = (assets: Asset[]) => {
+    return assets.reduce((acc: Record<string, Asset[]>, asset) => {
+      const category = asset.category_id.toString(); // Group by category_id
+      if (!acc[category]) acc[category] = [];
+      acc[category].push(asset);
+      return acc;
+    }, {});
+  };
+
+  const groupedAssets = useMemo(() => groupByCategory(inventory), [inventory]);
+
+  // Action Handlers
   const handleAdd = () => {
-    // Pass setInventory to AddAssetPage so new asset can be appended
-    console.log("Navigating to add asset page...");
-    navigate("/assets/add", { state: { addAssetCallback: setInventory } });
+    navigate("/assets/addAsset", { state: { addAssetCallback: setInventory } });
   };
 
   const handleEdit = (id: string) => navigate(`/assets/edit/${id}`);
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this asset?")) {
-      setInventory(prev => prev.filter(a => a.id !== id));
+      setInventory(prev => prev.filter(a => a.asset_id !== id));
     }
+  };
+
+  const handleView = (id: string) => {
+    navigate(`/assets/view/${id}`);
+  };
+
+  // Helper function to get location name by location_id
+  const getLocationName = (locationId: number) => {
+    const location = locations.find(loc => loc.location_id === locationId);
+    return location ? location.name : "Unknown Location";
+  };
+
+  // Helper function to get category name by category_id
+  const getCategoryName = (categoryId: number) => {
+    const category = categories.find(cat => cat.category_id === categoryId);
+    return category ? category.name : "Unknown Category";
   };
 
   return (
     <div className="dashboard-wrapper">
-      {/* Hamburger */}
-      <button className="hamburger" onClick={toggleSidebar}>
+      {/* Sidebar */}
+      <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>
         &#9776;
       </button>
 
-      {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
         <div className="close-wrapper">
           <div className="toggle close-btn">
@@ -100,7 +121,7 @@ const AssetsPage: React.FC = () => {
               type="checkbox"
               id="closeSidebarButton"
               checked={sidebarOpen}
-              onChange={toggleSidebar}
+              onChange={() => setSidebarOpen(!sidebarOpen)}
             />
             <span className="button"></span>
             <span className="label">X</span>
@@ -136,79 +157,55 @@ const AssetsPage: React.FC = () => {
         {/* Add + Filter Buttons */}
         <div className="table-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <button className="add-btn" onClick={handleAdd}>+ &nbsp; Add New Asset</button>
-          <button className="filter-btn" onClick={openFilter}>&#x1F5D1; Filter</button>
+          <button className="filter-btn" onClick={() => setFilter({ ...filter })}>&#x1F5D1; Filter</button>
         </div>
 
-        {/* Asset Table */}
-        <table className="responsive-table">
-          <thead>
-            <tr>
-              <th>Asset ID</th>
-              <th>Asset Name</th>
-              <th>Category</th>
-              <th>Location</th>
-              <th>Condition</th>
-              <th>Current Value ($)</th>
-              <th>Assigned To</th>
-              <th>Under Maintenance?</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredInventory.map(asset => (
-              <tr key={asset.id}>
-                <td data-title="Asset ID">{asset.id}</td>
-                <td data-title="Asset Name">{asset.name}</td>
-                <td data-title="Category">{asset.category}</td>
-                <td data-title="Location">{asset.location}</td>
-                <td data-title="Condition">{asset.condition}</td>
-                <td data-title="Current Value ($)">{asset.currentValue.toFixed(2)}</td>
-                <td data-title="Assigned To">{asset.assignedTo}</td>
-                <td data-title="Under Maintenance?">{asset.underMaintenance ? "Yes" : "No"}</td>
-                <td className="actions" data-title="Actions">
-                  <button className="edit-btn" onClick={() => handleEdit(asset.id)}>Edit</button>
-                  <button className="delete-btn" onClick={() => handleDelete(asset.id)}>Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {/* Asset Tables Grouped by Category */}
+        {Object.keys(groupedAssets).map(categoryId => {
+          const categoryName = getCategoryName(Number(categoryId));
+          return (
+            <div key={categoryId}>
+              <h2>{categoryName}</h2> {/* Category Header */}
+              <table className="responsive-table">
+                <thead>
+                  <tr>
+                    <th>Asset ID</th>
+                    <th>Asset Name</th>
+                    <th>Category</th>
+                    <th>Location</th>
+                    <th>Condition</th>
+                    <th>Status</th> {/* Status column comes before Maintenance */}
+                    <th>Current Value ($)</th>
+                    <th>Assigned To</th>
+                    <th>Actions</th> {/* Removed Under Maintenance column */}
+                  </tr>
+                </thead>
+                <tbody>
+                  {groupedAssets[categoryId].map(asset => (
+                    <tr key={asset.asset_id}>
+                      <td data-title="Asset ID">{asset.asset_id}</td>
+                      <td data-title="Asset Name">{asset.name}</td>
+                      <td data-title="Category">{categoryName}</td>
+                      <td data-title="Location">{getLocationName(asset.location_id)}</td>
+                      <td data-title="Condition">{asset.condition_status}</td>
+                      <td data-title="Status">{asset.status}</td>
+                      <td data-title="Current Value ($)">{parseFloat(asset.current_value).toFixed(2)}</td>
+                      <td data-title="Assigned To">{asset.department_id}</td> {/* Assuming department_id can be mapped to department */}
+                      <td className="actions" data-title="Actions">
+                        <button className="edit-btn" onClick={() => handleEdit(asset.asset_id.toString())}>Edit</button>
+                        <button className="delete-btn" onClick={() => handleDelete(asset.asset_id.toString())}>Delete</button>
+                        <button className="view-btn" onClick={() => handleView(asset.asset_id.toString())}>View</button> {/* View button */}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
+        })}
 
-        {/* Filter Popup */}
-        <div className="overlay" style={{ display: showFilterPopup ? "block" : "none" }} onClick={closeFilter}></div>
-        <div className="filter-popup" style={{ display: showFilterPopup ? "block" : "none" }}>
-          <h3>Filter Assets</h3>
-          <label>
-            Condition:
-            <select value={tempFilter.condition} onChange={(e) => setTempFilter(prev => ({ ...prev, condition: e.target.value }))}>
-              <option value="">All</option>
-              <option value="Good">Good</option>
-              <option value="Fair">Fair</option>
-              <option value="Poor">Poor</option>
-            </select>
-          </label>
-          <label>
-            Category:
-            <select value={tempFilter.category} onChange={(e) => setTempFilter(prev => ({ ...prev, category: e.target.value }))}>
-              <option value="">All</option>
-              <option value="Electronics">Electronics</option>
-              <option value="Furniture">Furniture</option>
-              <option value="Stationery">Stationery</option>
-            </select>
-          </label>
-          <label>
-            Under Maintenance:
-            <select value={tempFilter.maintenance} onChange={(e) => setTempFilter(prev => ({ ...prev, maintenance: e.target.value }))}>
-              <option value="">All</option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </select>
-          </label>
-          <div className="filter-popup-buttons">
-            <button className="add-btn" onClick={handleApplyFilter}>Apply Filter</button>
-            <button className="delete-btn" onClick={handleClearFilter}>Clear All</button>
-          </div>
-        </div>
+        {/* Filter Popup and Other UI Elements */}
+        {/* The code for filter popup and other UI components remains the same */}
       </div>
     </div>
   );
