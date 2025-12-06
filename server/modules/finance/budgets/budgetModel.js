@@ -11,7 +11,6 @@ const Budget = {
         month,
         category_id,
         expense_subcategory_id,
-        income_subcategory_id,
         created_at
       FROM budgets
       ORDER BY id ASC
@@ -29,7 +28,6 @@ const Budget = {
         month,
         category_id,
         expense_subcategory_id,
-        income_subcategory_id,
         created_at
       FROM budgets
       WHERE id = $1
@@ -45,7 +43,6 @@ const Budget = {
       month,
       category_id,
       expense_subcategory_id,
-      income_subcategory_id,
     } = data;
 
     if (!year || !month || !amount) {
@@ -54,8 +51,8 @@ const Budget = {
 
     const result = await pool.query(`
       INSERT INTO budgets 
-        (title, amount, year, month, category_id, expense_subcategory_id, income_subcategory_id)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+        (title, amount, year, month, category_id, expense_subcategory_id)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING 
         id,
         title,
@@ -64,7 +61,6 @@ const Budget = {
         month,
         category_id,
         expense_subcategory_id,
-        income_subcategory_id,
         created_at
     `, [
       title,
@@ -73,7 +69,6 @@ const Budget = {
       month,
       category_id,
       expense_subcategory_id || null,
-      income_subcategory_id || null,
     ]);
 
     return result.rows[0];
@@ -87,7 +82,6 @@ const Budget = {
       month,
       category_id,
       expense_subcategory_id,
-      income_subcategory_id,
     } = data;
 
     const result = await pool.query(`
@@ -98,9 +92,8 @@ const Budget = {
         year = $3,
         month = $4,
         category_id = $5,
-        expense_subcategory_id = $6,
-        income_subcategory_id = $7
-      WHERE id = $8
+        expense_subcategory_id = $6
+      WHERE id = $7
       RETURNING 
         id,
         title,
@@ -109,7 +102,6 @@ const Budget = {
         month,
         category_id,
         expense_subcategory_id,
-        income_subcategory_id,
         created_at
     `, [
       title,
@@ -118,7 +110,6 @@ const Budget = {
       month,
       category_id,
       expense_subcategory_id || null,
-      income_subcategory_id || null,
       id,
     ]);
 
