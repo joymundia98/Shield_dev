@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../styles/global.css";
+import "../../styles/global.css"; // Make sure your CSS file is included
 
 interface PayrollRecord {
   name: string;
@@ -20,7 +20,7 @@ const PayrollPage: React.FC = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // ------------------- Payroll Data -------------------
+  // Static Payroll Data
   const [payrollData, setPayrollData] = useState<PayrollRecord[]>([
     { name: "John Doe", position: "Pastor", salary: 1500, status: "Paid", date: "2025-11-10", department: "Finance" },
     { name: "Mary Smith", position: "Secretary", salary: 800, status: "Pending", date: "2025-11-15", department: "Finance" },
@@ -33,26 +33,20 @@ const PayrollPage: React.FC = () => {
   const [filterYear, setFilterYear] = useState<number | "all">("all");
   const [filterDepartment, setFilterDepartment] = useState<string | "all">("all");
 
-  // ------------------- Modal State -------------------
-  const [showModal, setShowModal] = useState(false);
-  const [modalRecord, setModalRecord] = useState<PayrollRecord>({
-    name: "",
-    position: "",
-    salary: 0,
-    status: "Paid",
-    date: "",
-    department: "",
-  });
+  // Modal State
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalAction, setModalAction] = useState<"approve" | "reject" | null>(null);
+  const [modalRecord, setModalRecord] = useState<PayrollRecord | null>(null);
+  const [selectedRecordIndex, setSelectedRecordIndex] = useState<number | null>(null);
 
-  // ------------------- Sidebar -------------------
+  // Sidebar
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
-
   useEffect(() => {
     if (sidebarOpen) document.body.classList.add("sidebar-open");
     else document.body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
-  // ------------------- Filtered Payroll -------------------
+  // Filtered Payroll Data
   const filteredPayroll = useMemo(() => {
     return payrollData.filter((rec) => {
       const dateObj = new Date(rec.date);
@@ -64,7 +58,6 @@ const PayrollPage: React.FC = () => {
     });
   }, [payrollData, filterMonth, filterYear, filterDepartment, search]);
 
-  // ------------------- Group by Department -------------------
   const groupedByDepartment = useMemo(() => {
     const groups: Record<string, PayrollRecord[]> = {};
     filteredPayroll.forEach((rec) => {
@@ -74,11 +67,11 @@ const PayrollPage: React.FC = () => {
     return groups;
   }, [filteredPayroll]);
 
-  // ------------------- KPI Calculations -------------------
+  // KPI Calculations - Now on filtered payroll data
   const selectedMonthIndex = filterMonth === "all" ? new Date().getMonth() : monthNames.indexOf(filterMonth);
   const selectedYearValue = filterYear === "all" ? new Date().getFullYear() : filterYear;
 
-  const payrollThisMonth = payrollData.filter((p) => {
+  const payrollThisMonth = filteredPayroll.filter((p) => {
     const d = new Date(p.date);
     return d.getMonth() === selectedMonthIndex && d.getFullYear() === selectedYearValue;
   });
@@ -94,76 +87,55 @@ const PayrollPage: React.FC = () => {
   const kpiPaidCount = payrollThisMonth.filter((p) => p.status === "Paid").length;
   const kpiUnpaidCount = payrollThisMonth.filter((p) => p.status !== "Paid").length;
 
-  // ------------------- Modal Handlers -------------------
-  const openViewModal = (record: PayrollRecord) => {
+  // Modal Handlers
+  const openModal = (action: "approve" | "reject", record: PayrollRecord, index: number) => {
+    setModalAction(action);
     setModalRecord(record);
-    setShowModal(true);
+    setSelectedRecordIndex(index);
+    setModalOpen(true);
   };
 
-  const handleApprove = (index: number) => {
-    const updatedData = [...payrollData];
-    updatedData[index].status = "Paid";
-    setPayrollData(updatedData);
+  const confirmModal = () => {
+    if (modalAction && modalRecord && selectedRecordIndex !== null) {
+      const updatedData = [...payrollData];
+      updatedData[selectedRecordIndex].status = modalAction === "approve" ? "Paid" : "Overdue";
+      setPayrollData(updatedData);
+      closeModal();
+    }
   };
 
-  const handleReject = (index: number) => {
-    const updatedData = [...payrollData];
-    updatedData[index].status = "Overdue";
-    setPayrollData(updatedData);
+  const closeModal = () => {
+    setModalOpen(false);
+    setModalAction(null);
+    setSelectedRecordIndex(null);
   };
 
-  const closeModal = () => setShowModal(false);
+  // Open View in New Tab
+  const viewDetails = (record: PayrollRecord) => {
+    const url = `/payroll/details/${record.name}`;
+    window.open(url, "_blank");
+  };
 
   return (
     <div className="dashboard-wrapper">
-      {/* Hamburger */}
-      <button className="hamburger" onClick={toggleSidebar}>&#9776;</button>
-
       {/* Sidebar */}
+      <button className="hamburger" onClick={toggleSidebar}>&#9776;</button>
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
-        <div className="close-wrapper">
-          <div className="toggle close-btn">
-            <input
-              type="checkbox"
-              id="closeSidebarButton"
-              checked={sidebarOpen}
-              onChange={toggleSidebar}
-            />
-            <span className="button"></span>
-            <span className="label">X</span>
-          </div>
-        </div>
-
         <h2>FINANCE</h2>
         <a href="/finance/dashboard">Dashboard</a>
-        <a href="/finance/incometracker">Track Income</a>
-        <a href="/finance/expensetracker">Track Expenses</a>
-        <a href="/finance/budgets">Budget</a>
         <a href="/finance/payroll" className="active">Payroll</a>
         <a href="/finance/financeCategory">Finance Categories</a>
-
         <hr className="sidebar-separator" />
-        <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
-
-        <a
-          href="/"
-          className="logout-link"
-          onClick={(e) => {
-            e.preventDefault();
-            localStorage.clear();
-            navigate("/");
-          }}
-        >
-          ➜ Logout
-        </a>
+        <a href="/dashboard">← Back to Main Dashboard</a>
+        <a href="/" onClick={() => { localStorage.clear(); navigate("/"); }}>Logout</a>
       </div>
 
       {/* Main Content */}
       <div className="dashboard-content">
         <h1>Payroll</h1>
-
-        {/* Search */}
-        <div className="table-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        
+        {/* Search Bar */}
+        <div className="search-bar-container">
           <input
             type="text"
             className="search-input"
@@ -172,68 +144,65 @@ const PayrollPage: React.FC = () => {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-
-        {/* Filters */}
         <br/>
-        <div className="filters" style={{ margin: "10px 0", display: "flex", gap: "10px" }}>
-          <label>
-            Month:
+
+        {/* Filter Dropdowns */}
+        <div className="filters">
+          <label>Month:
             <select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)}>
               <option value="all">All</option>
               {monthNames.map((month) => (
                 <option key={month} value={month}>{month}</option>
               ))}
             </select>
-          </label>
-          <label>
-            Year:
+          </label>&emsp;
+          <label>Year:
             <select value={filterYear} onChange={(e) => setFilterYear(e.target.value === "all" ? "all" : parseInt(e.target.value))}>
               <option value="all">All</option>
               {[2020, 2021, 2022, 2023, 2024, 2025].map((y) => (
                 <option key={y} value={y}>{y}</option>
               ))}
             </select>
-          </label>
-          <label>
-            Department:
+          </label>&emsp;
+          <label>Department:
             <select value={filterDepartment} onChange={(e) => setFilterDepartment(e.target.value)}>
               <option value="all">All</option>
-              {Array.from(new Set(payrollData.map(p => p.department))).map(dep => (
+              {["Finance", "Logistics", "Transport"].map((dep) => (
                 <option key={dep} value={dep}>{dep}</option>
               ))}
             </select>
           </label>
         </div>
+        <br/>
 
         {/* KPI Cards */}
-        <br/>
-        <div className="kpi-container" id="kpiContainer">
+        <div className="kpi-container">
           <div className="kpi-card">
             <h3>Total Paid (This Month)</h3>
-            <p id="kpiTotalPaid">${kpiTotalPaid.toLocaleString()}</p>
+            <p>${kpiTotalPaid.toLocaleString()}</p>
           </div>
           <div className="kpi-card">
             <h3>Total Due (This Month)</h3>
-            <p id="kpiTotalDue">${kpiTotalDue.toLocaleString()}</p>
+            <p>${kpiTotalDue.toLocaleString()}</p>
           </div>
           <div className="kpi-card">
             <h3>Employees Paid</h3>
-            <p id="kpiPaidCount">{kpiPaidCount}</p>
+            <p>{kpiPaidCount}</p>
           </div>
           <div className="kpi-card">
             <h3>Employees Unpaid</h3>
-            <p id="kpiUnpaidCount">{kpiUnpaidCount}</p>
+            <p>{kpiUnpaidCount}</p>
           </div>
         </div>
 
-        {/* Payroll Table Grouped by Department */}
-        {Object.entries(groupedByDepartment).map(([dept, records]) => (
-          <div key={dept} style={{ marginTop: "20px" }}>
-            <h2>{dept} Department</h2>
+        {/* Payroll Table */}
+        {Object.entries(groupedByDepartment).map(([department, records]) => (
+          <div key={department} style={{ marginTop: "20px" }}>
+            <h2>{department} Department</h2>
             <table className="responsive-table">
               <thead>
                 <tr>
-                  <th>Staff Name</th>
+                  <th>Name</th>
                   <th>Position</th>
                   <th>Salary</th>
                   <th>Status</th>
@@ -242,19 +211,25 @@ const PayrollPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {records.map((p, i) => (
-                  <tr key={i}>
-                    <td>{p.name}</td>
-                    <td>{p.position}</td>
-                    <td>${p.salary.toLocaleString()}</td>
-                    <td><span className={`status ${p.status.toLowerCase()}`}>{p.status}</span></td>
-                    <td>{p.date}</td>
+                {records.map((record, index) => (
+                  <tr key={index}>
+                    <td>{record.name}</td>
+                    <td>{record.position}</td>
+                    <td>${record.salary.toLocaleString()}</td>
+                    <td><span className={`status ${record.status.toLowerCase()}`}>{record.status}</span></td>
+                    <td>{record.date}</td>
                     <td>
-                      <button className="view-btn" onClick={() => openViewModal(p)}>View</button>
-                      {p.status !== "Paid" && (
+                      <button className="view-btn" onClick={() => viewDetails(record)}>
+                        View
+                      </button>&emsp;
+                      {record.status !== "Paid" && (
                         <>
-                          <button className="approve-btn" onClick={() => handleApprove(i)}>Approve</button>
-                          <button className="reject-btn" onClick={() => handleReject(i)}>Reject</button>
+                          <button className="approve-btn" onClick={() => openModal("approve", record, index)}>
+                            Approve
+                          </button>&emsp;
+                          <button className="reject-btn" onClick={() => openModal("reject", record, index)}>
+                            Reject
+                          </button>
                         </>
                       )}
                     </td>
@@ -265,57 +240,21 @@ const PayrollPage: React.FC = () => {
           </div>
         ))}
 
-        {/* Modal */}
-        <div className="overlay" style={{ display: showModal ? "block" : "none" }} onClick={closeModal}></div>
-        <div className="filter-popup modal-wide" style={{ display: showModal ? "block" : "none" }}>
-          <h3>View Payroll</h3>
-
-          <label>Staff Name</label>
-          <input
-            type="text"
-            value={modalRecord.name}
-            readOnly
-          />
-
-          <label>Position</label>
-          <input
-            type="text"
-            value={modalRecord.position}
-            readOnly
-          />
-
-          <label>Salary</label>
-          <input
-            type="number"
-            value={modalRecord.salary}
-            readOnly
-          />
-
-          <label>Status</label>
-          <select value={modalRecord.status} readOnly>
-            <option value="Paid">Paid</option>
-            <option value="Pending">Pending</option>
-            <option value="Overdue">Overdue</option>
-          </select>
-
-          <label>Department</label>
-          <input
-            type="text"
-            value={modalRecord.department}
-            readOnly
-          />
-
-          <label>Payment Date</label>
-          <input
-            type="date"
-            value={modalRecord.date}
-            readOnly
-          />
-
-          <div className="filter-popup-buttons">
-            <button className="delete-btn" onClick={closeModal}>Close</button>
+        {/* Confirmation Modal */}
+        {modalOpen && (
+          <div className="expenseModal" style={{ display: "flex" }}>
+            <div className="expenseModal-content">
+              <h2>{modalAction === "approve" ? "Approve Payroll?" : "Reject Payroll?"}</h2>
+              <p>Are you sure you want to {modalAction === "approve" ? "approve" : "reject"} the payroll for {modalRecord?.name}?</p>
+              <div className="expenseModal-buttons">
+                <button className="expenseModal-cancel" onClick={closeModal}>Cancel</button>
+                <button className="expenseModal-confirm" onClick={confirmModal}>
+                  Confirm
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
