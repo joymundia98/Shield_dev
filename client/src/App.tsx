@@ -33,6 +33,7 @@ import AddStaffPage from "./pages/hr/addStaff";
 
 // Asset Module Functional Pages
 import AssetsPage from "./pages/assets/assets";
+import ViewAsset from "./pages/assets/viewAsset";
 import DepreciationPage from "./pages/assets/depreciation";
 import AddAssetPage from "./pages/assets/addAsset";
 import MaintenancePage from "./pages/assets/maintenance";
@@ -119,6 +120,7 @@ function App() {
           --------------------------------*/}
           <Route path="/assets/assets" element={<AssetsPage />} />
           <Route path="/assets/addAsset" element={<AddAssetPage />} />
+          <Route path="/assets/viewAsset" element={<ViewAsset />} />
           <Route path="/assets/depreciation" element={<DepreciationPage />} />
           <Route path="/assets/maintenance" element={<MaintenancePage />} />
           <Route path="/assets/categories" element={<CategoriesPage />} />

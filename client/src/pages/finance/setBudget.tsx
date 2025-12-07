@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../../styles/global.css";
+import "../../styles/global.css"; // Ensure your styles are being imported
 
 interface BudgetCategories {
   [category: string]: string[];
@@ -32,6 +32,7 @@ const SetBudgetsPage: React.FC = () => {
   const [budgets, setBudgets] = useState<Budgets>({});
   const [selectedMonth, setSelectedMonth] = useState<string>("01"); // Default to January
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString()); // Default to current year
+  const [budgetTitle, setBudgetTitle] = useState<string>("June 2026 Budget"); // New state for Budget Title
 
   // ---------------- Fetch Categories and Existing Budgets ----------------
   useEffect(() => {
@@ -126,13 +127,12 @@ const SetBudgetsPage: React.FC = () => {
               const subcategoryId = subcategoryIds[subCategory]; // Get subcategory_id from the subcategoryIds map
 
               dataToSave.push({
-                title: subCategory,  // Title is the subcategory name
+                title: budgetTitle,
                 amount,
                 year: parseInt(selectedYear, 10),
                 month: parseInt(selectedMonth, 10),
                 category_id: categoryId,  // Send the category_id
                 expense_subcategory_id: subcategoryId, // Send the subcategory_id
-                income_subcategory_id: null, // Assuming this is not used for budgets, adjust as needed
               });
             }
           }
@@ -231,6 +231,19 @@ const SetBudgetsPage: React.FC = () => {
         </div>
 
         <h2>Set Budget for Categories</h2>
+
+        {/* Budget Title Input */}
+        <div style={{ marginBottom: "20px" }}>
+          <br/>
+          <label className="neumorphic-label">Please enter a Budget Title</label>
+          <input
+            className="neumorphic-input"
+            type="text"
+            placeholder="Enter budget title"
+            value={budgetTitle}
+            onChange={(e) => setBudgetTitle(e.target.value)}
+          />
+        </div>
 
         {/* Month and Year Dropdowns */}
         <div style={{ marginBottom: "20px" }}>
