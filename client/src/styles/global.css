@@ -943,6 +943,7 @@
 
         /* Approved = Green */
         .status.Approved,
+        .status.approved,
         .status.paid {
             background: #d9f8d9;
             color: #1a7f1a;
@@ -951,6 +952,7 @@
 
         /* Rejected = Red */
         .status.Rejected,
+        .status.rejected,
         .status.overdue {
             background: #fde1e1;
             color: #b30000;

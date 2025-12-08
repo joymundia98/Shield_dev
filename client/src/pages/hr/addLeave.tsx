@@ -16,7 +16,6 @@ interface Leave {
 const AddLeave: React.FC = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [staffMembers, setStaffMembers] = useState<any[]>([]);
   const [leaveTypes] = useState([
     { name: "Vacation Leave (PTO)", isPTO: true },
     { name: "Personal Leave", isPTO: false },
@@ -36,7 +35,7 @@ const AddLeave: React.FC = () => {
 
   const [form, setForm] = useState<Leave>({
     id: 0,
-    staff_id: 0,
+    staff_id: 0, // This will be set to the logged-in user's ID
     leave_type: "",
     start_date: "",
     end_date: "",
@@ -52,20 +51,18 @@ const AddLeave: React.FC = () => {
   }, [sidebarOpen]);
 
   useEffect(() => {
-    const fetchStaffMembers = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/api/staff");
-        if (!response.ok) throw new Error("Failed to fetch staff members.");
-        const staffData = await response.json();
-        setStaffMembers(staffData);
-      } catch (err: any) {
-        console.error(err);
-        alert("Failed to fetch staff members.");
-      }
-    };
-
-    fetchStaffMembers();
-  }, []);
+    // Get logged-in user data from localStorage
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      const user = JSON.parse(loggedInUser);
+      setForm((prevForm) => ({
+        ...prevForm,
+        staff_id: user.id,  // Set the logged-in user's ID as the staff_id
+      }));
+    } else {
+      navigate("/"); // Redirect to login page if no user is found
+    }
+  }, [navigate]);
 
   // Calculate days whenever start_date or end_date changes
   useEffect(() => {
@@ -73,7 +70,7 @@ const AddLeave: React.FC = () => {
       const days = calculateDays(form.start_date, form.end_date);
       setForm((prevForm) => ({ ...prevForm, days }));
     }
-  }, [form.start_date, form.end_date]); // Run whenever start_date or end_date changes
+  }, [form.start_date, form.end_date]);
 
   const calculateDays = (startDate: string, endDate: string) => {
     const start = new Date(startDate);
@@ -86,7 +83,7 @@ const AddLeave: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.staff_id || !form.leave_type || !form.start_date || !form.end_date) {
+    if (!form.leave_type || !form.start_date || !form.end_date) {
       alert("Please fill in all required fields.");
       return;
     }
@@ -112,7 +109,7 @@ const AddLeave: React.FC = () => {
       }
 
       alert("Leave request submitted successfully!");
-      navigate("/hr/leave");  // Redirect to leave management page
+      navigate("/hr/leaveApplications");  // Redirect to leave management page
     } catch (err: any) {
       alert("Error: " + err.message);
     }
@@ -135,6 +132,7 @@ const AddLeave: React.FC = () => {
         <a href="/hr/staffDirectory">Staff Directory</a>
         <a href="/hr/payroll">Payroll</a>
         <a href="/hr/leave" className="active">Leave Management</a>
+        <a href="/hr/leaveApplications" className="active">Leave Applications</a>
         <a href="/hr/departments">Departments</a>
 
         <hr className="sidebar-separator" />
@@ -145,7 +143,7 @@ const AddLeave: React.FC = () => {
           onClick={(e) => {
             e.preventDefault();
             localStorage.clear();
-            navigate("/");
+            navigate("/");  // Redirect to login page
           }}
         >
           ➜ Logout
@@ -157,27 +155,15 @@ const AddLeave: React.FC = () => {
         <header className="page-header">
           <h1>Request Leave</h1>
           <div>
-            <button className="add-btn" onClick={() => navigate("/hr/leave")}>← Back</button>
+            <button className="add-btn" onClick={() => navigate("/hr/leaveApplications")}>← Back</button>
             <button className="hamburger" onClick={toggleSidebar}>☰</button>
           </div>
         </header>
 
         <div className="container">
           <form className="add-form-styling" onSubmit={handleSubmit}>
-            {/* STAFF MEMBER */}
-            <label>Staff Member</label>
-            <select
-              required
-              value={form.staff_id || ""}
-              onChange={(e) => setForm({ ...form, staff_id: Number(e.target.value) })}
-            >
-              <option value="">-- Select Staff Member --</option>
-              {staffMembers.map((staff) => (
-                <option key={staff.id} value={staff.id}>
-                  {staff.name}
-                </option>
-              ))}
-            </select>
+            {/* Staff Member (Hidden) */}
+            <input type="hidden" value={form.staff_id} />
 
             {/* LEAVE TYPE */}
             <label>Leave Type</label>

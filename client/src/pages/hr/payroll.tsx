@@ -145,6 +145,7 @@ const HrPayrollPage: React.FC = () => {
         <a href="/hr/staffDirectory">Staff Directory</a>
         <a href="/hr/payroll" className="active">Payroll</a>
         <a href="/hr/leave">Leave Management</a>
+        <a href="/hr/leaveApplications" className="active">Leave Applications</a>
         <a href="/hr/departments" className="active">Departments</a>
 
         <hr className="sidebar-separator" />

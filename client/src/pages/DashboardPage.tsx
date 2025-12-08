@@ -52,6 +52,7 @@ const dropdowns: Dropdown[] = [
       { name: "Staff Directory", href: "/hr/staffDirectory" },
       { name: "Payroll", href: "/hr/payroll" },
       { name: "Leave Management", href: "/hr/leave" },
+      { name: "Leave Applications", href: "/hr/leaveApplications" },
       { name: "Departments", href: "/hr/departments" },
     ],
   },
