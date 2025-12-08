@@ -34,6 +34,7 @@ const LeaveRequestsController = {
     }
   },
 
+  // Existing update method (used for full updates)
   async update(req, res) {
     try {
       const { id } = req.params;
@@ -43,6 +44,27 @@ const LeaveRequestsController = {
         return res.status(404).json({ message: "Leave request not found" });
 
       const updated = await LeaveRequest.update(id, req.body);
+      return res.json(updated);
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  },
+
+  // New method for updating the status
+  async updateStatus(req, res) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;  // 'approved' or 'rejected'
+
+      if (!['approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ message: "Invalid status value" });
+      }
+
+      const existing = await LeaveRequest.getById(id);
+      if (!existing)
+        return res.status(404).json({ message: "Leave request not found" });
+
+      const updated = await LeaveRequest.updateStatus(id, status);
       return res.json(updated);
     } catch (err) {
       return res.status(500).json({ error: err.message });
