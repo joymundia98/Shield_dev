@@ -131,7 +131,7 @@ const AddLeave: React.FC = () => {
         <a href="/hr/dashboard">Dashboard</a>
         <a href="/hr/staffDirectory">Staff Directory</a>
         <a href="/hr/payroll">Payroll</a>
-        <a href="/hr/leave" className="active">Leave Management</a>
+        <a href="/hr/leave">Leave Management</a>
         <a href="/hr/leaveApplications" className="active">Leave Applications</a>
         <a href="/hr/departments">Departments</a>
 
