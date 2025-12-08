@@ -7,18 +7,24 @@ type Gender = "Male" | "Female";
 type Category = "Children" | "Youth" | "Adults" | "Elderly";
 
 interface Person {
-  id: number;       // member_id or visitor id
+  id: number;       // member_id or visitor_id
   name: string;     // full_name for members, name for visitors
   age: number;
   gender: Gender;
-  type: "member" | "visitor";
+  type: "member" | "visitor";  // Identifies whether the person is a member or visitor
 }
 
 interface AttendanceRecord {
-  person_id: number;
-  type: "member" | "visitor";
+  member_id: number | null;   // Member ID (null if not a member)
+  visitor_id: number | null;  // Visitor ID (null if not a visitor)
   date: string;
   status: "Present" | "Absent";
+  service_id: number;
+}
+
+interface Service {
+  id: number;
+  name: string;
 }
 
 const RecordAttendance: React.FC = () => {
@@ -32,6 +38,10 @@ const RecordAttendance: React.FC = () => {
 
   const [people, setPeople] = useState<Person[]>([]);
   const [attendance, setAttendance] = useState<Record<string, boolean>>({});
+
+  const [services, setServices] = useState<Service[]>([]);
+  const [selectedService, setSelectedService] = useState<number | null>(null);
+  const [attendanceDate, setAttendanceDate] = useState<string>(new Date().toISOString().split("T")[0]);
 
   const getCategory = (age: number): Category => {
     if (age < 18) return "Children";
@@ -72,7 +82,6 @@ const RecordAttendance: React.FC = () => {
 
         setPeople(filtered);
 
-        // Initialize attendance state using composite key: type_id
         const initialAttendance: Record<string, boolean> = {};
         filtered.forEach(p => {
           initialAttendance[`${p.type}_${p.id}`] = false;
@@ -87,26 +96,54 @@ const RecordAttendance: React.FC = () => {
     fetchPeople();
   }, [category, gender]);
 
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/api/services");
+        setServices(res.data);
+      } catch (err) {
+        console.error("Error fetching services:", err);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
   const toggleCheck = (key: string) => {
     setAttendance(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   const saveAttendance = async () => {
-    const today = new Date().toISOString().split("T")[0];
+    if (!selectedService) {
+      alert("Please select a service.");
+      return;
+    }
 
     const records: AttendanceRecord[] = people.map(p => ({
-      person_id: p.id,
-      type: p.type,
-      date: today,
+      member_id: p.type === "member" ? p.id : null,
+      visitor_id: p.type === "visitor" ? p.id : null,
+      date: attendanceDate,
       status: attendance[`${p.type}_${p.id}`] ? "Present" : "Absent",
+      service_id: selectedService,
     }));
 
+    // Log the request to debug the data being sent
+    console.log("Attendance records being sent:", records);
+
     try {
-      await axios.post("http://localhost:3000/api/congregation/attendance", { records });
+      const response = await axios.post("http://localhost:3000/api/congregation/attendance", { records });
+      console.log("Server response:", response); // Log the response from the backend
       alert("Attendance saved successfully!");
       navigate("/congregation/attendance");
     } catch (err) {
-      console.error("Error saving attendance:", err);
+      if (axios.isAxiosError(err)) {
+        console.error("Error saving attendance:", err.message);
+        if (err.response) {
+          console.error("Response data:", err.response.data);
+        }
+      } else {
+        console.error("Unexpected error:", err);
+      }
       alert("Failed to save attendance.");
     }
   };
@@ -147,7 +184,7 @@ const RecordAttendance: React.FC = () => {
           <div className="kpi-card selection-card">
             <h3>Select Category</h3>
             <div className="rollcall-radio">
-              {(["Children","Youth","Adults","Elderly"] as Category[]).map((cat) => (
+              {(["Children", "Youth", "Adults", "Elderly"] as Category[]).map((cat) => (
                 <label key={cat}>
                   <input type="radio" name="category" checked={category === cat} onChange={() => setCategory(cat)} />
                   {cat}
@@ -159,13 +196,37 @@ const RecordAttendance: React.FC = () => {
           <div className="kpi-card selection-card">
             <h3>Select Gender</h3>
             <div className="rollcall-radio">
-              {(["Male","Female"] as Gender[]).map((g) => (
+              {(["Male", "Female"] as Gender[]).map((g) => (
                 <label key={g}>
                   <input type="radio" name="gender" checked={gender === g} onChange={() => setGender(g)} />
                   {g}
                 </label>
               ))}
             </div>
+          </div>
+          
+          <div className="kpi-card selection-card">
+            <h3>Select Service</h3>
+            <select
+              value={selectedService ?? ""}
+              onChange={(e) => setSelectedService(Number(e.target.value))}
+            >
+              <option value="">Select a service</option>
+              {services.map((service) => (
+                <option key={service.id} value={service.id}>
+                  {service.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="kpi-card selection-card">
+            <h3>Select Date</h3>
+            <input
+              type="date"
+              value={attendanceDate}
+              onChange={(e) => setAttendanceDate(e.target.value)}
+            />
           </div>
         </div>
 
