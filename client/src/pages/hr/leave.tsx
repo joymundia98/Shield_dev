@@ -235,15 +235,16 @@ const LeaveManagementPage: React.FC = () => {
                       <td>{leave.days}</td>
                       <td><span className={`status ${leave.status}`}>{leave.status}</span></td>
                       <td className="actions">
-                        {leave.status !== "approved" && (
-                          <button className="approve-btn" onClick={() => handleStatusChange(leave.id, "approved")}>
-                            Approve
-                          </button>
-                        )}
-                        {leave.status !== "rejected" && (
-                          <button className="reject-btn" onClick={() => handleStatusChange(leave.id, "rejected")}>
-                            Reject
-                          </button>
+                        {/* Only show actions if the leave status is 'pending' */}
+                        {leave.status === "pending" && (
+                          <>
+                            <button className="approve-btn" onClick={() => handleStatusChange(leave.id, "approved")}>
+                              Approve
+                            </button>
+                            <button className="reject-btn" onClick={() => handleStatusChange(leave.id, "rejected")}>
+                              Reject
+                            </button>
+                          </>
                         )}
                       </td>
                     </tr>
