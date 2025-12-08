@@ -24,7 +24,7 @@ interface Department {
   name: string;
 }
 
-const LeaveManagementPage: React.FC = () => {
+const LeaveApplicationsPage: React.FC = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -44,11 +44,27 @@ const LeaveManagementPage: React.FC = () => {
     else document.body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
-  // Fetch leave requests from the backend
+  // Get the user object from localStorage
+  const loggedInUser = localStorage.getItem("user");
+  const user = loggedInUser ? JSON.parse(loggedInUser) : null;
+
+  // If the user is not logged in, redirect to the landing page
+  useEffect(() => {
+    if (!user) {
+      navigate("/");  // Redirect to the landing page if user is not logged in
+    }
+  }, [user, navigate]);
+
+  // If the logged-in user is not found, do not render anything
+  if (!user) {
+    return null;  // This ensures the rest of the page isn't rendered while redirecting
+  }
+
+  // Fetch leave requests for the logged-in user
   useEffect(() => {
     const fetchLeaveRequests = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/leave_requests");
+        const response = await fetch(`http://localhost:3000/api/leave_requests/staff/${user.id}`);
         if (!response.ok) throw new Error("Failed to fetch leave requests");
         const data = await response.json();
         setLeaves(data);
@@ -58,7 +74,7 @@ const LeaveManagementPage: React.FC = () => {
       }
     };
     fetchLeaveRequests();
-  }, []);
+  }, [user.id]);
 
   // Fetch staff members and departments
   useEffect(() => {
@@ -146,7 +162,7 @@ const LeaveManagementPage: React.FC = () => {
 
   return (
     <div className="dashboard-wrapper">
-      {/* Hamburger */}
+      {/* Hamburger button for toggling sidebar */}
       <button className="hamburger" onClick={toggleSidebar}>
         &#9776;
       </button>
@@ -186,25 +202,48 @@ const LeaveManagementPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
-        <h1>Leave Management</h1>
+        <h1>Your Leave Applications</h1>
 
+        <br />
+        {/* Apply for Leave Button */}
+        <button className="add-btn" onClick={() => navigate("/hr/addLeave")}>
+          Apply for Leave
+        </button>
+
+        <br />
+        <br />
         {/* Search */}
-        <div className="table-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div
+          className="table-header"
+          style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+        >
           <input
             type="text"
             className="search-input"
             placeholder="Search leave requests..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
         {/* KPI Cards */}
         <div className="kpi-container">
-          <div className="kpi-card"><h3>Total Requests</h3><p>{totalRequests}</p></div>
-          <div className="kpi-card"><h3>Approved</h3><p>{approvedCount}</p></div>
-          <div className="kpi-card"><h3>Pending</h3><p>{pendingCount}</p></div>
-          <div className="kpi-card"><h3>Rejected</h3><p>{rejectedCount}</p></div>
+          <div className="kpi-card">
+            <h3>Total Requests</h3>
+            <p>{totalRequests}</p>
+          </div>
+          <div className="kpi-card">
+            <h3>Approved</h3>
+            <p>{approvedCount}</p>
+          </div>
+          <div className="kpi-card">
+            <h3>Pending</h3>
+            <p>{pendingCount}</p>
+          </div>
+          <div className="kpi-card">
+            <h3>Rejected</h3>
+            <p>{rejectedCount}</p>
+          </div>
         </div>
 
         {/* Leave Table */}
@@ -212,47 +251,31 @@ const LeaveManagementPage: React.FC = () => {
           <table className="responsive-table">
             <thead>
               <tr>
-                <th>Employee</th>
-                <th>Department</th>
                 <th>Leave Type</th>
-                <th>Date</th>
+                <th>Start Date</th>
+                <th>End Date</th>
                 <th>Days</th>
                 <th>Status</th>
-                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredLeaves.length > 0 ? (
-                filteredLeaves.map((leave) => {
-                  const staff = staffMembers.find(s => s.id === leave.staff_id);
-                  const department = departments.find(d => d.id === staff?.department_id);
-
-                  return (
-                    <tr key={leave.id}>
-                      <td>{staff ? staff.name : "Unknown"}</td>
-                      <td>{department ? department.name : "Unknown"}</td>
-                      <td>{leave.leave_type}</td>
-                      <td>{new Date(leave.start_date).toLocaleDateString()} → {new Date(leave.end_date).toLocaleDateString()}</td>
-                      <td>{leave.days}</td>
-                      <td><span className={`status ${leave.status}`}>{leave.status}</span></td>
-                      <td className="actions">
-                        {/* Only show actions if the leave status is 'pending' */}
-                        {leave.status === "pending" && (
-                          <>
-                            <button className="approve-btn" onClick={() => handleStatusChange(leave.id, "approved")}>
-                              Approve
-                            </button>
-                            <button className="reject-btn" onClick={() => handleStatusChange(leave.id, "rejected")}>
-                              Reject
-                            </button>
-                          </>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })
+                filteredLeaves.map((leave) => (
+                  <tr key={leave.id}>
+                    <td>{leave.leave_type}</td>
+                    <td>{new Date(leave.start_date).toLocaleDateString()}</td>
+                    <td>{new Date(leave.end_date).toLocaleDateString()}</td>
+                    <td>{leave.days}</td>
+                    <td>
+                      {/* Dynamically set the class based on leave status */}
+                      <span className={`status ${leave.status}`}>{leave.status}</span>
+                    </td>
+                  </tr>
+                ))
               ) : (
-                <tr><td colSpan={7}>No leave records found.</td></tr>
+                <tr>
+                  <td colSpan={5}>No leave records found.</td>
+                </tr>
               )}
             </tbody>
           </table>
@@ -281,4 +304,4 @@ const LeaveManagementPage: React.FC = () => {
   );
 };
 
-export default LeaveManagementPage;
+export default LeaveApplicationsPage;
