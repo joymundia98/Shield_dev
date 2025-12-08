@@ -2,6 +2,7 @@
 import { pool } from "../../../server.js";
 
 const LeaveRequest = {
+  // Get all leave requests
   async getAll() {
     const result = await pool.query(
       `SELECT * FROM leave_requests ORDER BY id ASC`
@@ -9,6 +10,7 @@ const LeaveRequest = {
     return result.rows;
   },
 
+  // Get a leave request by ID
   async getById(id) {
     const result = await pool.query(
       `SELECT * FROM leave_requests WHERE id = $1`,
@@ -17,6 +19,7 @@ const LeaveRequest = {
     return result.rows[0] || null;
   },
 
+  // Create a new leave request
   async create(data) {
     const { staff_id, leave_type, start_date, end_date, days, status } = data;
 
@@ -34,6 +37,22 @@ const LeaveRequest = {
     return result.rows[0];
   },
 
+  // Update a leave request's status
+  async updateStatus(id, status) {
+    const result = await pool.query(
+      `
+      UPDATE leave_requests
+      SET status = $1
+      WHERE id = $2
+      RETURNING *
+      `,
+      [status, id]
+    );
+
+    return result.rows[0];
+  },
+
+  // Update a leave request (full update of fields)
   async update(id, data) {
     const { staff_id, leave_type, start_date, end_date, days, status } = data;
 
@@ -56,6 +75,7 @@ const LeaveRequest = {
     return result.rows[0];
   },
 
+  // Delete a leave request
   async delete(id) {
     const result = await pool.query(
       `DELETE FROM leave_requests WHERE id = $1 RETURNING *`,
@@ -64,6 +84,7 @@ const LeaveRequest = {
     return result.rows[0];
   },
 
+  // Get leave requests by staff ID
   async getByStaff(staffId) {
     const result = await pool.query(
       `SELECT * FROM leave_requests WHERE staff_id = $1 ORDER BY id ASC`,
