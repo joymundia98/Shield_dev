@@ -184,7 +184,7 @@ const AssetsPage: React.FC = () => {
         {/* Add + Filter Buttons */}
         <div className="table-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <button className="add-btn" onClick={handleAdd}>+ &nbsp; Add New Asset</button>
-          <button className="filter-btn" onClick={() => setFilter({ ...filter })}>📂 Filter</button>
+          {/*<button className="filter-btn" onClick={() => setFilter({ ...filter })}>📂 Filter</button>*/}
         </div>
 
         {/* Asset Tables Grouped by Category */}
