@@ -45,8 +45,8 @@ const AssetsPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [showLocationColumn, setShowLocationColumn] = useState(false);
-  const [filter, setFilter] = useState({
+  const [showLocationColumn, _setShowLocationColumn] = useState(false);
+  const [_filter, _setFilter] = useState({
     condition: "",
     category: "",
     maintenance: "",
@@ -238,3 +238,4 @@ const AssetsPage: React.FC = () => {
 };
 
 export default AssetsPage;
+
