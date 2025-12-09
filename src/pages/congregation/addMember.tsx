@@ -93,15 +93,16 @@ const AddMemberPage: React.FC = () => {
     }
   }, [formData.age]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]:
-        type === "checkbox" ? checked : type === "number" ? Number(value) : value,
-    }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const target = e.target;
+    const name = target.name;
+  
+    if (target instanceof HTMLInputElement) {
+      const value = target.type === "checkbox" ? target.checked : target.value;
+      setFormData((prev) => ({ ...prev, [name]: target.type === "number" ? Number(value) : value }));
+    } else if (target instanceof HTMLSelectElement) {
+      setFormData((prev) => ({ ...prev, [name]: target.value }));
+    }
   };
 
   // --- Backend submission ---
@@ -286,3 +287,4 @@ const AddMemberPage: React.FC = () => {
 };
 
 export default AddMemberPage;
+
