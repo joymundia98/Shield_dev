@@ -28,6 +28,7 @@ import AssetDashboard from "./pages/assets/dashboard";
 import StaffDirectory from "./pages/hr/staffDirectory";
 import LeaveManagementPage from "./pages/hr/leave";
 import HrPayrollPage from "./pages/hr/payroll";
+import Payroll from "./pages/hr/addPayroll";
 import DepartmentsPage from "./pages/hr/departments";
 import AddStaffPage from "./pages/hr/addStaff";
 import AddLeave from "./pages/hr/addLeave";
@@ -69,6 +70,7 @@ import RecordAttendance from "./pages/congregation/RecordAttendance";
 import ChurchMembersDashboard from "./pages/congregation/members";
 import MembersRecords from "./pages/congregation/memberRecords";
 import AddMemberPage from "./pages/congregation/addMember";
+import ViewMemberPage from "./pages/congregation/viewMember"; // ViewMember Page will be the component for viewing individual member details
 import ConvertsDashboard from "./pages/congregation/converts";
 import ConvertsPage from "./pages/congregation/convertRecords";
 import AddConvert from "./pages/congregation/addConvert";
@@ -145,6 +147,7 @@ function App() {
           <Route path="/congregation/followups" element={<CongregationDashboard />} />
           <Route path="/congregation/memberRecords" element={<MembersRecords />} />
           <Route path="/congregation/addMember" element={<AddMemberPage />} />
+          <Route path="/congregation/viewMember/:id" element={<ViewMemberPage />} />
           <Route path="/congregation/converts" element={<ConvertsDashboard />} />
           <Route path="/congregation/convertRecords" element={<ConvertsPage />} />
           <Route path="/congregation/addConvert" element={<AddConvert />} />
@@ -174,6 +177,7 @@ function App() {
           <Route path="/hr/staffDirectory" element={<StaffDirectory />} />
           <Route path="/hr/attendance" element={<HRDashboard />} />
           <Route path="/hr/payroll" element={<HrPayrollPage />} />
+          <Route path="/hr/addPayroll" element={<Payroll />} />
           <Route path="/hr/leave" element={<LeaveManagementPage />} />
           <Route path="/hr/departments" element={<DepartmentsPage />} />
           <Route path="/hr/addStaff" element={<AddStaffPage />} />

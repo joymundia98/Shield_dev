@@ -17,7 +17,7 @@ interface Person {
 interface AttendanceRecord {
   member_id: number | null;   // Member ID (null if not a member)
   visitor_id: number | null;  // Visitor ID (null if not a visitor)
-  date: string;
+  attendance_date: string;
   status: "Present" | "Absent";
   service_id: number;
 }
@@ -122,7 +122,7 @@ const RecordAttendance: React.FC = () => {
     const records: AttendanceRecord[] = people.map(p => ({
       member_id: p.type === "member" ? p.id : null,
       visitor_id: p.type === "visitor" ? p.id : null,
-      date: attendanceDate,
+      attendance_date: attendanceDate,
       status: attendance[`${p.type}_${p.id}`] ? "Present" : "Absent",
       service_id: selectedService,
     }));

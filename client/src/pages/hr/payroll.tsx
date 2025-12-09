@@ -33,19 +33,6 @@ const HrPayrollPage: React.FC = () => {
   const [filterYear, setFilterYear] = useState<number | "all">("all");
   const [filterDepartment, setFilterDepartment] = useState<string | "all">("all");
 
-  // ------------------- Modal State -------------------
-  const [showModal, setShowModal] = useState(false);
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-
-  const [modalRecord, setModalRecord] = useState<PayrollRecord>({
-    name: "",
-    position: "",
-    salary: 0,
-    status: "Paid",
-    date: "",
-    department: "",
-  });
-
   // ------------------- Sidebar -------------------
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
 
@@ -96,29 +83,32 @@ const HrPayrollPage: React.FC = () => {
   const kpiPaidCount = payrollThisMonth.filter((p) => p.status === "Paid").length;
   const kpiUnpaidCount = payrollThisMonth.filter((p) => p.status !== "Paid").length;
 
-  // ------------------- Modal Handlers -------------------
-  const openAddModal = () => {
-    setEditingIndex(null);
-    setModalRecord({ name: "", position: "", salary: 0, status: "Paid", date: "", department: "" });
-    setShowModal(true);
+  // ------------------- Navigation Handlers -------------------
+  const openAddPayroll = () => {
+    navigate("/hr/addPayroll");
   };
 
-  const openEditModal = (index: number) => {
-    setEditingIndex(index);
-    setModalRecord(payrollData[index]);
-    setShowModal(true);
+  const openEditPayroll = (index: number) => {
+    navigate("/hr/addPayroll", { state: { editingIndex: index, payrollRecord: payrollData[index] } });
   };
 
-  const closeModal = () => setShowModal(false);
+  const openViewPayroll = (index: number) => {
+    navigate("/hr/viewPayroll", { state: payrollData[index] });
+  };
 
-  const handleSave = () => {
-    if (editingIndex === null) {
-      setPayrollData((prev) => [...prev, modalRecord]);
-    } else {
-      setPayrollData((prev) => prev.map((p, i) => (i === editingIndex ? modalRecord : p)));
+  const deletePayroll = (index: number, department: string) => {
+    // Find the correct payroll record index in the ungrouped payrollData
+    const originalIndex = payrollData.findIndex(record => record.name === groupedByDepartment[department][index].name);
+
+    // Ask for user confirmation
+    const confirmed = window.confirm("Are you sure you want to delete this payroll record?");
+    if (confirmed) {
+      // Proceed with deletion
+      const updatedData = payrollData.filter((_, i) => i !== originalIndex);
+      setPayrollData(updatedData); // Update the state with the new data
     }
-    closeModal();
   };
+
 
   return (
     <div className="dashboard-wrapper">
@@ -177,11 +167,11 @@ const HrPayrollPage: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <button className="add-btn" onClick={openAddModal}>+ Add Payroll Record</button>
+          <button className="add-btn" onClick={openAddPayroll}>+ Add Payroll Record</button>
         </div>
 
         {/* Filters */}
-        <br/>
+        <br />
         <div className="filters" style={{ margin: "10px 0", display: "flex", gap: "10px" }}>
           <label>
             Month:
@@ -212,8 +202,8 @@ const HrPayrollPage: React.FC = () => {
           </label>
         </div>
 
-        {/* KPI Cards (OLD STYLE) */}
-        <br/>
+        {/* KPI Cards */}
+        <br />
         <div className="kpi-container" id="kpiContainer">
           <div className="kpi-card">
             <h3>Total Paid (This Month)</h3>
@@ -257,7 +247,11 @@ const HrPayrollPage: React.FC = () => {
                     <td><span className={`status ${p.status.toLowerCase()}`}>{p.status}</span></td>
                     <td>{p.date}</td>
                     <td>
-                      <button className="edit-btn" onClick={() => openEditModal(payrollData.indexOf(p))}>Edit</button>
+                      <button className="add-btn" onClick={() => openViewPayroll(i)}>View</button>&emsp;
+                      <button className="edit-btn" onClick={() => openEditPayroll(i)}>Edit</button>&emsp;
+                      <button className="delete-btn" onClick={() => deletePayroll(i, dept)}>
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -265,62 +259,6 @@ const HrPayrollPage: React.FC = () => {
             </table>
           </div>
         ))}
-
-        {/* Modal */}
-        <div className="overlay" style={{ display: showModal ? "block" : "none" }} onClick={closeModal}></div>
-        <div className="filter-popup modal-wide" style={{ display: showModal ? "block" : "none" }}>
-          <h3>{editingIndex === null ? "Add Payroll" : "Edit Payroll"}</h3>
-
-          <label>Staff Name</label>
-          <input
-            type="text"
-            value={modalRecord.name}
-            onChange={(e) => setModalRecord({ ...modalRecord, name: e.target.value })}
-          />
-
-          <label>Position</label>
-          <input
-            type="text"
-            value={modalRecord.position}
-            onChange={(e) => setModalRecord({ ...modalRecord, position: e.target.value })}
-          />
-
-          <label>Salary</label>
-          <input
-            type="number"
-            value={modalRecord.salary}
-            onChange={(e) => setModalRecord({ ...modalRecord, salary: parseFloat(e.target.value) })}
-          />
-
-          <label>Status</label>
-          <select
-            value={modalRecord.status}
-            onChange={(e) => setModalRecord({ ...modalRecord, status: e.target.value as any })}
-          >
-            <option value="Paid">Paid</option>
-            <option value="Pending">Pending</option>
-            <option value="Overdue">Overdue</option>
-          </select>
-
-          <label>Department</label>
-          <input
-            type="text"
-            value={modalRecord.department}
-            onChange={(e) => setModalRecord({ ...modalRecord, department: e.target.value })}
-          />
-
-          <label>Payment Date</label>
-          <input
-            type="date"
-            value={modalRecord.date}
-            onChange={(e) => setModalRecord({ ...modalRecord, date: e.target.value })}
-          />
-
-          <div className="filter-popup-buttons">
-            <button className="add-btn" onClick={handleSave}>Save</button>
-            <button className="delete-btn" onClick={closeModal}>Close</button>
-          </div>
-        </div>
       </div>
     </div>
   );

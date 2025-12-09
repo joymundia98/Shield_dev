@@ -41,6 +41,11 @@ const AttendanceController = {
         return res.status(400).json({ error: "Attendance date is required." });
       }
 
+      // Log each record to check if attendance_date is properly included
+      data.records.forEach((record, index) => {
+        console.log(`Record ${index + 1}:`, record);
+      });
+
       // Check if we have either member_id or visitor_id
       if (!member_id && !visitor_id) {
         return res.status(400).json({ error: "Either member_id or visitor_id must be provided." });
