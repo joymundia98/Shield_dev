@@ -112,7 +112,7 @@ const AssetsPage: React.FC = () => {
   const handleEdit = (id: string) => navigate(`/assets/edit/${id}`);
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this asset?")) {
-      setInventory((prev) => prev.filter((a) => a.asset_id !== id));
+      setInventory((prev) => prev.filter((a) => a.asset_id !== Number(id)));
     }
   };
 
@@ -238,4 +238,5 @@ const AssetsPage: React.FC = () => {
 };
 
 export default AssetsPage;
+
 
