@@ -30,13 +30,13 @@ interface DonorForm {
 }
 
 // ---------------- Sidebar Donor Type ----------------
-interface Donor {
+{/*interface Donor {
   id: string;
   name: string;
   email: string;
   phone: string;
   type: "Individual" | "Organization" | "Anonymous";
-}
+}*/}
 
 // ---------------- Allowed Subcategories ----------------
 const ALLOWED_SUBCATEGORIES: Record<number, string[]> = {
@@ -433,4 +433,5 @@ const AddDonor: React.FC = () => {
 };
 
 export default AddDonor;
+
 
