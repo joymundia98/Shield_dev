@@ -19,6 +19,7 @@ interface Member {
 const ChurchMembersPage: React.FC = () => {
   const navigate = useNavigate();
 
+  // Sidebar state
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
@@ -27,15 +28,6 @@ const ChurchMembersPage: React.FC = () => {
 
   const [editMember, setEditMember] = useState<Member | null>(null);
   const [editIndex, setEditIndex] = useState<number | null>(null);
-  const [viewMember, setViewMember] = useState<Member | null>(null);
-
-  const openEditModal = (member?: Member, index?: number) => {
-    setEditMember(member || null);
-    setEditIndex(index ?? null);
-  };
-  const closeEditModal = () => setEditMember(null);
-  const openViewModal = (member: Member) => setViewMember(member);
-  const closeViewModal = () => setViewMember(null);
 
   // Fetch members from backend
   useEffect(() => {
@@ -43,7 +35,6 @@ const ChurchMembersPage: React.FC = () => {
       try {
         const res = await axios.get("http://localhost:3000/api/members");
         const data: Member[] = res.data.map((m: any) => {
-          // Assign category based on age
           let category: Member["category"] = "Adult";
           if (m.age < 18) category = "Child";
           else if (m.age <= 30) category = "Youth";
@@ -63,7 +54,6 @@ const ChurchMembersPage: React.FC = () => {
           };
         });
         setMembers(data);
-        console.log("Fetched Members:", data);
       } catch (error) {
         console.error("Error fetching members:", error);
       }
@@ -85,12 +75,43 @@ const ChurchMembersPage: React.FC = () => {
     }, {} as Record<string, Member[]>);
   }, [filteredMembers]);
 
+  // Edit Member Logic
+  const openEditModal = (member: Member, index: number) => {
+    setEditMember(member);
+    setEditIndex(index);
+  };
+
+  const closeEditModal = () => setEditMember(null);
+
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    if (editMember) {
+      const { name, value } = e.target;
+      setEditMember({ ...editMember, [name]: value });
+    }
+  };
+
+  const handleSaveEdit = () => {
+    if (editMember && editIndex !== null) {
+      const updatedMembers = [...members];
+      updatedMembers[editIndex] = editMember;
+      setMembers(updatedMembers);
+      closeEditModal();
+    }
+  };
+
+  // Open the member view modal in a new tab
+  const openViewModal = (member: Member) => {
+    window.open(`/congregation/viewMember/${member.member_id}`, "_blank");
+  };
+
   return (
     <div className="dashboard-wrapper members-wrapper">
+      {/* Hamburger */}
       <button className="hamburger" onClick={toggleSidebar}>
         &#9776;
       </button>
 
+      {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="close-wrapper">
           <div className="toggle close-btn">
@@ -123,11 +144,12 @@ const ChurchMembersPage: React.FC = () => {
         </a>
       </div>
 
+      {/* Main Content */}
       <div className="dashboard-content">
         <header>
           <h1>Church Members Records</h1>
           <div className="header-buttons">
-            <br/>
+            <br />
             <button
               className="add-btn"
               onClick={() => navigate("/congregation/members")}
@@ -137,6 +159,7 @@ const ChurchMembersPage: React.FC = () => {
           </div>
         </header>
 
+        {/* Search Bar */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1rem" }}>
           <input
             type="text"
@@ -150,9 +173,10 @@ const ChurchMembersPage: React.FC = () => {
           </button>
         </div>
 
+        {/* Display Members Grouped by Category */}
         {Object.entries(groupedMembers).map(([category, memberList]) => (
           <div className="category-block" key={category}>
-            <br/>
+            <br />
             <h2>{category}</h2>
             <table className="responsive-table">
               <thead>
@@ -165,119 +189,109 @@ const ChurchMembersPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {memberList.map((m) => {
-                  const index = members.indexOf(m);
-                  return (
-                    <tr key={m.member_id}>
-                      <td data-title="Name">{m.full_name}</td>
-                      <td data-title="Age">{m.age}</td>
-                      <td data-title="Gender">{m.gender}</td>
-                      <td data-title="Join Date">{m.date_joined}</td>
-                      <td data-title="Actions" className="actions">
-                        <button className="view-btn" onClick={() => openViewModal(m)}>View</button>
-                        <button className="edit-btn" onClick={() => openEditModal(m, index)}>Edit</button>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {memberList.map((m, index) => (
+                  <tr key={m.member_id}>
+                    <td>{m.full_name}</td>
+                    <td>{m.age}</td>
+                    <td>{m.gender}</td>
+                    <td>{m.date_joined}</td>
+                    <td className="actions">
+                      <button
+                        className="view-btn"
+                        onClick={() => openViewModal(m)}
+                      >
+                        View
+                      </button>
+                      <button
+                        className="edit-btn"
+                        onClick={() => openEditModal(m, index)}
+                      >
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         ))}
-
-        {editMember && (
-          <>
-            <div className="overlay" onClick={closeEditModal}></div>
-            <div className="filter-popup modal-wide">
-              <h3>Edit Member</h3>
-              <label>Name</label>
-              <input
-                type="text"
-                value={editMember.full_name}
-                onChange={(e) => setEditMember({ ...editMember, full_name: e.target.value })}
-              />
-              <label>Category</label>
-              <select
-                value={editMember.category}
-                onChange={(e) => setEditMember({ ...editMember, category: e.target.value as any })}
-              >
-                <option value="">-- Select Category --</option>
-                <option value="Adult">Adult</option>
-                <option value="Youth">Youth</option>
-                <option value="Child">Child</option>
-                <option value="Elderly">Elderly</option>
-              </select>
-              <label>Age</label>
-              <input
-                type="number"
-                value={editMember.age}
-                onChange={(e) => setEditMember({ ...editMember, age: parseInt(e.target.value) })}
-              />
-              <label>Gender</label>
-              <select
-                value={editMember.gender}
-                onChange={(e) => setEditMember({ ...editMember, gender: e.target.value as "Male" | "Female" })}
-              >
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-              <label>Join Date</label>
-              <input
-                type="date"
-                value={editMember.date_joined}
-                onChange={(e) => setEditMember({ ...editMember, date_joined: e.target.value })}
-              />
-              <label>Phone</label>
-              <input
-                type="text"
-                value={editMember.phone}
-                onChange={(e) => setEditMember({ ...editMember, phone: e.target.value })}
-              />
-              <label>Email</label>
-              <input
-                type="email"
-                value={editMember.email}
-                onChange={(e) => setEditMember({ ...editMember, email: e.target.value })}
-              />
-              <div className="filter-popup-buttons">
-                <button className="add-btn" onClick={() => {
-                  if(editIndex !== null){
-                    const updated = [...members];
-                    updated[editIndex] = editMember;
-                    setMembers(updated);
-                  }
-                  closeEditModal();
-                }}>Save</button>
-                <button className="delete-btn" onClick={closeEditModal}>Close</button>
-              </div>
-            </div>
-          </>
-        )}
-
-        {viewMember && (
-          <>
-            <div className="overlay" onClick={closeViewModal}></div>
-            <div className="filter-popup modal-wide">
-              <h3>Member Profile</h3>
-              <table className="responsive-table view-table">
-                <tbody>
-                  <tr><td>Photo</td><td><img src={viewMember.photo} style={{ maxWidth: 120 }} /></td></tr>
-                  <tr><td>Name</td><td>{viewMember.full_name}</td></tr>
-                  <tr><td>Category</td><td>{viewMember.category}</td></tr>
-                  <tr><td>Age</td><td>{viewMember.age}</td></tr>
-                  <tr><td>Gender</td><td>{viewMember.gender}</td></tr>
-                  <tr><td>Join Date</td><td>{viewMember.date_joined}</td></tr>
-                  <tr><td>Phone</td><td>{viewMember.phone}</td></tr>
-                  <tr><td>Email</td><td>{viewMember.email}</td></tr>
-                </tbody>
-              </table>
-              <div className="filter-popup-buttons">
-                <button className="delete-btn" onClick={closeViewModal}>Close</button>
-              </div>
-            </div>
-          </>
-        )}
       </div>
+
+      {/* Edit Modal */}
+      {editMember && (
+        <div className="overlay" onClick={closeEditModal}></div>
+      )}
+      {editMember && (
+        <div className="filter-popup modal-wide">
+          <h3>Edit Member</h3>
+          <label>Name</label>
+          <input
+            type="text"
+            name="full_name"
+            value={editMember.full_name}
+            onChange={handleEditChange}
+          />
+          <label>Category</label>
+          <input
+            type="text"
+            name="category"
+            value={editMember.category}
+            onChange={handleEditChange}
+            disabled
+          />
+          <label>Age</label>
+          <input
+            type="number"
+            name="age"
+            value={editMember.age}
+            onChange={handleEditChange}
+          />
+          <label>Gender</label>
+          <select
+            name="gender"
+            value={editMember.gender}
+            onChange={handleEditChange}
+          >
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+          <label>Join Date</label>
+          <input
+            type="date"
+            name="date_joined"
+            value={editMember.date_joined}
+            onChange={handleEditChange}
+          />
+          <label>Phone</label>
+          <input
+            type="text"
+            name="phone"
+            value={editMember.phone || ""}
+            onChange={handleEditChange}
+          />
+          <label>Email</label>
+          <input
+            type="email"
+            name="email"
+            value={editMember.email || ""}
+            onChange={handleEditChange}
+          />
+          <div className="filter-popup-buttons">
+            <button
+              className="add-btn"
+              onClick={handleSaveEdit}
+            >
+              Save
+            </button>
+            <button
+              className="delete-btn"
+              onClick={closeEditModal}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

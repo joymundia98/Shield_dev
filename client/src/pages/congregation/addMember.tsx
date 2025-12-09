@@ -5,7 +5,7 @@ import "../../styles/global.css";
 interface MemberForm {
   photo: string;
   name: string;
-  category: string;
+  category: string; // This will be calculated, not visible to user
   age: number | "";
   gender: "Male" | "Female" | "";
   joinDate: string;
@@ -18,6 +18,7 @@ interface MemberForm {
   NRC?: string;
   guardianName?: string;
   guardianPhone?: string;
+  dateOfBirth?: string; // Calculated from age
 }
 
 const BACKEND_URL = "http://localhost:3000/api/members";
@@ -40,7 +41,7 @@ const AddMemberPage: React.FC = () => {
   const [formData, setFormData] = useState<MemberForm>({
     photo: "",
     name: "",
-    category: "",
+    category: "", // We'll calculate this
     age: "",
     gender: "",
     joinDate: "",
@@ -57,10 +58,39 @@ const AddMemberPage: React.FC = () => {
 
   const [isAdult, setIsAdult] = useState<boolean | null>(null);
 
+  // Helper to calculate date of birth from age
+  const calculateDateOfBirth = (age: number): string => {
+    const today = new Date();
+    const birthYear = today.getFullYear() - age;
+    const birthDate = new Date(today.setFullYear(birthYear));
+    return birthDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+  };
+
+  // Helper to calculate category based on age
+  const calculateCategory = (age: number): string => {
+    if (age < 18) return "Child";
+    else if (age <= 30) return "Youth";
+    else if (age <= 60) return "Adult";
+    else return "Elderly";
+  };
+
+  // Update age-related information
   useEffect(() => {
-    if (formData.age !== "" && formData.age >= 18) setIsAdult(true);
-    else if (formData.age !== "" && formData.age < 18) setIsAdult(false);
-    else setIsAdult(null);
+    if (formData.age !== "") {
+      const calculatedAge = Number(formData.age);
+
+      setFormData((prev) => ({
+        ...prev,
+        dateOfBirth: calculateDateOfBirth(calculatedAge),
+        category: calculateCategory(calculatedAge), // Calculate category based on age
+      }));
+
+      if (calculatedAge >= 18) {
+        setIsAdult(true);
+      } else {
+        setIsAdult(false);
+      }
+    }
   }, [formData.age]);
 
   const handleChange = (
@@ -82,7 +112,7 @@ const AddMemberPage: React.FC = () => {
     const payload: Record<string, any> = {
       photo: formData.photo || null,
       full_name: formData.name || null, // backend expects "full_name"
-      category: formData.category || null,
+      category: formData.category || null, // This is calculated
       age: formData.age !== "" ? Number(formData.age) : null,
       gender: formData.gender || null,
       join_date: formData.joinDate || null, // backend expects "join_date"
@@ -92,6 +122,7 @@ const AddMemberPage: React.FC = () => {
       disabled: Boolean(formData.disabled),
       orphan: Boolean(formData.orphan),
       widowed: Boolean(formData.widowed),
+      date_of_birth: formData.dateOfBirth || null, // Send calculated dateOfBirth
     };
 
     // Optional adult/minor fields
@@ -171,7 +202,7 @@ const AddMemberPage: React.FC = () => {
         <header>
           <h1>Add New Member</h1>
           <div className="header-buttons">
-            <br/>
+            <br />
             <button className="add-btn" onClick={() => navigate("/congregation/memberRecords")}>
               ← Member Records
             </button>&nbsp;&nbsp;
@@ -189,14 +220,9 @@ const AddMemberPage: React.FC = () => {
             <label>Name</label>
             <input type="text" name="name" value={formData.name} onChange={handleChange} required />
 
-            <label>Category</label>
-            <select name="category" value={formData.category} onChange={handleChange} required>
-              <option value="">Select Category</option>
-              <option>Adult</option>
-              <option>Youth</option>
-              <option>Child</option>
-              <option>Elderly</option>
-            </select>
+            {/* Category field is now hidden */}
+            {/* <label>Category</label>
+            <input type="text" name="category" value={formData.category} disabled /> */}
 
             <label>Age</label>
             <input type="number" name="age" min={0} max={120} value={formData.age} onChange={handleChange} required />
