@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
 interface Asset {
@@ -8,6 +9,8 @@ interface Asset {
   initialValue: number;
   currentValue: number;
 }
+
+const navigate = useNavigate();
 
 const DepreciationPage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -293,3 +296,4 @@ const DepreciationPage: React.FC = () => {
 };
 
 export default DepreciationPage;
+
