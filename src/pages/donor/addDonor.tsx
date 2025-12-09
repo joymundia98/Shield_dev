@@ -99,7 +99,7 @@ const AddDonor: React.FC = () => {
     )
       .then((res) => res.json())
       .then((data: DonorSubcategory[]) => {
-        const allowed = ALLOWED_SUBCATEGORIES[form.donorTypeId];
+        const allowed = form.donorTypeId ? ALLOWED_SUBCATEGORIES[form.donorTypeId] : undefined;
         let filtered = data;
         if (allowed) {
           filtered = data.filter((sc) =>
@@ -433,5 +433,6 @@ const AddDonor: React.FC = () => {
 };
 
 export default AddDonor;
+
 
 
