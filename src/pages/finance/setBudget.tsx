@@ -168,11 +168,14 @@ const SetBudgetsPage: React.FC = () => {
       console.log("Response from backend:", response.data); // Log the response
 
       alert("Budgets have been saved successfully!");
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Failed to save budgets:", err);
 
-      if (err.response) {
-        console.error("Error response:", err.response.data);
+      // Type narrow the error to AxiosError
+      if (err instanceof AxiosError) {
+        console.error("Error response:", err.response?.data);
+      } else {
+        console.error("Unexpected error:", err);
       }
 
       alert("Error saving budgets. Please try again.");
@@ -315,4 +318,5 @@ const SetBudgetsPage: React.FC = () => {
 };
 
 export default SetBudgetsPage;
+
 
