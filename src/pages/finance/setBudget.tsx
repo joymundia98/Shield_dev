@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { AxiosError } from "axios";
 import "../../styles/global.css"; // Ensure your styles are being imported
 
 {/*interface BudgetCategories {
@@ -318,5 +319,6 @@ const SetBudgetsPage: React.FC = () => {
 };
 
 export default SetBudgetsPage;
+
 
 
