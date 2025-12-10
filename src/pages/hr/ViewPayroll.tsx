@@ -34,9 +34,9 @@ const ViewPayroll: React.FC = () => {
     fetchPayrollData();
   }, []);
 
-  // Find the payroll record matching the `name` from URL params
+  // Safely find the payroll record matching the `name` from URL params
   const payrollRecord = payrollData.find(
-    (record) => record.name.toLowerCase() === name.toLowerCase()
+    (record) => name && record.name.toLowerCase() === name.toLowerCase()
   );
 
   if (loading) {
