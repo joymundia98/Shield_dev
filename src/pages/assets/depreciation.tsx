@@ -10,9 +10,8 @@ interface Asset {
   currentValue: number;
 }
 
-const navigate = useNavigate();
-
 const DepreciationPage: React.FC = () => {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
@@ -296,4 +295,3 @@ const DepreciationPage: React.FC = () => {
 };
 
 export default DepreciationPage;
-
