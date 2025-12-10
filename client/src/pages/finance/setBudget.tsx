@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { AxiosError } from "axios";
 import "../../styles/global.css"; // Ensure your styles are being imported
 
-interface BudgetCategories {
+{/*interface BudgetCategories {
   [category: string]: string[];
-}
+}*/}
 
 interface Budgets {
   [category: string]: { [subCategory: string]: number };
@@ -69,14 +70,30 @@ const SetBudgetsPage: React.FC = () => {
         
         // Initialize budgets if they exist
         budgetsRes.data.forEach((budget: any) => {
-          const category = categories[budget.category];
-          if (!initialBudgets[category]) {
-            initialBudgets[category] = {};
+          // Ensure category exists and is a valid string
+          const category = budget.category;
+          
+          // Check if category is a valid string and exists in the categories object
+          if (typeof category === 'string' && categories[category]) {
+            // If the category exists in the categories object
+            if (!initialBudgets[category]) {
+              initialBudgets[category] = {};
+            }
+            
+            // Safely add the subcategory and amount to the budgets
+            const subCategory = budget.subCategory;
+            if (typeof subCategory === 'string') {
+              initialBudgets[category][subCategory] = budget.amount;
+            } else {
+              console.error(`Invalid subcategory: ${subCategory} for category: ${category}`);
+            }
+          } else {
+            console.error(`Invalid category: ${category} for budget entry`);
           }
-          initialBudgets[category][budget.subCategory] = budget.amount;
         });
 
         setBudgets(initialBudgets);
+
 
       } catch (err) {
         console.error("Error fetching data", err);
@@ -153,11 +170,14 @@ const SetBudgetsPage: React.FC = () => {
       console.log("Response from backend:", response.data); // Log the response
 
       alert("Budgets have been saved successfully!");
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Failed to save budgets:", err);
 
-      if (err.response) {
-        console.error("Error response:", err.response.data);
+      // Type narrow the error to AxiosError
+      if (err instanceof AxiosError) {
+        console.error("Error response:", err.response?.data);
+      } else {
+        console.error("Unexpected error:", err);
       }
 
       alert("Error saving budgets. Please try again.");

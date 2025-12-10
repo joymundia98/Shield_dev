@@ -45,8 +45,8 @@ const AssetsPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [showLocationColumn, setShowLocationColumn] = useState(false);
-  const [filter, setFilter] = useState({
+  const [showLocationColumn, _setShowLocationColumn] = useState(false);
+  const [_filter, _setFilter] = useState({
     condition: "",
     category: "",
     maintenance: "",
@@ -112,7 +112,7 @@ const AssetsPage: React.FC = () => {
   const handleEdit = (id: string) => navigate(`/assets/edit/${id}`);
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this asset?")) {
-      setInventory((prev) => prev.filter((a) => a.asset_id !== id));
+      setInventory((prev) => prev.filter((a) => a.asset_id !== Number(id)));
     }
   };
 

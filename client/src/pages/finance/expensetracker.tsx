@@ -443,7 +443,8 @@ const ExpenseTrackerPage: React.FC = () => {
                     <th>Status</th>
                     <td>{viewRecord.status}</td>
                   </tr>
-                  {viewRecord.attachments?.length > 0 && (
+
+                  {viewRecord.attachments && viewRecord.attachments.length > 0 && (
                     <tr>
                       <th>Attachments</th>
                       <td>
@@ -455,6 +456,7 @@ const ExpenseTrackerPage: React.FC = () => {
                       </td>
                     </tr>
                   )}
+
                 </tbody>
               </table>
               <button className="expenseModal-cancel" onClick={closeViewModal}>

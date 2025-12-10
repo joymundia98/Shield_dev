@@ -87,9 +87,9 @@ const AddIncome: React.FC = () => {
     setForm({ ...form, attachments: Array.from(files) });
   };
 
-  const handleExtraFieldChange = (key: string, value: string | number) => {
+  {/*const handleExtraFieldChange = (key: string, value: string | number) => {
     setForm({ ...form, extraFields: { ...form.extraFields, [key]: value } });
-  };
+  };*/}
 
   // Submit Form
   const handleSubmit = async (e: React.FormEvent) => {
