@@ -94,6 +94,7 @@ const SetBudgetsPage: React.FC = () => {
 
         setBudgets(initialBudgets);
 
+
       } catch (err) {
         console.error("Error fetching data", err);
         alert("Error fetching data. Please try again.");
@@ -319,6 +320,3 @@ const SetBudgetsPage: React.FC = () => {
 };
 
 export default SetBudgetsPage;
-
-
-
