@@ -197,7 +197,7 @@ const DonorManagementPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {donors.map((d, i) => {
+                {donors.map((d) => {
                   const index = donorData.indexOf(d);
                   return (
                     <tr key={d.id}>
@@ -310,3 +310,4 @@ const DonorManagementPage: React.FC = () => {
 };
 
 export default DonorManagementPage;
+
