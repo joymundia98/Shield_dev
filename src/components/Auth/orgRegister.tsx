@@ -253,8 +253,8 @@ const OrgRegister = () => {
           </div>
 
           <div className="form-link sign-up">
-            <span>Go back?</span>
-            <a href="/dashboard"> Dashboard</a>
+            <span>Already Registered &nbsp;</span>
+            <a href="/org-login">Login</a>
           </div>
         </form>
       </div>
@@ -270,3 +270,4 @@ const OrgRegister = () => {
 };
 
 export default OrgRegister;
+
