@@ -32,11 +32,6 @@ const LeaveApplicationsPage: React.FC = () => {
   const [staffMembers, setStaffMembers] = useState<Staff[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
 
-  // Modal state for confirmation
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalAction, setModalAction] = useState<() => void>(() => {});
-  const [modalMessage, setModalMessage] = useState("");
-
   // Toggle sidebar
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   useEffect(() => {
@@ -119,46 +114,6 @@ const LeaveApplicationsPage: React.FC = () => {
       );
     });
   }, [leaves, search, staffMembers, departments]);
-
-  // Update Leave Status (Approve/Reject)
-  const updateLeaveStatus = async (leaveId: number, status: "approved" | "rejected") => {
-    try {
-      const response = await fetch(`http://localhost:3000/api/leave_requests/${leaveId}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update leave status");
-      }
-
-      // Update status locally
-      setLeaves((prevLeaves) =>
-        prevLeaves.map((leave) =>
-          leave.id === leaveId ? { ...leave, status } : leave
-        )
-      );
-    } catch (err: any) {
-      console.error(err);
-      alert("Error updating leave status.");
-    }
-  };
-
-  // Handle approve/reject actions
-  const handleStatusChange = (leaveId: number, status: "approved" | "rejected") => {
-    setModalMessage(
-      `Are you sure you want to ${status} this leave request? This action cannot be undone.`
-    );
-    setModalAction(() => () => updateLeaveStatus(leaveId, status));
-    setModalOpen(true);
-  };
-
-  // Confirm action
-  const confirmModal = () => {
-    modalAction();
-    setModalOpen(false);
-  };
 
   return (
     <div className="dashboard-wrapper">
@@ -267,7 +222,6 @@ const LeaveApplicationsPage: React.FC = () => {
                     <td>{new Date(leave.end_date).toLocaleDateString()}</td>
                     <td>{leave.days}</td>
                     <td>
-                      {/* Dynamically set the class based on leave status */}
                       <span className={`status ${leave.status}`}>{leave.status}</span>
                     </td>
                   </tr>
@@ -281,25 +235,6 @@ const LeaveApplicationsPage: React.FC = () => {
           </table>
         </div>
       </div>
-
-      {/* Confirmation Modal */}
-      {modalOpen && (
-        <div className="expenseModal" style={{ display: "flex" }}>
-          <div className="expenseModal-content">
-            <h2>Confirm Action</h2>
-            <p>{modalMessage}</p>
-
-            <div className="expenseModal-buttons">
-              <button className="expenseModal-cancel" onClick={() => setModalOpen(false)}>
-                Cancel
-              </button>
-              <button className="expenseModal-confirm" onClick={confirmModal}>
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -66,7 +66,7 @@ import PastorsPage from "./pages/ministry/pastors";
 
 // Congregation Module Functional Pages
 import AttendancePage from "./pages/congregation/attendance";
-import RecordAttendance from "./pages/congregation/RecordAttendance";
+import RecordAttendance from "./pages/congregation/recordAttendance";
 import ChurchMembersDashboard from "./pages/congregation/members";
 import MembersRecords from "./pages/congregation/memberRecords";
 import AddMemberPage from "./pages/congregation/addMember";

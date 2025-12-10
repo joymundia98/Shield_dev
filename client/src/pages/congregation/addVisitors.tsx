@@ -49,17 +49,20 @@ const AddVisitorPage: React.FC = () => {
     needsFollowUp: false,
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value, type, checked } = e.target;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const target = e.target;
+    const name = target.name;
 
-    if (type === "checkbox") {
-      setFormData((prev) => ({ ...prev, [name]: checked }));
-    } else if (type === "number") {
-      setFormData((prev) => ({ ...prev, [name]: Number(value) }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+    if (target instanceof HTMLInputElement) {
+      // Handle different types of inputs (checkbox, number, text)
+      const value = target.type === "checkbox" ? target.checked : target.value;
+      setFormData((prev) => ({
+        ...prev,
+        [name]: target.type === "number" ? Number(value) : value,
+      }));
+    } else if (target instanceof HTMLSelectElement) {
+      // Handle <select> element
+      setFormData((prev) => ({ ...prev, [name]: target.value }));
     }
   };
 

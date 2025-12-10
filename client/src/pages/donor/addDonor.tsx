@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
@@ -30,13 +30,13 @@ interface DonorForm {
 }
 
 // ---------------- Sidebar Donor Type ----------------
-interface Donor {
+{/*interface Donor {
   id: string;
   name: string;
   email: string;
   phone: string;
   type: "Individual" | "Organization" | "Anonymous";
-}
+}*/}
 
 // ---------------- Allowed Subcategories ----------------
 const ALLOWED_SUBCATEGORIES: Record<number, string[]> = {
@@ -99,7 +99,7 @@ const AddDonor: React.FC = () => {
     )
       .then((res) => res.json())
       .then((data: DonorSubcategory[]) => {
-        const allowed = ALLOWED_SUBCATEGORIES[form.donorTypeId];
+        const allowed = form.donorTypeId ? ALLOWED_SUBCATEGORIES[form.donorTypeId] : undefined;
         let filtered = data;
         if (allowed) {
           filtered = data.filter((sc) =>

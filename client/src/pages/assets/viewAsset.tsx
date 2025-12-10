@@ -52,7 +52,7 @@ const ViewAssetPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  //const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   useEffect(() => {
     if (sidebarOpen) document.body.classList.add("sidebar-open");
