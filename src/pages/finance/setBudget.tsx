@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../../styles/global.css"; // Ensure your styles are being imported
 
-interface BudgetCategories {
+{/*interface BudgetCategories {
   [category: string]: string[];
-}
+}*/}
 
 interface Budgets {
   [category: string]: { [subCategory: string]: number };
@@ -69,11 +69,26 @@ const SetBudgetsPage: React.FC = () => {
         
         // Initialize budgets if they exist
         budgetsRes.data.forEach((budget: any) => {
-          const category = categories[budget.category];
-          if (!initialBudgets[category]) {
-            initialBudgets[category] = {};
+          // Ensure category exists and is a valid string
+          const category = budget.category;
+          
+          // Check if category is a valid string and exists in the categories object
+          if (typeof category === 'string' && categories[category]) {
+            // If the category exists in the categories object
+            if (!initialBudgets[category]) {
+              initialBudgets[category] = {};
+            }
+            
+            // Safely add the subcategory and amount to the budgets
+            const subCategory = budget.subCategory;
+            if (typeof subCategory === 'string') {
+              initialBudgets[category][subCategory] = budget.amount;
+            } else {
+              console.error(`Invalid subcategory: ${subCategory} for category: ${category}`);
+            }
+          } else {
+            console.error(`Invalid category: ${category} for budget entry`);
           }
-          initialBudgets[category][budget.subCategory] = budget.amount;
         });
 
         setBudgets(initialBudgets);
@@ -300,3 +315,4 @@ const SetBudgetsPage: React.FC = () => {
 };
 
 export default SetBudgetsPage;
+
