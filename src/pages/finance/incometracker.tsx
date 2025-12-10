@@ -456,25 +456,19 @@ const IncomeTrackerPage: React.FC = () => {
                     <td>{viewRecord.status}</td>
                   </tr>
 
-                  {viewRecord.attachments?.length > 0 && (
+                  {viewRecord.attachments && viewRecord.attachments.length > 0 && (
                     <tr>
                       <th>Attachments</th>
                       <td>
                         {viewRecord.attachments.map((file, idx) => (
-                          <a
-                            key={idx}
-                            href={file.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {file.type === "application/pdf"
-                              ? "View PDF"
-                              : "View File"}
+                          <a key={idx} href={file.url} target="_blank" rel="noopener noreferrer">
+                            {file.type === "application/pdf" ? "View PDF" : "View File"}
                           </a>
                         ))}
                       </td>
                     </tr>
                   )}
+                  
                 </tbody>
               </table>
 
@@ -493,3 +487,4 @@ const IncomeTrackerPage: React.FC = () => {
 };
 
 export default IncomeTrackerPage;
+
