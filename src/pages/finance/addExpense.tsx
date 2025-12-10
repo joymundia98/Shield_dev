@@ -255,6 +255,14 @@ const AddExpense: React.FC = () => {
               }
             />
 
+            {/* Attachments */}
+              <label>Attachments</label>
+              <input
+                type="file"
+                multiple
+                onChange={(e) => handleAttachments(e.target.files)}
+              />
+
             <button type="submit" className="add-btn">Submit Expense</button>
           </form>
         </div>
@@ -264,3 +272,4 @@ const AddExpense: React.FC = () => {
 };
 
 export default AddExpense;
+
