@@ -81,6 +81,11 @@ import VisitorRecordsPage from "./pages/congregation/visitorRecords";
 // Programs Module Functional Pages
 import RegisteredProgramsPage from "./pages/programs/RegisteredPrograms";
 import AttendeeManagement from "./pages/programs/attendeeManagement";
+import AddProgram from "./pages/programs/addPrograms";
+import NewAttendees from "./pages/programs/addAttendees";
+
+// Organizations Module Functional Pages
+import Lobby from "./pages/Organization/lobby";
 
 import { AuthProvider } from "./context/AuthContext";
 
@@ -194,7 +199,8 @@ function App() {
           <Route path="/programs/donors" element={<ProgramsDashboard />} />
           <Route path="/programs/RegisteredPrograms" element={<RegisteredProgramsPage />} />
           <Route path="/programs/attendeeManagement" element={<AttendeeManagement />} />
-          <Route path="/programs/reports" element={<ProgramsDashboard />} />
+          <Route path="/programs/addPrograms" element={<AddProgram />} />
+          <Route path="/programs/addAttendees" element={<NewAttendees />} />
 
           {/* ------------------------------
                   CLASS MODULE
@@ -230,6 +236,11 @@ function App() {
           <Route path="/governance/compliance-logs" element={<GovernanceDashboard />} />
           <Route path="/governance/documentation" element={<GovernanceDashboard />} />
           <Route path="/governance/certificates" element={<GovernanceDashboard />} />
+
+          {/* ------------------------------
+                  ORGANIZATION MODULE
+          --------------------------------*/}
+          <Route path="/Organization/lobby" element={<Lobby />} />
 
         </Routes>
       </BrowserRouter>
