@@ -77,7 +77,7 @@ const AttendeeManagement: React.FC = () => {
 
   // Handle adding a new attendee
   const handleAddAttendee = () => {
-    navigate("/attendees/add");  // Assuming you have an "Add Attendee" page for adding new attendees
+    navigate("/programs/addAttendees");  // Assuming you have an "Add Attendee" page for adding new attendees
   };
 
   // Handle editing an attendee

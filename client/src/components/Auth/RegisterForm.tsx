@@ -1,4 +1,4 @@
-import "./LoginForm.css"; 
+import "./LoginForm.css";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,34 +43,37 @@ export const RegisterForm = () => {
 
   // Fetch roles and organizations on mount
   useEffect(() => {
-    // Roles
+    // Fetch roles
     axios.get("http://localhost:3000/api/roles")
       .then(res => setRoles(res.data))
       .catch(err => console.error("Error fetching roles:", err));
 
-    // Organizations
-    axios.get("http://localhost:3000/api/organizations/public")
+    // Fetch organizations
+    axios.get("http://localhost:3000/api/organizations")
       .then(res => setOrganizations(res.data))
       .catch(err => console.error("Error fetching organizations:", err));
   }, []);
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
+      // Submit registration data to the backend
       await axios.post("http://localhost:3000/api/auth/register", {
         first_name: data.first_name,
         last_name: data.last_name,
         email: data.email,
         phone: data.phone,
         position: data.position,
-        role_id: data.role,          // send role id
+        role_id: data.role, // send role id
         organization_id: data.organization, // send organization id
         password: data.password,
+        status: "inactive", // Set status to inactive
       });
 
+      // Show success message and redirect to lobby
       setShowSuccessCard(true);
       setTimeout(() => {
         setShowSuccessCard(false);
-        navigate("/dashboard");
+        navigate("/Organization/lobby"); // Redirect to lobby page
       }, 2000);
     } catch (err: any) {
       console.error(err);
@@ -165,7 +168,7 @@ export const RegisterForm = () => {
 
           {errorMessage && <p className="form-error">{errorMessage}</p>}
 
-          {/* Submit */}
+          {/* Submit Button */}
           <div className="field button-field">
             <button type="submit">Register</button>
           </div>
@@ -182,7 +185,7 @@ export const RegisterForm = () => {
       {showSuccessCard && (
         <div className="success-card">
           <h3>✅ Registration Successful!</h3>
-          <p>Redirecting to dashboard...</p>
+          <p>Redirecting to lobby...</p>
         </div>
       )}
     </div>

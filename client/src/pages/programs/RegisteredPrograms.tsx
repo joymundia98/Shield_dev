@@ -93,7 +93,7 @@ const RegisteredProgramsPage: React.FC = () => {
 
   // Action Handlers
   const handleAddProgram = () => {
-    navigate("/programs/addProgram");
+    navigate("/programs/addPrograms");
   };
 
   const handleEditProgram = (id: string) => {
