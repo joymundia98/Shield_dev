@@ -24,6 +24,26 @@ const userController = {
     }
   },
 
+  async getActiveUsers(req, res) {
+    try {
+      const users = await User.getActiveUsers();
+      res.json({ message: "Active users fetched", data: users });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to fetch active users" });
+    }
+  },
+
+  async getInactiveUsers(req, res) {
+    try {
+      const users = await User.getInactiveUsers();
+      res.json({ message: "Inactive users fetched", data: users });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to fetch inactive users" });
+    }
+  },
+
   async create(req, res) {
     try {
       const user = await User.create(req.body);

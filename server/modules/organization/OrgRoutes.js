@@ -15,13 +15,7 @@ const router = express.Router();
 // Create a new organization
 router.post("/register", OrganizationController.create);
 
-// List all organizations (admin only)
-router.get(
-  "/",
-  verifyJWT,
-  requirePermission("organization.list"),
-  OrganizationController.list
-);
+router.get("/", OrganizationController.list);
 
 // Get organization by ID
 router.get(

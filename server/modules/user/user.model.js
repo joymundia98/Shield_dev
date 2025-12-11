@@ -12,6 +12,20 @@ const User = {
     return result.rows[0];
   },
 
+  async getActiveUsers() {
+    const result = await pool.query(
+      `SELECT * FROM users WHERE LOWER(status) = 'active' ORDER BY id ASC`
+    );
+    return result.rows;
+  },
+
+  async getInactiveUsers() {
+    const result = await pool.query(
+      `SELECT * FROM users WHERE LOWER(status) != 'active' ORDER BY id ASC`
+    );
+    return result.rows;
+  },
+
   async create(data) {
     const {
       first_name,

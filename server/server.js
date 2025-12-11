@@ -22,19 +22,21 @@ import extraFieldsRoutes from './modules/finance/extra_fields/extraFieldRoutes.j
 import budgetsRoutes from './modules/finance/budgets/budgetRoutes.js';
 import memberStatsRoutes from './modules/congregation/member_statistics/memberStatisticsRoutes.js';
 import congregantRoutes from './modules/congregation/congregants/congregantsRoutes.js';
-import attendanceRoutes from './modules/congregation/attandance/attendanceRoutes.js'
+import attendanceRoutes from './modules/congregation/attandance/attendanceRoutes.js';
 import visitorRoutes from './modules/congregation/visitors/visitorRoutes.js';
 import donationRoutes from './modules/donation/donationRoutes.js';
 import visitorServiceRoutes from './modules/congregation/visitors/visitorService/visitorServiceRoutes.js';
 import visitorReferralRoutes from './modules/congregation/referral/visitorReferral/visitorRefferalRoutes.js';
 import serviceRoutes from './modules/services/serviceRoutes.js';
 import referralRoutes from './modules/congregation/referral/referralRoutes.js';
-import purposeRoutes from './modules/congregation/purposes/purposeRoutes.js'
-import sessionRoutes from './modules/congregation/sessions/sessionRoutes.js'
+import purposeRoutes from './modules/congregation/purposes/purposeRoutes.js';
+import sessionRoutes from './modules/congregation/sessions/sessionRoutes.js';
 import assetRoutes from './modules/organization_assets/assets_/assetRoutes.js';
 import assetCategoryRoutes from './modules/organization_assets/asset_categories/assetCategoryRoutes.js';
 import assetRequestRoutes from './modules/organization_assets/asset_request/assetRequestRoutes.js';
-import assetLocationRoutes from './modules/organization_assets/asset_location/assetLocationRoutes.js'
+import assetLocationRoutes from './modules/organization_assets/asset_location/assetLocationRoutes.js';
+import assetDepreciationRoutes from './modules/organization_assets/asset_depreciation/assetDepreciationRoutes.js';
+import assetWarrantyRoutes from './modules/organization_assets/asset_warranty/assetWarrantyRoutes.js';
 import assetMaintenaceCategoryRoutes from './modules/organization_assets/maintenance_categories/maintenanceCategoryRoutes.js';
 import assetMaintenaceRecordRoutes from './modules/organization_assets/maintenance_records/maintenanceRecordRoutes.js'; 
 import rolesRoutes from './modules/role/roleRoutes.js';
@@ -108,7 +110,9 @@ app.use('/api/assets/requests', assetRequestRoutes);
 app.use('/api/assets/location', assetLocationRoutes)
 app.use('/api/assets', assetRoutes);
 app.use('/api/assets/maintenance_categories', assetMaintenaceCategoryRoutes);
-app.use('/api/assets/maintenace_records', assetMaintenaceRecordRoutes);
+app.use('/api/assets/maintenance_records', assetMaintenaceRecordRoutes);
+app.use('/api/assets/depreciation', assetDepreciationRoutes);
+app.use('/api/assets/warranty', assetWarrantyRoutes)
 app.use("/api/leave_requests", leaveRoutes);
 app.use("/api/denominations", verifyJWT, denominationRoutes);
 app.use("/api/organizations", organizationRoutes);
