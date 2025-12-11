@@ -70,42 +70,20 @@ const dropdowns: Dropdown[] = [
     label: "Program Event Management",
     links: [
       { name: "Dashboard", href: "/programs/dashboard" },
-      { name: "Donors", href: "/programs/donors" },
-      { name: "Add Donor", href: "/programs/add-donor" },
+      { name: "Registered Programs", href: "/programs/RegisteredPrograms" },
+      { name: "Attendance Management", href: "/programs/attendeeManagement" },
       { name: "Donations", href: "/programs/donations" },
       { name: "Reports", href: "/programs/reports" },
     ],
   },
   {
-    label: "Class Management",
+    label: "Donor Management",
     links: [
-      { name: "Dashboard", href: "/class/dashboard" },
-      { name: "Classes", href: "/class/classes" },
-      { name: "Add Class", href: "/class/add-class" },
-      { name: "Teachers", href: "/class/teachers" },
-      { name: "Enrollments", href: "/class/enrollments" },
-      { name: "Attendance", href: "/class/attendance" },
-      { name: "Reports", href: "/class/reports" },
-    ],
-  },
-  {
-    label: "Ministry Teams Management",
-    links: [
-      { name: "Dashboard", href: "/ministry/dashboard" },
-      { name: "Donors", href: "/ministry/donors" },
-      { name: "Add Donor", href: "/ministry/add-donor" },
-      { name: "Donations", href: "/ministry/donations" },
-      { name: "Reports", href: "/ministry/reports" },
-    ],
-  },
-  {
-    label: "Pastoral Care Counselling",
-    links: [
-      { name: "Dashboard", href: "/pastoral/dashboard" },
-      { name: "Donors", href: "/pastoral/donors" },
-      { name: "Add Donor", href: "/pastoral/add-donor" },
-      { name: "Donations", href: "/pastoral/donations" },
-      { name: "Reports", href: "/pastoral/reports" },
+      { name: "Dashboard", href: "/donor/dashboard" },
+      { name: "Donors", href: "/donor/donors" },
+      { name: "Add Donor", href: "/donor/add-donor" },
+      { name: "Donations", href: "/donor/donations" },
+      { name: "Donor Categories", href: "/donor/donorCategories" },
     ],
   },
   {
@@ -119,16 +97,38 @@ const dropdowns: Dropdown[] = [
       { name: "Certificates for Members", href: "/governance/certificates" },
     ],
   },
-  {
-    label: "Donor Management",
-    links: [
-      { name: "Dashboard", href: "/donor/dashboard" },
-      { name: "Donors", href: "/donor/donors" },
-      { name: "Add Donor", href: "/donor/add-donor" },
-      { name: "Donations", href: "/donor/donations" },
-      { name: "Donor Categories", href: "/donor/donorCategories" },
-    ],
-  },
+  //{
+    //label: "Class Management",
+    //links: [
+      //{ name: "Dashboard", href: "/class/dashboard" },
+      //{ name: "Classes", href: "/class/classes" },
+      //{ name: "Add Class", href: "/class/add-class" },
+      //{ name: "Teachers", href: "/class/teachers" },
+      //{ name: "Enrollments", href: "/class/enrollments" },
+      //{ name: "Attendance", href: "/class/attendance" },
+      //{ name: "Reports", href: "/class/reports" },
+    //],
+  //},
+  //{
+    //label: "Ministry Teams Management",
+    //links: [
+      //{ name: "Dashboard", href: "/ministry/dashboard" },
+      //{ name: "Donors", href: "/ministry/donors" },
+      //{ name: "Add Donor", href: "/ministry/add-donor" },
+      //{ name: "Donations", href: "/ministry/donations" },
+      //{ name: "Reports", href: "/ministry/reports" },
+    //],
+  //},
+  //{
+    //label: "Pastoral Care Counselling",
+    //links: [
+      //{ name: "Dashboard", href: "/pastoral/dashboard" },
+      //{ name: "Donors", href: "/pastoral/donors" },
+      //{ name: "Add Donor", href: "/pastoral/add-donor" },
+      //{ name: "Donations", href: "/pastoral/donations" },
+      //{ name: "Reports", href: "/pastoral/reports" },
+    //],
+  //},
 ];
 
 const DashboardPage: React.FC = () => {

@@ -78,6 +78,10 @@ import VisitorsDashboard from "./pages/congregation/visitors";
 import AddVisitorPage from "./pages/congregation/addVisitors";
 import VisitorRecordsPage from "./pages/congregation/visitorRecords";
 
+// Programs Module Functional Pages
+import RegisteredProgramsPage from "./pages/programs/RegisteredPrograms";
+import AttendeeManagement from "./pages/programs/attendeeManagement";
+
 import { AuthProvider } from "./context/AuthContext";
 
 function App() {
@@ -188,8 +192,8 @@ function App() {
                   PROGRAMS MODULE
           --------------------------------*/}
           <Route path="/programs/donors" element={<ProgramsDashboard />} />
-          <Route path="/programs/addDonor" element={<ProgramsDashboard />} />
-          <Route path="/programs/donations" element={<ProgramsDashboard />} />
+          <Route path="/programs/RegisteredPrograms" element={<RegisteredProgramsPage />} />
+          <Route path="/programs/attendeeManagement" element={<AttendeeManagement />} />
           <Route path="/programs/reports" element={<ProgramsDashboard />} />
 
           {/* ------------------------------
