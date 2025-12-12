@@ -1,4 +1,4 @@
-import { Program } from './programController.js';
+import { Program } from './program.js';
 
 export const programController = {
   async create(req, res) {
