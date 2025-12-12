@@ -2,11 +2,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import headerLogo from "../../assets/headerlogo.png";
 
-// Validation schema
+// Validation schema for admin registration
 const registerSchema = z
   .object({
     first_name: z.string().min(1, "First name is required"),
@@ -27,6 +27,7 @@ export const AdminAccount = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showSuccessCard, setShowSuccessCard] = useState(false);
+  const [showModal, setShowModal] = useState(false); // State for modal visibility
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({
@@ -34,35 +35,50 @@ export const AdminAccount = () => {
   });
 
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Assuming the organization is passed as a state when redirected to this form
-  const location = window.location.state as { organizationId: string };
-  const organizationId = location ? location.organizationId : "";
+  // Get the organization_id from the location state (passed from OrgRegister)
+  const organization_id = location.state?.organizationID;
+
+  // If there's no organization_id, show an error
+  if (!organization_id) {
+    return <div>Organization ID not found. Please try again.</div>;
+  }
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      // Submit registration data to the backend
+      // Submit the admin registration data with the organization_id
       await axios.post("http://localhost:3000/api/auth/register", {
         first_name: data.first_name,
         last_name: data.last_name,
         email: data.email,
         phone: data.phone,
         position: "System Administrator", // Set position to System Administrator by default
-        role_id: 1, // Set role to Admin (assuming 1 is the ID for Admin)
-        organization_id: organizationId, // Use the organization ID from the URL state
+        role_id: 1, // Set role to Admin (assuming 1 is the ID for Admin role)
         password: data.password,
         status: "active", // Set status to active
+        organization_id: organization_id, // Pass the organization_id to associate the admin with the organization
       });
 
-      // Show success message and redirect to dashboard
+      // Show success message and open the modal to ask for redirection
       setShowSuccessCard(true);
       setTimeout(() => {
         setShowSuccessCard(false);
-        navigate("/dashboard"); // Redirect to the dashboard page
+        setShowModal(true); // Show modal after success
       }, 2000);
     } catch (err: any) {
       console.error(err);
       setErrorMessage(err.response?.data?.message || "Registration failed");
+    }
+  };
+
+  // Handle modal choice for redirection
+  const handleRedirect = (choice: string) => {
+    setShowModal(false); // Close the modal
+    if (choice === "profile") {
+      navigate("/Organization/edittableProfile"); // Redirect to the Organization Profile
+    } else if (choice === "dashboard") {
+      navigate("/dashboard"); // Redirect to the SCI-ELD ERP Platform Dashboard
     }
   };
 
@@ -128,12 +144,6 @@ export const AdminAccount = () => {
           <div className="field button-field">
             <button type="submit">Register</button>
           </div>
-
-          {/* Login link */}
-          <div className="form-link sign-up">
-            <span>Already have an account?</span>
-            <a href="/login"> Login here</a>
-          </div>
         </form>
       </div>
 
@@ -141,7 +151,24 @@ export const AdminAccount = () => {
       {showSuccessCard && (
         <div className="success-card">
           <h3>✅ Registration Successful!</h3>
-          <p>Redirecting to dashboard...</p>
+          <p>Redirecting...</p>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {showModal && (
+        <div className="success-modal-overlay">
+          <div className="success-modal">
+            <h2>You have successfully created an account! How would you like to proceed?</h2>
+            <div className="modal-buttons">
+              <button className="modal-btn" onClick={() => handleRedirect("profile")}>
+                Go to Organization Profile
+              </button>&emsp;
+              <button className="modal-btn" onClick={() => handleRedirect("dashboard")}>
+                Go to SCI-ELD ERP Platform
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
