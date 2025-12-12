@@ -1,5 +1,4 @@
-import "./LoginForm.css";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -14,9 +13,6 @@ const registerSchema = z
     last_name: z.string().min(1, "Last name is required"),
     email: z.string().email("Invalid email"),
     phone: z.string().min(10, "Phone number is required"),
-    position: z.string().min(1, "Position is required"),
-    role: z.string().min(1, "Role is required"),
-    organization: z.string().min(1, "Organization is required"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirm_password: z.string().min(1, "Confirm Password is required"),
   })
@@ -27,12 +23,10 @@ const registerSchema = z
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
-export const RegisterForm = () => {
+export const AdminAccount = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showSuccessCard, setShowSuccessCard] = useState(false);
-  const [roles, setRoles] = useState<{ id: number; name: string }[]>([]);
-  const [organizations, setOrganizations] = useState<{ id: number; name: string }[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({
@@ -41,18 +35,9 @@ export const RegisterForm = () => {
 
   const navigate = useNavigate();
 
-  // Fetch roles and organizations on mount
-  useEffect(() => {
-    // Fetch roles
-    axios.get("http://localhost:3000/api/roles")
-      .then(res => setRoles(res.data))
-      .catch(err => console.error("Error fetching roles:", err));
-
-    // Fetch organizations
-    axios.get("http://localhost:3000/api/organizations")
-      .then(res => setOrganizations(res.data))
-      .catch(err => console.error("Error fetching organizations:", err));
-  }, []);
+  // Assuming the organization is passed as a state when redirected to this form
+  const location = window.location.state as { organizationId: string };
+  const organizationId = location ? location.organizationId : "";
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
@@ -62,18 +47,18 @@ export const RegisterForm = () => {
         last_name: data.last_name,
         email: data.email,
         phone: data.phone,
-        position: data.position,
-        role_id: data.role, // send role id
-        organization_id: data.organization, // send organization id
+        position: "System Administrator", // Set position to System Administrator by default
+        role_id: 1, // Set role to Admin (assuming 1 is the ID for Admin)
+        organization_id: organizationId, // Use the organization ID from the URL state
         password: data.password,
-        status: "inactive", // Set status to inactive
+        status: "active", // Set status to active
       });
 
-      // Show success message and redirect to lobby
+      // Show success message and redirect to dashboard
       setShowSuccessCard(true);
       setTimeout(() => {
         setShowSuccessCard(false);
-        navigate("/Organization/lobby"); // Redirect to lobby page
+        navigate("/dashboard"); // Redirect to the dashboard page
       }, 2000);
     } catch (err: any) {
       console.error(err);
@@ -117,35 +102,6 @@ export const RegisterForm = () => {
             {errors.phone && <p className="form-error">{errors.phone.message}</p>}
           </div>
 
-          {/* Position */}
-          <div className="field input-field">
-            <input type="text" {...register("position")} />
-            <label>Position</label>
-            {errors.position && <p className="form-error">{errors.position.message}</p>}
-          </div>
-
-          {/* Role Dropdown */}
-          <div className="field input-field select-field">
-            <select {...register("role")}>
-              <option value="">Select Role</option>
-              {roles.map(role => (
-                <option key={role.id} value={role.id}>{role.name}</option>
-              ))}
-            </select>
-            {errors.role && <p className="form-error">{errors.role.message}</p>}
-          </div>
-
-          {/* Organization Dropdown */}
-          <div className="field input-field select-field">
-            <select {...register("organization")}>
-              <option value="">Select Organization</option>
-              {organizations.map(org => (
-                <option key={org.id} value={org.id}>{org.name}</option>
-              ))}
-            </select>
-            {errors.organization && <p className="form-error">{errors.organization.message}</p>}
-          </div>
-
           {/* Password */}
           <div className="field input-field">
             <input type={showPassword ? "text" : "password"} {...register("password")} />
@@ -185,7 +141,7 @@ export const RegisterForm = () => {
       {showSuccessCard && (
         <div className="success-card">
           <h3>✅ Registration Successful!</h3>
-          <p>Redirecting to lobby...</p>
+          <p>Redirecting to dashboard...</p>
         </div>
       )}
     </div>

@@ -72,8 +72,6 @@ const dropdowns: Dropdown[] = [
       { name: "Dashboard", href: "/programs/dashboard" },
       { name: "Registered Programs", href: "/programs/RegisteredPrograms" },
       { name: "Attendance Management", href: "/programs/attendeeManagement" },
-      { name: "Donations", href: "/programs/donations" },
-      { name: "Reports", href: "/programs/reports" },
     ],
   },
   {

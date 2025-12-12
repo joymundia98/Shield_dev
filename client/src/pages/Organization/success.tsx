@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import sidebarLogo from "../../assets/sidebarlogo.png"; // Update path as necessary
-import "../../styles/global.css"; // You may need a separate CSS file or adjust styles accordingly
+import './success.css'; 
 
 const OrganizationSuccessPage = () => {
   const [accountID] = useState("ABCD-1234-EFGH-5678"); // Mock Account ID, replace as necessary
@@ -22,24 +21,13 @@ const OrganizationSuccessPage = () => {
   return (
     <div className="organization-success-container">
       {/* Sidebar */}
-      <div className="sidebar">
-        <div className="sidebar-header">
-          <img src={sidebarLogo} alt="Logo" className="sidebar-logo" />
-        </div>
-        <nav className="sidebar-nav">
-          <ul>
-            <li><a href="/dashboard">Dashboard</a></li>
-            <li><a href="/org-settings">Settings</a></li>
-            <li><a href="/org-logout">Logout</a></li>
-          </ul>
-        </nav>
-      </div>
 
       {/* Main Content Area */}
       <div className="main-content">
-        <h1>Your Organization was Registered Successfully!</h1>
+        <h1 className='success-h1'>Your Organization was Registered Successfully!</h1>
         <p>Please ensure that your account ID is kept secure, as it will be necessary for logging this organization in.</p>
 
+        <br/>
         {/* Glassmorphic Card with Account ID and Copy Button */}
         <div className="glassmorphic-card">
           <button className="copy-btn" onClick={copyToClipboard}>Copy Account ID</button>

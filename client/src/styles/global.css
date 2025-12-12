@@ -667,9 +667,9 @@
             color: #1A3D7C; /* deep royal blue */
         }
 
-        .kpi-approved { background-color: rgba(212, 237, 218, 0.67); color: #155724; }
+        .kpi-approved, .kpi-active { background-color: rgba(212, 237, 218, 0.67); color: #155724; }
         .kpi-pending { background-color: rgb(255, 243, 205, 0.67); color: #856404; }
-        .kpi-rejected { background-color: rgb(248, 215, 218, 0.67); color: #721c24; }
+        .kpi-rejected, .kpi-inactive { background-color: rgb(248, 215, 218, 0.67); color: #721c24; }
 
         .kpi-change {
             display: flex;
@@ -752,7 +752,7 @@
         }
 
         /* Add Button CSS */
-        .add-btn {
+        .add-btn, .submit-btn {
         align-items: center;
         appearance: none;
         background-image: radial-gradient(100% 100% at 100% 0, #5adaff 0, #5468ff 100%);
@@ -782,16 +782,19 @@
         font-size: 0.92rem;
         }
 
-        .add-btn:focus {
+        .add-btn:focus,
+        .submit-btn:focus {
         box-shadow: #3c4fe0 0 0 0 1.5px inset, rgba(45, 35, 66, .4) 0 2px 4px, rgba(45, 35, 66, .3) 0 7px 13px -3px, #3c4fe0 0 -3px 0 inset;
         }
 
-        .add-btn:hover {
+        .add-btn:hover,
+        .submit-btn:hover {
         box-shadow: rgba(45, 35, 66, .4) 0 4px 8px, rgba(45, 35, 66, .3) 0 7px 13px -3px, #3c4fe0 0 -3px 0 inset;
         transform: translateY(-2px);
         }
 
-        .add-btn:active {
+        .add-btn:active,
+        .submit-btn:active {
         box-shadow: #3c4fe0 0 3px 7px inset;
         transform: translateY(2px);
         }
@@ -1805,4 +1808,19 @@
                 .rollcall-radio label {
                     display: block;
                     margin-bottom: 10px;
+                }
+
+
+                /* Admin Account Styling */
+                .admin-account-container {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center; /* Center horizontally */
+                    justify-content: center; /* Center vertically */
+                    min-height: 100vh; /* Full viewport height */
+                    text-align: center; /* Ensure text is centered inside the container */
+                }
+
+                .admin-account-container h1 {
+                    margin-bottom: 20px; /* Optional: space between the title and the form */
                 }
