@@ -52,6 +52,8 @@ import assetMaintenaceCategoryRoutes from './modules/organization_assets/mainten
 import assetMaintenaceRecordRoutes from './modules/organization_assets/maintenance_records/maintenanceRecordRoutes.js'; 
 import rolesRoutes from './modules/role/roleRoutes.js';
 import authRoutes from './modules/auth/authRoutes.js';
+import permissionRoutes from './modules/permissions/permissionRoutes.js';
+import rolePermissionRoutes from './modules/role_permission/rolePermRoutes.js';
 import denominationRoutes from './modules/denomination/denominationRoutes.js';
 import organizationRoutes from './modules/organization/OrgRoutes.js';
 import { verifyJWT } from './middleware/auth.js';
@@ -73,13 +75,11 @@ export { pool };
 app.use(cors());
 app.use(express.json());
 
-// // Public route for dropdown
-// app.get("/api/organizations/public", OrganizationController.listPublic);
-
-// Protected routes
 app.use("/api/roles", rolesRoutes);
+app.use('/api/role_permissions', rolePermissionRoutes);
+app.use('/api/permissions', permissionRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/users", verifyJWT, userRoutes);
+app.use("/api/users", verifyJWT, userRoutes); // Protected route
 app.use("/api/staff", staffRoutes);
 app.use("/api/members", membersRoutes)
 app.use("/api/departments", departmentRoutes);
