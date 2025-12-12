@@ -7,7 +7,7 @@ const Lobby = () => {
       <div className="lobby-content">
         <h1 className="lobby-title">Welcome to the Lobby!</h1>
         <p className="lobby-subtitle">Please wait for an Admin to approve your Registration...</p>
-        <a href="#" className="add-btn">View Organization Profile</a>
+        <a href="/Organization/orgProfile" className="add-btn">View Organization Profile</a>
       </div>
     </div>
   );
