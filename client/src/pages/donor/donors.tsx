@@ -109,6 +109,13 @@ const DonorManagementPage: React.FC = () => {
 
   const handleAddDonor = () => navigate("/donor/addDonor");
 
+  // ---------------- Handle Edit and View Actions ----------------
+  const handleEdit = (id: string) => navigate(`/donor/editDonor/${id}`);
+  const handleView = (id: string) => {
+    const url = `/donor/donorView?id=${id}`;
+    window.open(url, "_blank"); // Open in a new tab
+  };
+
   // ---------------- Rendering ----------------
   if (loading) return <p>Loading donors...</p>;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
@@ -198,7 +205,6 @@ const DonorManagementPage: React.FC = () => {
               </thead>
               <tbody>
                 {donors.map((d) => {
-                  const index = donorData.indexOf(d);
                   return (
                     <tr key={d.id}>
                       <td data-title="ID">{d.id}</td>
@@ -206,12 +212,17 @@ const DonorManagementPage: React.FC = () => {
                       <td data-title="Email">{d.email}</td>
                       <td data-title="Phone">{d.phone}</td>
                       <td className="actions">
-                        <button className="add-btn" onClick={() => openViewModal(d)}>
+                        {/* View Button that opens the view page in a new tab */}
+                        <button
+                          className="add-btn"
+                          onClick={() => handleView(d.id.toString())} // Open in new tab
+                        >
                           View
                         </button>
+                        {/* Edit Button that redirects to the EditDonorPage */}
                         <button
                           className="edit-btn"
-                          onClick={() => openEditModal(d, index)}
+                          onClick={() => handleEdit(d.id.toString())} // Edit the donor
                         >
                           Edit
                         </button>
@@ -223,87 +234,6 @@ const DonorManagementPage: React.FC = () => {
             </table>
           </div>
         ))}
-
-        {/* Edit Modal */}
-        {editDonor && (
-          <>
-            <div className="overlay" onClick={closeEditModal}></div>
-            <div className="filter-popup modal-wide">
-              <h3>Edit Donor</h3>
-              <label>Name</label>
-              <input
-                type="text"
-                value={editDonor.name}
-                onChange={(e) =>
-                  setEditDonor({ ...editDonor, name: e.target.value })
-                }
-              />
-              <label>Email</label>
-              <input
-                type="email"
-                value={editDonor.email}
-                onChange={(e) =>
-                  setEditDonor({ ...editDonor, email: e.target.value })
-                }
-              />
-              <label>Phone</label>
-              <input
-                type="text"
-                value={editDonor.phone}
-                onChange={(e) =>
-                  setEditDonor({ ...editDonor, phone: e.target.value })
-                }
-              />
-              <div className="filter-popup-buttons">
-                <button className="add-btn" onClick={saveDonor}>
-                  Save
-                </button>
-                <button className="delete-btn" onClick={closeEditModal}>
-                  Close
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* View Modal */}
-        {viewDonor && (
-          <>
-            <div className="overlay" onClick={closeViewModal}></div>
-            <div className="filter-popup modal-wide">
-              <h3>Donor Details</h3>
-              <table className="responsive-table view-table">
-                <tbody>
-                  <tr>
-                    <td>Donor ID</td>
-                    <td>{viewDonor.id}</td>
-                  </tr>
-                  <tr>
-                    <td>Name</td>
-                    <td>{viewDonor.name}</td>
-                  </tr>
-                  <tr>
-                    <td>Email</td>
-                    <td>{viewDonor.email}</td>
-                  </tr>
-                  <tr>
-                    <td>Phone</td>
-                    <td>{viewDonor.phone}</td>
-                  </tr>
-                  <tr>
-                    <td>Type</td>
-                    <td>{viewDonor.donor_type}</td>
-                  </tr>
-                </tbody>
-              </table>
-              <div className="filter-popup-buttons">
-                <button className="delete-btn" onClick={closeViewModal}>
-                  Close
-                </button>
-              </div>
-            </div>
-          </>
-        )}
       </div>
     </div>
   );
