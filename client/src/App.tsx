@@ -86,6 +86,7 @@ import NewAttendees from "./pages/programs/addAttendees";
 
 // Organizations Module Functional Pages
 import Lobby from "./pages/Organization/lobby";
+import OrgLobby from "./pages/Organization/orgLobby";
 import OrganizationSuccessPage from "./pages/Organization/success";
 import ChurchProfilePage from "./pages/Organization/orgProfile";
 
@@ -242,6 +243,7 @@ function App() {
           {/* ------------------------------
                   ORGANIZATION MODULE
           --------------------------------*/}
+          <Route path="/Organization/orgLobby" element={<OrgLobby />} />
           <Route path="/Organization/lobby" element={<Lobby />} />
           <Route path="/Organization/success" element={<OrganizationSuccessPage />} />
           <Route path="/Organization/orgProfile" element={<ChurchProfilePage />} />

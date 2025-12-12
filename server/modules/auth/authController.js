@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import UserModel from "../user/user.model.js";
-import OrganizationModel from "../organization/organizationModel.js"
+import OrganizationModel from "../organization/organizationModel.js";
 
 dotenv.config();
 
@@ -84,7 +84,7 @@ export const register = async (req, res) => {
     const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Create User using model function
+    // Create the user with status set to "inactive"
     const newUser = await UserModel.create({
       first_name,
       last_name,
@@ -94,10 +94,13 @@ export const register = async (req, res) => {
       position,
       role_id,
       organization_id,
+      status: "inactive", // Set status explicitly to "inactive"
     });
 
+    // Assign role to the user (if necessary)
     await UserModel.assignRole(newUser.id, role_id);
 
+    // Return success response
     res.status(201).json({
       message: "User registered successfully",
       user: newUser,
@@ -108,7 +111,6 @@ export const register = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 // ========================================
 // REGISTER ORG– MATCHES USER MODEL FIELDS
