@@ -5,6 +5,7 @@ import { RegisterPage } from "./pages/RegisterPage";
 import { LandingPage } from "./pages/LandingPage";
 import { OrgLoginPage } from "./pages/orgLoginPage";
 import { OrgRegisterPage } from "./pages/orgRegisterPage";
+import { AdminAccountPage } from "./pages/AdminAccountPage";
 
 import DashboardPage from "./pages/DashboardPage";
 
@@ -89,6 +90,8 @@ import Lobby from "./pages/Organization/lobby";
 import OrgLobby from "./pages/Organization/orgLobby";
 import OrganizationSuccessPage from "./pages/Organization/success";
 import ChurchProfilePage from "./pages/Organization/orgProfile";
+import EdittableChurchProfilePage from "./pages/Organization/edittableProfile";
+import UserTrackerPage from "./pages/Organization/ListedAccounts";
 
 import { AuthProvider } from "./context/AuthContext";
 
@@ -104,6 +107,11 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+
+          {/* ------------------------------
+                  PRIVATE AUTH PAGES
+          --------------------------------*/}
+          <Route path="/admin/create-account" element={<AdminAccountPage />} />
 
           {/* ------------------------------
                   ORGANIZATION PAGES
@@ -247,6 +255,8 @@ function App() {
           <Route path="/Organization/lobby" element={<Lobby />} />
           <Route path="/Organization/success" element={<OrganizationSuccessPage />} />
           <Route path="/Organization/orgProfile" element={<ChurchProfilePage />} />
+          <Route path="/Organization/edittableProfile" element={<EdittableChurchProfilePage />} />
+          <Route path="/Organization/ListedAccounts" element={<UserTrackerPage />} />
 
         </Routes>
       </BrowserRouter>

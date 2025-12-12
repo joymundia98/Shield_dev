@@ -44,6 +44,7 @@ body {
   font-size: 1.5em;
   margin-bottom: 30px;
   animation: fadeInUp 1s ease-in-out 0.5s;
+  color: #fff;
 }
 
 .lobby-button {

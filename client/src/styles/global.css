@@ -667,9 +667,9 @@
             color: #1A3D7C; /* deep royal blue */
         }
 
-        .kpi-approved { background-color: rgba(212, 237, 218, 0.67); color: #155724; }
+        .kpi-approved, .kpi-active { background-color: rgba(212, 237, 218, 0.67); color: #155724; }
         .kpi-pending { background-color: rgb(255, 243, 205, 0.67); color: #856404; }
-        .kpi-rejected { background-color: rgb(248, 215, 218, 0.67); color: #721c24; }
+        .kpi-rejected, .kpi-inactive { background-color: rgb(248, 215, 218, 0.67); color: #721c24; }
 
         .kpi-change {
             display: flex;
@@ -1808,4 +1808,19 @@
                 .rollcall-radio label {
                     display: block;
                     margin-bottom: 10px;
+                }
+
+
+                /* Admin Account Styling */
+                .admin-account-container {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center; /* Center horizontally */
+                    justify-content: center; /* Center vertically */
+                    min-height: 100vh; /* Full viewport height */
+                    text-align: center; /* Ensure text is centered inside the container */
+                }
+
+                .admin-account-container h1 {
+                    margin-bottom: 20px; /* Optional: space between the title and the form */
                 }
