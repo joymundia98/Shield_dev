@@ -29,15 +29,6 @@ interface DonorForm {
   notes: string;
 }
 
-// ---------------- Sidebar Donor Type ----------------
-{/*interface Donor {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  type: "Individual" | "Organization" | "Anonymous";
-}*/}
-
 // ---------------- Allowed Subcategories ----------------
 const ALLOWED_SUBCATEGORIES: Record<number, string[]> = {
   1: ["regular", "one-time", "occasional"], // Individual
@@ -77,7 +68,7 @@ const AddDonor: React.FC = () => {
   const [subcategories, setSubcategories] = useState<DonorSubcategory[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [showSuccessCard, setShowSuccessCard] = useState(false); // Success card state
 
   // ---------------- Fetch Donor Types ----------------
   useEffect(() => {
@@ -119,7 +110,7 @@ const AddDonor: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setSuccess(false);
+    setShowSuccessCard(false); // Reset success card visibility
 
     try {
       const payload: any = {
@@ -152,7 +143,13 @@ const AddDonor: React.FC = () => {
         throw new Error(data.message || "Failed to add donor");
       }
 
-      setSuccess(true);
+      // Show success card for 2 seconds before resetting and redirecting
+      setShowSuccessCard(true);
+      setTimeout(() => {
+        setShowSuccessCard(false); // Hide the success card
+        navigate("/donor/donors"); // Redirect to donor list
+      }, 2000);
+
       setForm({
         donorTypeId: null,
         donorSubcategoryId: null,
@@ -168,17 +165,12 @@ const AddDonor: React.FC = () => {
         address: "",
         notes: "",
       });
+
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
-
-  // ---------------- Sidebar Navigation ----------------
-  const handleNavigation = (path: string) => {
-    navigate(path);
-    setSidebarOpen(false);
   };
 
   return (
@@ -204,21 +196,21 @@ const AddDonor: React.FC = () => {
 
         <h2>DONOR MGMT</h2>
 
-        <a href="#" onClick={() => handleNavigation("/donor/dashboard")}>
+        <a href="#" onClick={() => navigate("/donor/dashboard")}>
           Dashboard
         </a>
-        <a href="#" onClick={() => handleNavigation("/donor/donors")} className="active">
+        <a href="#" onClick={() => navigate("/donor/donors")} className="active">
           Donors List
         </a>
-        <a href="#" onClick={() => handleNavigation("/donor/donations")}>
+        <a href="#" onClick={() => navigate("/donor/donations")}>
           Donations
         </a>
-        <a href="#" onClick={() => handleNavigation("/donor/donorCategories")}>
+        <a href="#" onClick={() => navigate("/donor/donorCategories")}>
           Donor Categories
         </a>
 
         <hr className="sidebar-separator" />
-        <a href="#" onClick={() => handleNavigation("/dashboard")} className="return-main">
+        <a href="#" onClick={() => navigate("/dashboard")} className="return-main">
           ← Back to Main Dashboard
         </a>
 
@@ -247,8 +239,13 @@ const AddDonor: React.FC = () => {
         <div className="container">
           <form className="add-form-styling" onSubmit={handleSubmit}>
             {error && <p style={{ color: "red" }}>{error}</p>}
-            {success && (
-              <p style={{ color: "green" }}>Donor added successfully!</p>
+            
+            {/* Success Message Card */}
+            {showSuccessCard && (
+              <div className="success-card">
+                <h3>✅ Donor Added Successfully!</h3>
+                <p>Redirecting to donors list...</p>
+              </div>
             )}
 
             {/* Donor Type */}
