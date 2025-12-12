@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaCheckCircle, FaEnvelope, FaPhone, FaMapMarkerAlt, FaFacebook, FaInstagram, FaTwitter } from 'react-icons/fa';
+import { FaCheckCircle, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';  // <-- Import useNavigate
 import './orgProfile.css'; // Assuming your styles are located here
 import ChurchLogo from "../../assets/Church Logo.jpg";
@@ -83,7 +83,7 @@ const ChurchProfilePage: React.FC = () => {
           </a>
         </div>
 
-        <div className="social-icons">
+        {/*<div className="social-icons">
           <a href={churchData.socialLinks.facebook} target="_blank" rel="noopener noreferrer">
             <FaFacebook className="fa-lg" />
           </a>
@@ -93,7 +93,7 @@ const ChurchProfilePage: React.FC = () => {
           <a href={churchData.socialLinks.twitter} target="_blank" rel="noopener noreferrer">
             <FaTwitter className="fa-lg" />
           </a>
-        </div>
+        </div>*/}
       </section>
 
       {/* Main Content */}

@@ -327,3 +327,20 @@ body {
 .email-btn i{
   color: #fff;
 }
+
+.orgProfileContainer textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 15px;
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+    background: #fafafa;
+}
+
+.orgProfileContainer textarea:focus {
+    border-color: #4e8bf3;
+    box-shadow: 0 0 4px rgba(78, 139, 243, 0.4);
+    background: #fff;
+}
