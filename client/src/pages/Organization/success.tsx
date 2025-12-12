@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import sidebarLogo from "../../assets/sidebarlogo.png"; // Update path as necessary
+//import sidebarLogo from "../../assets/sidebarlogo.png"; // Update path as necessary
 import "../../styles/global.css"; // You may need a separate CSS file or adjust styles accordingly
 
 const OrganizationSuccessPage = () => {
