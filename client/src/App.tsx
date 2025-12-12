@@ -62,6 +62,7 @@ import DonationsManagementPage from "./pages/donor/donations";
 import AddDonationPage from "./pages/donor/addDonation";
 import DonorCategoriesPage from "./pages/donor/donorCategories";
 import ViewDonorPage from "./pages/donor/donorView";
+import EditDonor from "./pages/donor/editDonor";
 
 // Ministry Module Functional Pages
 import PastorsPage from "./pages/ministry/pastors";
@@ -159,6 +160,7 @@ function App() {
           <Route path="/donor/addDonation" element={<AddDonationPage />} />
           <Route path="/donor/donorCategories" element={<DonorCategoriesPage />} />
           <Route path="/donor/donorView" element={<ViewDonorPage />} />
+          <Route path="/donor/editDonor/:donorId" element={<EditDonor />} />
 
           {/* ------------------------------
                   CONGREGATION MODULE
