@@ -54,7 +54,7 @@ export const login = async (req, res) => {
 };
 
 // ========================================
-// REGISTER – MATCHES USER MODEL FIELDS
+// REGISTER – USER
 // ========================================
 export const register = async (req, res) => {
   try {
