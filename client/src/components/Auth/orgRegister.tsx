@@ -44,9 +44,6 @@ const provinceDistrictMap: Record<string, string[]> = {
   "Western Province": ["Kalabo", "Kaoma", "Limulunga", "Luampa", "Lukulu", "Mitete", "Mongu", "Mulobezi", "Mwandi", "Nalolo", "Nkeyema", "Senanga", "Sesheke", "Shang'ombo", "Sikongo", "Sioma", "Not Listed"]
 };
 
-// ---------------------------
-// Denominations
-// ---------------------------
 const denominations: Record<string, string[]> = {
   Catholicism: ["Roman Catholic", "Eastern Catholic"],
   Orthodoxy: ["Eastern Orthodox", "Oriental Orthodox"],
@@ -99,50 +96,73 @@ const OrgRegister = () => {
   };
 
   const onSubmit = async (data: OrgFormData) => {
-    try {
-      const districtToSend = data.district === "Not Listed" ? data.customDistrict : data.district;
-      const subToSend = data.subDenomination === "Not Listed" ? data.customSubDenomination : data.subDenomination;
-      const fullDenomination = `${data.mainDenomination}-${subToSend}`;
+  try {
+    // Construct the full denomination and the proper district and subDenomination values
+    const districtToSend = data.district === "Not Listed" ? data.customDistrict : data.district;
+    const subToSend = data.subDenomination === "Not Listed" ? data.customSubDenomination : data.subDenomination;
+    const fullDenomination = `${data.mainDenomination}-${subToSend}`;
 
-      // Debugging: Log form data before sending it to the backend
-      console.log("Form data before sending to backend:", {
+    // Ensure the status is "active" by default if it's not provided
+    const statusToSend = data.status || "active";
+
+    // Log the form data before sending it to the backend (for debugging)
+    console.log("Form data before sending to backend:", {
+      name: data.name,
+      email: data.organization_email,
+      denomination: fullDenomination,
+      address: data.address,
+      region: data.region,
+      district: districtToSend,
+      status: statusToSend,
+    });
+
+    // Make the POST request to register the organization
+    const response = await axios.post(
+      "http://localhost:3000/api/organizations/register", // Correct endpoint URL
+      {
         name: data.name,
         email: data.organization_email,
         denomination: fullDenomination,
         address: data.address,
         region: data.region,
         district: districtToSend,
-        status: data.status || "active"
-      });
-
-      await axios.post(
-        "http://localhost:3000/api/organizations/register",
-        {
-          name: data.name,
-          email: data.organization_email,
-          denomination: fullDenomination,
-          address: data.address,
-          region: data.region,
-          district: districtToSend,
-          status: data.status || "active"
+        status: statusToSend, // Default "active" if not provided
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json', // Ensure you're sending JSON data
         },
-        {
-          headers: {
-            'Content-Type': 'application/json'  // Ensure you're sending JSON data
-          }
-        }
-      );
+      }
+    );
 
-      setShowSuccessCard(true);
-      setTimeout(() => {
-        setShowSuccessCard(false);
-        navigate("/dashboard");
-      }, 2000);
-    } catch (err: any) {
-      console.error("Error in onSubmit:", err);
-      setErrorMessage(err.response?.data?.message || "Organization registration failed");
+    // Capture the response data (organization ID and account ID)
+    const { id: organizationID, organization_account_id: accountID } = response.data;
+
+    // Debugging: Log the organization ID and account ID
+    console.log("Organization registered:", { organizationID, accountID });
+
+    // Show the success card and handle redirection after a short delay
+    setShowSuccessCard(true);
+    setTimeout(() => {
+      setShowSuccessCard(false);
+
+      // Pass both organizationID and accountID to the success page via navigation
+      navigate("/Organization/success", { state: { organizationID, accountID } });
+    }, 2000);
+  } catch (err: any) {
+    // Improved error handling
+    console.error("Error in onSubmit:", err);
+
+    if (err.response) {
+      // If error has response data (e.g., 4xx or 5xx status code)
+      setErrorMessage(err.response.data?.message || "Organization registration failed");
+    } else {
+      // If error is something like a network error
+      setErrorMessage("Network error. Please try again later.");
     }
-  };
+  }
+};
+
 
   return (
     <div className="login-parent-container">
@@ -237,14 +257,14 @@ const OrgRegister = () => {
             </div>
           )}
 
-          {/* Status Dropdown */}
-          <div className="field input-field select-field">
+          {/* Status Dropdown - Removed from UI */}
+          {/* <div className="field input-field select-field">
             <select {...register("status")}>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
             </select>
             {errors.status && <p className="form-error">{errors.status.message}</p>}
-          </div>
+          </div> */}
 
           {errorMessage && <p className="form-error">{errorMessage}</p>}
 

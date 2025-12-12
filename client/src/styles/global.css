@@ -1824,3 +1824,63 @@
                 .admin-account-container h1 {
                     margin-bottom: 20px; /* Optional: space between the title and the form */
                 }
+
+                /* Success and Modal Styling */
+                .success-card {
+                background: #4CAF50;
+                color: white;
+                padding: 20px;
+                border-radius: 10px;
+                text-align: center;
+                font-size: 18px;
+                margin-top: 20px;
+                }
+
+                .success-modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                }
+
+                .success-modal {
+                background-color: white;
+                padding: 20px;
+                border-radius: 10px;
+                text-align: center;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                width: 400px;
+                }
+
+                .success-modal h2 {
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+                }
+
+                .modal-buttons {
+                display: flex;
+                justify-content: space-between;
+                }
+
+                .modal-btn {
+                background-color: #e359f3;
+                color: white;
+                box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+                padding: 10px 20px;
+                font-size: 16px;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+                }
+
+                .modal-btn:hover {
+                background-color: #45a049;
+                }
+
