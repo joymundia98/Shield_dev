@@ -102,15 +102,19 @@ const UserTrackerPage: React.FC = () => {
           </div>
         </div>
 
-        <h2>USER MANAGEMENT</h2>
-        <a href="/users/dashboard">Dashboard</a>
-        <a href="/users/manage" className="active">Manage Users</a>
-        <a href="/users/roles">Manage Roles</a>
+        <h2>ORG MANAGER</h2>
+        <a href="/Organization/edittableProfile">Profile</a>
+        <a href="/Organization/orgLobby">The Lobby</a>
+        <a href="/Organization/ListedAccounts" className="active">Accounts Tracker</a>
 
         <hr className="sidebar-separator" />
-        <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
-        <a href="/" className="logout-link" onClick={(e) => { e.preventDefault(); localStorage.clear(); navigate("/"); }}>
-          ➜ Logout
+        <a href="/dashboard" className="return-main">To SCI-ELD ERP</a>
+        <a
+          href="/"
+          className="logout-link"
+          onClick={(e) => { e.preventDefault(); localStorage.clear(); navigate("/"); }}
+        >  
+        ➜ Logout
         </a>
       </div>
 

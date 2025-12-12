@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+
+//import { Link, useLocation } from "react-router-dom";
 import { AdminAccount } from "../components/Auth/adminAccount"; // Assuming this is the file that contains your RegisterForm component
 
 export const AdminAccountPage = () => {
-  const location = useLocation();
+  //const location = useLocation();
 
   // Since you want to remove the sidebar, no need for this state or effect anymore
   // const [sidebarOpen, setSidebarOpen] = useState(false);

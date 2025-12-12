@@ -16,13 +16,14 @@ header {
   margin-bottom: 20px;
 }
 
-header h3 {
+.lobby-guide{
   font-size: 1.4em;
   color: #313131;
   font-weight: 250;
   margin: 0;
   padding: 0;
   line-height: 1.4;
+  text-align: center;
 }
 
 .lobbyContainer {
