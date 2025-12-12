@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { FaCheckCircle, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
+import { FaCheckCircle, FaEnvelope, FaPhone, FaMapMarkerAlt, FaBars } from 'react-icons/fa';
 import './orgProfile.css'; // Assuming your styles are located here
-import ChurchLogo from "../../assets/Church Logo.jpg";
+import ChurchLogo from "../../assets/Church Logo.jpg"; // Assuming your logo path remains the same
 
 const EdittableChurchProfilePage: React.FC = () => {
   const [churchData, setChurchData] = useState({
@@ -46,7 +47,9 @@ const EdittableChurchProfilePage: React.FC = () => {
     mission: 'To serve with love, share the Gospel, and transform communities through practical support and spiritual growth.',
   });
 
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // State to control sidebar visibility
 
   // Handle input change
   const handleChange = (key: string, value: string) => {
@@ -81,6 +84,15 @@ const EdittableChurchProfilePage: React.FC = () => {
     }
   };
 
+  // Toggle sidebar visibility
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  useEffect(() => {
+      if (sidebarOpen) document.body.classList.add("sidebar-open");
+      else document.body.classList.remove("sidebar-open");
+  
+      return () => document.body.classList.remove("sidebar-open");
+    }, [sidebarOpen]);
 
   return (
     <div className="orgProfileContainer">
@@ -92,8 +104,37 @@ const EdittableChurchProfilePage: React.FC = () => {
         </div>
       </header>
 
+      {/* Sidebar */}
+      <button className="hamburger" onClick={toggleSidebar}>&#9776;</button>
+
+      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
+        <div className="close-wrapper">
+          <div className="toggle close-btn">
+            <input type="checkbox" checked={sidebarOpen} onChange={toggleSidebar} />
+            <span className="button"></span>
+            <span className="label">X</span>
+          </div>
+        </div>
+
+        <h2>ORG MANAGER</h2>
+        <a href="/Organization/edittableProfile" className="active">Profile</a>
+        <a href="/Organization/orgLobby">The Lobby</a>
+        <a href="/Organization/ListedAccounts">Accounts Tracker</a>
+
+        <hr className="sidebar-separator" />
+        <a href="/dashboard" className="return-main">To SCI-ELD ERP</a>
+        <a
+          href="/"
+          className="logout-link"
+          onClick={(e) => { e.preventDefault(); localStorage.clear(); navigate("/"); }}
+        >
+          ➜ Logout
+        </a>
+      </div>
+
       {/* Edit Button */}
       <div className="edit-btn-container">
+        &emsp;
         {!isEditing ? (
           <button onClick={() => setIsEditing(true)} className="edit-btn">
             ✏️ &nbsp; Edit Profile
@@ -157,19 +198,6 @@ const EdittableChurchProfilePage: React.FC = () => {
             Call Us
           </a>
         </div>
-
-        {/* Social Icons */}
-        {/*<div className="social-icons">
-          <a href={churchData.socialLinks.facebook} target="_blank" rel="noopener noreferrer">
-            <FaFacebook className="fa-lg" />
-          </a>
-          <a href={churchData.socialLinks.instagram} target="_blank" rel="noopener noreferrer">
-            <FaInstagram className="fa-lg" />
-          </a>
-          <a href={churchData.socialLinks.twitter} target="_blank" rel="noopener noreferrer">
-            <FaTwitter className="fa-lg" />
-          </a>
-        </div>*/}
       </section>
 
       {/* Main Content */}
