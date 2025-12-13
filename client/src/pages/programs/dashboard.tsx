@@ -149,38 +149,35 @@ const ProgramsDashboard: React.FC = () => {
           </div>
         </div>
 
-        <h2>PROGRAMS & EVENTS</h2>
-        <a href="#" className="active">Dashboard</a>
+        <h2>PROGRAM MANAGER</h2>
+        <a href="/programs/dashboard" className="active">Dashboard</a>
+        <a href="/programs/RegisteredPrograms">
+          Registered Programs
+        </a>
+        <a href="/programs/attendeeManagement">Attendee Management</a>
 
-        <h3 className="sidebar-section-title">Spiritual Events</h3>
-        <a href="/spiritual/prayer-fasting">Prayer & Fasting</a>
-        <a href="/spiritual/overnights">Overnights</a>
-        <a href="/spiritual/communion">Communion</a>
-        <a href="/spiritual/baptism">Baptism</a>
-        <a href="/spiritual/anointing">Anointing</a>
-        <a href="/spiritual/revival-crusades">Revival / Crusades</a>
-
-        <h3 className="sidebar-section-title">Life Events</h3>
-        <a href="/life/weddings">Weddings</a>
-        <a href="/life/child-dedication">Child Dedication</a>
-        <a href="/life/naming">Child Naming</a>
-        <a href="/life/funeral">Funeral & Memorials</a>
-
-        <h3 className="sidebar-section-title">Community Events</h3>
-        <a href="/community/outreach">Outreach & Evangelism</a>
-        <a href="/community/conferences">Conferences</a>
-
-        <h3 className="sidebar-section-title">Church Business</h3>
-        <a href="/business/meetings">Business Meetings</a>
-
-        <hr className="sidebar-separator"/>
-        <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
-        <a href="/" className="logout-link" onClick={() => { localStorage.clear(); navigate("/"); }}>➜] Logout</a>
+        <hr className="sidebar-separator" />
+        <a href="/dashboard" className="return-main">
+          ← Back to Main Dashboard
+        </a>
+        <a
+          href="/"
+          className="logout-link"
+          onClick={(e) => {
+            e.preventDefault();
+            localStorage.clear();
+            navigate("/");
+          }}
+        >
+          ➜] Logout
+        </a>
       </div>
 
       {/* Main Content */}
       <div className="dashboard-content">
         <h1>Programs & Events Overview</h1>
+
+        <br/>
 
         {/* KPI cards */}
         <div className="kpi-container">
