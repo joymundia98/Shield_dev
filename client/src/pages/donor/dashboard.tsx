@@ -10,71 +10,97 @@ const DonorDashboard: React.FC = () => {
   const donationTypeChartRef = useRef<Chart | null>(null);
   const monthlyDonationChartRef = useRef<Chart | null>(null);
 
-  // Sample Dynamic Data (replace with API later)
-  const donors = useMemo(
-    () => [
-      { name: "Acme Corp.", amount: 15000 },
-      { name: "John Doe", amount: 8500 },
-      { name: "Sarah Smith", amount: 7200 },
-      { name: "Unity Group", amount: 5000 },
-    ],
-    []
-  );
-
-  const donationTypes = useMemo(
-    () => [
-      { type: "Tithes", amount: 20000 },
-      { type: "Offering", amount: 15000 },
-      { type: "Special Fund", amount: 8000 },
-      { type: "Event", amount: 2500 },
-    ],
-    []
-  );
-
-  const monthlyDonations = useMemo(
-    () => [5000, 4500, 7000, 6000, 8500, 7000],
-    []
-  );
-
-  // KPI Calculations
-  const totalDonors = donors.length + 100; // 120 in original
-  const totalDonationAmount = donationTypes.reduce(
-    (sum, d) => sum + d.amount,
-    0
-  );
-  const activeDonors = 85; // matches original HTML
-  const topDonor = donors.reduce((prev, curr) =>
-    prev.amount > curr.amount ? prev : curr
-  ).name;
+  const [donors, setDonors] = useState<any[]>([]);
+  const [donations, setDonations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   // Add/remove sidebar-open class on body for proper animation
-    useEffect(() => {
-      const body = document.body;
-      if (sidebarOpen) {
-        body.classList.add("sidebar-open");
-      } else {
-        body.classList.remove("sidebar-open");
-      }
-      // Clean up on unmount
-      return () => body.classList.remove("sidebar-open");
-    }, [sidebarOpen]);
+  useEffect(() => {
+    const body = document.body;
+    if (sidebarOpen) {
+      body.classList.add("sidebar-open");
+    } else {
+      body.classList.remove("sidebar-open");
+    }
+    // Clean up on unmount
+    return () => body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
 
-  /* ------------------------------------
-       Render Charts
-  ---------------------------------------*/
+  // Fetch the data from the API
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch donors and donations data
+        const donorsRes = await fetch("http://localhost:3000/api/donors");
+        const donationsRes = await fetch("http://localhost:3000/api/donations");
+
+        const donorsData = await donorsRes.json();
+        const donationsData = await donationsRes.json();
+        
+        setDonors(donorsData);
+        setDonations(donationsData);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // KPI Calculations
+  const totalDonors = donors.length; // Total number of donors
+  const activeDonors = donors.filter((d) => d.is_active).length; // Count active donors
+  
+  // Total Donations Calculation
+  const totalDonationAmount = donations.reduce(
+    (sum, donation) => sum + parseFloat(donation.amount),
+    0
+  );
+  
+  // Top Donor Calculation (including anonymous donors)
+  const topDonorData = donations
+    .reduce((prev, curr) => (parseFloat(prev.amount) > parseFloat(curr.amount) ? prev : curr), donations[0]);
+
+  const topDonor = topDonorData?.is_anonymous ? "Anonymous" : (topDonorData?.donor_name || "Anonymous");
+
+  // Donation Types (if applicable, could be categorized)
+  const donationTypes = useMemo(() => {
+    // Aggregate donations by type (if necessary, could be grouped by `purpose_id` or others)
+    const typeMap: { [key: string]: number } = {};
+    donations.forEach((donation) => {
+      const type = donation.method; // Example grouping by method, e.g., "Cash", "Bank Transfer"
+      typeMap[type] = (typeMap[type] || 0) + parseFloat(donation.amount);
+    });
+    return Object.keys(typeMap).map((key) => ({ type: key, amount: typeMap[key] }));
+  }, [donations]);
+
+  // Monthly Donations (if needed, assuming you want to split by date)
+  const monthlyDonations = useMemo(() => {
+    const months: number[] = Array(12).fill(0); // Create array for 12 months
+    donations.forEach((donation) => {
+      const month = new Date(donation.date).getMonth(); // Get the month (0 - 11)
+      months[month] += parseFloat(donation.amount); // Sum donations per month
+    });
+    return months;
+  }, [donations]);
+
   useEffect(() => {
     // Destroy old charts if they exist
     donationTypeChartRef.current?.destroy();
     monthlyDonationChartRef.current?.destroy();
 
-    // Donations by Type
+    // Donations by Type (donation method)
     const typeCanvas = document.getElementById(
       "donationTypeChart"
     ) as HTMLCanvasElement;
 
-    if (typeCanvas) {
+    if (typeCanvas && donationTypes.length > 0) {
       donationTypeChartRef.current = new Chart(typeCanvas, {
         type: "doughnut",
         data: {
@@ -98,11 +124,13 @@ const DonorDashboard: React.FC = () => {
       "monthlyDonationsChart"
     ) as HTMLCanvasElement;
 
-    if (monthlyCanvas) {
+    if (monthlyCanvas && monthlyDonations.length > 0) {
       monthlyDonationChartRef.current = new Chart(monthlyCanvas, {
         type: "bar",
         data: {
-          labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+          labels: [
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+          ],
           datasets: [
             {
               label: "Donations ($)",
@@ -120,6 +148,10 @@ const DonorDashboard: React.FC = () => {
     }
   }, [donationTypes, monthlyDonations]);
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="dashboard-wrapper">
       {/* Hamburger */}
@@ -129,7 +161,6 @@ const DonorDashboard: React.FC = () => {
 
       {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
-        {/* Close Button (Styled like ClassDashboard) */}
         <div className="close-wrapper">
           <div className="toggle close-btn">
             <input
@@ -144,7 +175,6 @@ const DonorDashboard: React.FC = () => {
         </div>
 
         <h2>DONOR MGMT</h2>
-
         <a href="/donor/dashboard" className="active">
           Dashboard
         </a>
@@ -166,7 +196,7 @@ const DonorDashboard: React.FC = () => {
             navigate("/");
           }}
         >
-          ➜] Logout
+          ➜ Logout
         </a>
       </div>
 
@@ -174,7 +204,7 @@ const DonorDashboard: React.FC = () => {
       <div className="dashboard-content">
         <h1>Donor Dashboard Overview</h1>
 
-        <br/><br/>
+        <br /><br />
 
         <div className="kpi-container">
           <div className="kpi-card">
