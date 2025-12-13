@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
 interface Donor {
@@ -30,7 +30,8 @@ interface DonationForm {
   isAnonymous: string;
 }
 
-const AddDonation: React.FC = () => {
+const EditDonation: React.FC = () => {
+  const { id: donationId } = useParams<{ id: string }>(); // Get the donation ID from the URL
   const navigate = useNavigate();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -50,9 +51,7 @@ const AddDonation: React.FC = () => {
       .catch((err) => console.error("Failed to load donors", err));
   }, []);
 
-  // ------------------------------------------------------
-  // FORM STATE
-  // ------------------------------------------------------
+  // ---------------- FETCH DONATION DATA ----------------
   const [form, setForm] = useState<DonationForm>({
     donorRegistered: null,
     donorType: "",
@@ -62,7 +61,6 @@ const AddDonation: React.FC = () => {
     donorId: null,
     donorTypeId: null,
     subcategoryId: null,
-
     subcategory: "",
     date: "",
     amount: null,
@@ -72,9 +70,45 @@ const AddDonation: React.FC = () => {
     isAnonymous: "",
   });
 
-  // ------------------------------------------------------
-  // SUBMIT DONATION TO BACKEND AND FINANCE
-  // ------------------------------------------------------
+  useEffect(() => {
+    if (!donationId) return; // If no donationId is provided, do nothing
+
+    // Fetch the existing donation details
+    const fetchDonation = async () => {
+      try {
+        const res = await fetch(`http://localhost:3000/api/donations/${donationId}`);
+        const data = await res.json();
+        if (res.ok) {
+          setForm({
+            donorRegistered: data.donor_registered,
+            donorType: data.donor_type_id === 1 ? "individual" : "organization",
+            donorName: data.donor_name || "",
+            donorPhone: data.donor_phone || "",
+            donorEmail: data.donor_email || "",
+            donorId: data.donor_id || null,
+            donorTypeId: data.donor_type_id || null,
+            subcategoryId: data.donor_subcategory_id || null,
+            subcategory: data.donor_subcategory || "",
+            date: data.date.split("T")[0], // format the date as 'YYYY-MM-DD'
+            amount: parseFloat(data.amount),
+            method: data.method,
+            purpose: data.purpose_id || "",
+            notes: data.notes || "",
+            isAnonymous: data.is_anonymous ? "true" : "false",
+          });
+        } else {
+          alert("Failed to load donation data");
+        }
+      } catch (err) {
+        console.error("Error fetching donation data", err);
+        alert("Error fetching donation data");
+      }
+    };
+
+    fetchDonation();
+  }, [donationId]);
+
+  // ---------------- SUBMIT DONATION UPDATE ----------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -89,9 +123,7 @@ const AddDonation: React.FC = () => {
         ? 1
         : 2,
       donor_subcategory_id: form.donorRegistered ? form.subcategoryId : null,
-
       is_anonymous: form.isAnonymous === "true",
-
       donor_name:
         form.donorRegistered || form.isAnonymous === "false"
           ? form.donorName
@@ -104,7 +136,6 @@ const AddDonation: React.FC = () => {
         form.donorRegistered || form.isAnonymous === "false"
           ? form.donorEmail
           : "N/A",
-
       date: form.date,
       amount: form.amount,
       method: form.method,
@@ -113,67 +144,25 @@ const AddDonation: React.FC = () => {
     };
 
     try {
-      // 1️⃣ Submit to Donations table
-      const res = await fetch("http://localhost:3000/api/donations", {
-        method: "POST",
+      // 1️⃣ Update the donation in the database
+      const res = await fetch(`http://localhost:3000/api/donations/${donationId}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(donationPayload),
       });
 
-      if (!res.ok) throw new Error("Failed to add donation");
+      if (!res.ok) throw new Error("Failed to update donation");
 
-      // 2️⃣ Submit to Finance table (incomes) in the Donations category
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-
-      // Map payment method to finance subcategory
-      let financeSubcategoryId = 1; // default Online Donations
-      if (form.method === "Cash") financeSubcategoryId = 2;
-
-      const financePayload = {
-        user_id: user.id,
-        category_id: 1, // Donations
-        subcategory_id: financeSubcategoryId, // Online or Cash Donations
-        date: form.date,
-        giver:
-          form.donorRegistered || form.isAnonymous === "false"
-            ? form.donorName
-            : "Anonymous",
-        description: form.notes || "Donation",
-        amount: form.amount,
-        payment_method: form.method,
-        extra_fields: {
-          registered: form.donorRegistered,
-          donor_type: form.donorType || null,
-          donor_email: form.donorEmail || null,
-        },
-      };
-
-      const financeRes = await fetch(
-        "http://localhost:3000/api/finance/incomes",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(financePayload),
-        }
-      );
-
-      if (!financeRes.ok) {
-        alert("Donation added, but failed to record in Finance");
-        navigate("/donor/donations");
-        return;
-      }
-
-      alert("Donation added successfully and recorded in Finance!");
+      // Redirect back to the donations list after successful update
+      alert("Donation updated successfully!");
       navigate("/donor/donations");
     } catch (err) {
       console.error(err);
-      alert("Failed to add donation");
+      alert("Failed to update donation");
     }
   };
 
-  // ------------------------------------------------------
-  // MAP DONORS FOR DROPDOWN
-  // ------------------------------------------------------
+  // ---------------- MAP DONORS FOR DROPDOWN ----------------
   const registeredIndividuals = donors.filter((d) => d.donor_type_id === 1);
   const registeredOrganizations = donors.filter((d) => d.donor_type_id === 2);
 
@@ -206,7 +195,7 @@ const AddDonation: React.FC = () => {
           ← Back to Main Dashboard
         </a>
 
-         <a
+        <a
           href="/"
           className="logout-link"
           onClick={(e) => {
@@ -222,7 +211,7 @@ const AddDonation: React.FC = () => {
       {/* MAIN CONTENT */}
       <div className="dashboard-content">
         <header className="page-header">
-          <h1>Add Donation</h1>
+          <h1>Edit Donation</h1>
           <button className="hamburger" onClick={toggleSidebar}>
             &#9776;
           </button>
@@ -234,13 +223,7 @@ const AddDonation: React.FC = () => {
             <label>Registered Donor?</label>
             <select
               required
-              value={
-                form.donorRegistered === null
-                  ? ""
-                  : form.donorRegistered
-                  ? "true"
-                  : "false"
-              }
+              value={form.donorRegistered === null ? "" : form.donorRegistered ? "true" : "false"}
               onChange={(e) =>
                 setForm({
                   ...form,
@@ -259,7 +242,7 @@ const AddDonation: React.FC = () => {
               <option value="false">No</option>
             </select>
 
-            {/* REGISTERED DONOR TYPE */}
+            {/* DONOR TYPE */}
             {form.donorRegistered && (
               <>
                 <label>Donor Type</label>
@@ -269,48 +252,44 @@ const AddDonation: React.FC = () => {
                     setForm({ ...form, donorType: e.target.value })
                   }
                 >
-                  <option value="">Select</option>
                   <option value="individual">Individual</option>
                   <option value="organization">Organization</option>
                 </select>
-
-                {/* REGISTERED DONOR NAME */}
-                {form.donorType && (
-                  <>
-                    <label>Donor Name</label>
-                    <select
-                      value={form.donorId ?? ""}
-                      onChange={(e) => {
-                        const id = Number(e.target.value);
-                        const donor = donors.find((d) => d.id === id);
-
-                        setForm({
-                          ...form,
-                          donorId: id,
-                          donorName: donor?.name ?? "",
-                          donorPhone: donor?.phone ?? "",
-                          donorEmail: donor?.email ?? "",
-                          donorTypeId: donor?.donor_type_id ?? null,
-                          subcategoryId: donor?.donor_subcategory_id ?? null,
-                        });
-                      }}
-                    >
-                      <option value="">Select</option>
-                      {(form.donorType === "individual"
-                        ? registeredIndividuals
-                        : registeredOrganizations
-                      ).map((d) => (
-                        <option key={d.id} value={d.id}>
-                          {d.name}
-                        </option>
-                      ))}
-                    </select>
-                  </>
-                )}
               </>
             )}
 
-            {/* UNREGISTERED DONOR */}
+            {/* DONOR NAME */}
+            {form.donorType && (
+              <>
+                <label>Donor Name</label>
+                <select
+                  value={form.donorId ?? ""}
+                  onChange={(e) => {
+                    const id = Number(e.target.value);
+                    const donor = donors.find((d) => d.id === id);
+
+                    setForm({
+                      ...form,
+                      donorId: id,
+                      donorName: donor?.name ?? "",
+                      donorPhone: donor?.phone ?? "",
+                      donorEmail: donor?.email ?? "",
+                      donorTypeId: donor?.donor_type_id ?? null,
+                      subcategoryId: donor?.donor_subcategory_id ?? null,
+                    });
+                  }}
+                >
+                  <option value="">Select</option>
+                  {(form.donorType === "individual" ? registeredIndividuals : registeredOrganizations).map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
+
+            {/* DONOR DETAILS */}
             {form.donorRegistered === false && (
               <>
                 <label>Anonymous?</label>
@@ -325,21 +304,9 @@ const AddDonation: React.FC = () => {
                   <option value="false">No</option>
                 </select>
 
-                {/* ONLY SHOW INFO IF NOT ANONYMOUS */}
+                {/* Only show info if not anonymous */}
                 {form.isAnonymous === "false" && (
                   <>
-                    <label>Donor Type</label>
-                    <select
-                      value={form.donorType}
-                      onChange={(e) =>
-                        setForm({ ...form, donorType: e.target.value })
-                      }
-                    >
-                      <option value="">Select</option>
-                      <option value="individual">Individual</option>
-                      <option value="organization">Organization</option>
-                    </select>
-
                     <label>Donor Name</label>
                     <input
                       type="text"
@@ -347,7 +314,6 @@ const AddDonation: React.FC = () => {
                       onChange={(e) =>
                         setForm({ ...form, donorName: e.target.value })
                       }
-                      placeholder="Enter donor name"
                     />
 
                     <label>Phone</label>
@@ -428,8 +394,8 @@ const AddDonation: React.FC = () => {
             />
 
             <div className="form-buttons">
-              <button className="add-btn" type="submit">
-                Add Donation
+              <button className="edit-btn" type="submit">
+                Save Changes
               </button>
               <button
                 className="cancel-btn"
@@ -446,4 +412,4 @@ const AddDonation: React.FC = () => {
   );
 };
 
-export default AddDonation;
+export default EditDonation;

@@ -15,7 +15,7 @@ interface Donation {
 const DonationsManagementPage: React.FC = () => {
   const navigate = useNavigate();
 
-  /* ---------------- SIDEBAR ---------------- */
+  // ---------------- SIDEBAR ----------------
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
@@ -24,7 +24,7 @@ const DonationsManagementPage: React.FC = () => {
     else document.body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
-  /* ---------------- DONATION DATA FROM BACKEND ---------------- */
+  // ---------------- DONATION DATA ----------------
   const [donationData, setDonationData] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -32,7 +32,6 @@ const DonationsManagementPage: React.FC = () => {
     fetch("http://localhost:3000/api/donations")
       .then((res) => res.json())
       .then((data) => {
-        // Map backend fields to table-friendly format
         const mapped: Donation[] = data.map((d: any) => ({
           id: d.id,
           donor:
@@ -42,7 +41,7 @@ const DonationsManagementPage: React.FC = () => {
               ? "Anonymous"
               : d.donor_name ?? "Walk-in Guest",
           registered: d.donor_registered,
-          date: d.date.slice(0, 10), // format YYYY-MM-DD
+          date: d.date.slice(0, 10),
           amount: Number(d.amount),
           type: d.purpose || "Other",
           method: d.method,
@@ -56,9 +55,8 @@ const DonationsManagementPage: React.FC = () => {
       });
   }, []);
 
-  /* ---------------- SEARCH ---------------- */
+  // ---------------- SEARCH ----------------
   const [searchQuery, setSearchQuery] = useState("");
-
   const filteredDonations = useMemo(() => {
     return donationData.filter((d) =>
       `${d.id} ${d.donor} ${d.type} ${d.method}`
@@ -67,7 +65,7 @@ const DonationsManagementPage: React.FC = () => {
     );
   }, [donationData, searchQuery]);
 
-  /* ---------------- GROUPING ---------------- */
+  // ---------------- GROUPING ----------------
   const donationGroups = useMemo(() => {
     return {
       "Registered Donors": filteredDonations.filter((d) => d.registered),
@@ -75,13 +73,20 @@ const DonationsManagementPage: React.FC = () => {
     };
   }, [filteredDonations]);
 
-  /* ---------------- VIEW MODAL ---------------- */
-  const [viewItem, setViewItem] = useState<Donation | null>(null);
-  const closeViewModal = () => setViewItem(null);
-
-  /* ---------------- REDIRECT ---------------- */
+  // ---------------- REDIRECT ----------------
   const handleAddDonation = () => {
     navigate("/donor/addDonation");
+  };
+
+  // Handle view and edit redirections (to new tabs)
+  const handleView = (id: string) => {
+    const url = `/donor/DonationViewPage/${id}`;
+    window.open(url, "_blank");  // Open donation view in a new tab
+  };
+
+  const handleEdit = (id: string) => {
+    const url = `/donor/EditDonationPage/${id}`;
+    window.open(url, "_blank");  // Open donation edit in a new tab
   };
 
   return (
@@ -148,7 +153,6 @@ const DonationsManagementPage: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-
           <button className="add-btn" onClick={handleAddDonation}>
             + Add Donation
           </button>
@@ -176,8 +180,8 @@ const DonationsManagementPage: React.FC = () => {
               </thead>
 
               <tbody>
-                {records.map((d, i) => (
-                  <tr key={i}>
+                {records.map((d) => (
+                  <tr key={d.id}>
                     <td>{d.id}</td>
                     <td>{d.donor}</td>
                     <td>{d.date}</td>
@@ -185,8 +189,14 @@ const DonationsManagementPage: React.FC = () => {
                     <td>{d.type}</td>
                     <td>{d.method}</td>
                     <td className="actions">
-                      <button className="add-btn" onClick={() => setViewItem(d)}>
+                      <button className="add-btn" onClick={() => handleView(d.id.toString())}>
                         View
+                      </button>
+                      <button
+                        className="edit-btn"
+                        onClick={() => handleEdit(d.id.toString())} // Open the donation edit in a new tab
+                      >
+                        Edit
                       </button>
                     </td>
                   </tr>
@@ -195,35 +205,6 @@ const DonationsManagementPage: React.FC = () => {
             </table>
           </div>
         ))}
-
-        {/* VIEW MODAL */}
-        {viewItem && (
-          <>
-            <div className="overlay" onClick={closeViewModal}></div>
-
-            <div className="filter-popup modal-wide">
-              <h3>Donation Details</h3>
-
-              <table className="responsive-table view-table">
-                <tbody>
-                  <tr><td>Donation ID</td><td>{viewItem.id}</td></tr>
-                  <tr><td>Donor</td><td>{viewItem.donor}</td></tr>
-                  <tr><td>Registered</td><td>{viewItem.registered ? "Yes" : "No"}</td></tr>
-                  <tr><td>Date</td><td>{viewItem.date}</td></tr>
-                  <tr><td>Amount</td><td>${viewItem.amount}</td></tr>
-                  <tr><td>Type</td><td>{viewItem.type}</td></tr>
-                  <tr><td>Payment Method</td><td>{viewItem.method}</td></tr>
-                </tbody>
-              </table>
-
-              <div className="filter-popup-buttons">
-                <button className="delete-btn" onClick={closeViewModal}>
-                  Close
-                </button>
-              </div>
-            </div>
-          </>
-        )}
       </div>
     </div>
   );
