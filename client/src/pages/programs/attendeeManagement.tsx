@@ -105,9 +105,12 @@ const AttendeeManagement: React.FC = () => {
           </div>
         </div>
 
-        <h2>ATTENDEE MANAGEMENT</h2>
-        <a href="/attendees/dashboard">Dashboard</a>
-        <a href="/attendees/manage" className="active">Manage Attendees</a>
+        <h2>PROGRAM MANAGER</h2>
+        <a href="/programs/dashboard">Dashboard</a>
+        <a href="/programs/RegisteredPrograms">
+          Registered Programs
+        </a>
+        <a href="/programs/attendeeManagement" className="active">Attendee Management</a>
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
         <a href="/" className="logout-link" onClick={(e) => { e.preventDefault(); localStorage.clear(); navigate("/"); }}>➜ Logout</a>

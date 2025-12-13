@@ -1,17 +1,25 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios"; // If using axios
 import "../../styles/global.css";
 
 // Interfaces for Program
 interface Program {
-  program_id: number;
-  title: string;
+  id: number;
+  name: string;
+  description: string;
+  department: string;
+  created_at: string;
+  department_id: number;
+  category_id: number;
+  organization_id: number;
   date: string;
   time: string;
   venue: string;
   agenda: string;
   status: string;
-  category_id: number;
+  event_type: string;
+  notes: string;
 }
 
 interface Category {
@@ -28,58 +36,23 @@ const RegisteredProgramsPage: React.FC = () => {
     { category_id: 2, name: "Church Business Events" },
     { category_id: 3, name: "Community Events" },
     { category_id: 4, name: "Spiritual Events" },
+    { category_id: 5, name: "Other" },
   ]);
 
-  const [showVenueColumn, _setShowVenueColumn] = useState(true); // Example toggle for column visibility
+  const [showVenueColumn, _setShowVenueColumn] = useState(true);
 
-  // Static data for programs (as backend is under construction)
   useEffect(() => {
-    const fetchedPrograms: Program[] = [
-      {
-        program_id: 1,
-        title: "Marriage Counseling",
-        date: "2025-12-15",
-        time: "10:00 AM",
-        venue: "Church Hall",
-        agenda: "Marriage strengthening and relationship advice",
-        status: "Upcoming",
-        category_id: 1,
-      },
-      {
-        program_id: 2,
-        title: "Church Annual Meeting",
-        date: "2025-12-20",
-        time: "2:00 PM",
-        venue: "Conference Room",
-        agenda: "Review of yearly performance and future goals",
-        status: "Scheduled",
-        category_id: 2,
-      },
-      {
-        program_id: 3,
-        title: "Community Outreach Program",
-        date: "2025-12-10",
-        time: "9:00 AM",
-        venue: "Local Park",
-        agenda: "Providing food and supplies to the underprivileged",
-        status: "Completed",
-        category_id: 3,
-      },
-      {
-        program_id: 4,
-        title: "Spiritual Retreat",
-        date: "2025-12-05",
-        time: "All day",
-        venue: "Mountain Retreat Center",
-        agenda: "Spiritual renewal and meditation",
-        status: "Upcoming",
-        category_id: 4,
-      },
-    ];
-    setPrograms(fetchedPrograms);
+    // Fetch programs from backend
+    axios
+      .get("http://localhost:3000/api/programs") // backend API endpoint
+      .then((response) => {
+        setPrograms(response.data); // Set programs data from the response
+      })
+      .catch((error) => {
+        console.error("Error fetching programs:", error);
+      });
   }, []);
 
-  // Group programs by category
   const groupByCategory = (programs: Program[]) => {
     return programs.reduce((acc: Record<string, Program[]>, program) => {
       const category = program.category_id.toString();
@@ -102,32 +75,47 @@ const RegisteredProgramsPage: React.FC = () => {
 
   const handleDeleteProgram = (id: string) => {
     if (window.confirm("Are you sure you want to delete this program?")) {
-      setPrograms((prev) => prev.filter((program) => program.program_id !== Number(id)));
+      setPrograms((prev) => prev.filter((program) => program.id !== Number(id)));
     }
   };
 
   const handleViewProgram = (id: string) => {
-    // Construct URL for viewProgram page
     const url = `/programs/viewProgram?id=${id}`;
-    // Open in a new tab
     window.open(url, "_blank");
   };
 
+  // Toggle sidebar state
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  // Sidebar close logic and animation (exact logic copied from ProgramsDashboard)
+  useEffect(() => {
+    const body = document.body;
+    if (sidebarOpen) {
+      body.classList.add("sidebar-open");
+    } else {
+      body.classList.remove("sidebar-open");
+    }
+    // Clean up on unmount
+    return () => body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
+
   return (
     <div className="dashboard-wrapper">
-      {/* Sidebar */}
-      <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>
+      {/* Hamburger */}
+      <button className="hamburger" onClick={toggleSidebar}>
         &#9776;
       </button>
 
+      {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
+        {/* Close Button */}
         <div className="close-wrapper">
           <div className="toggle close-btn">
             <input
               type="checkbox"
               id="closeSidebarButton"
               checked={sidebarOpen}
-              onChange={() => setSidebarOpen(!sidebarOpen)}
+              onChange={toggleSidebar}
             />
             <span className="button"></span>
             <span className="label">X</span>
@@ -136,10 +124,10 @@ const RegisteredProgramsPage: React.FC = () => {
 
         <h2>PROGRAM MANAGER</h2>
         <a href="/programs/dashboard">Dashboard</a>
-        <a href="/programs/registered" className="active">
+        <a href="/programs/RegisteredPrograms" className="active">
           Registered Programs
         </a>
-        <a href="/programs/categories">Categories</a>
+        <a href="/programs/attendeeManagement">Attendee Management</a>
 
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">
@@ -162,7 +150,6 @@ const RegisteredProgramsPage: React.FC = () => {
       <div className="dashboard-content">
         <h1>Registered Programs</h1>
 
-        {/* Add Program Button */}
         <div
           className="table-header"
           style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
@@ -172,7 +159,6 @@ const RegisteredProgramsPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Program Tables Grouped by Category */}
         {Object.keys(groupedPrograms).map((categoryId) => {
           const categoryName = categories.find(
             (cat) => cat.category_id === Number(categoryId)
@@ -194,8 +180,8 @@ const RegisteredProgramsPage: React.FC = () => {
                 </thead>
                 <tbody>
                   {groupedPrograms[categoryId].map((program) => (
-                    <tr key={program.program_id}>
-                      <td data-title="Title">{program.title}</td>
+                    <tr key={program.id}>
+                      <td data-title="Title">{program.name}</td>
                       <td data-title="Date">{program.date}</td>
                       <td data-title="Time">{program.time}</td>
                       {showVenueColumn && <td data-title="Venue">{program.venue}</td>}
@@ -203,20 +189,20 @@ const RegisteredProgramsPage: React.FC = () => {
                       <td data-title="Status">{program.status}</td>
                       <td className="actions" data-title="Actions">
                         <button
-                          className="view-btn"
-                          onClick={() => handleViewProgram(program.program_id.toString())}
+                          className="add-btn"
+                          onClick={() => handleViewProgram(program.id.toString())}
                         >
                           View
                         </button>&nbsp;
                         <button
                           className="edit-btn"
-                          onClick={() => handleEditProgram(program.program_id.toString())}
+                          onClick={() => handleEditProgram(program.id.toString())}
                         >
                           Edit
                         </button>&nbsp;
                         <button
                           className="delete-btn"
-                          onClick={() => handleDeleteProgram(program.program_id.toString())}
+                          onClick={() => handleDeleteProgram(program.id.toString())}
                         >
                           Delete
                         </button>
