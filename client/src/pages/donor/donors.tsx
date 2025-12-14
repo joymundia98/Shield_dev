@@ -38,7 +38,7 @@ const DonorManagementPage: React.FC = () => {
         // Optional: Map donor_type_id to donor_type name if your backend provides it
         const donorsWithType = data.map((d: any) => ({
           ...d,
-          donor_type: d.donor_type_id === 1 ? "Individual" : "Organization",
+          donor_type: d.donor_type_id !== null ? (d.donor_type_id === 1 ? "Individual" : "Organization") : "Unknown", // default to "Unknown"
         }));
 
         setDonorData(donorsWithType);
@@ -72,40 +72,6 @@ const DonorManagementPage: React.FC = () => {
     }, {});
   }, [filteredDonors]);
 
-  // ---------------- Modals ----------------
-  const [editDonor, setEditDonor] = useState<Donor | null>(null);
-  const [editIndex, setEditIndex] = useState<number | null>(null);
-  const [viewDonor, setViewDonor] = useState<Donor | null>(null);
-
-  const openEditModal = (donor: Donor, index: number) => {
-    setEditDonor(donor);
-    setEditIndex(index);
-  };
-  const closeEditModal = () => setEditDonor(null);
-
-  const openViewModal = (donor: Donor) => setViewDonor(donor);
-  const closeViewModal = () => setViewDonor(null);
-
-  const saveDonor = async () => {
-    if (editDonor && editIndex !== null) {
-      try {
-        const res = await fetch(`http://localhost:3000/api/donors/${editDonor.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(editDonor),
-        });
-        if (!res.ok) throw new Error("Failed to update donor");
-
-        const updated = [...donorData];
-        updated[editIndex] = editDonor;
-        setDonorData(updated);
-      } catch (err: any) {
-        alert(err.message);
-      } finally {
-        closeEditModal();
-      }
-    }
-  };
 
   const handleAddDonor = () => navigate("/donor/addDonor");
 

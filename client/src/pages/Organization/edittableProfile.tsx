@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import { FaCheckCircle, FaEnvelope, FaPhone, FaMapMarkerAlt, FaBars } from 'react-icons/fa';
+import { FaCheckCircle, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
 import './orgProfile.css'; // Assuming your styles are located here
 import ChurchLogo from "../../assets/Church Logo.jpg"; // Assuming your logo path remains the same
 
@@ -279,7 +279,7 @@ const EdittableChurchProfilePage: React.FC = () => {
                         value={member.yearStart}
                         onChange={(e) => {
                           const updatedLeadership = [...churchData.leadership];
-                          updatedLeadership[index].yearStart = e.target.value;
+                          updatedLeadership[index].yearStart = isNaN(Number(e.target.value)) ? 0 : Number(e.target.value);
                           setChurchData({ ...churchData, leadership: updatedLeadership });
                         }}
                         placeholder="Year Start"

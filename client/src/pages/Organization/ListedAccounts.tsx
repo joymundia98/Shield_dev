@@ -8,6 +8,7 @@ interface User {
   last_name: string;
   position: string;
   status: "Active" | "Pending" | "Inactive";
+  fullName?: string; // Optional fullName property
 }
 
 interface UserGroup {
@@ -19,7 +20,7 @@ interface UserStatusCategories {
   [status: string]: UserGroup[];
 }
 
-const BACKEND_URL = "http://localhost:3000/api";
+//const BACKEND_URL = "http://localhost:3000/api";
 
 const UserTrackerPage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ const UserTrackerPage: React.FC = () => {
   const totalInactive = 3; // Static value for inactive users
 
   // Static user data (can be replaced with actual API data later)
-  const [userCategories, setUserCategories] = useState<UserStatusCategories>({
+  const [userCategories, _setUserCategories] = useState<UserStatusCategories>({
     Active: [
       {
         name: "Active",
@@ -185,7 +186,7 @@ const UserTrackerPage: React.FC = () => {
                     <tbody>
                       {group.users.map((user) => (
                         <tr key={user.id}>
-                          <td>{user.fullName}</td>
+                          <td>{user.first_name} {user.last_name}</td> {/* Correctly accessing the user data */}
                           <td>{user.position}</td>
                           <td>
                             <button className="add-btn" onClick={() => openViewModal(user)}>
@@ -195,6 +196,7 @@ const UserTrackerPage: React.FC = () => {
                         </tr>
                       ))}
                     </tbody>
+
                   </table>
                 </div>
               ))

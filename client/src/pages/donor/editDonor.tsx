@@ -74,7 +74,11 @@ const EditDonor: React.FC = () => {
     fetch("http://localhost:3000/api/donors/donor_types")
       .then((res) => res.json())
       .then((data) => setDonorTypes(data))
-      .catch((err) => console.error("Failed to load donor types", err));
+      .catch((err) => {
+        console.error("Failed to load donor types", err);  // log it for debugging
+        setError(`An error occurred: ${err.message || "Unknown error"}`);
+      });
+
   }, []);
 
   // Fetch donor data by ID to populate the form
@@ -105,7 +109,7 @@ const EditDonor: React.FC = () => {
         });
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(() => {
         setError("Failed to fetch donor data");
         setLoading(false);
       });
@@ -123,7 +127,7 @@ const EditDonor: React.FC = () => {
     )
       .then((res) => res.json())
       .then((data: DonorSubcategory[]) => {
-        const allowed = ALLOWED_SUBCATEGORIES[form.donorTypeId] || [];
+        const allowed = ALLOWED_SUBCATEGORIES[form.donorTypeId ?? 1] || []; // Default to '1' (Individual)
         setSubcategories(data.filter((sc) => allowed.includes(sc.name.toLowerCase())));
       })
       .catch((err) => console.error("Failed to load subcategories", err));
