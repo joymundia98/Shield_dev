@@ -32,14 +32,14 @@ const AttendeeManagement: React.FC = () => {
 
   const [selectedCategory, setSelectedCategory] = useState<Category>("Life Event");
   const [selectedProgram, setSelectedProgram] = useState<number | null>(null);
-  const [programs, setPrograms] = useState<Program[]>([
+  const [programs, _setPrograms] = useState<Program[]>([
     { id: 1, title: "Marriage Counseling", category: "Life Event" },
     { id: 2, title: "Annual Meeting", category: "Church Business Event" },
     { id: 3, title: "Community Outreach", category: "Community Event" },
     { id: 4, title: "Spiritual Retreat", category: "Spiritual Event" },
   ]);
   const [attendees, setAttendees] = useState<Attendee[]>([]);
-  const [roles] = useState<Role[]>(["Speaker", "Participant", "Volunteer", "Organizer"]);
+  const [_roles] = useState<Role[]>(["Speaker", "Participant", "Volunteer", "Organizer"]);
 
   useEffect(() => {
     // Static data for attendees based on selected program

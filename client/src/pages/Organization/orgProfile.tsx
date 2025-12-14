@@ -19,7 +19,7 @@ const ChurchProfilePage: React.FC = () => {
       twitter: 'https://twitter.com/eternalhope',
     },
     leadership: [
-      { role: 'Senior Pastor', name: 'Pastor Benjamin Mwale', yearStart: 2010 },
+      { role: 'Senior Pastor', name: 'Pastor Benjamin Mwale', yearStart: 2010, yearEnd: 2025 },
       { role: 'Associate Pastor - Youth & Women', name: 'Pastor Lillian Chola', yearStart: 2015 },
       { role: 'Associate Pastor - Outreach', name: 'Pastor Peter Zulu', yearStart: 2018 },
     ],
