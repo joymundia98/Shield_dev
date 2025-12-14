@@ -70,7 +70,7 @@ const RegisteredProgramsPage: React.FC = () => {
   };
 
   const handleEditProgram = (id: string) => {
-    navigate(`/programs/edit/${id}`);
+    navigate(`/programs/editProgram/${id}`);
   };
 
   const handleDeleteProgram = (id: string) => {

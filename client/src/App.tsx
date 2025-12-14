@@ -88,6 +88,7 @@ import RegisteredProgramsPage from "./pages/programs/RegisteredPrograms";
 import AttendeeManagement from "./pages/programs/attendeeManagement";
 import AddProgram from "./pages/programs/addPrograms";
 import NewAttendees from "./pages/programs/addAttendees";
+import ViewProgramPage from "./pages/programs/viewProgram";
 
 // Organizations Module Functional Pages
 import Lobby from "./pages/Organization/lobby";
@@ -220,6 +221,7 @@ function App() {
           <Route path="/programs/attendeeManagement" element={<AttendeeManagement />} />
           <Route path="/programs/addPrograms" element={<AddProgram />} />
           <Route path="/programs/addAttendees" element={<NewAttendees />} />
+          <Route path="/programs/viewProgram" element={<ViewProgramPage />} />
 
           {/* ------------------------------
                   CLASS MODULE
