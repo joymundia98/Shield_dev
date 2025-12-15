@@ -66,6 +66,8 @@ const AddProgram: React.FC = () => {
 
   const [departments, setDepartments] = useState<Department[]>([]); // Departments state
   const [errors, setErrors] = useState<string[]>([]);
+
+  // Sidebar state and logic
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Fetch departments from the backend API
@@ -172,6 +174,16 @@ const AddProgram: React.FC = () => {
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
+  useEffect(() => {
+    const body = document.body;
+    if (sidebarOpen) {
+      body.classList.add("sidebar-open");
+    } else {
+      body.classList.remove("sidebar-open");
+    }
+    return () => body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
+
   return (
     <div className="dashboard-wrapper">
       {/* Hamburger */}
@@ -197,10 +209,11 @@ const AddProgram: React.FC = () => {
 
         <h2>PROGRAM MANAGER</h2>
         <a href="/programs/dashboard">Dashboard</a>
-        <a href="/programs/registered" className="active">
+        <a href="/programs/RegisteredPrograms" className="active">
           Registered Programs
         </a>
-        <a href="/programs/categories">Categories</a>
+        <a href="/programs/attendeeManagement">Attendee Management</a>
+
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">
           ← Back to Main Dashboard
@@ -219,7 +232,7 @@ const AddProgram: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
-        <h1>Add New Program</h1>
+        <h1>Add New Program</h1><br/>
 
         <form className="add-form-styling" onSubmit={handleSubmit}>
           {/* Category Field */}
