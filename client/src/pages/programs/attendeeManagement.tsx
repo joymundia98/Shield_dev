@@ -41,6 +41,16 @@ const AttendeeManagement: React.FC = () => {
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
+  useEffect(() => {
+    const body = document.body;
+    if (sidebarOpen) {
+      body.classList.add("sidebar-open");
+    } else {
+      body.classList.remove("sidebar-open");
+    }
+    return () => body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
+
   const categoryMapping: Record<Category, number> = {
     "Life Event": 1,
     "Church Business Event": 2,
@@ -95,15 +105,39 @@ const AttendeeManagement: React.FC = () => {
     navigate(`/programs/editAttendee/${attendeeId}`);
   };
 
-  // Handle Delete Attendee (Placeholder function)
+  // Handle Delete Attendee with Confirmation and Database Deletion
   const handleDeleteAttendee = (attendeeId: number) => {
-    console.log(`Deleting attendee with ID: ${attendeeId}`);
-    setAttendees(attendees.filter(attendee => attendee.attendee_id !== attendeeId));
+    const confirmDelete = window.confirm("Are you sure you want to delete this attendee?");
+    if (confirmDelete) {
+      // Call the API to delete the attendee from the database
+      const deleteAttendee = async () => {
+        try {
+          const response = await fetch(`http://localhost:3000/api/programs/attendees/${attendeeId}`, {
+            method: "DELETE",
+          });
+          if (!response.ok) {
+            throw new Error(`Failed to delete attendee. Status: ${response.status}`);
+          }
+          // If successful, remove the attendee from the UI
+          setAttendees((prevAttendees) =>
+            prevAttendees.filter((attendee) => attendee.attendee_id !== attendeeId)
+          );
+          console.log(`Attendee with ID: ${attendeeId} deleted successfully`);
+          alert("Attendee deleted successfully");
+        } catch (error) {
+          console.error("Error deleting attendee:", error);
+          alert("Error deleting attendee: " + error.message);
+        }
+      };
+      deleteAttendee();
+    }
   };
 
   return (
     <div className="dashboard-wrapper">
-      <button className="hamburger" onClick={toggleSidebar}>&#9776;</button>
+      <button className="hamburger" onClick={toggleSidebar}>
+        &#9776;
+      </button>
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="close-wrapper">
           <div className="toggle close-btn">
@@ -116,7 +150,9 @@ const AttendeeManagement: React.FC = () => {
         <h2>PROGRAM MANAGER</h2>
         <a href="/programs/dashboard">Dashboard</a>
         <a href="/programs/RegisteredPrograms">Registered Programs</a>
-        <a href="/programs/attendeeManagement" className="active">Attendee Management</a>
+        <a href="/programs/attendeeManagement" className="active">
+          Attendee Management
+        </a>
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
         <a href="/" className="logout-link" onClick={(e) => { e.preventDefault(); localStorage.clear(); navigate("/"); }}>➜ Logout</a>
@@ -124,6 +160,8 @@ const AttendeeManagement: React.FC = () => {
 
       <div className="dashboard-content">
         <h1>Manage Attendees</h1>
+
+        <br />
 
         {/* Category and Program Selection */}
         <div className="kpi-container">
@@ -182,7 +220,7 @@ const AttendeeManagement: React.FC = () => {
         </div>
 
         <div className="attendance-group">
-          <h3>Attendees for {selectedProgram ? programs.find(p => p.id === selectedProgram)?.name : "Select a Program"}</h3>
+          <h3>Attendees for {selectedProgram ? programs.find((p) => p.id === selectedProgram)?.name : "Select a Program"}</h3>
 
           {filteredAttendees.length === 0 ? (
             <p>No Registered Attendees for this event</p>
@@ -208,7 +246,7 @@ const AttendeeManagement: React.FC = () => {
                     <td>{attendee.phone}</td>
                     <td>{attendee.age}</td>
                     <td>{attendee.gender}</td>
-                    <td>{programs.find(p => p.id === attendee.program_id)?.name}</td>
+                    <td>{programs.find((p) => p.id === attendee.program_id)?.name}</td>
                     <td>{attendee.role}</td>
                     <td>
                       <button className="edit-btn" onClick={() => handleEditAttendee(attendee.attendee_id)}>Edit</button>&emsp;

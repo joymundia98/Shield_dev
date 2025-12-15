@@ -34,8 +34,22 @@ const NewAttendees: React.FC = () => {
     gender: "",
     role: "",
   });
-  const [errors, setErrors] = useState<string[]>([]);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  const [errors, setErrors] = useState<string[]>([]);
+
+  useEffect(() => {
+      const body = document.body;
+      if (sidebarOpen) {
+        body.classList.add("sidebar-open");
+      } else {
+        body.classList.remove("sidebar-open");
+      }
+      return () => body.classList.remove("sidebar-open");
+    }, [sidebarOpen]);
 
   // Fetch event details based on programId
   useEffect(() => {
@@ -146,30 +160,23 @@ const NewAttendees: React.FC = () => {
       </button>
 
       {/* Sidebar */}
-      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
-        {/* Close Button */}
+      <button className="hamburger" onClick={toggleSidebar}>&#9776;</button>
+      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="close-wrapper">
           <div className="toggle close-btn">
-            <input
-              type="checkbox"
-              id="closeSidebarButton"
-              checked={sidebarOpen}
-              onChange={() => setSidebarOpen(!sidebarOpen)}
-            />
+            <input type="checkbox" checked={sidebarOpen} onChange={toggleSidebar} />
             <span className="button"></span>
             <span className="label">X</span>
           </div>
         </div>
 
-        <h2>EVENT MANAGER</h2>
-        <a href="/events/dashboard">Dashboard</a>
-        <a href="/events/registered" className="active">
-          Registered Events
-        </a>
-        <a href="/events/categories">Categories</a>
+        <h2>PROGRAM MANAGER</h2>
+        <a href="/programs/dashboard">Dashboard</a>
+        <a href="/programs/RegisteredPrograms">Registered Programs</a>
+        <a href="/programs/attendeeManagement" className="active">Attendee Management</a>
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
-        <a href="/" className="logout-link" onClick={() => { localStorage.clear(); navigate("/"); }}>➜ Logout</a>
+        <a href="/" className="logout-link" onClick={(e) => { e.preventDefault(); localStorage.clear(); navigate("/"); }}>➜ Logout</a>
       </div>
 
       {/* Main Content */}
