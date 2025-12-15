@@ -2,13 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
-// Types for Attendee Gender, Program Category, and Attendee Role
 type Gender = "Male" | "Female";
 type Category = "Life Event" | "Church Business Event" | "Community Event" | "Spiritual Event";
 type Role = "Speaker" | "Participant" | "Volunteer" | "Organizer";
 
 interface Attendee {
-  id: number;
+  attendee_id: number;
   name: string;
   email: string;
   phone: string;
@@ -20,81 +19,79 @@ interface Attendee {
 
 interface Program {
   id: number;
-  title: string;
-  category: Category;
+  name: string;
+  description: string;
+  department: string;
+  date: string;
+  time: string;
+  venue: string;
+  status: string;
+  event_type: string;
+  category_id: number;
 }
 
 const AttendeeManagement: React.FC = () => {
   const navigate = useNavigate();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-
   const [selectedCategory, setSelectedCategory] = useState<Category>("Life Event");
   const [selectedProgram, setSelectedProgram] = useState<number | null>(null);
-  const [programs, _setPrograms] = useState<Program[]>([
-    { id: 1, title: "Marriage Counseling", category: "Life Event" },
-    { id: 2, title: "Annual Meeting", category: "Church Business Event" },
-    { id: 3, title: "Community Outreach", category: "Community Event" },
-    { id: 4, title: "Spiritual Retreat", category: "Spiritual Event" },
-  ]);
+  const [programs, setPrograms] = useState<Program[]>([]);
   const [attendees, setAttendees] = useState<Attendee[]>([]);
-  const [_roles] = useState<Role[]>(["Speaker", "Participant", "Volunteer", "Organizer"]);
 
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  const categoryMapping: Record<Category, number> = {
+    "Life Event": 1,
+    "Church Business Event": 2,
+    "Community Event": 3,
+    "Spiritual Event": 4,
+  };
+
+  // Fetch Programs from Backend
   useEffect(() => {
-    // Static data for attendees based on selected program
-    const fetchAttendees = () => {
-      const staticAttendees: Attendee[] = [
-        { id: 1, name: "John Doe", email: "john.doe@example.com", phone: "123-456-7890", age: 30, gender: "Male", program_id: 1, role: "Speaker" },
-        { id: 2, name: "Jane Smith", email: "jane.smith@example.com", phone: "987-654-3210", age: 25, gender: "Female", program_id: 1, role: "Participant" },
-        { id: 3, name: "Michael Johnson", email: "michael.johnson@example.com", phone: "555-123-4567", age: 40, gender: "Male", program_id: 2, role: "Volunteer" },
-        { id: 4, name: "Emily Davis", email: "emily.davis@example.com", phone: "555-987-6543", age: 35, gender: "Female", program_id: 2, role: "Organizer" },
-        { id: 5, name: "Chris Lee", email: "chris.lee@example.com", phone: "555-555-5555", age: 28, gender: "Male", program_id: 3, role: "Participant" },
-        { id: 6, name: "Amanda Brown", email: "amanda.brown@example.com", phone: "555-111-2222", age: 22, gender: "Female", program_id: 3, role: "Speaker" },
-        { id: 7, name: "David Wilson", email: "david.wilson@example.com", phone: "555-333-4444", age: 45, gender: "Male", program_id: 4, role: "Volunteer" },
-        { id: 8, name: "Sophia Harris", email: "sophia.harris@example.com", phone: "555-666-7777", age: 55, gender: "Female", program_id: 4, role: "Organizer" },
-      ];
+    const fetchPrograms = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/programs");
+        const data = await response.json();
+        setPrograms(data);
+        console.log("Fetched Programs:", data);
+      } catch (error) {
+        console.error("Error fetching programs:", error);
+      }
+    };
+    fetchPrograms();
+  }, []);
 
-      const filteredAttendees = staticAttendees.filter(attendee => attendee.program_id === selectedProgram);
-      setAttendees(filteredAttendees);
+  // Fetch Attendees for Selected Program
+  useEffect(() => {
+    if (selectedProgram === null) return; // Skip fetch if no program is selected
+
+    const fetchAttendees = async () => {
+      try {
+        // Update API endpoint to the correct one
+        const response = await fetch(`http://localhost:3000/api/programs/attendees?program_id=${selectedProgram}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch attendees. Status: ${response.status}`);
+        }
+        const data = await response.json();
+        setAttendees(data);
+        console.log("Fetched Attendees:", data);
+      } catch (error) {
+        console.error("Error fetching attendees:", error);
+      }
     };
 
-    if (selectedProgram !== null) {
-      fetchAttendees();
-    }
+    console.log("Fetching attendees for program:", selectedProgram);
+    fetchAttendees();
   }, [selectedProgram]);
 
-  // Handle selecting a category
-  const handleCategoryChange = (category: Category) => {
-    setSelectedCategory(category);
-    setSelectedProgram(null);  // Reset selected program
-  };
-
-  // Handle selecting a program
-  const handleProgramChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedProgram(Number(event.target.value));
-  };
-
-  // Handle adding a new attendee
-  const handleAddAttendee = () => {
-    navigate("/programs/addAttendees");  // Assuming you have an "Add Attendee" page for adding new attendees
-  };
-
-  // Handle editing an attendee
-  const handleEditAttendee = (id: number) => {
-    navigate(`/attendees/edit/${id}`);
-  };
-
-  // Handle deleting an attendee
-  const handleDeleteAttendee = (id: number) => {
-    if (window.confirm("Are you sure you want to delete this attendee?")) {
-      setAttendees(prevAttendees => prevAttendees.filter(attendee => attendee.id !== id));
-    }
-  };
+  const filteredAttendees = selectedProgram
+    ? attendees.filter((attendee) => attendee.program_id === selectedProgram)
+    : [];
 
   return (
     <div className="dashboard-wrapper">
-      {/* Sidebar */}
       <button className="hamburger" onClick={toggleSidebar}>&#9776;</button>
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="close-wrapper">
@@ -107,20 +104,18 @@ const AttendeeManagement: React.FC = () => {
 
         <h2>PROGRAM MANAGER</h2>
         <a href="/programs/dashboard">Dashboard</a>
-        <a href="/programs/RegisteredPrograms">
-          Registered Programs
-        </a>
+        <a href="/programs/RegisteredPrograms">Registered Programs</a>
         <a href="/programs/attendeeManagement" className="active">Attendee Management</a>
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
         <a href="/" className="logout-link" onClick={(e) => { e.preventDefault(); localStorage.clear(); navigate("/"); }}>➜ Logout</a>
       </div>
 
-      {/* Main Content */}
       <div className="dashboard-content">
         <h1>Manage Attendees</h1>
 
-        <br/><br/>
+        <br/>
+
         {/* Category and Program Selection */}
         <div className="kpi-container">
           <div className="kpi-card selection-card">
@@ -132,7 +127,10 @@ const AttendeeManagement: React.FC = () => {
                     type="radio"
                     name="category"
                     checked={selectedCategory === category}
-                    onChange={() => handleCategoryChange(category)}
+                    onChange={() => {
+                      setSelectedCategory(category);
+                      setSelectedProgram(null); // Reset program selection when category changes
+                    }}
                   />
                   {category}
                 </label>
@@ -142,57 +140,65 @@ const AttendeeManagement: React.FC = () => {
 
           <div className="kpi-card selection-card">
             <h3>Select Program</h3>
-            <select value={selectedProgram ?? ""} onChange={handleProgramChange}>
+            <select
+              value={selectedProgram ?? ""}
+              onChange={(e) => setSelectedProgram(Number(e.target.value))}
+            >
               <option value="">Select a program</option>
-              {programs.filter(program => program.category === selectedCategory).map((program) => (
-                <option key={program.id} value={program.id}>
-                  {program.title}
-                </option>
-              ))}
+              {programs
+                .filter((program) => program.category_id === categoryMapping[selectedCategory])
+                .map((program) => (
+                  <option key={program.id} value={program.id}>
+                    {program.name}
+                  </option>
+                ))}
             </select>
           </div>
 
           {/* Add Attendee Button */}
           <div className="kpi-card selection-card">
-            <button className="add-btn" onClick={handleAddAttendee}>+ Add Attendee</button>
+            <button className="add-btn" onClick={() => navigate("/programs/addAttendees")}>+ Add Attendee</button>
           </div>
         </div>
 
-        <br/>
-        {/* Attendee Table */}
         <div className="attendance-group">
-          <h3>Attendees for {selectedCategory} - {programs.find(p => p.id === selectedProgram)?.title}</h3>
-          <table className="responsive-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Age</th>
-                <th>Gender</th>
-                <th>Meeting</th>
-                <th>Role</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {attendees.map((attendee) => (
-                <tr key={attendee.id}>
-                  <td>{attendee.name}</td>
-                  <td>{attendee.email}</td>
-                  <td>{attendee.phone}</td>
-                  <td>{attendee.age}</td>
-                  <td>{attendee.gender}</td>
-                  <td>{programs.find(p => p.id === attendee.program_id)?.title}</td>
-                  <td>{attendee.role}</td>
-                  <td>
-                    <button className="edit-btn" onClick={() => handleEditAttendee(attendee.id)}>Edit</button>&emsp;
-                    <button className="delete-btn" onClick={() => handleDeleteAttendee(attendee.id)}>Delete</button>
-                  </td>
+          <h3>Attendees for {selectedProgram ? programs.find(p => p.id === selectedProgram)?.name : "Select a Program"}</h3>
+
+          {filteredAttendees.length === 0 ? (
+            <p>No Registered Attendees for this event</p> // If no attendees, display this message
+          ) : (
+            <table className="responsive-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Age</th>
+                  <th>Gender</th>
+                  <th>Program</th>
+                  <th>Role</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredAttendees.map((attendee) => (
+                  <tr key={attendee.attendee_id}>
+                    <td>{attendee.name}</td>
+                    <td>{attendee.email}</td>
+                    <td>{attendee.phone}</td>
+                    <td>{attendee.age}</td>
+                    <td>{attendee.gender}</td>
+                    <td>{programs.find(p => p.id === attendee.program_id)?.name}</td>
+                    <td>{attendee.role}</td>
+                    <td>
+                      <button className="edit-btn" onClick={() => handleEditAttendee(attendee.attendee_id)}>Edit</button>&emsp;
+                      <button className="delete-btn" onClick={() => handleDeleteAttendee(attendee.attendee_id)}>Delete</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>
