@@ -74,10 +74,21 @@ const RegisteredProgramsPage: React.FC = () => {
   };
 
   const handleDeleteProgram = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this program?")) {
-      setPrograms((prev) => prev.filter((program) => program.id !== Number(id)));
-    }
-  };
+      if (window.confirm("Are you sure you want to delete this program?")) {
+        // Make the API call to delete the program from the backend
+        axios
+          .delete(`http://localhost:3000/api/programs/${id}`)  // Assuming this is the API endpoint to delete the program
+          .then((response) => {
+            // On success, filter out the deleted program from the local state
+            setPrograms((prev) => prev.filter((program) => program.id !== Number(id)));
+            alert("Program deleted successfully.");
+          })
+          .catch((error) => {
+            console.error("Error deleting program:", error);
+            alert("Failed to delete the program. Please try again later.");
+          });
+      }
+    };
 
   const handleViewProgram = (id: string) => {
     const url = `/programs/viewProgram?id=${id}`;
