@@ -221,7 +221,7 @@ function App() {
           <Route path="/programs/RegisteredPrograms" element={<RegisteredProgramsPage />} />
           <Route path="/programs/attendeeManagement" element={<AttendeeManagement />} />
           <Route path="/programs/addPrograms" element={<AddProgram />} />
-          <Route path="/programs/addAttendees" element={<NewAttendees />} />
+          <Route path="/programs/addAttendees/:programId" element={<NewAttendees />} />
           <Route path="/programs/viewProgram" element={<ViewProgramPage />} />
           <Route path="/programs/editProgram/:id" element={<EditProgram />} />
 

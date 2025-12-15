@@ -69,7 +69,6 @@ const AttendeeManagement: React.FC = () => {
 
     const fetchAttendees = async () => {
       try {
-        // Update API endpoint to the correct one
         const response = await fetch(`http://localhost:3000/api/programs/attendees?program_id=${selectedProgram}`);
         if (!response.ok) {
           throw new Error(`Failed to fetch attendees. Status: ${response.status}`);
@@ -89,6 +88,18 @@ const AttendeeManagement: React.FC = () => {
   const filteredAttendees = selectedProgram
     ? attendees.filter((attendee) => attendee.program_id === selectedProgram)
     : [];
+
+  // Handle Edit Attendee (Placeholder function)
+  const handleEditAttendee = (attendeeId: number) => {
+    console.log(`Editing attendee with ID: ${attendeeId}`);
+    navigate(`/programs/editAttendee/${attendeeId}`);
+  };
+
+  // Handle Delete Attendee (Placeholder function)
+  const handleDeleteAttendee = (attendeeId: number) => {
+    console.log(`Deleting attendee with ID: ${attendeeId}`);
+    setAttendees(attendees.filter(attendee => attendee.attendee_id !== attendeeId));
+  };
 
   return (
     <div className="dashboard-wrapper">
@@ -113,8 +124,6 @@ const AttendeeManagement: React.FC = () => {
 
       <div className="dashboard-content">
         <h1>Manage Attendees</h1>
-
-        <br/>
 
         {/* Category and Program Selection */}
         <div className="kpi-container">
@@ -157,7 +166,18 @@ const AttendeeManagement: React.FC = () => {
 
           {/* Add Attendee Button */}
           <div className="kpi-card selection-card">
-            <button className="add-btn" onClick={() => navigate("/programs/addAttendees")}>+ Add Attendee</button>
+            <button
+              className="add-btn"
+              onClick={() => {
+                if (selectedProgram) {
+                  navigate(`/programs/addAttendees/${selectedProgram}`);
+                } else {
+                  alert("Please select a program first.");
+                }
+              }}
+            >
+              + Add Attendee
+            </button>
           </div>
         </div>
 
@@ -165,7 +185,7 @@ const AttendeeManagement: React.FC = () => {
           <h3>Attendees for {selectedProgram ? programs.find(p => p.id === selectedProgram)?.name : "Select a Program"}</h3>
 
           {filteredAttendees.length === 0 ? (
-            <p>No Registered Attendees for this event</p> // If no attendees, display this message
+            <p>No Registered Attendees for this event</p>
           ) : (
             <table className="responsive-table">
               <thead>

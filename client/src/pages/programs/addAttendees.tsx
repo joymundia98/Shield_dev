@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import "../../styles/global.css";
+import "../../styles/global.css"; // Import your styles
 
 // Interfaces for Event and Attendee
 interface Event {
-  event_id: number;
-  title: string;
+  id: number;        // Changed from event_id
+  name: string;      // Changed from title
   date: string;
   time: string;
   venue: string;
-  category: string;
+  category_id: number; // Changed from category
 }
 
 interface Attendee {
@@ -24,7 +24,7 @@ interface Attendee {
 
 const NewAttendees: React.FC = () => {
   const navigate = useNavigate();
-  const { eventId } = useParams<{ eventId: string }>(); // Assume we're fetching the event by ID
+  const { programId } = useParams<{ programId: string }>(); // Getting the programId from the URL
   const [event, setEvent] = useState<Event | null>(null);
   const [attendee, setAttendee] = useState<Attendee>({
     name: "",
@@ -37,23 +37,40 @@ const NewAttendees: React.FC = () => {
   const [errors, setErrors] = useState<string[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Fetch event details based on programId
   useEffect(() => {
-    // Simulating fetching the event details using eventId
+    console.log("Program ID from URL:", programId);  // Debugging log
+
+    if (!programId) {
+      console.error("Program ID is missing or invalid.");
+      return;
+    }
+
     const fetchEventDetails = async () => {
-      const fetchedEvent = {
-        event_id: parseInt(eventId || "0", 10),
-        title: "Marriage Counseling",
-        date: "2025-12-20",
-        time: "14:00",
-        venue: "Community Hall",
-        category: "Life Events",
-      };
-      setEvent(fetchedEvent);
+      try {
+        console.log(`Fetching event details for programId: ${programId}`);  // Debugging log
+        const response = await fetch(`http://localhost:3000/api/programs/${programId}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch event details. Status: ${response.status}`);
+        }
+
+        const fetchedEvent = await response.json();
+        console.log("Fetched event details:", fetchedEvent);  // Debugging log
+
+        if (fetchedEvent) {
+          setEvent(fetchedEvent); // Set event state
+        } else {
+          console.error("No event data found.");
+        }
+      } catch (error) {
+        console.error("Error fetching event details:", error);
+      }
     };
 
     fetchEventDetails();
-  }, [eventId]);
+  }, [programId]);
 
+  // Handling input changes for attendee registration form
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setAttendee((prevAttendee) => ({
@@ -62,9 +79,12 @@ const NewAttendees: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Handling form submission for attendee registration
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const validationErrors: string[] = [];
+
+    // Validate attendee data
     if (!attendee.name) validationErrors.push("Name is required.");
     if (!attendee.email) validationErrors.push("Email is required.");
     if (!attendee.phone) validationErrors.push("Phone is required.");
@@ -72,23 +92,56 @@ const NewAttendees: React.FC = () => {
     if (!attendee.gender) validationErrors.push("Gender is required.");
     if (!attendee.role) validationErrors.push("Role is required.");
 
+    // If there are no validation errors, send POST request
     if (validationErrors.length === 0) {
-      console.log("Attendee added:", attendee);
-      alert("Attendee registered successfully!");
-      navigate(`/events/${eventId}`);
+      try {
+        // If role is "Other", replace with customRole
+        const roleToSend = attendee.role === "Other" ? attendee.customRole : attendee.role;
+
+        const response = await fetch("http://localhost:3000/api/programs/attendees", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: attendee.name,
+            email: attendee.email,
+            phone: attendee.phone,
+            age: attendee.age,
+            gender: attendee.gender,
+            role: roleToSend, // Send customRole if role is "Other"
+            program_id: programId, // Pass the programId in the request body
+          }),
+        });
+
+        if (response.ok) {
+          alert("Attendee registered successfully!");
+          navigate(`/programs/attendeeManagement`); // Navigate to attendee management
+        } else {
+          // Handle error if response is not OK
+          const errorData = await response.json();
+          console.error("Error registering attendee:", errorData);
+          alert(`Error registering attendee: ${errorData.message || "Unknown error"}`);
+        }
+      } catch (error) {
+        console.error("Error registering attendee:", error);
+        alert("Error registering attendee: " + error.message);
+      }
     } else {
       setErrors(validationErrors);
     }
   };
 
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-
-  if (!event) return <div>Loading event details...</div>;
+  // If event is still null, show loading message
+  if (!event) {
+    console.log("Event is still null or undefined.");
+    return <div>Loading event details...</div>;
+  }
 
   return (
     <div className="dashboard-wrapper">
       {/* Hamburger */}
-      <button className="hamburger" onClick={toggleSidebar}>
+      <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>
         &#9776;
       </button>
 
@@ -101,7 +154,7 @@ const NewAttendees: React.FC = () => {
               type="checkbox"
               id="closeSidebarButton"
               checked={sidebarOpen}
-              onChange={toggleSidebar}
+              onChange={() => setSidebarOpen(!sidebarOpen)}
             />
             <span className="button"></span>
             <span className="label">X</span>
@@ -121,16 +174,18 @@ const NewAttendees: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
-        <h1>Register Attendee for {event.title}</h1>
+        <h1>Register Attendee for {event.name}</h1>
+
+        <br/>
 
         <form className="add-form-styling" onSubmit={handleSubmit}>
           {/* Event Info Display */}
           <div className="event-info">
-            <p><strong>Event:</strong> {event.title}</p>
-            <p><strong>Date:</strong> {event.date}</p>
+            <p><strong>Event:</strong> {event.name}</p>
+            <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
             <p><strong>Time:</strong> {event.time}</p>
             <p><strong>Venue:</strong> {event.venue}</p>
-            <p><strong>Category:</strong> {event.category}</p>
+            <p><strong>Category:</strong> {event.category_id}</p>
           </div>
 
           {/* Name Field */}
@@ -260,7 +315,7 @@ const NewAttendees: React.FC = () => {
             <button
               type="button"
               className="cancel-btn"
-              onClick={() => navigate(`/events/${eventId}`)}
+              onClick={() => navigate(`/programs/attendeeManagement`)}
             >
               Cancel
             </button>
