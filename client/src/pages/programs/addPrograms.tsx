@@ -159,7 +159,7 @@ const AddProgram: React.FC = () => {
         // Check for success and navigate
         if (response.status === 201) {
           alert("Program added successfully!");
-          navigate("/programs/registered");
+          navigate("/programs/RegisteredPrograms");
         }
       } catch (error) {
         console.error("Error adding program:", error);
