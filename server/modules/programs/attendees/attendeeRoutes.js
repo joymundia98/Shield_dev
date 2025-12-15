@@ -3,13 +3,19 @@ import { attendeeController } from './attendeeController.js';
 
 const router = express.Router();
 
+// List all attendees
 router.get('/', attendeeController.getAll);
-router.get('/:id', attendeeController.getById);
-router.post('/', attendeeController.create);
-router.put('/:id', attendeeController.update);
-router.delete('/:id', attendeeController.delete);
 
-// Get attendees by program
-router.get('/program/:program_id', attendeeController.getByProgram);
+// Create a new attendee
+router.post('/', attendeeController.create);
+
+// Get attendee by ID
+router.get('/:id', attendeeController.getById);
+
+// Update attendee
+router.put('/:id', attendeeController.update);
+
+// Delete attendee
+router.delete('/:id', attendeeController.delete);
 
 export default router;
