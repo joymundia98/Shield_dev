@@ -88,6 +88,7 @@ import RegisteredProgramsPage from "./pages/programs/RegisteredPrograms";
 import AttendeeManagement from "./pages/programs/attendeeManagement";
 import AddProgram from "./pages/programs/addPrograms";
 import NewAttendees from "./pages/programs/addAttendees";
+import EditAttendee from "./pages/programs/editAttendee";
 import ViewProgramPage from "./pages/programs/viewProgram";
 import EditProgram from "./pages/programs/editProgram";
 
@@ -222,6 +223,7 @@ function App() {
           <Route path="/programs/attendeeManagement" element={<AttendeeManagement />} />
           <Route path="/programs/addPrograms" element={<AddProgram />} />
           <Route path="/programs/addAttendees/:programId" element={<NewAttendees />} />
+          <Route path="/programs/editAttendee/:attendeeId" element={<EditAttendee />} />
           <Route path="/programs/viewProgram" element={<ViewProgramPage />} />
           <Route path="/programs/editProgram/:id" element={<EditProgram />} />
 
