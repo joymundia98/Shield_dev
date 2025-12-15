@@ -1,126 +1,102 @@
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import Chart from "chart.js/auto";
 import "../../styles/global.css";
 
+// Define event type interface
 interface Event {
-  type: "Spiritual" | "Life" | "Community" | "Business";
+  id: number;
   name: string;
   date: string;
-  status: "Upcoming" | "Completed";
-  male: number;
-  female: number;
+  time: string;
+  status: "Scheduled" | "Completed" | "Upcoming";
+  category_id: number;
+  event_type: string;
   link: string;
 }
 
 const ProgramsDashboard: React.FC = () => {
   const navigate = useNavigate();
+
+  const [events, setEvents] = useState<Event[]>([]);
+
+  // Fetch events from backend on component mount
+  useEffect(() => {
+    fetch("http://localhost:3000/api/programs")
+      .then((response) => response.json())
+      .then((data) => setEvents(data));
+  }, []);
+
+  // Sidebar state and logic
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const statusChartRef = useRef<Chart | null>(null);
-  const genderChartRef = useRef<Chart | null>(null);
-
-  const events: Event[] = useMemo(
-    () => [
-      { type: "Spiritual", name: "Morning Prayer", date: "2025-11-22", status: "Upcoming", male: 10, female: 15, link: "SpiritualEvents/PrayerFasting.html" },
-      { type: "Spiritual", name: "Overnight Prayer", date: "2025-11-25", status: "Upcoming", male: 14, female: 20, link: "SpiritualEvents/Overnights.html" },
-      { type: "Life", name: "Wedding - John & Jane", date: "2025-12-05", status: "Upcoming", male: 50, female: 50, link: "LifeEvents/Wedding.html" },
-      { type: "Life", name: "Child Dedication", date: "2025-12-10", status: "Upcoming", male: 10, female: 12, link: "LifeEvents/ChildDedication.html" },
-      { type: "Community", name: "Outreach Evangelism", date: "2025-12-12", status: "Upcoming", male: 8, female: 10, link: "CommunityEvents/OutreachEvangelism.html" },
-      { type: "Community", name: "Conference 2025", date: "2025-12-20", status: "Upcoming", male: 25, female: 30, link: "CommunityEvents/Conferences.html" },
-      { type: "Business", name: "Board Meeting", date: "2025-12-15", status: "Upcoming", male: 5, female: 3, link: "ChurchBusiness/BusinessMeetings.html" },
-    ],
-    []
-  );
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  // Add/remove sidebar-open class on body for proper animation
-    useEffect(() => {
-      const body = document.body;
-      if (sidebarOpen) {
-        body.classList.add("sidebar-open");
-      } else {
-        body.classList.remove("sidebar-open");
-      }
-      // Clean up on unmount
-      return () => body.classList.remove("sidebar-open");
-    }, [sidebarOpen]);
-
-  // KPI counts
-  const groupCounts = useMemo(() => {
-    const counts = { Spiritual: 0, Life: 0, Community: 0, Business: 0 };
-    events.forEach(e => counts[e.type]++);
-    return counts;
-  }, [events]);
-
   useEffect(() => {
-    // Destroy previous charts if exist
-    statusChartRef.current?.destroy();
-    genderChartRef.current?.destroy();
-
-    // Status chart
-    const statusData = { Upcoming: 0, Completed: 0 };
-    events.forEach(e => statusData[e.status]++);
-    const statusCtx = document.getElementById("statusChart") as HTMLCanvasElement;
-    if (statusCtx) {
-      statusChartRef.current = new Chart(statusCtx, {
-        type: "doughnut",
-        data: {
-          labels: ["Upcoming", "Completed"],
-          datasets: [{ data: [statusData.Upcoming, statusData.Completed], backgroundColor: ["#1A3D7C", "#27ae60"] }],
-        },
-      });
+    const body = document.body;
+    if (sidebarOpen) {
+      body.classList.add("sidebar-open");
+    } else {
+      body.classList.remove("sidebar-open");
     }
+    return () => body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
 
-    // Gender chart
-    const genderCounts: Record<string, { male: number; female: number }> = {
-      Spiritual: { male: 0, female: 0 },
-      Life: { male: 0, female: 0 },
-      Community: { male: 0, female: 0 },
-      Business: { male: 0, female: 0 },
+  // Categories for filtering events
+  const categories = [
+    { category_id: 1, name: "Life Events" },
+    { category_id: 2, name: "Church Business Events" },
+    { category_id: 3, name: "Community Events" },
+    { category_id: 4, name: "Spiritual Events" },
+    { category_id: 5, name: "Other" },
+  ];
+
+  // Function to get upcoming events for a given category
+  const getUpcomingEvents = (category: string) => {
+    const categoryMap = {
+      "Life Events": 1,
+      "Church Business Events": 2,
+      "Community Events": 3,
+      "Spiritual Events": 4,
+      "Other": 5,
     };
-    events.forEach(e => {
-      genderCounts[e.type].male += e.male;
-      genderCounts[e.type].female += e.female;
-    });
-    const genderCtx = document.getElementById("genderChart") as HTMLCanvasElement;
-    if (genderCtx) {
-      genderChartRef.current = new Chart(genderCtx, {
-        type: "bar",
-        data: {
-          labels: ["Spiritual", "Life", "Community", "Business"],
-          datasets: [
-            { label: "Male", data: ["Spiritual","Life","Community","Business"].map(t => genderCounts[t].male), backgroundColor: "#1A3D7C" },
-            { label: "Female", data: ["Spiritual","Life","Community","Business"].map(t => genderCounts[t].female), backgroundColor: "#AF907A" },
-          ],
-        },
-      });
-    }
-  }, [events]);
 
-  // Table generator
-  const makeTable = (type: string) => {
-    const filtered = events.filter(e => e.type === type && e.status === "Upcoming");
+    const categoryId = categoryMap[category];
+
+    const upcomingEvents = events
+      .filter((event) => event.category_id === categoryId && event.status === "Scheduled")
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) // Sort by date (ascending)
+      .slice(0, 3); // Limit to top 3 upcoming events
+
+    return upcomingEvents;
+  };
+
+  // Table generator with category name in the header, including time
+  const makeTable = (category: string) => {
+    const upcomingEvents = getUpcomingEvents(category);
+
     return (
       <table className="responsive-table">
         <thead>
           <tr>
-            <th>Event</th>
+            <th>{category} Events</th>
             <th>Date</th>
+            <th>Time</th>
             <th>Status</th>
-            <th>Participants (M/F)</th>
             <th>Manage</th>
           </tr>
         </thead>
         <tbody>
-          {filtered.map((e, idx) => (
-            <tr key={idx}>
+          {upcomingEvents.map((e) => (
+            <tr key={e.id}>
               <td>{e.name}</td>
-              <td>{e.date}</td>
+              <td>{new Date(e.date).toLocaleDateString()}</td>
+              <td>{e.time}</td>
               <td>{e.status}</td>
-              <td>{e.male}/{e.female}</td>
-              <td><a className="table-btn" href={e.link}>Open</a></td>
+              <td>
+                <a className="table-btn" href={`/programs/viewProgram?id=${e.id}`}>
+                  Open
+                </a>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -128,14 +104,70 @@ const ProgramsDashboard: React.FC = () => {
     );
   };
 
+  // Additional table for "Other Events"
+  const makeOtherEventsTable = () => {
+    const otherEvents = getUpcomingEvents("Other");
+
+    return (
+      <table className="responsive-table">
+        <thead>
+          <tr>
+            <th>Other Events</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Manage</th>
+          </tr>
+        </thead>
+        <tbody>
+          {otherEvents.map((e) => (
+            <tr key={e.id}>
+              <td>{e.name}</td>
+              <td>{new Date(e.date).toLocaleDateString()}</td>
+              <td>{e.time}</td>
+              <td>{e.status}</td>
+              <td>
+                <a className="table-btn" href={`/programs/viewProgram?id=${e.id}`}>
+                  Open
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  };
+
+  // KPI Counts (grouped by category)
+  const groupCounts = useMemo(() => {
+    const counts = { "Life Events": 0, "Church Business Events": 0, "Community Events": 0, "Spiritual Events": 0, "Other": 0 };
+
+    events.forEach((e) => {
+      const categoryMap = {
+        1: "Life Events",
+        2: "Church Business Events",
+        3: "Community Events",
+        4: "Spiritual Events",
+        5: "Other",
+      };
+
+      const categoryName = categoryMap[e.category_id];
+      counts[categoryName]++;
+    });
+
+    return counts;
+  }, [events]);
+
   return (
     <div className="dashboard-wrapper">
       {/* Hamburger */}
-      <button className="hamburger" onClick={toggleSidebar}>&#9776;</button>
+      <button className="hamburger" onClick={toggleSidebar}>
+        &#9776;
+      </button>
 
       {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
-        {/* Close Button (Styled like ClassDashboard) */}
+        {/* Close Button */}
         <div className="close-wrapper">
           <div className="toggle close-btn">
             <input
@@ -150,8 +182,8 @@ const ProgramsDashboard: React.FC = () => {
         </div>
 
         <h2>PROGRAM MANAGER</h2>
-        <a href="/programs/dashboard" className="active">Dashboard</a>
-        <a href="/programs/RegisteredPrograms">
+        <a href="/programs/dashboard">Dashboard</a>
+        <a href="/programs/RegisteredPrograms" className="active">
           Registered Programs
         </a>
         <a href="/programs/attendeeManagement">Attendee Management</a>
@@ -163,13 +195,12 @@ const ProgramsDashboard: React.FC = () => {
         <a
           href="/"
           className="logout-link"
-          onClick={(e) => {
-            e.preventDefault();
+          onClick={() => {
             localStorage.clear();
             navigate("/");
           }}
         >
-          ➜] Logout
+          ➜ Logout
         </a>
       </div>
 
@@ -177,33 +208,43 @@ const ProgramsDashboard: React.FC = () => {
       <div className="dashboard-content">
         <h1>Programs & Events Overview</h1>
 
-        <br/>
-
-        {/* KPI cards */}
         <div className="kpi-container">
-          <div className="kpi-card"><h3>Spiritual Events</h3><p>{groupCounts.Spiritual}</p></div>
-          <div className="kpi-card"><h3>Life Events</h3><p>{groupCounts.Life}</p></div>
-          <div className="kpi-card"><h3>Community Events</h3><p>{groupCounts.Community}</p></div>
-          <div className="kpi-card"><h3>Business Meetings</h3><p>{groupCounts.Business}</p></div>
+          <div className="kpi-card">
+            <h3>Life Events</h3>
+            <p>{groupCounts["Life Events"]}</p>
+          </div>
+          <div className="kpi-card">
+            <h3>Church Business Events</h3>
+            <p>{groupCounts["Church Business Events"]}</p>
+          </div>
+          <div className="kpi-card">
+            <h3>Community Events</h3>
+            <p>{groupCounts["Community Events"]}</p>
+          </div>
+          <div className="kpi-card">
+            <h3>Spiritual Events</h3>
+            <p>{groupCounts["Spiritual Events"]}</p>
+          </div>
+          <div className="kpi-card">
+            <h3>Other Events</h3>
+            <p>{groupCounts["Other"]}</p>
+          </div>
         </div>
 
-        {/* Charts */}
-        <div className="chart-grid">
-          <div className="chart-box">
-            <h3>Event Status Distribution</h3>
-            <canvas id="statusChart"></canvas>
-          </div>
-          <div className="chart-box">
-            <h3>Gender Participation</h3>
-            <canvas id="genderChart"></canvas>
-          </div>
-        </div>
+        <h2>Upcoming Life Events</h2>
+        {makeTable("Life Events")}
 
-        {/* Tables */}
-        <h2>Upcoming Spiritual Events</h2>{makeTable("Spiritual")}
-        <h2>Upcoming Life Events</h2>{makeTable("Life")}
-        <h2>Upcoming Community Events</h2>{makeTable("Community")}
-        <h2>Upcoming Business Meetings</h2>{makeTable("Business")}
+        <h2>Upcoming Church Business Events</h2>
+        {makeTable("Church Business Events")}
+
+        <h2>Upcoming Community Events</h2>
+        {makeTable("Community Events")}
+
+        <h2>Upcoming Spiritual Events</h2>
+        {makeTable("Spiritual Events")}
+
+        <h2>Upcoming Other Events</h2>
+        {makeOtherEventsTable()}
       </div>
     </div>
   );
