@@ -2,13 +2,44 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
+// Define the interface for Payroll record
 interface PayrollRecord {
-  name: string;
-  position: string;
-  salary: number;
-  status: "Paid" | "Pending" | "Overdue";
-  date: string;
+  payroll_id: number;
+  staff_id: number;
+  department_id: number;
   department: string;
+  role_id: number;
+  year: number; 
+  month: number; 
+  salary: string; 
+  housing_allowance: string;
+  transport_allowance: string;
+  medical_allowance: string;
+  overtime: string;
+  bonus: string;
+  total_gross: string;
+  paye_tax_percentage: string;
+  paye_tax_amount: string;
+  napsa_contribution_percentage: string;
+  napsa_contribution_amount: string;
+  loan_deduction: string;
+  union_dues: string;
+  health_insurance: string;
+  nhima_contribution_percentage: string | null;
+  nhima_contribution_amount: string | null;
+  wcif: string;
+  total_deductions: string;
+  net_salary: string; 
+  gratuity_percentage: string | null;
+  gratuity_amount: string | null;
+  status: "Paid" | "Pending" | "Overdue"; 
+  created_at: string; 
+  updated_at: string; 
+}
+
+interface Department {
+  id: number;
+  name: string;
 }
 
 const monthNames = [
@@ -19,15 +50,8 @@ const monthNames = [
 const HrPayrollPage: React.FC = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  // ------------------- Payroll Data -------------------
-  const [payrollData, setPayrollData] = useState<PayrollRecord[]>([
-    { name: "John Doe", position: "Pastor", salary: 1500, status: "Paid", date: "2025-11-10", department: "Finance" },
-    { name: "Mary Smith", position: "Secretary", salary: 800, status: "Pending", date: "2025-11-15", department: "Finance" },
-    { name: "James Wilson", position: "Choir Director", salary: 600, status: "Paid", date: "2025-11-10", department: "Logistics" },
-    { name: "Anna Brown", position: "Driver", salary: 700, status: "Overdue", date: "2025-11-12", department: "Transport" },
-  ]);
-
+  const [payrollData, setPayrollData] = useState<PayrollRecord[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [search, setSearch] = useState("");
   const [filterMonth, setFilterMonth] = useState<string | "all">("all");
   const [filterYear, setFilterYear] = useState<number | "all">("all");
@@ -41,14 +65,70 @@ const HrPayrollPage: React.FC = () => {
     else document.body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
+  // ------------------- Fetch Departments -------------------
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/departments");
+        const data: Department[] = await response.json();
+        setDepartments(data);
+      } catch (error) {
+        console.error("Error fetching departments:", error);
+      }
+    };
+
+    fetchDepartments();
+  }, []);
+
+  // ------------------- Fetch Payroll Data -------------------
+  useEffect(() => {
+    const fetchPayrollData = async () => {
+      if (departments.length === 0) return; 
+      
+      try {
+        const response = await fetch("http://localhost:3000/api/payroll");
+        const data: PayrollRecord[] = await response.json();
+        
+        // Map payroll data to include department names
+        const payrollWithDepartments = data.map((payroll) => {
+          const department = departments.find((dep) => dep.id === payroll.department_id);
+          return {
+            ...payroll,
+            department: department ? department.name : "Unknown", 
+          };
+        });
+
+        setPayrollData(payrollWithDepartments);
+      } catch (error) {
+        console.error("Error fetching payroll data:", error);
+      }
+    };
+
+    fetchPayrollData();
+  }, [departments]);
+
   // ------------------- Filtered Payroll -------------------
   const filteredPayroll = useMemo(() => {
+    console.log("Filtering Payroll Data with Filters: ", { filterMonth, filterYear, filterDepartment, search });
+
     return payrollData.filter((rec) => {
-      const dateObj = new Date(rec.date);
-      if (filterMonth !== "all" && monthNames[dateObj.getMonth()] !== filterMonth) return false;
-      if (filterYear !== "all" && dateObj.getFullYear() !== filterYear) return false;
-      if (filterDepartment !== "all" && rec.department !== filterDepartment) return false;
-      if (search && !JSON.stringify(rec).toLowerCase().includes(search.toLowerCase())) return false;
+      const dateObj = new Date(rec.created_at); 
+      if (filterMonth !== "all" && monthNames[dateObj.getMonth()] !== filterMonth) {
+        console.log(`Skipping due to month mismatch: ${monthNames[dateObj.getMonth()]}`);
+        return false;
+      }
+      if (filterYear !== "all" && dateObj.getFullYear() !== filterYear) {
+        console.log(`Skipping due to year mismatch: ${dateObj.getFullYear()}`);
+        return false;
+      }
+      if (filterDepartment !== "all" && rec.department !== filterDepartment) {
+        console.log(`Skipping due to department mismatch: ${rec.department}`);
+        return false;
+      }
+      if (search && !JSON.stringify(rec).toLowerCase().includes(search.toLowerCase())) {
+        console.log(`Skipping due to search mismatch`);
+        return false;
+      }
       return true;
     });
   }, [payrollData, filterMonth, filterYear, filterDepartment, search]);
@@ -60,6 +140,7 @@ const HrPayrollPage: React.FC = () => {
       if (!groups[rec.department]) groups[rec.department] = [];
       groups[rec.department].push(rec);
     });
+    console.log("Grouped Payroll by Department: ", groups);
     return groups;
   }, [filteredPayroll]);
 
@@ -68,48 +149,41 @@ const HrPayrollPage: React.FC = () => {
   const selectedYearValue = filterYear === "all" ? new Date().getFullYear() : filterYear;
 
   const payrollThisMonth = payrollData.filter((p) => {
-    const d = new Date(p.date);
-    return d.getMonth() === selectedMonthIndex && d.getFullYear() === selectedYearValue;
+    const recordMonth = p.month - 1; 
+    const recordYear = p.year;
+    
+    const isValidMonth = recordMonth === selectedMonthIndex;
+    const isValidYear = recordYear === selectedYearValue;
+    console.log(`Filtering payroll: ${p.department} | ${recordMonth} == ${selectedMonthIndex} & ${recordYear} == ${selectedYearValue} = ${isValidMonth && isValidYear}`);
+    
+    return isValidMonth && isValidYear;
   });
+
+  // Debugging statements for payrollThisMonth
+  console.log("Filtered Payroll for this Month:", payrollThisMonth); 
+  console.log("Unpaid Employees Count:", payrollThisMonth.filter((p) => p.status === "Pending" || p.status === "Overdue").length);
+  console.log("Total Due Amount for Unpaid Employees:", payrollThisMonth.filter((p) => p.status === "Pending" || p.status === "Overdue").reduce((sum, p) => sum + parseFloat(p.net_salary), 0)); 
 
   const kpiTotalPaid = payrollThisMonth
     .filter((p) => p.status === "Paid")
-    .reduce((sum, p) => sum + p.salary, 0);
+    .reduce((sum, p) => sum + parseFloat(p.net_salary), 0);
+  console.log("KPI Total Paid (This Month): ", kpiTotalPaid);
 
   const kpiTotalDue = payrollThisMonth
-    .filter((p) => p.status !== "Paid")
-    .reduce((sum, p) => sum + p.salary, 0);
+    .filter((p) => p.status === "Pending" || p.status === "Overdue")
+    .reduce((sum, p) => sum + parseFloat(p.net_salary), 0);
+  console.log("KPI Total Due (This Month): ", kpiTotalDue);
 
   const kpiPaidCount = payrollThisMonth.filter((p) => p.status === "Paid").length;
-  const kpiUnpaidCount = payrollThisMonth.filter((p) => p.status !== "Paid").length;
+  const kpiUnpaidCount = payrollThisMonth.filter((p) => p.status === "Pending" || p.status === "Overdue").length;
 
-  // ------------------- Navigation Handlers -------------------
-  const openAddPayroll = () => {
-    navigate("/hr/addPayroll");
+  // ------------------- Date Formatter -------------------
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
   };
 
-  const openEditPayroll = (index: number) => {
-    navigate("/hr/addPayroll", { state: { editingIndex: index, payrollRecord: payrollData[index] } });
-  };
-
-  const openViewPayroll = (index: number) => {
-    navigate("/hr/viewPayroll", { state: payrollData[index] });
-  };
-
-  const deletePayroll = (index: number, department: string) => {
-    // Find the correct payroll record index in the ungrouped payrollData
-    const originalIndex = payrollData.findIndex(record => record.name === groupedByDepartment[department][index].name);
-
-    // Ask for user confirmation
-    const confirmed = window.confirm("Are you sure you want to delete this payroll record?");
-    if (confirmed) {
-      // Proceed with deletion
-      const updatedData = payrollData.filter((_, i) => i !== originalIndex);
-      setPayrollData(updatedData); // Update the state with the new data
-    }
-  };
-
-
+  // ------------------- Table Rendering -------------------
   return (
     <div className="dashboard-wrapper">
       {/* Hamburger */}
@@ -167,11 +241,10 @@ const HrPayrollPage: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <button className="add-btn" onClick={openAddPayroll}>+ Add Payroll Record</button>
+          <button className="add-btn" onClick={() => navigate("/hr/addPayroll")}>+ Add Payroll Record</button>
         </div>
 
         {/* Filters */}
-        <br />
         <div className="filters" style={{ margin: "10px 0", display: "flex", gap: "10px" }}>
           <label>
             Month:
@@ -195,31 +268,30 @@ const HrPayrollPage: React.FC = () => {
             Department:
             <select value={filterDepartment} onChange={(e) => setFilterDepartment(e.target.value)}>
               <option value="all">All</option>
-              {Array.from(new Set(payrollData.map(p => p.department))).map(dep => (
-                <option key={dep} value={dep}>{dep}</option>
+              {departments.map(dep => (
+                <option key={dep.id} value={dep.name}>{dep.name}</option>
               ))}
             </select>
           </label>
         </div>
 
         {/* KPI Cards */}
-        <br />
-        <div className="kpi-container" id="kpiContainer">
+        <div className="kpi-container">
           <div className="kpi-card">
             <h3>Total Paid (This Month)</h3>
-            <p id="kpiTotalPaid">${kpiTotalPaid.toLocaleString()}</p>
+            <p>{kpiTotalPaid.toLocaleString()}</p>
           </div>
           <div className="kpi-card">
             <h3>Total Due (This Month)</h3>
-            <p id="kpiTotalDue">${kpiTotalDue.toLocaleString()}</p>
+            <p>{kpiTotalDue.toLocaleString()}</p>
           </div>
           <div className="kpi-card">
             <h3>Employees Paid</h3>
-            <p id="kpiPaidCount">{kpiPaidCount}</p>
+            <p>{kpiPaidCount}</p>
           </div>
           <div className="kpi-card">
             <h3>Employees Unpaid</h3>
-            <p id="kpiUnpaidCount">{kpiUnpaidCount}</p>
+            <p>{kpiUnpaidCount}</p>
           </div>
         </div>
 
@@ -232,7 +304,7 @@ const HrPayrollPage: React.FC = () => {
                 <tr>
                   <th>Staff Name</th>
                   <th>Position</th>
-                  <th>Salary</th>
+                  <th>Net Salary</th>
                   <th>Status</th>
                   <th>Payment Date</th>
                   <th>Actions</th>
@@ -243,15 +315,13 @@ const HrPayrollPage: React.FC = () => {
                   <tr key={i}>
                     <td>{p.name}</td>
                     <td>{p.position}</td>
-                    <td>${p.salary.toLocaleString()}</td>
+                    <td>${parseFloat(p.net_salary).toLocaleString()}</td>
                     <td><span className={`status ${p.status.toLowerCase()}`}>{p.status}</span></td>
-                    <td>{p.date}</td>
+                    <td>{formatDate(p.created_at)}</td>
                     <td>
-                      <button className="add-btn" onClick={() => openViewPayroll(i)}>View</button>&emsp;
-                      <button className="edit-btn" onClick={() => openEditPayroll(i)}>Edit</button>&emsp;
-                      <button className="delete-btn" onClick={() => deletePayroll(i, dept)}>
-                        Delete
-                      </button>
+                      <button className="add-btn" onClick={() => navigate("/hr/viewPayroll", { state: p })}>View</button>&emsp;
+                      <button className="edit-btn" onClick={() => navigate("/hr/addPayroll", { state: { editingIndex: i, payrollRecord: p } })}>Edit</button>&emsp;
+                      <button className="delete-btn" onClick={() => deletePayroll(i, dept)}>Delete</button>
                     </td>
                   </tr>
                 ))}
