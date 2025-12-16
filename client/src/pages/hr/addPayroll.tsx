@@ -6,8 +6,8 @@ import "../../styles/global.css";
 interface Payroll {
   staff_id: number;
   staff_name: string;
-  department: string;
-  role: string;
+  department_id: number; // Changed from department to department_id
+  role_id: number; // Changed from role to role_id
   salary: number;
   housing_allowance: number;
   transport_allowance: number;
@@ -36,8 +36,8 @@ const Payroll: React.FC = () => {
   const [form, setForm] = useState<Payroll>({
     staff_id: 0,
     staff_name: "",
-    department: "",
-    role: "",
+    department_id: 0, // Initialize as number, not string
+    role_id: 0, // Initialize as number, not string
     salary: 0,
     housing_allowance: 0,
     transport_allowance: 0,
@@ -60,6 +60,7 @@ const Payroll: React.FC = () => {
     payment_date: "",
   });
 
+  const [gratuityAmount, setGratuityAmount] = useState<number>(0);
   const [departments, setDepartments] = useState<any[]>([]); // Fetch department data
   const [roles, setRoles] = useState<any[]>([]); // Fetch roles data
   const [staffNames, setStaffNames] = useState<any[]>([]); // Fetch staff data
@@ -70,23 +71,22 @@ const Payroll: React.FC = () => {
     document.body.classList.toggle("sidebar-open", sidebarOpen);
   }, [sidebarOpen]);
 
-  // Simulating fetching department, roles, and staff data from an API
+  // Fetch departments, roles, and staff names
   useEffect(() => {
-    // Replace with API calls to fetch actual data
     const fetchDepartments = async () => {
-      const response = await fetch("http://localhost:3000/api/departments"); // Replace with your API endpoint
+      const response = await fetch("http://localhost:3000/api/departments");
       const data = await response.json();
       setDepartments(data);
     };
 
     const fetchRoles = async () => {
-      const response = await fetch("http://localhost:3000/api/roles"); // Replace with your API endpoint
+      const response = await fetch("http://localhost:3000/api/roles");
       const data = await response.json();
       setRoles(data);
     };
 
     const fetchStaffNames = async () => {
-      const response = await fetch("http://localhost:3000/api/staff"); // Replace with your API endpoint
+      const response = await fetch("http://localhost:3000/api/staff");
       const data = await response.json();
       setStaffNames(data);
     };
@@ -96,13 +96,13 @@ const Payroll: React.FC = () => {
     fetchStaffNames();
   }, []);
 
+  // Simulate fetching staff details
   useEffect(() => {
-    // Simulate fetching staff details
     const staffData = {
       staff_id: 1,
       staff_name: "John Doe",
-      department: "Engineering",
-      role: "Software Engineer",
+      department_id: 1,  // Default department_id
+      role_id: 1,  // Default role_id
       salary: 5000,
       housing_allowance: 1000,
       transport_allowance: 500,
@@ -117,8 +117,17 @@ const Payroll: React.FC = () => {
     }));
   }, []);
 
+  // Calculate Gratuity Amount when salary or gratuity percentage changes
   useEffect(() => {
-    // Calculate payroll components when form values are updated
+    const calculateGratuity = (salary: number, gratuityPercentage: number) => {
+      return (salary * gratuityPercentage) / 100;
+    };
+
+    const amount = calculateGratuity(form.salary, form.gratuity_severance);
+    setGratuityAmount(amount); // Update only when salary or gratuity percentage changes
+  }, [form.salary, form.gratuity_severance]);
+
+  useEffect(() => {
     const calculatePayroll = () => {
       const {
         salary,
@@ -132,11 +141,10 @@ const Payroll: React.FC = () => {
         union_dues,
         health_insurance,
         nhima_contribution,
-        gratuity_severance,
         wcif,
       } = form;
 
-      // Basic salary and allowances
+      // Basic salary and allowances (for gross calculation)
       const totalGross =
         salary +
         housing_allowance +
@@ -152,7 +160,7 @@ const Payroll: React.FC = () => {
       } else if (totalGross <= 10000) {
         paye_tax = (totalGross - 4000) * (paye_tax_percentage / 100);
       } else {
-        paye_tax = (totalGross - 10000) * 0.30 + (6000 * 0.25); // Example, you may need to refine
+        paye_tax = (totalGross - 10000) * 0.30 + (6000 * 0.25); // Example, refine as needed
       }
 
       // NAPSA Contributions (5% for both employee and employer)
@@ -165,7 +173,7 @@ const Payroll: React.FC = () => {
         union_dues +
         health_insurance +
         nhima_contribution +
-        gratuity_severance +
+        gratuityAmount + // Add gratuity to deductions
         wcif;
 
       // Net salary
@@ -183,7 +191,7 @@ const Payroll: React.FC = () => {
 
     calculatePayroll();
   }, [
-    form.salary,
+    form.salary, // Triggers when salary changes
     form.housing_allowance,
     form.transport_allowance,
     form.medical_allowance,
@@ -194,38 +202,70 @@ const Payroll: React.FC = () => {
     form.union_dues,
     form.health_insurance,
     form.nhima_contribution,
-    form.gratuity_severance,
     form.wcif,
+    gratuityAmount, // Gratuity is now tracked separately
   ]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!form.staff_name || !form.department || !form.role || form.salary <= 0 || !form.payment_date) {
-      alert("Please fill in all required fields.");
-      return;
-    }
+  // Log the updated form to inspect what will be sent
+  console.log("Form Data being sent to backend:", form);
 
-    try {
-      // Post the payroll data to the server
-      const response = await fetch("http://localhost:3000/api/payroll", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
+  // Ensure the selected department_id and role_id are valid
+  if (form.department_id === 0 || form.role_id === 0) {
+    alert("Please select a valid department and role.");
+    return;
+  }
 
-      if (!response.ok) {
-        throw new Error("Failed to submit payroll.");
-      }
+  // Check if required fields are filled, allowing default values
+  if (
+    !form.staff_name ||
+    form.department_id === 0 || // Ensure department_id is valid (not 0)
+    form.role_id === 0 || // Ensure role_id is valid (not 0)
+    form.salary <= 0 ||
+    !form.payment_date
+  ) {
+    alert("Please fill in all required fields.");
+    return;
+  }
 
-      alert("Payroll submitted successfully!");
-      navigate("/hr/payroll"); // Redirect after submission
-    } catch (err: any) {
-      alert("Error: " + err.message);
-    }
+  // Extract the year and month from the payment_date
+  const paymentDate = new Date(form.payment_date);
+  const year = paymentDate.getFullYear();
+  const month = paymentDate.getMonth() + 1; // Months are 0-based, so we add 1
+
+  // Prepare the data for submission (including extracted year, month, and status)
+  const updatedForm = {
+    ...form,
+    year,
+    month,
+    status: "Pending", // Set the status to "Pending"
   };
+
+  try {
+    const response = await fetch("http://localhost:3000/api/payroll", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedForm),
+    });
+
+    const responseData = await response.json();
+    if (!response.ok) {
+      throw new Error(`Failed to submit payroll: ${responseData.message || 'Unknown error'}`);
+    }
+
+    alert("Payroll submitted successfully!");
+    navigate("/hr/payroll");
+
+  } catch (err: any) {
+    console.error("Error occurred while submitting payroll:", err);
+    alert("Error: " + (err.message || "Unknown error"));
+  }
+};
+
 
   return (
     <div className="dashboard-wrapper">
@@ -238,28 +278,6 @@ const Payroll: React.FC = () => {
             <span className="label">X</span>
           </div>
         </div>
-
-        <h2>HR MANAGER</h2>
-        <a href="/hr/dashboard">Dashboard</a>
-        <a href="/hr/staffDirectory">Staff Directory</a>
-        <a href="/hr/payroll" className="active">Payroll</a>
-        <a href="/hr/leave">Leave Management</a>
-        <a href="/hr/leaveApplications">Leave Applications</a>
-        <a href="/hr/departments">Departments</a>
-
-        <hr className="sidebar-separator" />
-        <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
-        <a
-          href="/"
-          className="logout-link"
-          onClick={(e) => {
-            e.preventDefault();
-            localStorage.clear();
-            navigate("/"); // Redirect to login page
-          }}
-        >
-          ➜ Logout
-        </a>
       </div>
 
       {/* Page Content */}
@@ -267,7 +285,9 @@ const Payroll: React.FC = () => {
         <header className="page-header">
           <h1>Payroll Management</h1>
           <div>
-            <button className="add-btn" onClick={() => navigate("/hr/payroll", { replace: true })}>← Back</button>
+            <button className="add-btn" onClick={() => navigate("/hr/payroll", { replace: true })}>
+              ← Back
+            </button>
             <button className="hamburger" onClick={toggleSidebar}>☰</button>
           </div>
         </header>
@@ -280,8 +300,8 @@ const Payroll: React.FC = () => {
 
               <label>Department</label>
               <select
-                value={form.department}
-                onChange={(e) => setForm({ ...form, department: e.target.value })}
+                value={form.department_id}
+                onChange={(e) => setForm({ ...form, department_id: Number(e.target.value) })}
               >
                 {departments.map((department) => (
                   <option key={department.id} value={department.id}>
@@ -292,8 +312,8 @@ const Payroll: React.FC = () => {
 
               <label>Role</label>
               <select
-                value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value })}
+                value={form.role_id}
+                onChange={(e) => setForm({ ...form, role_id: Number(e.target.value) })}
               >
                 {roles.map((role) => (
                   <option key={role.id} value={role.id}>
@@ -304,8 +324,8 @@ const Payroll: React.FC = () => {
 
               <label>Staff Name</label>
               <select
-                value={form.staff_name}
-                onChange={(e) => setForm({ ...form, staff_name: e.target.value })}
+                value={form.staff_id}
+                onChange={(e) => setForm({ ...form, staff_id: Number(e.target.value) })}
               >
                 {staffNames.map((staff) => (
                   <option key={staff.id} value={staff.id}>
@@ -424,11 +444,18 @@ const Payroll: React.FC = () => {
             {/* Gratuity/Severance and WCIF */}
             <div className="card">
               <h3>Gratuity/Severance Pay and WCIF</h3>
-              <label>Gratuity/Severance Pay (ZMW)</label>
+              <label>Gratuity/Severance Pay (%)</label>
               <input
                 type="number"
                 value={form.gratuity_severance}
                 onChange={(e) => setForm({ ...form, gratuity_severance: Number(e.target.value) })}
+              />
+
+              <label>Gratuity/Severance Pay (ZMW)</label>
+              <input
+                type="number"
+                value={gratuityAmount} // Display the calculated gratuity
+                readOnly
               />
 
               <label>Workers' Compensation Fund (WCIF) (ZMW)</label>
