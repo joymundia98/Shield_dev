@@ -60,19 +60,44 @@ const Payroll: React.FC = () => {
     payment_date: "",
   });
 
+  const [departments, setDepartments] = useState<any[]>([]); // Fetch department data
+  const [roles, setRoles] = useState<any[]>([]); // Fetch roles data
+  const [staffNames, setStaffNames] = useState<any[]>([]); // Fetch staff data
+
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   useEffect(() => {
     document.body.classList.toggle("sidebar-open", sidebarOpen);
   }, [sidebarOpen]);
 
-  // Simulating fetching data (e.g., departments, roles, staff names)
-  const departments = ["HR", "Engineering", "Marketing", "Sales"];
-  const roles = ["Manager", "Engineer", "Administrator", "Analyst"];
-  const staffNames = ["John Doe", "Jane Smith", "Michael Johnson", "Emily Davis"];
+  // Simulating fetching department, roles, and staff data from an API
+  useEffect(() => {
+    // Replace with API calls to fetch actual data
+    const fetchDepartments = async () => {
+      const response = await fetch("http://localhost:3000/api/departments"); // Replace with your API endpoint
+      const data = await response.json();
+      setDepartments(data);
+    };
+
+    const fetchRoles = async () => {
+      const response = await fetch("http://localhost:3000/api/roles"); // Replace with your API endpoint
+      const data = await response.json();
+      setRoles(data);
+    };
+
+    const fetchStaffNames = async () => {
+      const response = await fetch("http://localhost:3000/api/staff"); // Replace with your API endpoint
+      const data = await response.json();
+      setStaffNames(data);
+    };
+
+    fetchDepartments();
+    fetchRoles();
+    fetchStaffNames();
+  }, []);
 
   useEffect(() => {
-    // Simulating fetching staff details
+    // Simulate fetching staff details
     const staffData = {
       staff_id: 1,
       staff_name: "John Doe",
@@ -157,7 +182,21 @@ const Payroll: React.FC = () => {
     };
 
     calculatePayroll();
-  }, [form]);
+  }, [
+    form.salary,
+    form.housing_allowance,
+    form.transport_allowance,
+    form.medical_allowance,
+    form.overtime,
+    form.bonus,
+    form.paye_tax_percentage,
+    form.napsa_contribution_percentage,
+    form.union_dues,
+    form.health_insurance,
+    form.nhima_contribution,
+    form.gratuity_severance,
+    form.wcif,
+  ]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,8 +207,19 @@ const Payroll: React.FC = () => {
     }
 
     try {
-      // Simulate submitting payroll data (this would be an API call)
-      console.log("Payroll data submitted:", form);
+      // Post the payroll data to the server
+      const response = await fetch("http://localhost:3000/api/payroll", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit payroll.");
+      }
+
       alert("Payroll submitted successfully!");
       navigate("/hr/payroll"); // Redirect after submission
     } catch (err: any) {
@@ -233,8 +283,10 @@ const Payroll: React.FC = () => {
                 value={form.department}
                 onChange={(e) => setForm({ ...form, department: e.target.value })}
               >
-                {departments.map((department, index) => (
-                  <option key={index} value={department}>{department}</option>
+                {departments.map((department) => (
+                  <option key={department.id} value={department.id}>
+                    {department.name}
+                  </option>
                 ))}
               </select>
 
@@ -243,8 +295,10 @@ const Payroll: React.FC = () => {
                 value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value })}
               >
-                {roles.map((role, index) => (
-                  <option key={index} value={role}>{role}</option>
+                {roles.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.name}
+                  </option>
                 ))}
               </select>
 
@@ -253,8 +307,10 @@ const Payroll: React.FC = () => {
                 value={form.staff_name}
                 onChange={(e) => setForm({ ...form, staff_name: e.target.value })}
               >
-                {staffNames.map((name, index) => (
-                  <option key={index} value={name}>{name}</option>
+                {staffNames.map((staff) => (
+                  <option key={staff.id} value={staff.id}>
+                    {staff.name}
+                  </option>
                 ))}
               </select>
             </div>

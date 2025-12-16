@@ -2,19 +2,22 @@ import React, { useEffect, useRef, useState } from "react";
 import "../../styles/global.css";
 import Chart from "chart.js/auto";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios'; // Import axios for API calls
 
-  const HRDashboard: React.FC = () => {
+const HRDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  
+  // New state variables for API data
+  const [staffData, setStaffData] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [leaveRequests, setLeaveRequests] = useState([]);
+  
   // Chart refs
   const deptChartRef = useRef<Chart | null>(null);
-  const genderChartRef = useRef<Chart | null>(null);
   const leaveChartRef = useRef<Chart | null>(null);
   const joinLeaveChartRef = useRef<Chart | null>(null);
-  const complianceChartRef = useRef<Chart | null>(null);
 
-  // Color palette
   const blue = "#1A3D7C";
   const brown1 = "#5C4736";
   const brown2 = "#AF907A";
@@ -23,103 +26,120 @@ import { useNavigate } from "react-router-dom";
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  // Add/remove sidebar-open class on body for proper animation
-    useEffect(() => {
-      const body = document.body;
-      if (sidebarOpen) {
-        body.classList.add("sidebar-open");
-      } else {
-        body.classList.remove("sidebar-open");
+  useEffect(() => {
+    const body = document.body;
+    if (sidebarOpen) {
+      body.classList.add("sidebar-open");
+    } else {
+      body.classList.remove("sidebar-open");
+    }
+    return () => body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
+
+  // Fetching staff, departments, and leave requests
+  useEffect(() => {
+    // Fetch staff data
+    const fetchStaffData = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/staff');
+        setStaffData(response.data);
+      } catch (error) {
+        console.error("Error fetching staff data:", error);
       }
-      // Clean up on unmount
-      return () => body.classList.remove("sidebar-open");
-    }, [sidebarOpen]);
+    };
+
+    // Fetch department data
+    const fetchDepartments = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/departments');
+        setDepartments(response.data);
+      } catch (error) {
+        console.error("Error fetching departments:", error);
+      }
+    };
+
+    // Fetch leave requests data
+    const fetchLeaveRequests = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/leave_requests');
+        setLeaveRequests(response.data);
+      } catch (error) {
+        console.error("Error fetching leave requests:", error);
+      }
+    };
+
+    // Call all fetch functions
+    fetchStaffData();
+    fetchDepartments();
+    fetchLeaveRequests();
+  }, []);
 
   useEffect(() => {
-    // Destroy previous charts if they exist
-    deptChartRef.current?.destroy();
-    genderChartRef.current?.destroy();
-    leaveChartRef.current?.destroy();
-    joinLeaveChartRef.current?.destroy();
-    complianceChartRef.current?.destroy();
+  deptChartRef.current?.destroy();
+  leaveChartRef.current?.destroy();
+  joinLeaveChartRef.current?.destroy();
 
-    // Department Breakdown
-    const deptCtx = document.getElementById("deptChart") as HTMLCanvasElement;
-    if (deptCtx) {
-      deptChartRef.current = new Chart(deptCtx, {
-        type: "bar",
-        data: {
-          labels: [
-            "Worship & Music",
-            "Youth Ministry",
-            "Children's Ministry",
-            "Hospitality",
-            "Outreach",
-            "Finance/Admin",
-            "Pastoral Team",
-            "Maintenance",
-            "IT & Media",
-          ],
-          datasets: [
-            { label: "Staff Count", data: [12, 8, 6, 7, 6, 6, 5, 4, 4], backgroundColor: blue },
-          ],
-        },
-        options: { responsive: true },
-      });
-    }
+  // Calculate staff counts per department and sort in descending order
+  const deptStaffCounts = departments.map(dept => ({
+    name: dept.name,
+    staffCount: staffData.filter(staff => staff.department_id === dept.id).length,
+  }));
 
-    // Gender Ratio
-    const genderCtx = document.getElementById("genderChart") as HTMLCanvasElement;
-    if (genderCtx) {
-      genderChartRef.current = new Chart(genderCtx, {
-        type: "pie",
-        data: {
-          labels: ["Male", "Female"],
-          datasets: [{ data: [28, 30], backgroundColor: [blue, brown2] }],
-        },
-        options: { responsive: true },
-      });
-    }
+  // Sort departments by staff count in descending order
+  const sortedDeptStaffCounts = deptStaffCounts.sort((a, b) => b.staffCount - a.staffCount);
 
-    // Leave Overview
-    const leaveCtx = document.getElementById("leaveChart") as HTMLCanvasElement;
-    if (leaveCtx) {
-      leaveChartRef.current = new Chart(leaveCtx, {
-        type: "doughnut",
-        data: {
-          labels: ["On Leave Today", "Pending Approvals", "Next 30 Days"],
-          datasets: [{ data: [3, 4, 9], backgroundColor: [blue, brown1, gray] }],
+  // Department Breakdown Chart (Upright Bar Chart)
+  const deptCtx = document.getElementById("deptChart") as HTMLCanvasElement;
+  if (deptCtx) {
+    deptChartRef.current = new Chart(deptCtx, {
+      type: "bar", // Keep the chart type as 'bar'
+      data: {
+        labels: sortedDeptStaffCounts.map(dept => dept.name), // Sorted department names
+        datasets: [
+          {
+            label: "Staff Count",
+            data: sortedDeptStaffCounts.map(dept => dept.staffCount), // Sorted staff counts
+            backgroundColor: blue,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            beginAtZero: true,
+          },
+          y: {
+            beginAtZero: true,
+          },
         },
-        options: { responsive: true },
-      });
-    }
+      },
+    });
+  }
 
-    // Joiners & Leavers
-    const joinLeaveCtx = document.getElementById("joinLeaveChart") as HTMLCanvasElement;
-    if (joinLeaveCtx) {
-      joinLeaveChartRef.current = new Chart(joinLeaveCtx, {
-        type: "bar",
-        data: {
-          labels: ["New Staff", "Volunteers Added", "Exits"],
-          datasets: [{ label: "Count", data: [2, 3, 1], backgroundColor: [blue, brown2, dark] }],
-        },
-        options: { responsive: true },
-      });
-    }
+  // Leave Overview Chart remains unchanged
+  const leaveCtx = document.getElementById("leaveChart") as HTMLCanvasElement;
+  if (leaveCtx) {
+    leaveChartRef.current = new Chart(leaveCtx, {
+      type: "doughnut",
+      data: {
+        labels: ["On Leave Today", "Pending Approvals", "Next 30 Days"],
+        datasets: [
+          {
+            data: [
+              leaveRequests.filter(leave => leave.status === "approved" && new Date(leave.start_date) <= new Date()).length,
+              leaveRequests.filter(leave => leave.status === "pending").length,
+              leaveRequests.filter(leave => new Date(leave.start_date) > new Date()).length,
+            ],
+            backgroundColor: [blue, brown1, gray],
+          },
+        ],
+      },
+      options: { responsive: true },
+    });
+  }
+}, [staffData, departments, leaveRequests]);
 
-    // Compliance & Credentials
-    const complianceCtx = document.getElementById("complianceChart") as HTMLCanvasElement;
-    if (complianceCtx) {
-      complianceChartRef.current = new Chart(complianceCtx, {
-        type: "bar",
-        data: {
-          labels: ["Pending Background Checks", "Expired IDs", "Credentials Expiring", "Missed Training"],
-          datasets: [{ label: "Count", data: [2, 1, 3, 5], backgroundColor: [blue, gray, brown2, dark] }],
-        },
-        options: { responsive: true, indexAxis: "y" },
-      });
-    }
-  }, []);
 
   return (
     <div className="dashboard-wrapper">
@@ -147,7 +167,7 @@ import { useNavigate } from "react-router-dom";
         <h2>HR MANAGER</h2>
         <a href="/hr/dashboard" className="active">Dashboard</a>
         <a href="/hr/staffDirectory">Staff Directory</a>
-        <a href="/hr/payroll" className="active">Payroll</a>
+        <a href="/hr/payroll">Payroll</a>
         <a href="/hr/leave">Leave Management</a>
         <a href="/hr/leaveApplications">Leave Applications</a>
         <a href="/hr/departments">Departments</a>
@@ -174,34 +194,18 @@ import { useNavigate } from "react-router-dom";
       {/* Main Dashboard Content */}
       <div className="dashboard-content">
         <h1>HR Dashboard Overview</h1>
-
-        <br/><br/>
+        <br /><br />
         <div className="kpi-container">
-          <div className="kpi-card"><h3>Total Staff</h3><p>58</p></div>
-          <div className="kpi-card"><h3>Paid Staff</h3><p>35</p></div>
-          <div className="kpi-card"><h3>Volunteers</h3><p>11</p></div>
-          <div className="kpi-card"><h3>Departments</h3><p>9</p></div>
-          <div className="kpi-card"><h3>Active Leave</h3><p>3</p></div>
-          <div className="kpi-card"><h3>Expiring Docs</h3><p>6</p></div>
+          <div className="kpi-card"><h3>Total Staff</h3><p>{staffData.length}</p></div>
+          <div className="kpi-card"><h3>Paid Staff</h3><p>{staffData.filter(staff => staff.paid).length}</p></div>
+          <div className="kpi-card"><h3>Unpaid Staff</h3><p>{staffData.filter(staff => !staff.paid).length}</p></div>
+          <div className="kpi-card"><h3>Departments</h3><p>{departments.length}</p></div>
+          <div className="kpi-card"><h3>Active Leave</h3><p>{leaveRequests.filter(leave => leave.status === 'approved').length}</p></div>
         </div>
 
         <div className="chart-grid">
           <div className="chart-box"><h3>Department Breakdown</h3><canvas id="deptChart"></canvas></div>
-          <div className="chart-box"><h3>Gender Ratio</h3><canvas id="genderChart"></canvas></div>
           <div className="chart-box"><h3>Leave Management Overview</h3><canvas id="leaveChart"></canvas></div>
-          <div className="chart-box"><h3>Joiners & Leavers</h3><canvas id="joinLeaveChart"></canvas></div>
-          <div className="chart-box"><h3>Compliance & Credentials</h3><canvas id="complianceChart"></canvas></div>
-        </div>
-
-        <div className="chart-box" style={{ marginTop: 30 }}>
-          <h3>Recent Activity</h3>
-          <ul style={{ margin: 0, paddingLeft: 20, lineHeight: 1.8 }}>
-            <li>Updated staff: <b>Kofi Appiah</b></li>
-            <li>New volunteer: <b>Sarah Owusu</b></li>
-            <li>Pastoral license renewed</li>
-            <li>Payroll updated (Nov)</li>
-            <li>Safeguarding training completed</li>
-          </ul>
         </div>
       </div>
     </div>

@@ -45,12 +45,18 @@ export const RegisterForm = () => {
   useEffect(() => {
     // Fetch roles
     axios.get("http://localhost:3000/api/roles")
-      .then(res => setRoles(res.data))
+      .then(res => {
+        // Sort roles alphabetically by name
+        setRoles(res.data.sort((a, b) => a.name.localeCompare(b.name)));
+      })
       .catch(err => console.error("Error fetching roles:", err));
 
     // Fetch organizations
     axios.get("http://localhost:3000/api/organizations")
-      .then(res => setOrganizations(res.data))
+      .then(res => {
+        // Sort organizations alphabetically by name
+        setOrganizations(res.data.sort((a, b) => a.name.localeCompare(b.name)));
+      })
       .catch(err => console.error("Error fetching organizations:", err));
   }, []);
 
