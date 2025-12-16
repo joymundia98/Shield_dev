@@ -7,6 +7,7 @@ interface Department {
   name: string;
   desc: string;
   total: number;
+  category: "church" | "corporate";
 }
 
 const DepartmentsPage: React.FC = () => {
@@ -26,44 +27,55 @@ const DepartmentsPage: React.FC = () => {
   const [deptDesc, setDeptDesc] = useState("");
 
   /* -------------------- Sidebar -------------------- */
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-
-  useEffect(() => {
-    if (sidebarOpen) document.body.classList.add("sidebar-open");
-    else document.body.classList.remove("sidebar-open");
-  }, [sidebarOpen]);
+ const toggleSidebar = () => setSidebarOpen((prev) => !prev);
+ 
+   useEffect(() => {
+     if (sidebarOpen) document.body.classList.add("sidebar-open");
+     else document.body.classList.remove("sidebar-open");
+   }, [sidebarOpen]);
 
   /* -------------------- Fetch Departments from Backend -------------------- */
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/departments"); // <--- full backend URL
+        const res = await fetch("http://localhost:3000/api/departments");
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
         const data = await res.json();
 
-        // Split departments by category
-        setChurchDepartments(
-          data
-            .filter((d: any) => d.category === "church")
-            .map((d: any) => ({
-              id: d.id,
-              name: d.name,
-              desc: d.description,
-              total: d.total || 0
-            }))
-        );
+        const churchDepts = data
+          .filter((d: any) => d.category === "church")
+          .map((d: any) => ({
+            id: d.id,
+            name: d.name,
+            desc: d.description,
+            total: d.total || 0, // Default to 0 if no total is provided
+            category: d.category,
+          }));
 
-        setCorporateDepartments(
-          data
-            .filter((d: any) => d.category === "corporate")
-            .map((d: any) => ({
-              id: d.id,
-              name: d.name,
-              desc: d.description,
-              total: d.total || 0
-            }))
-        );
+        const corporateDepts = data
+          .filter((d: any) => d.category === "corporate")
+          .map((d: any) => ({
+            id: d.id,
+            name: d.name,
+            desc: d.description,
+            total: d.total || 0, // Default to 0 if no total is provided
+            category: d.category,
+          }));
+
+        const staffRes = await fetch("http://localhost:3000/api/staff");
+        if (!staffRes.ok) throw new Error(`HTTP error! status: ${staffRes.status}`);
+        const staffData = await staffRes.json();
+
+        const countStaffForDepartment = (departments: Department[], staff: any[]) => {
+          return departments.map((dept) => ({
+            ...dept,
+            total: staff.filter((staffMember: any) => staffMember.department_id === dept.id).length,
+          }));
+        };
+
+        setChurchDepartments(countStaffForDepartment(churchDepts, staffData));
+        setCorporateDepartments(countStaffForDepartment(corporateDepts, staffData));
       } catch (err) {
         console.error("Error fetching departments:", err);
       }
@@ -78,7 +90,8 @@ const DepartmentsPage: React.FC = () => {
     setEditIndex(index);
 
     if (index !== null) {
-      const dept = group === "church" ? churchDepartments[index] : corporateDepartments[index];
+      const dept =
+        group === "church" ? churchDepartments[index] : corporateDepartments[index];
       setDeptName(dept.name);
       setDeptDesc(dept.desc);
     } else {
@@ -95,8 +108,55 @@ const DepartmentsPage: React.FC = () => {
     setEditingGroup(null);
   };
 
+  /* --------------------FETCH FUNCTION --------------------*/
+  const fetchDepartments = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/api/departments");
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+      const data = await res.json();
+
+      const churchDepts = data
+        .filter((d: any) => d.category === "church")
+        .map((d: any) => ({
+          id: d.id,
+          name: d.name,
+          desc: d.description,
+          total: d.total || 0, // Default to 0 if no total is provided
+          category: d.category,
+        }));
+
+      const corporateDepts = data
+        .filter((d: any) => d.category === "corporate")
+        .map((d: any) => ({
+          id: d.id,
+          name: d.name,
+          desc: d.description,
+          total: d.total || 0, // Default to 0 if no total is provided
+          category: d.category,
+        }));
+
+      const staffRes = await fetch("http://localhost:3000/api/staff");
+      if (!staffRes.ok) throw new Error(`HTTP error! status: ${staffRes.status}`);
+      const staffData = await staffRes.json();
+
+      const countStaffForDepartment = (departments: Department[], staff: any[]) => {
+        return departments.map((dept) => ({
+          ...dept,
+          total: staff.filter((staffMember: any) => staffMember.department_id === dept.id).length,
+        }));
+      };
+
+      setChurchDepartments(countStaffForDepartment(churchDepts, staffData));
+      setCorporateDepartments(countStaffForDepartment(corporateDepts, staffData));
+    } catch (err) {
+      console.error("Error fetching departments:", err);
+    }
+  };
+
+
   /* -------------------- Save Handler -------------------- */
-  const saveDepartment = () => {
+  const saveDepartment = async () => {
     if (!deptName.trim()) {
       alert("Department name is required");
       return;
@@ -104,65 +164,111 @@ const DepartmentsPage: React.FC = () => {
 
     if (!editingGroup) return;
 
+    const departmentData = {
+      name: deptName,
+      description: deptDesc,
+      category: editingGroup,
+      total: 0,
+    };
+
     if (editIndex !== null) {
-      // Editing existing
-      if (editingGroup === "church") {
-        const updated = [...churchDepartments];
-        updated[editIndex] = { ...updated[editIndex], name: deptName, desc: deptDesc };
-        setChurchDepartments(updated);
-      } else {
-        const updated = [...corporateDepartments];
-        updated[editIndex] = { ...updated[editIndex], name: deptName, desc: deptDesc };
-        setCorporateDepartments(updated);
+      // Editing existing department
+      const deptId =
+        editingGroup === "church"
+          ? churchDepartments[editIndex].id
+          : corporateDepartments[editIndex].id;
+
+      try {
+        const res = await fetch(`http://localhost:3000/api/departments/${deptId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(departmentData),
+        });
+        if (!res.ok) throw new Error("Failed to update department");
+
+        await res.json(); // Make sure to await the response
+
+        // Re-fetch all departments
+        fetchDepartments();
+
+        alert("Department updated successfully!");
+      } catch (err) {
+        console.error("Error updating department:", err);
+        alert("Failed to update department.");
       }
     } else {
       // Creating new department
-      const newDept: Department = {
-        id:
-          editingGroup === "church"
-            ? churchDepartments.length + 1
-            : corporateDepartments.length + 1,
-        name: deptName,
-        desc: deptDesc,
-        total: 0
-      };
+      try {
+        const res = await fetch("http://localhost:3000/api/departments", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(departmentData),
+        });
+        if (!res.ok) throw new Error("Failed to add new department");
 
-      if (editingGroup === "church") {
-        setChurchDepartments(prev => [...prev, newDept]);
-      } else {
-        setCorporateDepartments(prev => [...prev, newDept]);
+        await res.json();
+
+        // Re-fetch all departments
+        fetchDepartments();
+
+        alert("Department added successfully!");
+      } catch (err) {
+        console.error("Error adding department:", err);
+        alert("Failed to add new department.");
       }
     }
 
     closePopup();
   };
 
+
+
   /* -------------------- Delete Handler -------------------- */
-  const deleteDepartment = (group: "church" | "corporate", index: number) => {
+  const deleteDepartment = async (group: "church" | "corporate", index: number) => {
     if (!window.confirm("Are you sure you want to delete this department?")) return;
 
-    if (group === "church") {
-      setChurchDepartments(prev => prev.filter((_, i) => i !== index));
-    } else {
-      setCorporateDepartments(prev => prev.filter((_, i) => i !== index));
+    const deptId =
+      group === "church" ? churchDepartments[index].id : corporateDepartments[index].id;
+
+    try {
+      const res = await fetch(`http://localhost:3000/api/departments/${deptId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete department");
+
+      // Remove department locally
+      if (group === "church") {
+        setChurchDepartments((prev) => prev.filter((_, i) => i !== index));
+      } else {
+        setCorporateDepartments((prev) => prev.filter((_, i) => i !== index));
+      }
+
+      alert("Department deleted successfully!");
+    } catch (err) {
+      console.error("Error deleting department:", err);
+      alert("Failed to delete department.");
     }
   };
 
   /* -------------------- Render -------------------- */
   return (
     <div className="dashboard-wrapper">
-
       {/* Hamburger */}
       <button className="hamburger" onClick={toggleSidebar}>
         &#9776;
       </button>
 
       {/* Sidebar */}
-      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
+      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
         <div className="close-wrapper">
           <div className="toggle close-btn">
             <input
               type="checkbox"
+              id="closeSidebarButton"
               checked={sidebarOpen}
               onChange={toggleSidebar}
             />
@@ -170,24 +276,26 @@ const DepartmentsPage: React.FC = () => {
             <span className="label">X</span>
           </div>
         </div>
-
+         
         <h2>HR MANAGER</h2>
         <a href="/hr/dashboard">Dashboard</a>
         <a href="/hr/staffDirectory">Staff Directory</a>
         <a href="/hr/payroll">Payroll</a>
         <a href="/hr/leave">Leave Management</a>
         <a href="/hr/leaveApplications">Leave Applications</a>
-        <a href="/hr/departments" className="active">Departments</a>
+        <a href="/hr/departments" className="active">
+          Departments
+        </a>
 
         <hr className="sidebar-separator" />
 
-        <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
+        <a href="/dashboard" className="return-main">
+          ← Back to Main Dashboard
+        </a>
         <a
-          href="/"
-          className="logout-link"
+          className="logout-btn"
           onClick={(e) => {
             e.preventDefault();
-            localStorage.clear();
             navigate("/");
           }}
         >
@@ -197,11 +305,10 @@ const DepartmentsPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
-
         {/* Church Departments */}
         <div className="table-section">
-          <div className="table-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h2>Church Departments</h2>
+          <div className="table-header">
+            <h2 className="department-header">Church Departments</h2>
             <button className="add-btn" onClick={() => openPopup("church")}>
               + &nbsp; Add Church Department
             </button>
@@ -225,8 +332,12 @@ const DepartmentsPage: React.FC = () => {
                   <td>{dept.desc}</td>
                   <td>{dept.total}</td>
                   <td className="actions">
-                    <button className="edit-btn" onClick={() => openPopup("church", index)}>Edit</button>
-                    <button className="delete-btn" onClick={() => deleteDepartment("church", index)}>Delete</button>
+                    <button className="edit-btn" onClick={() => openPopup("church", index)}>
+                      Edit
+                    </button>
+                    <button className="delete-btn" onClick={() => deleteDepartment("church", index)}>
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -236,8 +347,8 @@ const DepartmentsPage: React.FC = () => {
 
         {/* Corporate Departments */}
         <div className="table-section" style={{ marginTop: "3rem" }}>
-          <div className="table-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h2>Corporate Departments</h2>
+          <div className="table-header">
+            <h2 className="department-header">Corporate Departments</h2>
             <button className="add-btn" onClick={() => openPopup("corporate")}>
               + &nbsp; Add Corporate Department
             </button>
@@ -249,7 +360,7 @@ const DepartmentsPage: React.FC = () => {
                 <th>Department ID</th>
                 <th>Name</th>
                 <th>Description</th>
-                <th>Total Staff</th>
+                <th>Total Members</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -261,22 +372,28 @@ const DepartmentsPage: React.FC = () => {
                   <td>{dept.desc}</td>
                   <td>{dept.total}</td>
                   <td className="actions">
-                    <button className="edit-btn" onClick={() => openPopup("corporate", index)}>Edit</button>
-                    <button className="delete-btn" onClick={() => deleteDepartment("corporate", index)}>Delete</button>
+                    <button className="edit-btn" onClick={() => openPopup("corporate", index)}>
+                      Edit
+                    </button>
+                    <button className="delete-btn" onClick={() => deleteDepartment("corporate", index)}>
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-
       </div>
 
       {/* Popup Overlay */}
       {showPopup && <div className="overlay" onClick={closePopup}></div>}
 
       {/* Popup Form */}
-      <div className="filter-popup" style={{ display: showPopup ? "block" : "none", width: "380px", padding: "2rem" }}>
+      <div
+        className="filter-popup"
+        style={{ display: showPopup ? "block" : "none", width: "380px", padding: "2rem" }}
+      >
         <h3>{editIndex !== null ? "Edit Department" : "Add Department"}</h3>
 
         <label>Name</label>
@@ -287,6 +404,7 @@ const DepartmentsPage: React.FC = () => {
           placeholder="Department Name"
         />
 
+        <br/>
         <label>Description</label>
         <textarea
           value={deptDesc}
@@ -294,12 +412,18 @@ const DepartmentsPage: React.FC = () => {
           placeholder="Short description"
         ></textarea>
 
-        <div className="filter-popup-buttons" style={{ display: "flex", justifyContent: "flex-end", gap: "1rem" }}>
-          <button className="add-btn" onClick={saveDepartment}>Save</button>
-          <button className="cancel-btn" onClick={closePopup}>Cancel</button>
+        <div
+          className="filter-popup-buttons"
+          style={{ display: "flex", justifyContent: "flex-end", gap: "1rem" }}
+        >
+          <button className="add-btn" onClick={saveDepartment}>
+            Save
+          </button>
+          <button className="cancel-btn" onClick={closePopup}>
+            Cancel
+          </button>
         </div>
       </div>
-
     </div>
   );
 };

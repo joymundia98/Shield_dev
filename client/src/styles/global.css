@@ -747,9 +747,22 @@
     /* ---------- Table Header & Button ---------- */
         .table-header {
             display: flex;
-            justify-content: flex-end; /* top-right */
-            margin-bottom: 10px;
+            justify-content: space-between; /* Space out items: header on the left, button on the right */
+            align-items: center;            /* Align vertically */
+            margin-bottom: 10px;            /* Keep the spacing between header and table */
         }
+
+        .department-header {
+            text-align: left;               /* Align header text to the left */
+            margin: 0;                       /* Remove any default margin */
+            font-size: 1.5rem;               /* Adjust the font size as needed */
+            font-weight: bold;               /* Optional: Make it bold */
+        }
+
+        .add-btn {
+            margin-left: auto;              /* Push the 'Add' button to the right */
+        }
+
 
         /* Add Button CSS */
         .add-btn, .submit-btn {
@@ -1146,12 +1159,14 @@
             width: 20%;
         }*/
 
+        .filter-popup textarea,
+        .filter-popup input[type="text"],
         .FormContainer input[type="text"],
         .FormContainer input[type="number"],
         .FormContainer input[type="email"],
         .FormContainer input[type="tel"]
         .FormContainer select,
-        select {
+        select{
             padding: 10px 12px;
             border-radius: 4px;
             border: 1px solid #ccc;
@@ -1159,6 +1174,8 @@
             box-sizing: border-box;
         }
 
+        .filter-popup textarea,
+        .filter-popup input[type="text"],
         .FormContainer input[type="text"],
         .FormContainer input[type="number"],
         .FormContainer input[type="email"],
@@ -1883,4 +1900,3 @@
                 .modal-btn:hover {
                 background-color: #45a049;
                 }
-
