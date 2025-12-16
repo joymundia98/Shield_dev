@@ -6,6 +6,18 @@ import pkg from 'pg';
 import userRoutes from './modules/user/userRoutes.js';
 import staffRoutes from './modules/hr/staff/staffRoutes.js';
 import membersRoutes from './modules/member/memberRoutes.js';
+
+import teacherRoutes from './modules/classes_/teachers/teacherRoutes.js';
+import classRoutes from './modules/classes_/classRoutes.js';
+import classCategoryRoutes from './modules/classes_/class_categories/classCategoryRoutes.js';
+import classTeacherRoutes from './modules/classes_/class_teachers/classTeacherRoutes.js';
+import studentRoutes from './modules/classes_/students/studentRoutes.js';
+
+import convertRoutes  from './modules/converts/convertRoutes.js';
+import counsellorRoutes from './modules/counsellors/counsellorRoutes.js';
+import followUpRoutes from './modules/follow_ups/followUpRoutes.js';
+import followUpSessionRoutes from './modules/follow_ups/follow_up_sessions/followUpSessionRoutes.js';
+
 import leaveRoutes from './modules/hr/leave/leaveRoutes.js';
 import donorRoutes from './modules/donors/donorRoutes.js';
 import donorTypeRoutes from './modules/donors/donor_types/donorTypeRoutes.js';
@@ -94,10 +106,21 @@ app.use("/api/donors/donor_sub_category", donorSubCategoryRoutes);
 app.use("/api/donors", donorRoutes);
 
 
-app.use("/api/congregation/congregants/", congregantRoutes)
-app.use("/api/congregation/member_statistics", memberStatsRoutes)
-app.use("/api/congregation/attendance", attendanceRoutes)
-// Visitor Routes
+app.use("/api/congregation/congregants", congregantRoutes);
+app.use("/api/congregation/member_statistics", memberStatsRoutes);
+app.use("/api/congregation/attendance", attendanceRoutes);
+
+app.use("/api/classes", classRoutes);
+app.use("/api/classes/class_categories", classCategoryRoutes);
+app.use("/api/classes/class_teacher", classTeacherRoutes);
+app.use("/api/classes/students", studentRoutes);
+app.use("/api/classes/teachers", teacherRoutes);
+
+app.use("/api/converts", convertRoutes);
+app.use("/api/counsellors", counsellorRoutes);
+app.use("/api/follow_ups", followUpRoutes);
+app.use("/api/follow_up_sesions", followUpSessionRoutes);
+
 app.use("/api/visitor", visitorRoutes);
 app.use("/api/visitor-services", visitorServiceRoutes);
 app.use("/api/visitor-referrals", visitorReferralRoutes);
@@ -126,7 +149,7 @@ app.use('/api/assets', assetRoutes);
 app.use('/api/assets/maintenance_categories', assetMaintenaceCategoryRoutes);
 app.use('/api/assets/maintenance_records', assetMaintenaceRecordRoutes);
 app.use('/api/assets/depreciation', assetDepreciationRoutes);
-app.use('/api/assets/warranty', assetWarrantyRoutes)
+app.use('/api/assets/warranty', assetWarrantyRoutes);
 app.use('/api/profiles/churches', churchRoutes);
 app.use('/api/profiles/core_values', coreValueRoutes);
 app.use('/api/profiles/leadership', leadershipRoutes);
