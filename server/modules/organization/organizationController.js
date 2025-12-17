@@ -1,19 +1,31 @@
 // controllers/organization.controller.js
 
-import Organization from "./organizationModel.js";
+import Organization from "./organization.model.js";
 
 export const OrganizationController = {
   // CREATE ORGANIZATION
   async create(req, res) {
     try {
-      const { name } = req.body;
+      const { name, org_type_id, password } = req.body;
 
       if (!name) {
         return res.status(400).json({ message: "Organization name is required" });
       }
 
+      if (!org_type_id) {
+        return res.status(400).json({ message: "Organization type is required" });
+      }
+
+      if (!password) {
+        return res.status(400).json({ message: "Password is required" });
+      }
+
       const org = await Organization.create(req.body);
-      res.status(201).json(org);
+
+      // Don't return password in response
+      const { password: _, ...orgData } = org;
+
+      res.status(201).json(orgData);
 
     } catch (err) {
       console.error("Organization create error:", err);
@@ -30,7 +42,8 @@ export const OrganizationController = {
         return res.status(404).json({ message: "Organization not found" });
       }
 
-      res.json(org);
+      const { password: _, ...orgData } = org;
+      res.json(orgData);
 
     } catch (err) {
       console.error("Get org error:", err);
@@ -42,7 +55,8 @@ export const OrganizationController = {
   async list(req, res) {
     try {
       const organizations = await Organization.getAll();
-      res.json(organizations);
+      const orgs = organizations.map(({ password, ...rest }) => rest);
+      res.json(orgs);
 
     } catch (err) {
       console.error("List org error:", err);
@@ -53,7 +67,6 @@ export const OrganizationController = {
   // LIST PUBLIC (for registration dropdown)
   async listPublic(req, res) {
     try {
-      // Only return id and name
       const organizations = await Organization.getAll();
       const publicOrgs = organizations.map(org => ({ id: org.id, name: org.name }));
       res.json(publicOrgs);
@@ -72,7 +85,8 @@ export const OrganizationController = {
         return res.status(404).json({ message: "Organization not found" });
       }
 
-      res.json(org);
+      const { password: _, ...orgData } = org;
+      res.json(orgData);
 
     } catch (err) {
       console.error("Update org error:", err);

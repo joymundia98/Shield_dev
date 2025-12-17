@@ -1,5 +1,3 @@
-// models/organization.model.js
-
 import { pool } from "../../server.js";
 import crypto from "crypto"; // for random ID generation
 
@@ -20,7 +18,8 @@ const Organization = {
       district,
       status = "active",
       organization_email,
-      type
+      org_type_id, // now referencing organization_type
+      password
     } = data;
 
     const organization_account_id = generateAccountId();
@@ -36,9 +35,10 @@ const Organization = {
         status,
         organization_email,
         organization_account_id,
-        type
+        org_type_id,
+        password
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *
       `,
       [
@@ -50,7 +50,8 @@ const Organization = {
         status,
         organization_email,
         organization_account_id,
-        type
+        org_type_id,
+        password
       ]
     );
 
@@ -84,7 +85,8 @@ const Organization = {
       district,
       status,
       organization_email,
-      type
+      org_type_id,
+      password
     } = data;
 
     const result = await pool.query(
@@ -98,8 +100,9 @@ const Organization = {
         district = $5,
         status = $6,
         organization_email = $7,
-        type = $8
-      WHERE id = $9
+        org_type_id = $8,
+        password = $9
+      WHERE id = $10
       RETURNING *
       `,
       [
@@ -110,7 +113,8 @@ const Organization = {
         district,
         status,
         organization_email,
-        type,
+        org_type_id,
+        password,
         id
       ]
     );

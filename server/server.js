@@ -68,6 +68,7 @@ import permissionRoutes from './modules/permissions/permissionRoutes.js';
 import rolePermissionRoutes from './modules/role_permission/rolePermRoutes.js';
 import denominationRoutes from './modules/denomination/denominationRoutes.js';
 import organizationRoutes from './modules/organization/OrgRoutes.js';
+import orgTypeRoutes from './modules/organization_type/orgTypeRoutes';
 import { verifyJWT } from './middleware/auth.js';
 // import { OrganizationController } from './modules/organization/organizationController.js';
 
@@ -162,6 +163,7 @@ app.use('/api/profiles/worship', worshipRoutes);
 app.use("/api/leave_requests", leaveRoutes);
 app.use("/api/denominations", verifyJWT, denominationRoutes);
 app.use("/api/organizations", organizationRoutes);
+app.use("/api/organization_type", orgTypeRoutes);
 
 // Health check
 app.get("/", (req, res) => {
