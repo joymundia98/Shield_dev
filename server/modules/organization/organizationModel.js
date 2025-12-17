@@ -1,5 +1,10 @@
+// models/organization.model.js
+
 import { pool } from "../../server.js";
-import crypto from "crypto"; // for random ID generation
+import crypto from "crypto";
+import bcrypt from "bcrypt";
+
+const SALT_ROUNDS = 10; // For bcrypt
 
 function generateAccountId() {
   // Example: ORG-8F3A9C1D
@@ -18,11 +23,17 @@ const Organization = {
       district,
       status = "active",
       organization_email,
-      org_type_id, // now referencing organization_type
+      org_type_id, // references organization_type
       password
     } = data;
 
     const organization_account_id = generateAccountId();
+
+    // Hash password if provided
+    let hashedPassword = null;
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+    }
 
     const result = await pool.query(
       `
@@ -51,7 +62,7 @@ const Organization = {
         organization_email,
         organization_account_id,
         org_type_id,
-        password
+        hashedPassword
       ]
     );
 
@@ -89,34 +100,46 @@ const Organization = {
       password
     } = data;
 
+    // Hash password if provided
+    let hashedPassword = password ? await bcrypt.hash(password, SALT_ROUNDS) : undefined;
+
+    const fields = [
+      "name",
+      "denomination",
+      "address",
+      "region",
+      "district",
+      "status",
+      "organization_email",
+      "org_type_id",
+      "password"
+    ];
+
+    const values = [
+      name,
+      denomination,
+      address,
+      region,
+      district,
+      status,
+      organization_email,
+      org_type_id,
+      hashedPassword
+    ];
+
+    // Only update fields that are defined
+    const setClauses = fields
+      .map((field, idx) => (values[idx] !== undefined ? `${field} = $${idx + 1}` : null))
+      .filter(Boolean);
+
+    const filteredValues = values.filter(v => v !== undefined);
+
+    // Append id at the end
+    filteredValues.push(id);
+
     const result = await pool.query(
-      `
-      UPDATE organizations
-      SET
-        name = $1,
-        denomination = $2,
-        address = $3,
-        region = $4,
-        district = $5,
-        status = $6,
-        organization_email = $7,
-        org_type_id = $8,
-        password = $9
-      WHERE id = $10
-      RETURNING *
-      `,
-      [
-        name,
-        denomination,
-        address,
-        region,
-        district,
-        status,
-        organization_email,
-        org_type_id,
-        password,
-        id
-      ]
+      `UPDATE organizations SET ${setClauses.join(", ")} WHERE id = $${filteredValues.length} RETURNING *`,
+      filteredValues
     );
 
     return result.rows[0];

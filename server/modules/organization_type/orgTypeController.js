@@ -1,4 +1,4 @@
-import OrganizationType from "./orgTypeController.js";
+import OrganizationType from "./orgType.js";
 
 export const OrganizationTypeController = {
   async create(req, res) {

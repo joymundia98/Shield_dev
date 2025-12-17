@@ -68,7 +68,7 @@ import permissionRoutes from './modules/permissions/permissionRoutes.js';
 import rolePermissionRoutes from './modules/role_permission/rolePermRoutes.js';
 import denominationRoutes from './modules/denomination/denominationRoutes.js';
 import organizationRoutes from './modules/organization/OrgRoutes.js';
-import orgTypeRoutes from './modules/organization_type/orgTypeRoutes';
+import orgTypeRoutes from './modules/organization_type/orgTypeRoutes.js';
 import { verifyJWT } from './middleware/auth.js';
 // import { OrganizationController } from './modules/organization/organizationController.js';
 
