@@ -1,67 +1,63 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
-interface PayrollRecord {
-  name: string;
-  position: string;
-  salary: number;
-  status: string;
-  date: string;
-  department: string;
-}
+const ViewPayrollPage: React.FC = () => {
+  const location = useLocation();
+  const { payroll_id } = location.state;
 
-const ViewPayroll: React.FC = () => {
-  const { name } = useParams<{ name: string }>(); // Type for `name` parameter
-  const [payrollData, setPayrollData] = useState<PayrollRecord[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [payrollRecord, setPayrollRecord] = useState(null);
 
-  // Fetch payroll data from API
+  // Fetch the payroll record by payroll_id
   useEffect(() => {
-    const fetchPayrollData = async () => {
+    const fetchPayroll = async () => {
       try {
-        // Replace this URL with your actual API endpoint
-        const response = await axios.get<PayrollRecord[]>("http://localhost:3000/api/payroll");
-        setPayrollData(response.data);
-        setLoading(false);
-      } catch (err) {
-        setError("Failed to load payroll data.");
-        setLoading(false);
+        const response = await fetch(`http://localhost:3000/api/payroll/${payroll_id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setPayrollRecord(data);
+        } else {
+          console.error("Failed to fetch payroll record");
+        }
+      } catch (error) {
+        console.error("Error fetching payroll record:", error);
       }
     };
 
-    fetchPayrollData();
-  }, []);
-
-  // Safely find the payroll record matching the `name` from URL params
-  const payrollRecord = payrollData.find(
-    (record) => name && record.name.toLowerCase() === name.toLowerCase()
-  );
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
+    fetchPayroll();
+  }, [payroll_id]);
 
   if (!payrollRecord) {
-    return <div>Payroll record for {name} not found.</div>;
+    return <p>Loading payroll record...</p>;
   }
 
   return (
     <div>
-      <h1>View Payroll - {payrollRecord.name}</h1>
-      <p>Position: {payrollRecord.position}</p>
-      <p>Salary: ${payrollRecord.salary}</p>
-      <p>Status: {payrollRecord.status}</p>
-      <p>Payment Date: {payrollRecord.date}</p>
-      <p>Department: {payrollRecord.department}</p>
-      {/* Add any other relevant information */}
+      <h1>Payroll Detail</h1>
+      <table>
+        <tr>
+          <th>Staff Name</th>
+          <td>{payrollRecord.name}</td>
+        </tr>
+        <tr>
+          <th>Role</th>
+          <td>{payrollRecord.role}</td>
+        </tr>
+        <tr>
+          <th>Net Salary</th>
+          <td>{payrollRecord.net_salary}</td>
+        </tr>
+        <tr>
+          <th>Status</th>
+          <td>{payrollRecord.status}</td>
+        </tr>
+        <tr>
+          <th>Payment Date</th>
+          <td>{new Date(payrollRecord.created_at).toLocaleDateString()}</td>
+        </tr>
+        {/* Add other fields as needed */}
+      </table>
     </div>
   );
 };
 
-export default ViewPayroll;
+export default ViewPayrollPage;

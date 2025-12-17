@@ -8,10 +8,10 @@ interface PayrollRecord {
   staff_id: number;
   department_id: number;
   department: string;
-  role_id: number;  // The role_id now needs to be mapped to the role name
-  year: number; 
-  month: number; 
-  salary: string; 
+  role_id: number;
+  year: number;
+  month: number;
+  salary: string;
   housing_allowance: string;
   transport_allowance: string;
   medical_allowance: string;
@@ -29,13 +29,14 @@ interface PayrollRecord {
   nhima_contribution_amount: string | null;
   wcif: string;
   total_deductions: string;
-  net_salary: string; 
+  net_salary: string;
   gratuity_percentage: string | null;
   gratuity_amount: string | null;
-  status: "Paid" | "Pending" | "Overdue"; 
-  created_at: string; 
-  updated_at: string; 
-  role?: string;  // Add a role field that will be set after fetching roles
+  status: "Paid" | "Pending" | "Overdue";
+  created_at: string;
+  updated_at: string;
+  role?: string;
+  staff_name?: string; // Adding staff_name to the payroll data
 }
 
 interface Department {
@@ -58,7 +59,8 @@ const HrPayrollPage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [payrollData, setPayrollData] = useState<PayrollRecord[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [roles, setRoles] = useState<Role[]>([]);  // New state for storing roles
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [staffNames, setStaffNames] = useState<any[]>([]); // State for staff names
   const [search, setSearch] = useState("");
   const [filterMonth, setFilterMonth] = useState<string | "all">("all");
   const [filterYear, setFilterYear] = useState<number | "all">("all");
@@ -102,23 +104,41 @@ const HrPayrollPage: React.FC = () => {
     fetchRoles();
   }, []);
 
+  // ------------------- Fetch Staff Names -------------------
+  useEffect(() => {
+    const fetchStaffNames = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/staff");
+        const data = await response.json();
+        setStaffNames(data);
+      } catch (error) {
+        console.error("Error fetching staff names:", error);
+      }
+    };
+
+    fetchStaffNames();
+  }, []);
+
   // ------------------- Fetch Payroll Data -------------------
   useEffect(() => {
     const fetchPayrollData = async () => {
-      if (departments.length === 0 || roles.length === 0) return;  // Ensure roles are loaded before fetching payroll
+      if (departments.length === 0 || roles.length === 0 || staffNames.length === 0) return;
 
       try {
         const response = await fetch("http://localhost:3000/api/payroll");
         const data: PayrollRecord[] = await response.json();
 
-        // Map payroll data to include department names and roles
+        // Map payroll data to include department names, roles, and staff names
         const payrollWithDetails = data.map((payroll) => {
           const department = departments.find((dep) => dep.id === payroll.department_id);
-          const role = roles.find((role) => role.id === payroll.role_id);  // Find role by role_id
+          const role = roles.find((role) => role.id === payroll.role_id);
+          const staff = staffNames.find((staff) => staff.id === payroll.staff_id);
+
           return {
             ...payroll,
             department: department ? department.name : "Unknown",
-            role: role ? role.name : "Unknown",  // Add role to the payroll data
+            role: role ? role.name : "Unknown",
+            staff_name: staff ? staff.name : "Unknown",  // Map staff_id to staff_name
           };
         });
 
@@ -129,7 +149,7 @@ const HrPayrollPage: React.FC = () => {
     };
 
     fetchPayrollData();
-  }, [departments, roles]);
+  }, [departments, roles, staffNames]);
 
   // ------------------- Filtered Payroll -------------------
   const filteredPayroll = useMemo(() => {
@@ -144,39 +164,17 @@ const HrPayrollPage: React.FC = () => {
   }, [payrollData, filterMonth, filterYear, filterDepartment, search]);
 
   // ------------------- Group by Department -------------------
-  const groupedByDepartment = useMemo(() => {
-    const groups: Record<string, PayrollRecord[]> = {};
-    filteredPayroll.forEach((rec) => {
-      if (!groups[rec.department]) groups[rec.department] = [];
-      groups[rec.department].push(rec);
-    });
-    return groups;
-  }, [filteredPayroll]);
+  const groupByDepartment = (data: PayrollRecord[]) => {
+    return data.reduce((acc, payroll) => {
+      if (!acc[payroll.department]) {
+        acc[payroll.department] = [];
+      }
+      acc[payroll.department].push(payroll);
+      return acc;
+    }, {} as Record<string, PayrollRecord[]>);
+  };
 
-  // ------------------- KPI Calculations -------------------
-  const selectedMonthIndex = filterMonth === "all" ? new Date().getMonth() : monthNames.indexOf(filterMonth);
-  const selectedYearValue = filterYear === "all" ? new Date().getFullYear() : filterYear;
-
-  const payrollThisMonth = payrollData.filter((p) => {
-    const recordMonth = p.month - 1;
-    const recordYear = p.year;
-
-    const isValidMonth = recordMonth === selectedMonthIndex;
-    const isValidYear = recordYear === selectedYearValue;
-
-    return isValidMonth && isValidYear;
-  });
-
-  const kpiTotalPaid = payrollThisMonth
-    .filter((p) => p.status === "Paid")
-    .reduce((sum, p) => sum + parseFloat(p.net_salary), 0);
-
-  const kpiTotalDue = payrollThisMonth
-    .filter((p) => p.status === "Pending" || p.status === "Overdue")
-    .reduce((sum, p) => sum + parseFloat(p.net_salary), 0);
-
-  const kpiPaidCount = payrollThisMonth.filter((p) => p.status === "Paid").length;
-  const kpiUnpaidCount = payrollThisMonth.filter((p) => p.status === "Pending" || p.status === "Overdue").length;
+  const groupedPayrollData = groupByDepartment(filteredPayroll);
 
   // ------------------- Date Formatter -------------------
   const formatDate = (dateString: string) => {
@@ -202,11 +200,12 @@ const HrPayrollPage: React.FC = () => {
     }
   };
 
-  // ------------------- Table Rendering -------------------
   return (
     <div className="dashboard-wrapper">
       {/* Hamburger */}
-      <button className="hamburger" onClick={toggleSidebar}>&#9776;</button>
+      <button className="hamburger" onClick={toggleSidebar}>
+        &#9776;
+      </button>
 
       {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
@@ -240,7 +239,7 @@ const HrPayrollPage: React.FC = () => {
           onClick={(e) => {
             e.preventDefault();
             localStorage.clear();
-            navigate("/");
+            navigate("/"); 
           }}
         >
           ➜ Logout
@@ -252,7 +251,7 @@ const HrPayrollPage: React.FC = () => {
         <h1>Payroll</h1>
 
         {/* Search + Add */}
-        <div className="table-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="table-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <input
             type="text"
             className="search-input"
@@ -260,94 +259,104 @@ const HrPayrollPage: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <button className="add-btn" onClick={() => navigate("/hr/addPayroll")}>+ Add Payroll Record</button>
+          <button
+            className="add-btn"
+            onClick={() => navigate("/hr/addPayroll")}
+          >
+            Add Payroll
+          </button>
         </div>
+        <br />
 
         {/* Filters */}
         <div className="filters" style={{ margin: "10px 0", display: "flex", gap: "10px" }}>
-          <label>
-            Month:
-            <select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)}>
-              <option value="all">All</option>
-              {monthNames.map((month) => (
-                <option key={month} value={month}>{month}</option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Year:
-            <select value={filterYear} onChange={(e) => setFilterYear(e.target.value === "all" ? "all" : parseInt(e.target.value))}>
-              <option value="all">All</option>
-              {[2020, 2021, 2022, 2023, 2024, 2025].map((y) => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Department:
-            <select value={filterDepartment} onChange={(e) => setFilterDepartment(e.target.value)}>
-              <option value="all">All</option>
-              {departments.map(dep => (
-                <option key={dep.id} value={dep.name}>{dep.name}</option>
-              ))}
-            </select>
-          </label>
-        </div>
+          <label>Filter by Month</label>
+          <select
+            value={filterMonth}
+            onChange={(e) => setFilterMonth(e.target.value)}
+          >
+            <option value="all">All</option>
+            {monthNames.map((month, index) => (
+              <option key={index} value={month}>
+                {month}
+              </option>
+            ))}
+          </select>
 
-        {/* KPI Cards */}
-        <div className="kpi-container">
-          <div className="kpi-card">
-            <h3>Total Paid (This Month)</h3>
-            <p>{kpiTotalPaid.toLocaleString()}</p>
-          </div>
-          <div className="kpi-card">
-            <h3>Total Due (This Month)</h3>
-            <p>{kpiTotalDue.toLocaleString()}</p>
-          </div>
-          <div className="kpi-card">
-            <h3>Employees Paid</h3>
-            <p>{kpiPaidCount}</p>
-          </div>
-          <div className="kpi-card">
-            <h3>Employees Unpaid</h3>
-            <p>{kpiUnpaidCount}</p>
-          </div>
-        </div>
+          <label>Filter by Year</label>
+          <select
+            value={filterYear}
+            onChange={(e) => setFilterYear(Number(e.target.value))}
+          >
+            <option value="all">All</option>
+            {new Array(10).fill(0).map((_, i) => (
+              <option key={i} value={2020 + i}>
+                {2020 + i}
+              </option>
+            ))}
+          </select>
 
-        {/* Payroll Table Grouped by Department */}
-        {Object.entries(groupedByDepartment).map(([dept, records]) => (
-          <div key={dept} style={{ marginTop: "20px" }}>
-            <h2>{dept} Department</h2>
-            <table className="responsive-table">
-              <thead>
-                <tr>
-                  <th>Staff Name</th>
-                  <th>Role</th> {/* Changed Position to Role */}
-                  <th>Net Salary</th>
-                  <th>Status</th>
-                  <th>Payment Date</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {records.map((p, i) => (
-                  <tr key={i}>
-                    <td>{p.name}</td>
-                    <td>{p.role}</td> {/* Display Role */}
-                    <td>${parseFloat(p.net_salary).toLocaleString()}</td>
-                    <td><span className={`status ${p.status.toLowerCase()}`}>{p.status}</span></td>
-                    <td>{formatDate(p.created_at)}</td>
-                    <td>
-                      <button className="add-btn" onClick={() => navigate("/hr/viewPayroll", { state: p })}>View</button>&emsp;
-                      <button className="edit-btn" onClick={() => navigate("/hr/addPayroll", { state: { editingIndex: i, payrollRecord: p } })}>Edit</button>&emsp;
-                      <button className="delete-btn" onClick={() => deletePayroll(i, dept)}>Delete</button>
-                    </td>
+          <label>Filter by Department</label>
+          <select
+            value={filterDepartment}
+            onChange={(e) => setFilterDepartment(e.target.value)}
+          >
+            <option value="all">All</option>
+            {departments.map((dep) => (
+              <option key={dep.id} value={dep.name}>
+                {dep.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <br />
+
+        {/* Payroll Table */}
+        <div className="department-sections">
+          {Object.entries(groupedPayrollData).map(([departmentName, records]) => (
+            <div key={departmentName} className="department-section">
+              <h2>{departmentName}</h2>
+              <table className="responsive-table">
+                <thead>
+                  <tr>
+                    <th>Staff Name</th>
+                    <th>Role</th>
+                    <th>Net Salary</th>
+                    <th>Status</th>
+                    <th>Payment Date</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
+                </thead>
+                <tbody>
+                  {records.map((p, i) => (
+                    <tr key={i}>
+                      <td>{p.staff_name}</td>
+                      <td>{p.role}</td>
+                      <td>{parseFloat(p.net_salary).toLocaleString()}</td>
+                      <td><span className={`status ${p.status.toLowerCase()}`}>{p.status}</span></td>
+                      <td>{formatDate(p.created_at)}</td>
+                      <td>
+                        <button
+                          className="add-btn"
+                          onClick={() => navigate("/hr/viewPayroll", { state: { payroll_id: p.payroll_id } })}
+                        >
+                          View
+                        </button>&emsp;
+                        <button
+                          className="edit-btn"
+                          onClick={() => navigate("/hr/addPayroll", { state: { payroll_id: p.payroll_id } })}
+                        >
+                          Edit
+                        </button>&emsp;
+                        <button className="delete-btn" onClick={() => deletePayroll(i, p.department)}>Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

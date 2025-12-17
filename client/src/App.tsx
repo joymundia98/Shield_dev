@@ -34,6 +34,7 @@ import DepartmentsPage from "./pages/hr/departments";
 import AddStaffPage from "./pages/hr/addStaff";
 import AddLeave from "./pages/hr/addLeave";
 import LeaveApplicationsPage from "./pages/hr/leaveApplications";
+import ViewPayrollPage from "./pages/hr/ViewPayroll";  // Import the View Payroll page
 
 // Asset Module Functional Pages
 import AssetsPage from "./pages/assets/assets";
@@ -214,6 +215,7 @@ function App() {
           <Route path="/hr/addStaff" element={<AddStaffPage />} />
           <Route path="/hr/addLeave" element={<AddLeave />} />
           <Route path="/hr/leaveApplications" element={<LeaveApplicationsPage />} />
+          <Route path="/hr/viewPayroll" element={<ViewPayrollPage />} />
 
           {/* ------------------------------
                   PROGRAMS MODULE
