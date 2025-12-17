@@ -46,7 +46,7 @@ import MaintenancePage from "./pages/assets/maintenance";
 import CategoriesPage from "./pages/assets/categories";
 
 // Finance Module Functional Pages
-import PayrollPage from "./pages/finance/payroll";
+import FinancePayrollPage from "./pages/finance/payroll";
 import ExpenseDashboardPage from "./pages/finance/expenseDashboard";
 import ExpenseTrackerPage from "./pages/finance/expensetracker";
 import AddExpensePage from "./pages/finance/addExpense";
@@ -198,7 +198,7 @@ function App() {
           <Route path="/finance/incomeDashboard" element={<IncomeDashboardPage />} />
           <Route path="/finance/addExpense" element={<AddExpensePage />} />
           <Route path="/finance/addIncome" element={<AddIncomePage />} />
-          <Route path="/finance/payroll" element={<PayrollPage />} />
+          <Route path="/finance/payroll" element={<FinancePayrollPage />} />
           <Route path="/finance/financeCategory" element={<FinanceCategoryPage />} />
           <Route path="/finance/budgets" element={<BudgetsPage />} />
           <Route path="/finance/setBudget" element={<SetBudgetsPage />} />

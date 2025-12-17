@@ -1294,7 +1294,8 @@
         
 
         /* ---------- expenseModal BACKDROP ---------- */
-        .expenseModal {
+        .expenseModal, 
+        .confirmationModal {
             display: none;
             position: fixed;
             top: 0;
@@ -1310,7 +1311,8 @@
         }
 
         /* ---------- expenseModal CARD ---------- */
-        .expenseModal-content {
+        .expenseModal-content,
+        .confirmationModal-content {
             background: #fff;
             padding: 25px;
             width: 380px;
@@ -1338,7 +1340,8 @@
             justify-content: space-between;
         }
 
-        .expenseModal-cancel {
+        .expenseModal-cancel,
+        .confirmationModal-cancel {
             background: #ccc;
             border: none;
             padding: 10px 18px;
@@ -1347,7 +1350,8 @@
             font-size: 15px;
         }
 
-        .expenseModal-confirm {
+        .expenseModal-confirm,
+        .confirmationModal-confirm {
             background: #007bff;
             color: white;
             border: none;

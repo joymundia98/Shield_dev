@@ -200,6 +200,32 @@ const HrPayrollPage: React.FC = () => {
     }
   };
 
+  // ------------------- KPI Calculations -------------------
+  const selectedMonthIndex = filterMonth === "all" ? new Date().getMonth() : monthNames.indexOf(filterMonth);
+  const selectedYearValue = filterYear === "all" ? new Date().getFullYear() : filterYear;
+
+  const payrollThisMonth = payrollData.filter((p) => {
+    const recordMonth = p.month - 1;
+    const recordYear = p.year;
+
+    const isValidMonth = recordMonth === selectedMonthIndex;
+    const isValidYear = recordYear === selectedYearValue;
+
+    return isValidMonth && isValidYear;
+  });
+
+  const kpiTotalPaid = payrollThisMonth
+    .filter((p) => p.status === "Paid")
+    .reduce((sum, p) => sum + parseFloat(p.net_salary), 0);
+
+  const kpiTotalDue = payrollThisMonth
+    .filter((p) => p.status === "Pending" || p.status === "Overdue")
+    .reduce((sum, p) => sum + parseFloat(p.net_salary), 0);
+
+  const kpiPaidCount = payrollThisMonth.filter((p) => p.status === "Paid").length;
+  const kpiUnpaidCount = payrollThisMonth.filter((p) => p.status === "Pending" || p.status === "Overdue").length;
+
+
   return (
     <div className="dashboard-wrapper">
       {/* Hamburger */}
@@ -310,6 +336,25 @@ const HrPayrollPage: React.FC = () => {
           </select>
         </div>
         <br />
+
+        <div className="kpi-container">
+          <div className="kpi-card">
+            <h3>Total Paid (This Month)</h3>
+            <p>{kpiTotalPaid.toLocaleString()}</p>
+          </div>
+          <div className="kpi-card">
+            <h3>Total Due (This Month)</h3>
+            <p>{kpiTotalDue.toLocaleString()}</p>
+          </div>
+          <div className="kpi-card">
+            <h3>Employees Paid</h3>
+            <p>{kpiPaidCount}</p>
+          </div>
+          <div className="kpi-card">
+            <h3>Employees Unpaid</h3>
+            <p>{kpiUnpaidCount}</p>
+          </div>
+        </div>
 
         {/* Payroll Table */}
         <div className="department-sections">
