@@ -8,7 +8,7 @@ interface PayrollRecord {
   staff_id: number;
   department_id: number;
   department: string;
-  role_id: number;
+  role_id: number;  // The role_id now needs to be mapped to the role name
   year: number; 
   month: number; 
   salary: string; 
@@ -35,9 +35,15 @@ interface PayrollRecord {
   status: "Paid" | "Pending" | "Overdue"; 
   created_at: string; 
   updated_at: string; 
+  role?: string;  // Add a role field that will be set after fetching roles
 }
 
 interface Department {
+  id: number;
+  name: string;
+}
+
+interface Role {
   id: number;
   name: string;
 }
@@ -52,6 +58,7 @@ const HrPayrollPage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [payrollData, setPayrollData] = useState<PayrollRecord[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);  // New state for storing roles
   const [search, setSearch] = useState("");
   const [filterMonth, setFilterMonth] = useState<string | "all">("all");
   const [filterYear, setFilterYear] = useState<number | "all">("all");
@@ -80,32 +87,49 @@ const HrPayrollPage: React.FC = () => {
     fetchDepartments();
   }, []);
 
+  // ------------------- Fetch Roles -------------------
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/roles");
+        const data: Role[] = await response.json();
+        setRoles(data);
+      } catch (error) {
+        console.error("Error fetching roles:", error);
+      }
+    };
+
+    fetchRoles();
+  }, []);
+
   // ------------------- Fetch Payroll Data -------------------
   useEffect(() => {
     const fetchPayrollData = async () => {
-      if (departments.length === 0) return;
+      if (departments.length === 0 || roles.length === 0) return;  // Ensure roles are loaded before fetching payroll
 
       try {
         const response = await fetch("http://localhost:3000/api/payroll");
         const data: PayrollRecord[] = await response.json();
 
-        // Map payroll data to include department names
-        const payrollWithDepartments = data.map((payroll) => {
+        // Map payroll data to include department names and roles
+        const payrollWithDetails = data.map((payroll) => {
           const department = departments.find((dep) => dep.id === payroll.department_id);
+          const role = roles.find((role) => role.id === payroll.role_id);  // Find role by role_id
           return {
             ...payroll,
             department: department ? department.name : "Unknown",
+            role: role ? role.name : "Unknown",  // Add role to the payroll data
           };
         });
 
-        setPayrollData(payrollWithDepartments);
+        setPayrollData(payrollWithDetails);
       } catch (error) {
         console.error("Error fetching payroll data:", error);
       }
     };
 
     fetchPayrollData();
-  }, [departments]);
+  }, [departments, roles]);
 
   // ------------------- Filtered Payroll -------------------
   const filteredPayroll = useMemo(() => {
@@ -198,6 +222,7 @@ const HrPayrollPage: React.FC = () => {
             <span className="label">X</span>
           </div>
         </div>
+
         <h2>HR MANAGER</h2>
         <a href="/hr/dashboard">Dashboard</a>
         <a href="/hr/staffDirectory">Staff Directory</a>
@@ -297,7 +322,7 @@ const HrPayrollPage: React.FC = () => {
               <thead>
                 <tr>
                   <th>Staff Name</th>
-                  <th>Position</th>
+                  <th>Role</th> {/* Changed Position to Role */}
                   <th>Net Salary</th>
                   <th>Status</th>
                   <th>Payment Date</th>
@@ -308,7 +333,7 @@ const HrPayrollPage: React.FC = () => {
                 {records.map((p, i) => (
                   <tr key={i}>
                     <td>{p.name}</td>
-                    <td>{p.position}</td>
+                    <td>{p.role}</td> {/* Display Role */}
                     <td>${parseFloat(p.net_salary).toLocaleString()}</td>
                     <td><span className={`status ${p.status.toLowerCase()}`}>{p.status}</span></td>
                     <td>{formatDate(p.created_at)}</td>
