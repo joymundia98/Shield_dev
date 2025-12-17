@@ -338,7 +338,7 @@ const HrPayrollPage: React.FC = () => {
                       <td>
                         <button
                           className="add-btn"
-                          onClick={() => navigate("/hr/viewPayroll", { state: { payroll_id: p.payroll_id } })}
+                          onClick={() => navigate(`/hr/ViewPayroll/${p.payroll_id}`)}
                         >
                           View
                         </button>&emsp;

@@ -215,7 +215,7 @@ function App() {
           <Route path="/hr/addStaff" element={<AddStaffPage />} />
           <Route path="/hr/addLeave" element={<AddLeave />} />
           <Route path="/hr/leaveApplications" element={<LeaveApplicationsPage />} />
-          <Route path="/hr/viewPayroll" element={<ViewPayrollPage />} />
+          <Route path="/hr/ViewPayroll/:payrollId" element={<ViewPayrollPage />} />
 
           {/* ------------------------------
                   PROGRAMS MODULE
