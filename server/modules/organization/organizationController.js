@@ -1,6 +1,6 @@
 // controllers/organization.controller.js
 
-import Organization from "./organization.model.js";
+import Organization from "./organizationModel.js";
 
 export const OrganizationController = {
   // CREATE ORGANIZATION
