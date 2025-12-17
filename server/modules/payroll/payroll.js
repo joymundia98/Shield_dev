@@ -78,25 +78,39 @@ const Payroll = {
     return result.rows[0];
   },
 
-  async update(payroll_id, data) {
-    // Dynamic update
-    const fields = [];
-    const values = [];
-    let i = 1;
-    for (const key of Object.keys(data)) {
-      fields.push(`${key} = $${i}`);
-      values.push(data[key]);
-      i++;
-    }
-    values.push(payroll_id);
+async update(payroll_id, data) {
+  // Remove undefined fields or fields that should not change
+  const { staff_id, year, month, ...otherFields } = data;
 
+  const fields = [];
+  const values = [];
+  let i = 1;
+
+  // Only update the fields you want to change (other than staff_id/year/month)
+  for (const key of Object.keys(otherFields)) {
+    fields.push(`${key} = $${i}`);
+    values.push(otherFields[key]);
+    i++;
+  }
+
+  if (fields.length === 0) {
+    // Nothing to update
     const result = await pool.query(
-      `UPDATE payroll SET ${fields.join(", ")} WHERE payroll_id=$${i} RETURNING *`,
-      values
+      `SELECT * FROM payroll WHERE payroll_id=$1`,
+      [payroll_id]
     );
-
     return result.rows[0];
-  },
+  }
+
+  values.push(payroll_id);
+
+  const result = await pool.query(
+    `UPDATE payroll SET ${fields.join(", ")} WHERE payroll_id=$${i} RETURNING *`,
+    values
+  );
+
+  return result.rows[0];
+},
 
   async delete(payroll_id) {
     const result = await pool.query(
