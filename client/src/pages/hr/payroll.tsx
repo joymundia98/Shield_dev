@@ -344,7 +344,7 @@ const HrPayrollPage: React.FC = () => {
                         </button>&emsp;
                         <button
                           className="edit-btn"
-                          onClick={() => navigate("/hr/addPayroll", { state: { payroll_id: p.payroll_id } })}
+                          onClick={() => navigate(`/hr/EditPayrollPage/${p.payroll_id}`)}
                         >
                           Edit
                         </button>&emsp;
