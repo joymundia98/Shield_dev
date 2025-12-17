@@ -83,18 +83,18 @@ const HrPayrollPage: React.FC = () => {
   // ------------------- Fetch Payroll Data -------------------
   useEffect(() => {
     const fetchPayrollData = async () => {
-      if (departments.length === 0) return; 
-      
+      if (departments.length === 0) return;
+
       try {
         const response = await fetch("http://localhost:3000/api/payroll");
         const data: PayrollRecord[] = await response.json();
-        
+
         // Map payroll data to include department names
         const payrollWithDepartments = data.map((payroll) => {
           const department = departments.find((dep) => dep.id === payroll.department_id);
           return {
             ...payroll,
-            department: department ? department.name : "Unknown", 
+            department: department ? department.name : "Unknown",
           };
         });
 
@@ -109,26 +109,12 @@ const HrPayrollPage: React.FC = () => {
 
   // ------------------- Filtered Payroll -------------------
   const filteredPayroll = useMemo(() => {
-    console.log("Filtering Payroll Data with Filters: ", { filterMonth, filterYear, filterDepartment, search });
-
     return payrollData.filter((rec) => {
-      const dateObj = new Date(rec.created_at); 
-      if (filterMonth !== "all" && monthNames[dateObj.getMonth()] !== filterMonth) {
-        console.log(`Skipping due to month mismatch: ${monthNames[dateObj.getMonth()]}`);
-        return false;
-      }
-      if (filterYear !== "all" && dateObj.getFullYear() !== filterYear) {
-        console.log(`Skipping due to year mismatch: ${dateObj.getFullYear()}`);
-        return false;
-      }
-      if (filterDepartment !== "all" && rec.department !== filterDepartment) {
-        console.log(`Skipping due to department mismatch: ${rec.department}`);
-        return false;
-      }
-      if (search && !JSON.stringify(rec).toLowerCase().includes(search.toLowerCase())) {
-        console.log(`Skipping due to search mismatch`);
-        return false;
-      }
+      const dateObj = new Date(rec.created_at);
+      if (filterMonth !== "all" && monthNames[dateObj.getMonth()] !== filterMonth) return false;
+      if (filterYear !== "all" && dateObj.getFullYear() !== filterYear) return false;
+      if (filterDepartment !== "all" && rec.department !== filterDepartment) return false;
+      if (search && !JSON.stringify(rec).toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
   }, [payrollData, filterMonth, filterYear, filterDepartment, search]);
@@ -140,7 +126,6 @@ const HrPayrollPage: React.FC = () => {
       if (!groups[rec.department]) groups[rec.department] = [];
       groups[rec.department].push(rec);
     });
-    console.log("Grouped Payroll by Department: ", groups);
     return groups;
   }, [filteredPayroll]);
 
@@ -149,30 +134,22 @@ const HrPayrollPage: React.FC = () => {
   const selectedYearValue = filterYear === "all" ? new Date().getFullYear() : filterYear;
 
   const payrollThisMonth = payrollData.filter((p) => {
-    const recordMonth = p.month - 1; 
+    const recordMonth = p.month - 1;
     const recordYear = p.year;
-    
+
     const isValidMonth = recordMonth === selectedMonthIndex;
     const isValidYear = recordYear === selectedYearValue;
-    console.log(`Filtering payroll: ${p.department} | ${recordMonth} == ${selectedMonthIndex} & ${recordYear} == ${selectedYearValue} = ${isValidMonth && isValidYear}`);
-    
+
     return isValidMonth && isValidYear;
   });
-
-  // Debugging statements for payrollThisMonth
-  console.log("Filtered Payroll for this Month:", payrollThisMonth); 
-  console.log("Unpaid Employees Count:", payrollThisMonth.filter((p) => p.status === "Pending" || p.status === "Overdue").length);
-  console.log("Total Due Amount for Unpaid Employees:", payrollThisMonth.filter((p) => p.status === "Pending" || p.status === "Overdue").reduce((sum, p) => sum + parseFloat(p.net_salary), 0)); 
 
   const kpiTotalPaid = payrollThisMonth
     .filter((p) => p.status === "Paid")
     .reduce((sum, p) => sum + parseFloat(p.net_salary), 0);
-  console.log("KPI Total Paid (This Month): ", kpiTotalPaid);
 
   const kpiTotalDue = payrollThisMonth
     .filter((p) => p.status === "Pending" || p.status === "Overdue")
     .reduce((sum, p) => sum + parseFloat(p.net_salary), 0);
-  console.log("KPI Total Due (This Month): ", kpiTotalDue);
 
   const kpiPaidCount = payrollThisMonth.filter((p) => p.status === "Paid").length;
   const kpiUnpaidCount = payrollThisMonth.filter((p) => p.status === "Pending" || p.status === "Overdue").length;
@@ -181,6 +158,24 @@ const HrPayrollPage: React.FC = () => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+  };
+
+  // ------------------- Delete Payroll -------------------
+  const deletePayroll = async (index: number, dept: string) => {
+    if (window.confirm("Are you sure you want to delete this payroll record?")) {
+      const payrollRecord = filteredPayroll[index];
+      try {
+        await fetch(`http://localhost:3000/api/payroll/${payrollRecord.payroll_id}`, {
+          method: "DELETE",
+        });
+        // Remove the deleted payroll record from the state
+        setPayrollData((prevData) =>
+          prevData.filter((record) => record.payroll_id !== payrollRecord.payroll_id)
+        );
+      } catch (error) {
+        console.error("Error deleting payroll record:", error);
+      }
+    }
   };
 
   // ------------------- Table Rendering -------------------
@@ -203,7 +198,6 @@ const HrPayrollPage: React.FC = () => {
             <span className="label">X</span>
           </div>
         </div>
-
         <h2>HR MANAGER</h2>
         <a href="/hr/dashboard">Dashboard</a>
         <a href="/hr/staffDirectory">Staff Directory</a>
