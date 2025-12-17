@@ -4,10 +4,6 @@ import axios from "axios";
 import { AxiosError } from "axios";
 import "../../styles/global.css"; // Ensure your styles are being imported
 
-{/*interface BudgetCategories {
-  [category: string]: string[];
-}*/}
-
 interface Budgets {
   [category: string]: { [subCategory: string]: number };
 }
@@ -57,43 +53,14 @@ const SetBudgetsPage: React.FC = () => {
           if (categoryName) {
             categories[categoryName].push(subCategory.name);
             subcategoryIdsMap[subCategory.name] = subCategory.id; // Map subcategory name to ID
+          } else {
+            console.error(`No category found for subcategory: ${subCategory.name}`);
           }
         });
 
         setBudgetCategories(categories);
         setCategoryIds(categoryIdsMap); // Set the category_id map
         setSubcategoryIds(subcategoryIdsMap); // Set the subcategory_id map
-
-        // Fetch existing budgets
-        const budgetsRes = await axios.get("http://localhost:3000/api/finance/budgets");
-        const initialBudgets: Budgets = {};
-        
-        // Initialize budgets if they exist
-        budgetsRes.data.forEach((budget: any) => {
-          // Ensure category exists and is a valid string
-          const category = budget.category;
-          
-          // Check if category is a valid string and exists in the categories object
-          if (typeof category === 'string' && categories[category]) {
-            // If the category exists in the categories object
-            if (!initialBudgets[category]) {
-              initialBudgets[category] = {};
-            }
-            
-            // Safely add the subcategory and amount to the budgets
-            const subCategory = budget.subCategory;
-            if (typeof subCategory === 'string') {
-              initialBudgets[category][subCategory] = budget.amount;
-            } else {
-              console.error(`Invalid subcategory: ${subCategory} for category: ${category}`);
-            }
-          } else {
-            console.error(`Invalid category: ${category} for budget entry`);
-          }
-        });
-
-        setBudgets(initialBudgets);
-
 
       } catch (err) {
         console.error("Error fetching data", err);
@@ -139,18 +106,23 @@ const SetBudgetsPage: React.FC = () => {
 
             // Only include entries with valid amounts
             if (amount !== undefined && !isNaN(amount) && amount > 0) {
-              // Mapping category_id and subcategory_id
+              // Get category_id and subcategory_id from the maps
               const categoryId = categoryIds[category]; // Get category_id from the categoryIds map
               const subcategoryId = subcategoryIds[subCategory]; // Get subcategory_id from the subcategoryIds map
 
-              dataToSave.push({
-                title: budgetTitle,
-                amount,
-                year: parseInt(selectedYear, 10),
-                month: parseInt(selectedMonth, 10),
-                category_id: categoryId,  // Send the category_id
-                expense_subcategory_id: subcategoryId, // Send the subcategory_id
-              });
+              // Check if both categoryId and subcategoryId are valid
+              if (categoryId && subcategoryId) {
+                dataToSave.push({
+                  title: budgetTitle,
+                  amount,
+                  year: parseInt(selectedYear, 10),
+                  month: parseInt(selectedMonth, 10),  // Ensure month is correctly set
+                  category_id: categoryId,
+                  expense_subcategory_id: subcategoryId,
+                });
+              } else {
+                console.error(`Invalid category or subcategory for ${category} - ${subCategory}`);
+              }
             }
           }
         }
@@ -164,10 +136,11 @@ const SetBudgetsPage: React.FC = () => {
 
       console.log("Data to save:", dataToSave);  // Log data to confirm the structure
 
-      // Make the POST request to save the budgets
-      const response = await axios.post("http://localhost:3000/api/finance/budgets", dataToSave);
-
-      console.log("Response from backend:", response.data); // Log the response
+      // Send each budget entry separately
+      for (const budgetData of dataToSave) {
+        const response = await axios.post("http://localhost:3000/api/finance/budgets", budgetData);
+        console.log("Response from backend:", response.data); // Log the response
+      }
 
       alert("Budgets have been saved successfully!");
     } catch (err: unknown) {
@@ -254,7 +227,7 @@ const SetBudgetsPage: React.FC = () => {
 
         {/* Budget Title Input */}
         <div style={{ marginBottom: "20px" }}>
-          <br/>
+          <br />
           <label className="neumorphic-label">Please enter a Budget Title</label>
           <input
             className="neumorphic-input"
