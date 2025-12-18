@@ -85,6 +85,7 @@ import AddConvert from "./pages/congregation/addConvert";
 import VisitorsDashboard from "./pages/congregation/visitors";
 import AddVisitorPage from "./pages/congregation/addVisitors";
 import VisitorRecordsPage from "./pages/congregation/visitorRecords";
+import ViewConvert from "./pages/congregation/viewConvert";
 
 // Programs Module Functional Pages
 import RegisteredProgramsPage from "./pages/programs/RegisteredPrograms";
@@ -188,6 +189,8 @@ function App() {
           <Route path="/congregation/visitors" element={<VisitorsDashboard />} />
           <Route path="/congregation/addVisitors" element={<AddVisitorPage />} />
           <Route path="/congregation/visitorRecords" element={<VisitorRecordsPage />} />
+          <Route path="/congregation/viewConvert/:id" element={<ViewConvert />} />
+
 
           {/* ------------------------------
                   FINANCE MODULE

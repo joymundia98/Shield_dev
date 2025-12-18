@@ -15,31 +15,29 @@ const ConvertsPage: React.FC = () => {
   }, [sidebarOpen]);
 
   // Converts
-  const [converts, setConverts] = useState([]);
+  const [converts, setConverts] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch Converts Data
   const fetchConverts = async () => {
     try {
-      // Fetch the converts, visitors, and members data
       const [convertsResponse, visitorsResponse, membersResponse] = await Promise.all([
         fetch("http://localhost:3000/api/converts").then(res => res.json()),
         fetch("http://localhost:3000/api/visitor").then(res => res.json()),
         fetch("http://localhost:3000/api/members").then(res => res.json()),
       ]);
 
-      const visitors = visitorsResponse.reduce((acc, visitor) => {
-        acc[visitor.id] = visitor;  // Map visitor by ID
+      const visitors = visitorsResponse.reduce((acc: any, visitor: any) => {
+        acc[visitor.id] = visitor;
         return acc;
       }, {});
 
-      const members = membersResponse.reduce((acc, member) => {
-        acc[member.member_id] = member;  // Map member by ID
+      const members = membersResponse.reduce((acc: any, member: any) => {
+        acc[member.member_id] = member;
         return acc;
       }, {});
 
-      // Map converts to include names from the appropriate table
-      const updatedConverts = convertsResponse.map(convert => {
+      const updatedConverts = convertsResponse.map((convert: any) => {
         let name = '';
         if (convert.convert_type === "visitor" && visitors[convert.visitor_id]) {
           name = visitors[convert.visitor_id].name;
@@ -59,30 +57,35 @@ const ConvertsPage: React.FC = () => {
     fetchConverts();
   }, []);
 
-  // Modals
-  const [editConvert, setEditConvert] = useState<any | null>(null);
-  const [editIndex, setEditIndex] = useState<number | null>(null);
-  const [viewConvert, setViewConvert] = useState<any | null>(null);
+  // Confirmation Modal for Deletion
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConvertId, setDeleteConvertId] = useState<number | null>(null);
 
-  const openEditModal = (convert?: any, index?: number) => {
-    setEditConvert(convert || null);
-    setEditIndex(index ?? null);
-  };
-  const closeEditModal = () => setEditConvert(null);
+  const handleDelete = async () => {
+    if (deleteConvertId === null) return;
 
-  const openViewModal = (convert: any) => setViewConvert(convert);
-  const closeViewModal = () => setViewConvert(null);
+    try {
+      // Make DELETE request to delete the convert
+      await fetch(`http://localhost:3000/api/converts/${deleteConvertId}`, {
+        method: "DELETE",
+      });
 
-  const handleSaveConvert = (convert: any) => {
-    if (editIndex !== null) {
-      const updated = [...converts];
-      updated[editIndex] = convert;
-      setConverts(updated);
+      // Remove the deleted convert from the state
+      setConverts(converts.filter((convert) => convert.id !== deleteConvertId));
+
+      // Close the confirmation modal
+      setShowDeleteConfirm(false);
+      setDeleteConvertId(null);
+    } catch (error) {
+      console.error("Error deleting convert:", error);
     }
-    closeEditModal();
   };
 
-  const handleAddConvert = () => navigate("/congregation/addConvert");
+  // Cancel Deletion
+  const handleCancelDelete = () => {
+    setShowDeleteConfirm(false);
+    setDeleteConvertId(null);
+  };
 
   // Filtered & grouped by type
   const filteredConverts = useMemo(
@@ -152,7 +155,7 @@ const ConvertsPage: React.FC = () => {
             >
               ← Converts Overview
             </button>&emsp;
-            <button className="add-btn" onClick={handleAddConvert}>
+            <button className="add-btn" onClick={() => navigate("/congregation/addConvert")}>
               + Add New Convert
             </button>
           </div>
@@ -197,11 +200,17 @@ const ConvertsPage: React.FC = () => {
                       {new Date(c.convert_date).toLocaleDateString()}
                     </td>
                     <td className="actions">
-                      <button className="view-btn" onClick={() => openViewModal(c)}>
+                      <button className="view-btn" onClick={() => navigate(`/congregation/viewConvert/${c.id}`)}>
                         View
                       </button>
-                      <button className="edit-btn" onClick={() => openEditModal(c, index)}>
-                        Edit
+                      <button
+                        className="delete-btn"
+                        onClick={() => {
+                          setDeleteConvertId(c.id);
+                          setShowDeleteConfirm(true);
+                        }}
+                      >
+                        Delete
                       </button>
                     </td>
                   </tr>
@@ -211,81 +220,21 @@ const ConvertsPage: React.FC = () => {
           </div>
         ))}
 
-        {/* Edit Modal */}
-        {editConvert && (
-          <>
-            <div className="overlay" onClick={closeEditModal}></div>
-            <div className="filter-popup modal-wide">
-              <h3>Edit Convert</h3>
-              <label>Name</label>
-              <input
-                type="text"
-                value={editConvert.name}
-                disabled
-              />
-              <label>Type</label>
-              <select
-                value={editConvert.convert_type}
-                onChange={(e) =>
-                  setEditConvert({ ...editConvert, convert_type: e.target.value })
-                }
-              >
-                <option value="visitor">Visitor</option>
-                <option value="member">Member</option>
-              </select>
-              <label>Convert Date</label>
-              <input
-                type="date"
-                value={editConvert.convert_date}
-                onChange={(e) =>
-                  setEditConvert({ ...editConvert, convert_date: e.target.value })
-                }
-              />
-              <div className="filter-popup-buttons">
-                <button className="add-btn" onClick={() => handleSaveConvert(editConvert)}>
-                  Save
-                </button>
-                <button className="delete-btn" onClick={closeEditModal}>
+        {/* Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div className="delete-overlay" onClick={handleCancelDelete}>
+            <div className="delete-confirmation-popup">
+              <h3>Are you sure you want to delete this convert?</h3>
+              <div className="delete-confirmation-buttons">
+                <button className="delete-confirm-btn" onClick={handleDelete}>
+                  Yes, Delete
+                </button>&emsp;
+                <button className="delete-cancel-btn" onClick={handleCancelDelete}>
                   Cancel
                 </button>
               </div>
             </div>
-          </>
-        )}
-
-        {/* View Modal */}
-        {viewConvert && (
-          <>
-            <div className="overlay" onClick={closeViewModal}></div>
-            <div className="filter-popup modal-wide">
-              <h3>Convert Profile</h3>
-              <table className="responsive-table view-table">
-                <tbody>
-                  <tr>
-                    <td>Name</td>
-                    <td>{viewConvert.name}</td>
-                  </tr>
-                  <tr>
-                    <td>Type</td>
-                    <td>{viewConvert.convert_type}</td>
-                  </tr>
-                  <tr>
-                    <td>Convert Date</td>
-                    <td>{new Date(viewConvert.convert_date).toLocaleDateString()}</td>
-                  </tr>
-                  <tr>
-                    <td>Follow-up Status</td>
-                    <td>{viewConvert.follow_up_status}</td>
-                  </tr>
-                </tbody>
-              </table>
-              <div className="filter-popup-buttons">
-                <button className="add-btn" onClick={closeViewModal}>
-                  Close
-                </button>
-              </div>
-            </div>
-          </>
+          </div>
         )}
       </div>
     </div>
