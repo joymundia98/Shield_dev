@@ -143,6 +143,9 @@ const SetBudgetsPage: React.FC = () => {
       }
 
       alert("Budgets have been saved successfully!");
+
+      // Redirect to budgets page after saving
+      navigate("/finance/budgets");
     } catch (err: unknown) {
       console.error("Failed to save budgets:", err);
 
@@ -205,14 +208,6 @@ const SetBudgetsPage: React.FC = () => {
       <div className="dashboard-content container">
         <header>
           <h1>Budget Setup</h1>
-          <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
-            <button className="add-btn" onClick={() => navigate("/finance/expensetracker")}>
-              Expenses
-            </button>
-            <button className="add-btn" onClick={() => navigate("/finance/incometracker")}>
-              Income
-            </button>
-          </div>
         </header>
 
         <br />

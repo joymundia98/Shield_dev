@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import { Bar, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,8 +11,6 @@ import {
   Tooltip,
   Legend
 } from "chart.js";
-
-import { Bar, Pie } from "react-chartjs-2";
 import "../../styles/global.css";
 
 // Register Chart.js components
@@ -51,6 +49,17 @@ interface Expense {
   status: "Approved" | "Pending" | "Rejected";
 }
 
+interface Budget {
+  id: number;
+  title: string;
+  amount: string;
+  year: number;
+  month: number;
+  category_id: number;
+  expense_subcategory_id: number;
+  created_at: string;
+}
+
 const BACKEND_URL = "http://localhost:3000/api";
 
 const ExpenseDashboardPage: React.FC = () => {
@@ -70,24 +79,27 @@ const ExpenseDashboardPage: React.FC = () => {
   const [subcategories, setSubcategories] = useState<ExpenseSubcategory[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
 
   // ------------------- Fetch from Backend -------------------
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [catRes, subRes, deptRes, expenseRes] = await Promise.all([
+        const [catRes, subRes, deptRes, expenseRes, budgetRes] = await Promise.all([
           axios.get(`${BACKEND_URL}/finance/expense_categories`),
           axios.get(`${BACKEND_URL}/finance/expense_subcategories`),
           axios.get(`${BACKEND_URL}/departments`),
-          axios.get(`${BACKEND_URL}/finance/expenses`)
+          axios.get(`${BACKEND_URL}/finance/expenses`),
+          axios.get(`${BACKEND_URL}/finance/budgets`),
         ]);
 
         setCategories(catRes.data);
         setSubcategories(subRes.data);
         setDepartments(deptRes.data);
         setExpenses(expenseRes.data);
+        setBudgets(budgetRes.data);
       } catch (err) {
-        console.error("Failed to fetch expense data", err);
+        console.error("Failed to fetch data", err);
       }
     };
 
@@ -114,33 +126,58 @@ const ExpenseDashboardPage: React.FC = () => {
     });
   }, [expenses, subcategories, categories, departments]);
 
-  // ------------------- KPIs -------------------
+  // ------------------- Filter Expenses by Month and Year -------------------
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1); // Months are 0-based in JS
+
+  const filteredExpenses = useMemo(() => {
+    return expensesWithCategory.filter((expense) => {
+      const expenseDate = new Date(expense.date);
+      return (
+        expenseDate.getFullYear() === selectedYear &&
+        expenseDate.getMonth() + 1 === selectedMonth
+      );
+    });
+  }, [expensesWithCategory, selectedYear, selectedMonth]);
+
+  // ------------------- Filter Budgets by Month and Year -------------------
+  const filteredBudgets = useMemo(() => {
+    return budgets.filter(
+      (budget) => budget.year === selectedYear && budget.month === selectedMonth
+    );
+  }, [budgets, selectedYear, selectedMonth]);
+
+  // ------------------- Calculate Total Expenses and Budget -------------------
   const totalExpenses = useMemo(
-    () => expensesWithCategory.reduce((sum, e) => sum + e.amountNum, 0),
-    [expensesWithCategory]
+    () => filteredExpenses.reduce((sum, e) => sum + e.amountNum, 0),
+    [filteredExpenses]
   );
 
-  const today = new Date().getDate();
-  const burnRate = (totalExpenses / today).toFixed(2);
+  const totalBudget = useMemo(
+    () => filteredBudgets.reduce((sum, b) => sum + parseFloat(b.amount), 0),
+    [filteredBudgets]
+  );
 
-  const reserveFunds = 50000 - totalExpenses; // Example total reserve
+  const burnRate = (totalExpenses / new Date().getDate()).toFixed(2); // Example calculation for burn rate
+
+  const reserveFunds = 50000 - totalExpenses; // Example reserve funds
 
   // ------------------- Charts -------------------
   const categoryTotals = useMemo(() => {
     const totals: Record<string, number> = {};
-    expensesWithCategory.forEach(e => {
+    filteredExpenses.forEach((e) => {
       totals[e.categoryName] = (totals[e.categoryName] || 0) + e.amountNum;
     });
     return totals;
-  }, [expensesWithCategory]);
+  }, [filteredExpenses]);
 
   const departmentTotals = useMemo(() => {
     const totals: Record<string, number> = {};
-    expensesWithCategory.forEach(e => {
+    filteredExpenses.forEach((e) => {
       totals[e.department] = (totals[e.department] || 0) + e.amountNum;
     });
     return totals;
-  }, [expensesWithCategory]);
+  }, [filteredExpenses]);
 
   const categoryChartData = {
     labels: Object.keys(categoryTotals),
@@ -148,9 +185,9 @@ const ExpenseDashboardPage: React.FC = () => {
       {
         label: "Spend per Category",
         data: Object.values(categoryTotals),
-        backgroundColor: "#1A3D7C"
-      }
-    ]
+        backgroundColor: "#1A3D7C",
+      },
+    ],
   };
 
   const departmentChartData = {
@@ -159,27 +196,20 @@ const ExpenseDashboardPage: React.FC = () => {
       {
         label: "Spend per Department",
         data: Object.values(departmentTotals),
-        backgroundColor: ["#5C4736", "#817E7A", "#AF907A", "#20262C", "#858796"]
-      }
-    ]
+        backgroundColor: [
+          "#5C4736", "#817E7A", "#AF907A", "#20262C", "#858796"
+        ],
+      },
+    ],
   };
 
   return (
     <div className="dashboard-wrapper">
-      {/* Hamburger */}
-      <button className="hamburger" onClick={toggleSidebar}>
-        &#9776;
-      </button>
-
       {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="close-wrapper">
           <div className="toggle close-btn">
-            <input
-              type="checkbox"
-              checked={sidebarOpen}
-              onChange={toggleSidebar}
-            />
+            <input type="checkbox" checked={sidebarOpen} onChange={toggleSidebar} />
             <span className="button"></span>
             <span className="label">X</span>
           </div>
@@ -194,11 +224,7 @@ const ExpenseDashboardPage: React.FC = () => {
         <a href="/finance/financeCategory">Finance Categories</a>
 
         <hr className="sidebar-separator" />
-
-        <a href="/dashboard" className="return-main">
-          ← Back to Main Dashboard
-        </a>
-
+        <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
         <a
           href="/"
           className="logout-link"
@@ -234,11 +260,28 @@ const ExpenseDashboardPage: React.FC = () => {
 
         <br /><br />
 
+        {/* Filter by Year and Month */}
+        <div className="expense-filter-box">
+          <h3>Filter by Date</h3>
+          <div className="expense-filter-select">
+            <select value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))}>
+              {[2025, 2026].map((year) => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+            <select value={selectedMonth} onChange={(e) => setSelectedMonth(Number(e.target.value))}>
+              {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((month, idx) => (
+                <option key={month} value={idx + 1}>{month}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         {/* KPI Cards */}
         <div className="kpi-container">
           <div className="kpi-card">
             <h3>Total Expenses vs Budget</h3>
-            <p>${totalExpenses.toLocaleString()} / $100,000</p>
+            <p>${totalExpenses.toLocaleString()} / ${totalBudget.toLocaleString()}</p>
           </div>
           <div className="kpi-card">
             <h3>Reserve Funds</h3>

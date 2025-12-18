@@ -7,7 +7,7 @@ import {
   ArcElement,
   BarElement,
   Tooltip,
-  Legend
+  Legend,
 } from "chart.js";
 import { Doughnut, Bar } from "react-chartjs-2";
 import "../../styles/global.css";
@@ -15,9 +15,31 @@ import "../../styles/global.css";
 ChartJS.register(CategoryScale, LinearScale, ArcElement, BarElement, Tooltip, Legend);
 
 interface BudgetCategory {
+  id: number;
+  title: string;
+  amount: number;
+  year: number;
+  month: number;
+  category_id: number;
+}
+
+interface Expense {
+  id: number;
+  subcategory_id: number;
+  amount: number;
+  description: string;
+  date: string;
+}
+
+interface ExpenseSubcategory {
+  id: number;
   name: string;
-  allocated: number;
-  spent: number;
+  category_id: number;
+}
+
+interface ExpenseCategory {
+  id: number;
+  name: string;
 }
 
 const BudgetsPage: React.FC = () => {
@@ -33,52 +55,187 @@ const BudgetsPage: React.FC = () => {
     else document.body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
-  // ---------------- Static Budget Data ----------------
-  const budgetData: BudgetCategory[] = [
-    { name: "Operational Expenses", allocated: 8000, spent: 5000 },
-    { name: "Employee Expenses", allocated: 5000, spent: 4000 },
-    { name: "Project Expenses", allocated: 4000, spent: 3800 },
-    { name: "Financial Expenses", allocated: 3000, spent: 3200 },
-    { name: "Capital Expenses", allocated: 5000, spent: 5200 }
-  ];
+  // ---------------- State for Budget, Expenses, and Categories ----------------
+  const [budgetData, setBudgetData] = useState<BudgetCategory[]>([]);
+  const [expenseData, setExpenseData] = useState<Expense[]>([]);
+  const [categoryData, setCategoryData] = useState<ExpenseCategory[]>([]);
+  const [subcategoryData, setSubcategoryData] = useState<ExpenseSubcategory[]>([]);
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1); // Months are 0-based
+
+  // ---------------- Fetch Budget, Expense, Category, and Subcategory Data ----------------
+  useEffect(() => {
+    // Fetch budget data
+    fetch("http://localhost:3000/api/finance/budgets")
+      .then((response) => response.json())
+      .then((data) => setBudgetData(data));
+
+    // Fetch expense data
+    fetch("http://localhost:3000/api/finance/expenses")
+      .then((response) => response.json())
+      .then((data) => setExpenseData(data));
+
+    // Fetch category data
+    fetch("http://localhost:3000/api/finance/expense_categories")
+      .then((response) => response.json())
+      .then((data) => setCategoryData(data));
+
+    // Fetch subcategory data
+    fetch("http://localhost:3000/api/finance/expense_subcategories")
+      .then((response) => response.json())
+      .then((data) => setSubcategoryData(data));
+  }, []);
+
+  // ---------------- Filter Data Based on Year and Month ----------------
+  const filteredBudgetData = useMemo(() => {
+    return budgetData.filter(
+      (b) => b.year === selectedYear && b.month === selectedMonth
+    );
+  }, [budgetData, selectedYear, selectedMonth]);
+
+  const filteredExpenseData = useMemo(() => {
+    return expenseData.filter(
+      (e) => new Date(e.date).getFullYear() === selectedYear && new Date(e.date).getMonth() + 1 === selectedMonth
+    );
+  }, [expenseData, selectedYear, selectedMonth]);
+
+  // ---------------- Map Category Data ----------------
+  const categoryMap = useMemo(() => {
+    const map: { [key: number]: string } = {};
+    categoryData.forEach((category) => {
+      map[category.id] = category.name;
+    });
+    return map;
+  }, [categoryData]);
+
+  // ---------------- Budget Allocation by Category ----------------
+  const budgetAllocationByCategory = useMemo(() => {
+    // Group budget data by category
+    const categoryBudgets: { [key: number]: number } = {};
+
+    filteredBudgetData.forEach((budget) => {
+      if (categoryBudgets[budget.category_id]) {
+        categoryBudgets[budget.category_id] += parseFloat(budget.amount);
+      } else {
+        categoryBudgets[budget.category_id] = parseFloat(budget.amount);
+      }
+    });
+
+    // Create data for the Pie Chart
+    const categoryChartData = categoryData.map((category) => {
+      const budget = categoryBudgets[category.id] || 0;
+      return {
+        name: category.name,
+        budget,
+      };
+    });
+
+    return categoryChartData;
+  }, [filteredBudgetData, categoryData]);
+
+  // ---------------- Top 5 Expense Subcategories ----------------
+  const top5ExpenseData = useMemo(() => {
+    // Group expenses by subcategory
+    const subcategoryExpenses: { [key: number]: number } = {};
+
+    filteredExpenseData.forEach((expense) => {
+      if (subcategoryExpenses[expense.subcategory_id]) {
+        subcategoryExpenses[expense.subcategory_id] += parseFloat(expense.amount);
+      } else {
+        subcategoryExpenses[expense.subcategory_id] = parseFloat(expense.amount);
+      }
+    });
+
+    // Get the top 5 subcategories with the highest expense
+    const top5Subcategories = Object.entries(subcategoryExpenses)
+      .map(([subcategory_id, amount]) => ({
+        subcategory_id: parseInt(subcategory_id),
+        amount,
+      }))
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 5);
+
+    // Fetch names and budgets for the top 5 subcategories
+    return top5Subcategories.map((item) => {
+      const subcategory = subcategoryData.find(
+        (sub) => sub.id === item.subcategory_id
+      );
+      const category = categoryMap[subcategory?.category_id || 0];
+      const budget = filteredBudgetData.find(
+        (b) => b.category_id === subcategory?.category_id
+      )?.amount;
+
+      return {
+        subcategory_name: subcategory?.name || "",
+        category_name: category || "",
+        expense: item.amount,
+        budget: budget || 0,
+      };
+    });
+  }, [filteredExpenseData, subcategoryData, categoryMap, filteredBudgetData]);
 
   // ---------------- KPIs ----------------
-  const totalBudget = budgetData.reduce((sum, b) => sum + b.allocated, 0);
-  const totalSpent = budgetData.reduce((sum, b) => sum + b.spent, 0);
+  const totalBudget = filteredBudgetData.reduce((sum, b) => sum + parseFloat(b.amount), 0);
+  const totalSpent = filteredExpenseData.reduce((sum, e) => sum + parseFloat(e.amount), 0);
   const remainingBudget = totalBudget - totalSpent;
-  const overspentCategories = budgetData.filter(b => b.spent > b.allocated).length;
+  const overspentCategories = filteredBudgetData.filter(
+    (b) => filteredExpenseData.some((e) => e.subcategory_id === b.category_id && parseFloat(e.amount) > parseFloat(b.amount))
+  ).length;
 
   // ---------------- Chart Data ----------------
   const categoryChartData = useMemo(() => ({
-    labels: budgetData.map(b => b.name),
+    labels: budgetAllocationByCategory.map((category) => category.name),
     datasets: [
       {
         label: "Budget Allocation",
-        data: budgetData.map(b => b.allocated),
-        backgroundColor: ["#ff7f50", "#2E3B55", "#5C4736", "#AF907A", "#817E7A"]
-      }
-    ]
-  }), [budgetData]);
+        data: budgetAllocationByCategory.map((category) => category.budget),
+        backgroundColor: [
+          "#ff7f50",
+          "#2E3B55",
+          "#5C4736",
+          "#AF907A",
+          "#817E7A",
+          "#6B8E23",
+          "#4682B4",
+        ],
+      },
+    ],
+  }), [budgetAllocationByCategory]);
 
-  const budgetVsExpenseChartData = useMemo(() => ({
-    labels: budgetData.map(b => b.name),
+  const top5ExpenseChartData = useMemo(() => ({
+    labels: top5ExpenseData.map((data) => data.subcategory_name),
     datasets: [
       {
-        label: "Budget",
-        data: budgetData.map(b => b.allocated),
-        backgroundColor: "#2E3B55"
+        label: "Expense",
+        data: top5ExpenseData.map((data) => data.expense),
+        backgroundColor: "#ff7f50",
       },
       {
-        label: "Spent",
-        data: budgetData.map(b => b.spent),
-        backgroundColor: "#ff7f50"
-      }
-    ]
-  }), [budgetData]);
+        label: "Budget",
+        data: top5ExpenseData.map((data) => data.budget),
+        backgroundColor: "#2E3B55",
+      },
+    ],
+  }), [top5ExpenseData]);
+
+  // ---------------- Dropdown Handlers ----------------
+  const handleYearChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedYear(Number(event.target.value));
+  };
+
+  const handleMonthChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedMonth(Number(event.target.value));
+  };
+
+  // ---------------- Generate Year and Month Options ----------------
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i); // Last 5 years and next 5 years
+  const months = [
+    "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+  ];
 
   return (
     <div className="dashboard-wrapper">
-
       {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="close-wrapper">
@@ -92,7 +249,6 @@ const BudgetsPage: React.FC = () => {
             <span className="label">X</span>
           </div>
         </div>
-
         <h2>FINANCE</h2>
         <a href="/finance/dashboard">Dashboard</a>
         <a href="/finance/incometracker">Track Income</a>
@@ -100,7 +256,6 @@ const BudgetsPage: React.FC = () => {
         <a href="/finance/budgets" className="active">Budget</a>
         <a href="/finance/payroll">Payroll</a>
         <a href="/finance/financeCategory">Finance Categories</a>
-
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
         <a href="/" className="logout-link" onClick={(e) => { e.preventDefault(); localStorage.clear(); navigate("/"); }}>➜ Logout</a>
@@ -108,7 +263,6 @@ const BudgetsPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
-
         {/* Header */}
         <header className="page-header">
           <h1>Budget Overview</h1>
@@ -117,10 +271,30 @@ const BudgetsPage: React.FC = () => {
           </button>
         </header>
 
-        <br/>
+        <br />
         <button className="add-btn" onClick={() => navigate("/finance/setBudget")}>
           Set Budget
         </button>
+
+        <br /><br />
+
+        {/* Year and Month Filters */}
+        <div className="filter-container">
+          <select value={selectedYear} onChange={handleYearChange}>
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>&emsp;
+          <select value={selectedMonth} onChange={handleMonthChange}>
+            {months.map((month, index) => (
+              <option key={index} value={index + 1}>
+                {month}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <br /><br />
 
@@ -151,12 +325,12 @@ const BudgetsPage: React.FC = () => {
         <div className="chart-grid">
           <div className="chart-box">
             <h3>Budget Allocation by Category</h3>
-            <Doughnut data={categoryChartData} options={{ responsive: true, plugins: { legend: { position: "right" } } }} />
+            <Doughnut data={categoryChartData} options={{ responsive: true, plugins: { legend: { position: "top" } } }} />
           </div>
 
           <div className="chart-box">
-            <h3>Expenses vs Budget (Top 5)</h3>
-            <Bar data={budgetVsExpenseChartData} options={{ responsive: true, plugins: { legend: { position: "top" } }, scales: { y: { beginAtZero: true } } }} />
+            <h3>Top 5 Expenses vs Budget</h3>
+            <Bar data={top5ExpenseChartData} options={{ responsive: true, plugins: { legend: { position: "top" } }, scales: { y: { beginAtZero: true } } }} />
           </div>
         </div>
       </div>

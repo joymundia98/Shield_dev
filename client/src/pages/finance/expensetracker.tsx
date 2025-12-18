@@ -53,6 +53,7 @@ const ExpenseTrackerPage: React.FC = () => {
   const [subcategories, setSubcategories] = useState<any[]>([]);
   const [expenseCategories, setExpenseCategories] = useState<any[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
 
   // ------------------- FETCH CATEGORY TABLE -------------------
   const fetchExpenseCategories = async () => {
@@ -101,24 +102,7 @@ const ExpenseTrackerPage: React.FC = () => {
       };
     });
 
-    // ---- GROUPING LOGIC ----
-    const grouped: ExpenseCategories = {};
-    mapped.forEach((item: ExpenseItem) => {
-      if (!grouped[item.category_name]) grouped[item.category_name] = [];
-
-      let group = grouped[item.category_name].find(
-        (g) => g.name === item.subcategory_name
-      );
-
-      if (!group) {
-        group = { name: item.subcategory_name, items: [] };
-        grouped[item.category_name].push(group);
-      }
-
-      group.items.push(item);
-    });
-
-    setCategories(grouped);
+    setExpenses(mapped);
   };
 
   // Load categories, subcategories, and departments first
@@ -142,12 +126,76 @@ const ExpenseTrackerPage: React.FC = () => {
   }, [subcategories, expenseCategories, departments]);
 
   // ------------------- FILTER -------------------
-  const [selectedFilter, setSelectedFilter] = useState("All");
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1); // Months are 0-based
 
-  const filteredCategories = useMemo(() => {
-    if (selectedFilter === "All") return categories;
-    return { [selectedFilter]: categories[selectedFilter] || [] };
-  }, [categories, selectedFilter]);
+  const years = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 11 }, (_, i) => currentYear - 5 + i); // Last 5 years and next 5 years
+  }, []);
+
+  const months = [
+    "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+  ];
+
+  const filteredExpenses = useMemo(() => {
+    return expenses.filter(
+      (expense) =>
+        new Date(expense.date).getFullYear() === selectedYear &&
+        new Date(expense.date).getMonth() + 1 === selectedMonth
+    );
+  }, [expenses, selectedYear, selectedMonth]);
+
+  // ------------------- GROUPING EXPENSES BY DEPARTMENT -------------------
+  const groupedExpenses = useMemo(() => {
+    const grouped: ExpenseCategories = {};
+
+    filteredExpenses.forEach((expense) => {
+      const deptName = expense.department;
+      if (!grouped[deptName]) grouped[deptName] = [];
+
+      let group = grouped[deptName].find(
+        (g) => g.name === expense.subcategory_name
+      );
+
+      if (!group) {
+        group = { name: expense.subcategory_name, items: [] };
+        grouped[deptName].push(group);
+      }
+
+      group.items.push(expense);
+    });
+
+    return grouped;
+  }, [filteredExpenses]);
+
+  // ------------------- APPROVE/REJECT LOGIC -------------------
+  const updateStatus = async (
+    deptName: string,
+    groupName: string,
+    index: number,
+    status: "Approved" | "Rejected"
+  ) => {
+    const item = groupedExpenses[deptName]
+      ?.find((g) => g.name === groupName)
+      ?.items[index];
+
+    if (!item) return;
+
+    await fetch(`${BACKEND_URL}/finance/expenses/${item.id}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+
+    // Update state locally
+    setExpenses((prevExpenses) => {
+      const updated = prevExpenses.map((expense) =>
+        expense.id === item.id ? { ...expense, status } : expense
+      );
+      return updated;
+    });
+  };
 
   // ------------------- MODALS -------------------
   const [modalOpen, setModalOpen] = useState(false);
@@ -165,66 +213,20 @@ const ExpenseTrackerPage: React.FC = () => {
     setModalOpen(false);
   };
 
-  // ------------------- VIEW MODAL -------------------
-  const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [viewRecord, setViewRecord] = useState<ExpenseItem | null>(null);
-
-  const openViewModal = (item: ExpenseItem) => {
-    setViewRecord(item);
-    setViewModalOpen(true);
-  };
-
-  const closeViewModal = () => {
-    setViewRecord(null);
-    setViewModalOpen(false);
-  };
-
-  // ------------------- UPDATE STATUS (PATCH API) -------------------
-  const updateStatus = async (
-    catName: string,
-    groupName: string,
-    index: number,
-    status: "Approved" | "Rejected"
-  ) => {
-    const item = categories[catName]
-      ?.find((g) => g.name === groupName)
-      ?.items[index];
-
-    if (!item) return;
-
-    await fetch(`${BACKEND_URL}/finance/expenses/${item.id}/status`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-
-    // Update state locally
-    setCategories((prev) => {
-      const updated = { ...prev };
-      const group = updated[catName]?.find((g) => g.name === groupName);
-      if (group) group.items[index].status = status;
-      return updated;
-    });
-  };
-
   // ------------------- KPI TOTALS -------------------
   const { totalApproved, totalPending, totalRejected } = useMemo(() => {
     let approved = 0,
       pending = 0,
       rejected = 0;
 
-    Object.values(categories).forEach((groups) =>
-      groups.forEach((g) =>
-        g.items.forEach((item) => {
-          if (item.status === "Approved") approved += item.amount;
-          if (item.status === "Pending") pending += item.amount;
-          if (item.status === "Rejected") rejected += item.amount;
-        })
-      )
-    );
+    filteredExpenses.forEach((item) => {
+      if (item.status === "Approved") approved += item.amount;
+      if (item.status === "Pending") pending += item.amount;
+      if (item.status === "Rejected") rejected += item.amount;
+    });
 
     return { totalApproved: approved, totalPending: pending, totalRejected: rejected };
-  }, [categories]);
+  }, [filteredExpenses]);
 
   return (
     <div className="dashboard-wrapper">
@@ -258,19 +260,16 @@ const ExpenseTrackerPage: React.FC = () => {
 
         <header className="page-header expense-header">
           <h1>Expense Tracker</h1>
+          <br/>
           <div>
-            <br /><br />
             <button className="add-btn" onClick={() => navigate("/finance/expenseDashboard")}>
               View Summary
             </button>
-            &nbsp;
             <button className="hamburger" onClick={toggleSidebar}>
               ☰
             </button>
           </div>
         </header>
-
-        <br /><br />
 
         {/* KPI CARDS */}
         <div className="kpi-container">
@@ -288,35 +287,29 @@ const ExpenseTrackerPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Add Expense */}
-        <button
-          className="add-btn"
-          onClick={() => navigate("/finance/addExpense")}
-          style={{ margin: "10px 0" }}
-        >
-          + Add Expense
-        </button>
-
-        {/* Filter */}
+        {/* Filter by Year and Month */}
         <div className="expense-filter-box">
-          <h3>Filter by Category</h3>
-          <select
-            className="expense-filter-select"
-            value={selectedFilter}
-            onChange={(e) => setSelectedFilter(e.target.value)}
-          >
-            {categoryList.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
+          <h3>Filter by Date</h3>
+          <div className="expense-filter-select">
+            <select value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))}>
+              {years.map((year) => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+            &emsp;
+
+            <select value={selectedMonth} onChange={(e) => setSelectedMonth(Number(e.target.value))}>
+              {months.map((month, idx) => (
+                <option key={month} value={idx + 1}>{month}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        {/* TABLE RENDER */}
-        {Object.entries(filteredCategories).map(([catName, groups]) => (
-          <div key={catName}>
-            <h2>{catName}</h2>
+        {/* GROUPED EXPENSES TABLE */}
+        {Object.entries(groupedExpenses).map(([deptName, groups]) => (
+          <div key={deptName}>
+            <h2>{deptName}</h2>
 
             {groups.length > 0 ? (
               groups.map((group) => (
@@ -343,9 +336,7 @@ const ExpenseTrackerPage: React.FC = () => {
                           <td>{item.description}</td>
                           <td>${item.amount.toLocaleString()}</td>
                           <td>
-                            <span className={`status ${item.status}`}>
-                              {item.status}
-                            </span>
+                            <span className={`status ${item.status}`}>{item.status}</span>
                           </td>
 
                           <td>
@@ -358,12 +349,7 @@ const ExpenseTrackerPage: React.FC = () => {
                               <>
                                 <button
                                   className="approve-btn"
-                                  onClick={() =>
-                                    openModal(
-                                      () => updateStatus(catName, group.name, idx, "Approved"),
-                                      "approve"
-                                    )
-                                  }
+                                  onClick={() => openModal(() => updateStatus(deptName, group.name, idx, "Approved"), "approve")}
                                 >
                                   Approve
                                 </button>
@@ -371,12 +357,7 @@ const ExpenseTrackerPage: React.FC = () => {
 
                                 <button
                                   className="reject-btn"
-                                  onClick={() =>
-                                    openModal(
-                                      () => updateStatus(catName, group.name, idx, "Rejected"),
-                                      "reject"
-                                    )
-                                  }
+                                  onClick={() => openModal(() => updateStatus(deptName, group.name, idx, "Rejected"), "reject")}
                                 >
                                   Reject
                                 </button>
@@ -412,56 +393,6 @@ const ExpenseTrackerPage: React.FC = () => {
                   Confirm
                 </button>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* View Modal */}
-        {viewModalOpen && viewRecord && (
-          <div className="expenseModal" style={{ display: "flex" }} onClick={closeViewModal}>
-            <div className="expenseModal-content" onClick={(e) => e.stopPropagation()}>
-              <h2>Expense Details</h2>
-              <table>
-                <tbody>
-                  <tr>
-                    <th>Date</th>
-                    <td>{viewRecord.date}</td>
-                  </tr>
-                  <tr>
-                    <th>Department</th>
-                    <td>{viewRecord.department}</td>
-                  </tr>
-                  <tr>
-                    <th>Description</th>
-                    <td>{viewRecord.description}</td>
-                  </tr>
-                  <tr>
-                    <th>Amount</th>
-                    <td>${viewRecord.amount.toLocaleString()}</td>
-                  </tr>
-                  <tr>
-                    <th>Status</th>
-                    <td>{viewRecord.status}</td>
-                  </tr>
-
-                  {viewRecord.attachments && viewRecord.attachments.length > 0 && (
-                    <tr>
-                      <th>Attachments</th>
-                      <td>
-                        {viewRecord.attachments.map((file, idx) => (
-                          <a key={idx} href={file.url} target="_blank" rel="noopener noreferrer">
-                            {file.type === "application/pdf" ? "View PDF" : "View File"}
-                          </a>
-                        ))}
-                      </td>
-                    </tr>
-                  )}
-
-                </tbody>
-              </table>
-              <button className="expenseModal-cancel" onClick={closeViewModal}>
-                Close
-              </button>
             </div>
           </div>
         )}
