@@ -2,19 +2,6 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
-interface Convert {
-  name: string;
-  type: "Visitor" | "Member";
-  convertDate: string;
-}
-
-const initialConverts: Convert[] = [
-  { name: "John Doe", type: "Visitor", convertDate: "2025-01-12" },
-  { name: "Mary Smith", type: "Member", convertDate: "2025-02-20" },
-  { name: "Paul Johnson", type: "Visitor", convertDate: "2025-03-05" },
-  { name: "Linda Williams", type: "Member", convertDate: "2025-04-15" },
-];
-
 const ConvertsPage: React.FC = () => {
   const navigate = useNavigate();
 
@@ -28,24 +15,65 @@ const ConvertsPage: React.FC = () => {
   }, [sidebarOpen]);
 
   // Converts
-  const [converts, setConverts] = useState<Convert[]>(initialConverts);
+  const [converts, setConverts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Modals
-  const [editConvert, setEditConvert] = useState<Convert | null>(null);
-  const [editIndex, setEditIndex] = useState<number | null>(null);
-  const [viewConvert, setViewConvert] = useState<Convert | null>(null);
+  // Fetch Converts Data
+  const fetchConverts = async () => {
+    try {
+      // Fetch the converts, visitors, and members data
+      const [convertsResponse, visitorsResponse, membersResponse] = await Promise.all([
+        fetch("http://localhost:3000/api/converts").then(res => res.json()),
+        fetch("http://localhost:3000/api/visitor").then(res => res.json()),
+        fetch("http://localhost:3000/api/members").then(res => res.json()),
+      ]);
 
-  const openEditModal = (convert?: Convert, index?: number) => {
+      const visitors = visitorsResponse.reduce((acc, visitor) => {
+        acc[visitor.id] = visitor;  // Map visitor by ID
+        return acc;
+      }, {});
+
+      const members = membersResponse.reduce((acc, member) => {
+        acc[member.member_id] = member;  // Map member by ID
+        return acc;
+      }, {});
+
+      // Map converts to include names from the appropriate table
+      const updatedConverts = convertsResponse.map(convert => {
+        let name = '';
+        if (convert.convert_type === "visitor" && visitors[convert.visitor_id]) {
+          name = visitors[convert.visitor_id].name;
+        } else if (convert.convert_type === "member" && members[convert.member_id]) {
+          name = members[convert.member_id].full_name;
+        }
+        return { ...convert, name };
+      });
+
+      setConverts(updatedConverts);
+    } catch (error) {
+      console.error("Error fetching converts data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchConverts();
+  }, []);
+
+  // Modals
+  const [editConvert, setEditConvert] = useState<any | null>(null);
+  const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [viewConvert, setViewConvert] = useState<any | null>(null);
+
+  const openEditModal = (convert?: any, index?: number) => {
     setEditConvert(convert || null);
     setEditIndex(index ?? null);
   };
   const closeEditModal = () => setEditConvert(null);
 
-  const openViewModal = (convert: Convert) => setViewConvert(convert);
+  const openViewModal = (convert: any) => setViewConvert(convert);
   const closeViewModal = () => setViewConvert(null);
 
-  const handleSaveConvert = (convert: Convert) => {
+  const handleSaveConvert = (convert: any) => {
     if (editIndex !== null) {
       const updated = [...converts];
       updated[editIndex] = convert;
@@ -66,11 +94,11 @@ const ConvertsPage: React.FC = () => {
   );
 
   const groupedConverts = useMemo(() => {
-    return filteredConverts.reduce<Record<string, Convert[]>>((groups, c) => {
-      if (!groups[c.type]) groups[c.type] = [];
-      groups[c.type].push(c);
+    return filteredConverts.reduce<Record<string, any[]>>((groups, c) => {
+      if (!groups[c.convert_type]) groups[c.convert_type] = [];
+      groups[c.convert_type].push(c);
       return groups;
-    }, {} as Record<string, Convert[]>);
+    }, {} as Record<string, any[]>);
   }, [filteredConverts]);
 
   return (
@@ -117,7 +145,7 @@ const ConvertsPage: React.FC = () => {
         <header>
           <h1>Converts Records</h1>
           <div className="header-buttons">
-            <br/>
+            <br />
             <button
               className="add-btn"
               onClick={() => navigate("/congregation/converts")}
@@ -151,7 +179,7 @@ const ConvertsPage: React.FC = () => {
         {/* Converts by Type */}
         {Object.entries(groupedConverts).map(([type, list]) => (
           <div className="category-block" key={type}>
-            <br/>
+            <br />
             <h2>{type}s</h2>
             <table className="responsive-table">
               <thead>
@@ -162,23 +190,22 @@ const ConvertsPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {list.map((c) => {
-                  const index = converts.indexOf(c);
-                  return (
-                    <tr key={index}>
-                      <td data-title="Name">{c.name}</td>
-                      <td data-title="Convert Date">{c.convertDate}</td>
-                      <td className="actions">
-                        <button className="view-btn" onClick={() => openViewModal(c)}>
-                          View
-                        </button>
-                        <button className="edit-btn" onClick={() => openEditModal(c, index)}>
-                          Edit
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {list.map((c, index) => (
+                  <tr key={index}>
+                    <td data-title="Name">{c.name}</td>
+                    <td data-title="Convert Date">
+                      {new Date(c.convert_date).toLocaleDateString()}
+                    </td>
+                    <td className="actions">
+                      <button className="view-btn" onClick={() => openViewModal(c)}>
+                        View
+                      </button>
+                      <button className="edit-btn" onClick={() => openEditModal(c, index)}>
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -198,20 +225,20 @@ const ConvertsPage: React.FC = () => {
               />
               <label>Type</label>
               <select
-                value={editConvert.type}
+                value={editConvert.convert_type}
                 onChange={(e) =>
-                  setEditConvert({ ...editConvert, type: e.target.value as "Visitor" | "Member" })
+                  setEditConvert({ ...editConvert, convert_type: e.target.value })
                 }
               >
-                <option value="Visitor">Visitor</option>
-                <option value="Member">Member</option>
+                <option value="visitor">Visitor</option>
+                <option value="member">Member</option>
               </select>
               <label>Convert Date</label>
               <input
                 type="date"
-                value={editConvert.convertDate}
+                value={editConvert.convert_date}
                 onChange={(e) =>
-                  setEditConvert({ ...editConvert, convertDate: e.target.value })
+                  setEditConvert({ ...editConvert, convert_date: e.target.value })
                 }
               />
               <div className="filter-popup-buttons">
@@ -240,16 +267,20 @@ const ConvertsPage: React.FC = () => {
                   </tr>
                   <tr>
                     <td>Type</td>
-                    <td>{viewConvert.type}</td>
+                    <td>{viewConvert.convert_type}</td>
                   </tr>
                   <tr>
                     <td>Convert Date</td>
-                    <td>{viewConvert.convertDate}</td>
+                    <td>{new Date(viewConvert.convert_date).toLocaleDateString()}</td>
+                  </tr>
+                  <tr>
+                    <td>Follow-up Status</td>
+                    <td>{viewConvert.follow_up_status}</td>
                   </tr>
                 </tbody>
               </table>
               <div className="filter-popup-buttons">
-                <button className="delete-btn" onClick={closeViewModal}>
+                <button className="add-btn" onClick={closeViewModal}>
                   Close
                 </button>
               </div>
