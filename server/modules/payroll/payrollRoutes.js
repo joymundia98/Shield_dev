@@ -7,6 +7,7 @@ router.get("/", payrollController.getAll);
 router.get("/:id", payrollController.getById);
 router.post("/", payrollController.create);
 router.put("/:id", payrollController.update);
+router.patch("/:id", payrollController.update);
 router.delete("/:id", payrollController.delete);
 
 export default router;

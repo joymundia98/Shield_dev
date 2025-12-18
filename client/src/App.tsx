@@ -57,6 +57,7 @@ import FinanceCategoryPage from "./pages/finance/financeCategory";
 import BudgetsPage from "./pages/finance/budgets";          
 import SetBudgetsPage from "./pages/finance/setBudget"; 
 import BudgetBreakdownPage from "./pages/finance/budgetBreakdown"; 
+import FinanceViewPayrollPage from "./pages/finance/ViewPayrollPage";
 
 // Donors Module Functional Pages
 import DonorsPage from "./pages/donor/donors";
@@ -207,6 +208,7 @@ function App() {
           <Route path="/finance/budgets" element={<BudgetsPage />} />
           <Route path="/finance/setBudget" element={<SetBudgetsPage />} />
           <Route path="/finance/budgetBreakdown" element={<BudgetBreakdownPage />} />
+          <Route path="/finance/ViewPayrollPage/:payrollId" element={<FinanceViewPayrollPage />} />
           <Route path="/finance/reports" element={<FinanceDashboard />} />
 
           {/* ------------------------------

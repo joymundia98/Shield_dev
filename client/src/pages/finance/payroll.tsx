@@ -68,7 +68,7 @@ const FinancePayrollPage: React.FC = () => {
 
   // confirmationModal state for Approve/Reject
   const [confirmationModalOpen, setconfirmationModalOpen] = useState(false);
-  const [confirmationModalAction, setconfirmationModalAction] = useState<() => void>(() => {});
+  const [confirmationType, setConfirmationType] = useState<"approve" | "reject" | null>(null);
   const [selectedRecord, setSelectedRecord] = useState<PayrollRecord | null>(null);
 
   // ------------------- Sidebar -------------------
@@ -179,12 +179,12 @@ const FinancePayrollPage: React.FC = () => {
     }
   };
 
-  const openconfirmationModal = (action: () => void, record: PayrollRecord) => {
-    console.log("Opening confirmationModal with action:", action); // Debugging
-    console.log("Selected record before setting:", record); // Debugging
-    setconfirmationModalAction(() => action);
+  const openconfirmationModal = (
+    type: "approve" | "reject",
+    record: PayrollRecord
+  ) => {
     setSelectedRecord(record);
-    console.log("Selected record after setting:", record); // Debugging
+    setConfirmationType(type);
     setconfirmationModalOpen(true);
   };
 
@@ -193,21 +193,20 @@ const FinancePayrollPage: React.FC = () => {
     setSelectedRecord(null);
   };
 
-  const handleApprove = () => {
-    console.log("Approving:", selectedRecord); // Debugging
-    if (selectedRecord) {
+  
+  // ------------------- Confirm Modal Action -------------------
+  const confirmAction = () => {
+    if (!selectedRecord || !confirmationType) return;
+
+    if (confirmationType === "approve") {
       updatePayrollStatus(selectedRecord.payroll_id, "Paid");
-      closeconfirmationModal();
+    } else if (confirmationType === "reject") {
+      updatePayrollStatus(selectedRecord.payroll_id, "Rejected");
     }
+
+    closeconfirmationModal();
   };
 
-  const handleReject = () => {
-    console.log("Rejecting:", selectedRecord); // Debugging
-    if (selectedRecord) {
-      updatePayrollStatus(selectedRecord.payroll_id, "Rejected");
-      closeconfirmationModal();
-    }
-  };
 
   // ------------------- Filtered Payroll -------------------
   const filteredPayroll = useMemo(() => {
@@ -417,18 +416,26 @@ const FinancePayrollPage: React.FC = () => {
                       <td>
                         <button
                           className="add-btn"
-                          onClick={() => navigate(`/hr/ViewPayroll/${p.payroll_id}`)}
+                          onClick={() => navigate(`/finance/ViewPayrollPage/${p.payroll_id}`)}
                         >
                           View
                         </button>&emsp;
                         {p.status === "Pending" && (
                           <>
-                            <button className="approve-btn" onClick={() => openconfirmationModal(handleApprove, p)}>
+                            <button
+                              className="approve-btn"
+                              onClick={() => openconfirmationModal("approve", p)}
+                            >
                               Approve
                             </button>&emsp;
-                            <button className="reject-btn" onClick={() => openconfirmationModal(handleReject, p)}>
+
+                            <button
+                              className="reject-btn"
+                              onClick={() => openconfirmationModal("reject", p)}
+                            >
                               Reject
                             </button>
+
                           </>
                         )}
                       </td>
@@ -451,9 +458,13 @@ const FinancePayrollPage: React.FC = () => {
               <button className="confirmationModal-cancel" onClick={closeconfirmationModal}>
                 Cancel
               </button>&emsp;
-              <button className="confirmationModal-confirm" onClick={confirmationModalAction}>
+              <button
+                className="confirmationModal-confirm"
+                onClick={confirmAction}
+              >
                 Confirm
               </button>
+
             </div>
           </div>
         </div>
