@@ -56,6 +56,7 @@ import IncomeDashboardPage from "./pages/finance/incomeDashboard";
 import FinanceCategoryPage from "./pages/finance/financeCategory";
 import BudgetsPage from "./pages/finance/budgets";          
 import SetBudgetsPage from "./pages/finance/setBudget"; 
+import BudgetBreakdownPage from "./pages/finance/budgetBreakdown"; 
 
 // Donors Module Functional Pages
 import DonorsPage from "./pages/donor/donors";
@@ -202,6 +203,7 @@ function App() {
           <Route path="/finance/financeCategory" element={<FinanceCategoryPage />} />
           <Route path="/finance/budgets" element={<BudgetsPage />} />
           <Route path="/finance/setBudget" element={<SetBudgetsPage />} />
+          <Route path="/finance/budgetBreakdown" element={<BudgetBreakdownPage />} />
           <Route path="/finance/reports" element={<FinanceDashboard />} />
 
           {/* ------------------------------

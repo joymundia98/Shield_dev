@@ -268,7 +268,7 @@ const ExpenseDashboardPage: React.FC = () => {
               {[2025, 2026].map((year) => (
                 <option key={year} value={year}>{year}</option>
               ))}
-            </select>
+            </select>&emsp;
             <select value={selectedMonth} onChange={(e) => setSelectedMonth(Number(e.target.value))}>
               {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((month, idx) => (
                 <option key={month} value={idx + 1}>{month}</option>

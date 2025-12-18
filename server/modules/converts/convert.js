@@ -2,15 +2,15 @@ import { pool } from "../../server.js";
 
 const ConvertsModel = {
   // Create a new convert
-  async create({ name, convert_type, convert_date, member_id, visitor_id, organization_id, follow_up_status }) {
+  async create({ convert_type, convert_date, member_id, visitor_id, organization_id, follow_up_status }) {
     const result = await pool.query(
       `
       INSERT INTO converts 
-        (name, convert_type, convert_date, member_id, visitor_id, organization_id, follow_up_status, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+        (convert_type, convert_date, member_id, visitor_id, organization_id, follow_up_status, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
       RETURNING *
       `,
-      [name, convert_type, convert_date, member_id, visitor_id, organization_id, follow_up_status]
+      [convert_type, convert_date, member_id, visitor_id, organization_id, follow_up_status]  // No need for `created_at` and `updated_at` here
     );
     return result.rows[0];
   },
@@ -34,12 +34,11 @@ const ConvertsModel = {
   },
 
   // Update convert by ID
-  async update(id, { name, convert_type, convert_date, member_id, visitor_id, organization_id, follow_up_status }) {
+  async update(id, { convert_type, convert_date, member_id, visitor_id, organization_id, follow_up_status }) {
     const result = await pool.query(
       `
       UPDATE converts
       SET 
-        name = $1,
         convert_type = $2,
         convert_date = $3,
         member_id = $4,
@@ -50,7 +49,7 @@ const ConvertsModel = {
       WHERE id = $8
       RETURNING *
       `,
-      [name, convert_type, convert_date, member_id, visitor_id, organization_id, follow_up_status, id]
+      [convert_type, convert_date, member_id, visitor_id, organization_id, follow_up_status, id]
     );
     return result.rows[0];
   },
