@@ -6,25 +6,41 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import headerLogo from "../../assets/headerlogo.png";
 import { useNavigate } from "react-router-dom";
+import bcrypt from "bcryptjs";
 
 // ---------------------------
 // Validation Schema
 // ---------------------------
-const orgSchema = z.object({
-  name: z.string().min(1, "Organization name is required"),
-  organization_email: z
-    .string()
-    .email("Invalid email")
-    .min(1, "Email is required"),
-  mainDenomination: z.string().min(1, "Main denomination is required"),
-  subDenomination: z.string().min(1, "Sub-denomination is required"),
-  customSubDenomination: z.string().optional(),
-  address: z.string().min(1, "Address is required"),
-  region: z.string().min(1, "Region is required"),
-  district: z.string().min(1, "District is required"),
-  status: z.string().optional(),
-  customDistrict: z.string().optional()
-});
+const orgSchema = z
+  .object({
+    name: z.string().min(1, "Organization name is required"),
+    organization_email: z
+      .string()
+      .email("Invalid email")
+      .min(1, "Email is required"),
+
+    // organizationType now expects a number (org_type_id)
+    organizationType: z.number({
+      required_error: "Organization type is required"
+    }),
+
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirm_password: z.string().min(1, "Confirm password is required"),
+
+    motherBody: z.string().optional(),
+    mainDenomination: z.string().min(1, "Main denomination is required"),
+    subDenomination: z.string().min(1, "Sub-denomination is required"),
+    customSubDenomination: z.string().optional(),
+    address: z.string().min(1, "Address is required"),
+    region: z.string().min(1, "Region is required"),
+    district: z.string().min(1, "District is required"),
+    status: z.string().optional(),
+    customDistrict: z.string().optional()
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: "Passwords do not match",
+    path: ["confirm_password"]
+  });
 
 type OrgFormData = z.infer<typeof orgSchema>;
 
@@ -54,6 +70,16 @@ const denominations: Record<string, string[]> = {
   Other: ["Quakers", "Salvation Army", "Christian Science", "Unitarian", "Not Listed"]
 };
 
+// ---------------------------
+// Church Mother Bodies
+// ---------------------------
+const churchMotherBodies = [
+  "Zambia Conference of Catholic Bishops (ZCCB)",
+  "Council of Churches in Zambia (CCZ)",
+  "Evangelical Fellowship of Zambia (EFZ)",
+  "Independent Churches of Zambia (ICOZ)"
+];
+
 const OrgRegister = () => {
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -63,13 +89,23 @@ const OrgRegister = () => {
   const [subDenoms, setSubDenoms] = useState<string[]>([]);
   const [showCustomSub, setShowCustomSub] = useState(false);
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [orgTypes, setOrgTypes] = useState<{ org_type_id: number; name: string }[]>([]);
+
   const navigate = useNavigate();
 
-  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<OrgFormData>({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors }
+  } = useForm<OrgFormData>({
     resolver: zodResolver(orgSchema)
   });
 
-  // Watchers
   const watchedDistrict = watch("district");
   const watchedMainDenom = watch("mainDenomination");
   const watchedSubDenom = watch("subDenomination");
@@ -81,13 +117,27 @@ const OrgRegister = () => {
   useEffect(() => {
     if (watchedMainDenom) {
       setSubDenoms(denominations[watchedMainDenom] || []);
-      setValue("subDenomination", ""); // reset subDenomination when main changes
+      setValue("subDenomination", "");
     }
   }, [watchedMainDenom, setValue]);
 
   useEffect(() => {
     setShowCustomSub(watchedSubDenom === "Not Listed");
   }, [watchedSubDenom]);
+
+  // Fetch organization types from backend
+  useEffect(() => {
+    const fetchOrgTypes = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/api/organization_type");
+        setOrgTypes(response.data);
+      } catch (error) {
+        console.error("Failed to fetch organization types", error);
+      }
+    };
+
+    fetchOrgTypes();
+  }, []);
 
   const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const province = e.target.value;
@@ -96,73 +146,54 @@ const OrgRegister = () => {
   };
 
   const onSubmit = async (data: OrgFormData) => {
-  try {
-    // Construct the full denomination and the proper district and subDenomination values
-    const districtToSend = data.district === "Not Listed" ? data.customDistrict : data.district;
-    const subToSend = data.subDenomination === "Not Listed" ? data.customSubDenomination : data.subDenomination;
-    const fullDenomination = `${data.mainDenomination}-${subToSend}`;
+    try {
+      const hashedPassword = await bcrypt.hash(data.password, 10);
 
-    // Ensure the status is "active" by default if it's not provided
-    const statusToSend = data.status || "active";
+      const districtToSend =
+        data.district === "Not Listed" ? data.customDistrict : data.district;
 
-    // Log the form data before sending it to the backend (for debugging)
-    console.log("Form data before sending to backend:", {
-      name: data.name,
-      email: data.organization_email,
-      denomination: fullDenomination,
-      address: data.address,
-      region: data.region,
-      district: districtToSend,
-      status: statusToSend,
-    });
+      const subToSend =
+        data.subDenomination === "Not Listed"
+          ? data.customSubDenomination
+          : data.subDenomination;
 
-    // Make the POST request to register the organization
-    const response = await axios.post(
-      "http://localhost:3000/api/organizations/register", // Correct endpoint URL
-      {
-        name: data.name,
-        email: data.organization_email,
-        denomination: fullDenomination,
-        address: data.address,
-        region: data.region,
-        district: districtToSend,
-        status: statusToSend, // Default "active" if not provided
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json', // Ensure you're sending JSON data
+      const fullDenomination = `${data.mainDenomination}-${subToSend}`;
+      const statusToSend = data.status || "active";
+
+      const response = await axios.post(
+        "http://localhost:3000/api/organizations/register",
+        {
+          name: data.name,
+          email: data.organization_email,
+          password: hashedPassword,
+          org_type_id: Number(data.organizationType), // <-- convert to number
+          denomination: fullDenomination,
+          address: data.address,
+          region: data.region,
+          district: districtToSend,
+          status: statusToSend
         },
-      }
-    );
+        {
+          headers: { "Content-Type": "application/json" }
+        }
+      );
 
-    // Capture the response data (organization ID and account ID)
-    const { id: organizationID, organization_account_id: accountID } = response.data;
+      const { id: organizationID, organization_account_id: accountID } =
+        response.data;
 
-    // Debugging: Log the organization ID and account ID
-    console.log("Organization registered:", { organizationID, accountID });
-
-    // Show the success card and handle redirection after a short delay
-    setShowSuccessCard(true);
-    setTimeout(() => {
-      setShowSuccessCard(false);
-
-      // Pass both organizationID and accountID to the success page via navigation
-      navigate("/Organization/success", { state: { organizationID, accountID } });
-    }, 2000);
-  } catch (err: any) {
-    // Improved error handling
-    console.error("Error in onSubmit:", err);
-
-    if (err.response) {
-      // If error has response data (e.g., 4xx or 5xx status code)
-      setErrorMessage(err.response.data?.message || "Organization registration failed");
-    } else {
-      // If error is something like a network error
-      setErrorMessage("Network error. Please try again later.");
+      setShowSuccessCard(true);
+      setTimeout(() => {
+        setShowSuccessCard(false);
+        navigate("/Organization/success", {
+          state: { organizationID, accountID }
+        });
+      }, 2000);
+    } catch (err: any) {
+      setErrorMessage(
+        err.response?.data?.message || "Organization registration failed"
+      );
     }
-  }
-};
-
+  };
 
   return (
     <div className="login-parent-container">
@@ -176,41 +207,134 @@ const OrgRegister = () => {
           <div className="field input-field">
             <input type="text" {...register("name")} />
             <label>Organization Name</label>
-            {errors.name && <p className="form-error">{errors.name.message}</p>}
+            {errors.name && (
+              <p className="form-error">{errors.name.message}</p>
+            )}
           </div>
 
           {/* Organization Email */}
           <div className="field input-field">
             <input type="email" {...register("organization_email")} />
             <label>Organization Email</label>
-            {errors.organization_email && <p className="form-error">{errors.organization_email.message}</p>}
+            {errors.organization_email && (
+              <p className="form-error">
+                {errors.organization_email.message}
+              </p>
+            )}
           </div>
 
-          {/* Main Denomination Dropdown */}
+          {/* Organization Type */}
           <div className="field input-field select-field">
-            <select {...register("mainDenomination")} defaultValue="">
-              <option value="" disabled>Select Main Denomination</option>
-              {Object.keys(denominations).map((main) => (
-                <option key={main} value={main}>{main}</option>
+            <select {...register("organizationType", { valueAsNumber: true })} defaultValue="">
+              <option value="" disabled>
+                Select Organization Type
+              </option>
+              {orgTypes.map((type) => (
+                <option key={type.org_type_id} value={type.org_type_id}>
+                  {type.name}
+                </option>
               ))}
             </select>
-            {errors.mainDenomination && <p className="form-error">{errors.mainDenomination.message}</p>}
+            {errors.organizationType && (
+              <p className="form-error">{errors.organizationType.message}</p>
+            )}
           </div>
 
-          {/* Sub Denomination Dropdown */}
+          {/* Password */}
+          <div className="field input-field">
+            <input
+              type={showPassword ? "text" : "password"}
+              {...register("password")}
+            />
+            <label>Password</label>
+            <span
+              className="showPassword"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? "👁️" : "🙈"}
+            </span>
+            {errors.password && (
+              <p className="form-error">{errors.password.message}</p>
+            )}
+          </div>
+
+          {/* Confirm Password */}
+          <div className="field input-field">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              {...register("confirm_password")}
+            />
+            <label>Confirm Password</label>
+            <span
+              className="showPassword"
+              onClick={() =>
+                setShowConfirmPassword(!showConfirmPassword)
+              }
+            >
+              {showConfirmPassword ? "👁️" : "🙈"}
+            </span>
+            {errors.confirm_password && (
+              <p className="form-error">
+                {errors.confirm_password.message}
+              </p>
+            )}
+          </div>
+
+          {/* Main Denomination */}
+          <div className="field input-field select-field">
+            <select {...register("mainDenomination")} defaultValue="">
+              <option value="" disabled>
+                Select Main Denomination
+              </option>
+              {Object.keys(denominations).map((main) => (
+                <option key={main} value={main}>
+                  {main}
+                </option>
+              ))}
+            </select>
+            {errors.mainDenomination && (
+              <p className="form-error">
+                {errors.mainDenomination.message}
+              </p>
+            )}
+          </div>
+
+          {/* Sub Denomination */}
           {subDenoms.length > 0 && (
             <div className="field input-field select-field">
               <select {...register("subDenomination")} defaultValue="">
-                <option value="" disabled>Select Sub Denomination</option>
+                <option value="" disabled>
+                  Select Sub Denomination
+                </option>
                 {subDenoms.map((sub) => (
-                  <option key={sub} value={sub}>{sub}</option>
+                  <option key={sub} value={sub}>
+                    {sub}
+                  </option>
                 ))}
               </select>
-              {errors.subDenomination && <p className="form-error">{errors.subDenomination.message}</p>}
+              {errors.subDenomination && (
+                <p className="form-error">
+                  {errors.subDenomination.message}
+                </p>
+              )}
             </div>
           )}
 
-          {/* Custom Sub Denomination Input */}
+          {/* Church Mother Body */}
+          <div className="field input-field select-field">
+            <select {...register("motherBody")} defaultValue="">
+              <option value="" disabled>
+                Select Church Mother Body
+              </option>
+              {churchMotherBodies.map((body) => (
+                <option key={body} value={body}>
+                  {body}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Custom Sub Denomination */}
           {showCustomSub && (
             <div className="field input-field">
               <input type="text" {...register("customSubDenomination")} />
@@ -222,49 +346,58 @@ const OrgRegister = () => {
           <div className="field input-field">
             <input type="text" {...register("address")} />
             <label>Address</label>
-            {errors.address && <p className="form-error">{errors.address.message}</p>}
+            {errors.address && (
+              <p className="form-error">{errors.address.message}</p>
+            )}
           </div>
 
-          {/* Region (Province) Dropdown */}
+          {/* Province */}
           <div className="field input-field select-field">
-            <select {...register("region")} onChange={handleProvinceChange} defaultValue="">
-              <option value="" disabled>Select Province</option>
+            <select
+              {...register("region")}
+              onChange={handleProvinceChange}
+              defaultValue=""
+            >
+              <option value="" disabled>
+                Select Province
+              </option>
               {Object.keys(provinceDistrictMap).map((province) => (
-                <option key={province} value={province}>{province}</option>
+                <option key={province} value={province}>
+                  {province}
+                </option>
               ))}
             </select>
-            {errors.region && <p className="form-error">{errors.region.message}</p>}
+            {errors.region && (
+              <p className="form-error">{errors.region.message}</p>
+            )}
           </div>
 
-          {/* District Dropdown */}
+          {/* District */}
           {selectedProvince && (
             <div className="field input-field select-field">
               <select {...register("district")} defaultValue="">
-                <option value="" disabled>Select District</option>
+                <option value="" disabled>
+                  Select District
+                </option>
                 {districts.map((district) => (
-                  <option key={district} value={district}>{district}</option>
+                  <option key={district} value={district}>
+                    {district}
+                  </option>
                 ))}
               </select>
-              {errors.district && <p className="form-error">{errors.district.message}</p>}
+              {errors.district && (
+                <p className="form-error">{errors.district.message}</p>
+              )}
             </div>
           )}
 
-          {/* Custom District Input */}
+          {/* Custom District */}
           {showCustomDistrict && (
             <div className="field input-field">
               <input type="text" {...register("customDistrict")} />
               <label>Enter Your District</label>
             </div>
           )}
-
-          {/* Status Dropdown - Removed from UI */}
-          {/* <div className="field input-field select-field">
-            <select {...register("status")}>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-            {errors.status && <p className="form-error">{errors.status.message}</p>}
-          </div> */}
 
           {errorMessage && <p className="form-error">{errorMessage}</p>}
 
