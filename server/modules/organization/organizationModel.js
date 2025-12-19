@@ -78,6 +78,24 @@ const Organization = {
     return result.rows[0];
   },
 
+  async login({ organization_account_id, password }) {
+    const result = await pool.query(
+      `SELECT * FROM organizations WHERE organization_account_id = $1`,
+      [organization_account_id]
+    );
+
+    const org = result.rows[0];
+    if (!org) return null;
+
+    // Compare password
+    const match = await bcrypt.compare(password, org.password);
+    if (!match) return null;
+
+    // Remove password before returning
+    const { password: _, ...orgData } = org;
+    return orgData;
+  },
+
   // LIST ALL
   async getAll() {
     const result = await pool.query(

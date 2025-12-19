@@ -64,6 +64,29 @@ export const OrganizationController = {
     }
   },
 
+  // Login endpoint
+async login(req, res) {
+  try {
+    const { organization_account_id, password } = req.body;
+
+    if (!organization_account_id || !password) {
+      return res.status(400).json({ message: "Account ID and password are required" });
+    }
+
+    const org = await Organization.login({ organization_account_id, password });
+
+    if (!org) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    res.json({ message: "Login successful", organization: org });
+
+  } catch (err) {
+    console.error("Organization login error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+},
+
   // LIST PUBLIC (for registration dropdown)
   async listPublic(req, res) {
     try {

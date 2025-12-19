@@ -15,6 +15,8 @@ const router = express.Router();
 // Create a new organization
 router.post("/register", OrganizationController.create);
 
+router.post("/login", OrganizationController.login);
+
 router.get("/", OrganizationController.list);
 
 // Get organization by ID
