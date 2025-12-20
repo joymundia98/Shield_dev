@@ -76,7 +76,7 @@ export const AdminAccount = () => {
   const handleRedirect = (choice: string) => {
     setShowModal(false); // Close the modal
     if (choice === "profile") {
-      navigate("/Organization/edittableProfile"); // Redirect to the Organization Profile
+      navigate("/Organization/edittableProfile", { state: { organizationID: organization_id } }); // Redirect to the Organization Profile
     } else if (choice === "dashboard") {
       navigate("/dashboard"); // Redirect to the SCI-ELD ERP Platform Dashboard
     }

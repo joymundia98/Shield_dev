@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import headerLogo from '../../assets/headerlogo.png';
 
 const orgLoginSchema = z.object({
@@ -13,9 +14,6 @@ const orgLoginSchema = z.object({
 });
 
 type OrgLoginFormData = z.infer<typeof orgLoginSchema>;
-
-const DEFAULT_ACCOUNT_ID = '123456890';
-const DEFAULT_PASSWORD = 'SCI-ELD';
 
 export const OrgLoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -28,21 +26,33 @@ export const OrgLoginForm = () => {
 
   const navigate = useNavigate();
 
-  const onSubmit = (data: OrgLoginFormData) => {
-    const accountId = data.accountId.trim();
-    const password = data.password.trim();
+  const onSubmit = async (data: OrgLoginFormData) => {
+    setError('');
+    try {
+      const response = await axios.post('http://localhost:3000/api/organizations', {
+        accountId: data.accountId.trim(),
+        password: data.password.trim(),
+      });
 
-    if (accountId === DEFAULT_ACCOUNT_ID && password === DEFAULT_PASSWORD) {
-      setError('');
-      setShowSuccessCard(true);
+      // Assuming backend returns a JSON with success status and maybe organization info
+      console.log('Login response:', response.data);
 
-      setTimeout(() => {
-        setShowSuccessCard(false);
-        navigate('/dashboard'); // redirect to main dashboard (same as user login)
-      }, 3000);
-    } else {
-      setError('Invalid Account ID or password.');
-      setShowSuccessCard(false);
+      if (response.data.success) {
+        setShowSuccessCard(true);
+        setTimeout(() => {
+          setShowSuccessCard(false);
+          navigate('/dashboard', { state: { org: response.data.organization } });
+        }, 2000);
+      } else {
+        setError(response.data.message || 'Invalid credentials.');
+      }
+    } catch (err: any) {
+      console.error('Login error:', err);
+      if (err.response) {
+        setError(err.response.data.message || 'Organization login failed.');
+      } else {
+        setError('Organization login failed.');
+      }
     }
   };
 
@@ -68,7 +78,6 @@ export const OrgLoginForm = () => {
           <div className="field input-field">
             <input
               type={showPassword ? 'text' : 'password'}
-              id="password"
               required
               {...register('password')}
             />

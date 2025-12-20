@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../styles/global.css";
+import "../../styles/global.css";  // Make sure the styles are correctly imported
+import Calendar from "./Calendar"; // Import the Calendar component
 
-// Define event type interface
 interface Event {
   id: number;
   name: string;
@@ -16,19 +16,32 @@ interface Event {
 
 const ProgramsDashboard: React.FC = () => {
   const navigate = useNavigate();
-
   const [events, setEvents] = useState<Event[]>([]);
 
   // Fetch events from backend on component mount
   useEffect(() => {
     fetch("http://localhost:3000/api/programs")
       .then((response) => response.json())
-      .then((data) => setEvents(data));
+      .then((data) => {
+        const formattedEvents = data.map((program) => ({
+          id: program.id.toString(),
+          name: program.name,
+          description: program.description,
+          date: program.date.slice(0, 10), // Extract the date part (YYYY-MM-DD)
+          start: program.time, // Use the time field for start time
+          end: "17:00", // Default end time (adjust if you have specific end times)
+          venue: program.venue,
+          event_type: program.event_type,
+          notes: program.notes,
+          category_id: program.category_id, // Ensure this field exists
+          status: program.status || "Upcoming" // Default status
+        }));
+
+        setEvents(formattedEvents); // Save formatted events to state
+      });
   }, []);
 
-  // Sidebar state and logic
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   useEffect(() => {
@@ -41,102 +54,13 @@ const ProgramsDashboard: React.FC = () => {
     return () => body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
-  // Categories for filtering events
   const categories = [
     { category_id: 1, name: "Life Events" },
     { category_id: 2, name: "Church Business Events" },
     { category_id: 3, name: "Community Events" },
     { category_id: 4, name: "Spiritual Events" },
-    { category_id: 5, name: "Other" },
+    { category_id: 5, name: "Other" }
   ];
-
-  // Function to get upcoming events for a given category
-  const getUpcomingEvents = (category: string) => {
-    const categoryMap = {
-      "Life Events": 1,
-      "Church Business Events": 2,
-      "Community Events": 3,
-      "Spiritual Events": 4,
-      "Other": 5,
-    };
-
-    const categoryId = categoryMap[category];
-
-    const upcomingEvents = events
-      .filter((event) => event.category_id === categoryId && event.status === "Scheduled")
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) // Sort by date (ascending)
-      .slice(0, 3); // Limit to top 3 upcoming events
-
-    return upcomingEvents;
-  };
-
-  // Table generator with category name in the header, including time
-  const makeTable = (category: string) => {
-    const upcomingEvents = getUpcomingEvents(category);
-
-    return (
-      <table className="responsive-table">
-        <thead>
-          <tr>
-            <th>{category} Events</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Status</th>
-            <th>Manage</th>
-          </tr>
-        </thead>
-        <tbody>
-          {upcomingEvents.map((e) => (
-            <tr key={e.id}>
-              <td>{e.name}</td>
-              <td>{new Date(e.date).toLocaleDateString()}</td>
-              <td>{e.time}</td>
-              <td>{e.status}</td>
-              <td>
-                <a className="table-btn" href={`/programs/viewProgram?id=${e.id}`}>
-                  Open
-                </a>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-  };
-
-  // Additional table for "Other Events"
-  const makeOtherEventsTable = () => {
-    const otherEvents = getUpcomingEvents("Other");
-
-    return (
-      <table className="responsive-table">
-        <thead>
-          <tr>
-            <th>Other Events</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Status</th>
-            <th>Manage</th>
-          </tr>
-        </thead>
-        <tbody>
-          {otherEvents.map((e) => (
-            <tr key={e.id}>
-              <td>{e.name}</td>
-              <td>{new Date(e.date).toLocaleDateString()}</td>
-              <td>{e.time}</td>
-              <td>{e.status}</td>
-              <td>
-                <a className="table-btn" href={`/programs/viewProgram?id=${e.id}`}>
-                  Open
-                </a>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-  };
 
   // KPI Counts (grouped by category)
   const groupCounts = useMemo(() => {
@@ -152,22 +76,30 @@ const ProgramsDashboard: React.FC = () => {
       };
 
       const categoryName = categoryMap[e.category_id];
-      counts[categoryName]++;
+      if (categoryName) {
+        counts[categoryName]++;
+      }
     });
 
     return counts;
   }, [events]);
 
+  // Category Colors for the circles
+  const categoryColors: { [key: number]: string } = {
+    1: "#7aaf7cff",  // Life Events
+    2: "#364c63",    // Church Business Events
+    3: "#f5e784ff",  // Community Events
+    4: "#AF907A",    // Spiritual Events
+    5: "#1D1411",    // Other
+  };
+
   return (
     <div className="dashboard-wrapper">
-      {/* Hamburger */}
       <button className="hamburger" onClick={toggleSidebar}>
         &#9776;
       </button>
 
-      {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`} id="sidebar">
-        {/* Close Button */}
         <div className="close-wrapper">
           <div className="toggle close-btn">
             <input
@@ -182,16 +114,12 @@ const ProgramsDashboard: React.FC = () => {
         </div>
 
         <h2>PROGRAM MANAGER</h2>
-        <a href="/programs/dashboard">Dashboard</a>
-        <a href="/programs/RegisteredPrograms" className="active">
-          Registered Programs
-        </a>
+        <a href="/programs/dashboard" className="active">Dashboard</a>
+        <a href="/programs/RegisteredPrograms">Registered Programs</a>
         <a href="/programs/attendeeManagement">Attendee Management</a>
 
         <hr className="sidebar-separator" />
-        <a href="/dashboard" className="return-main">
-          ← Back to Main Dashboard
-        </a>
+        <a href="/dashboard" className="return-main">← Back to Main Dashboard</a>
         <a
           href="/"
           className="logout-link"
@@ -204,47 +132,43 @@ const ProgramsDashboard: React.FC = () => {
         </a>
       </div>
 
-      {/* Main Content */}
       <div className="dashboard-content">
         <h1>Programs & Events Overview</h1>
 
-        <div className="kpi-container">
+        <br/>
+        
+        <div className="kpi-container programs-container">
           <div className="kpi-card">
             <h3>Life Events</h3>
             <p>{groupCounts["Life Events"]}</p>
+            <div className="category-circle" style={{ backgroundColor: categoryColors[1] }}></div> {/* Circle for Life Events */}
           </div>
           <div className="kpi-card">
             <h3>Church Business Events</h3>
             <p>{groupCounts["Church Business Events"]}</p>
+            <div className="category-circle" style={{ backgroundColor: categoryColors[2] }}></div> {/* Circle for Church Business Events */}
           </div>
           <div className="kpi-card">
             <h3>Community Events</h3>
             <p>{groupCounts["Community Events"]}</p>
+            <div className="category-circle" style={{ backgroundColor: categoryColors[3] }}></div> {/* Circle for Community Events */}
           </div>
           <div className="kpi-card">
             <h3>Spiritual Events</h3>
             <p>{groupCounts["Spiritual Events"]}</p>
+            <div className="category-circle" style={{ backgroundColor: categoryColors[4] }}></div> {/* Circle for Spiritual Events */}
           </div>
           <div className="kpi-card">
             <h3>Other Events</h3>
             <p>{groupCounts["Other"]}</p>
+            <div className="category-circle" style={{ backgroundColor: categoryColors[5] }}></div> {/* Circle for Other Events */}
           </div>
         </div>
 
-        <h2>Upcoming Life Events</h2>
-        {makeTable("Life Events")}
-
-        <h2>Upcoming Church Business Events</h2>
-        {makeTable("Church Business Events")}
-
-        <h2>Upcoming Community Events</h2>
-        {makeTable("Community Events")}
-
-        <h2>Upcoming Spiritual Events</h2>
-        {makeTable("Spiritual Events")}
-
-        <h2>Upcoming Other Events</h2>
-        {makeOtherEventsTable()}
+        <div className="kpi-card">
+          <h3>Event Calendar</h3>
+          <Calendar events={events} /> {/* Pass the events to the Calendar component */}
+        </div>
       </div>
     </div>
   );

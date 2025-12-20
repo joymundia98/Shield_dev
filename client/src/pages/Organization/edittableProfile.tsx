@@ -420,6 +420,73 @@ const EdittableChurchProfilePage: React.FC = () => {
               {isEditing && <button onClick={() => handleAddItem('coreValues')}>Add Core Value</button>}
             </div>
           </div>
+
+          {/* Worship Services */}
+          <div className="content-card">
+            <h2>Worship Services</h2>
+
+            <h3>Sunday Worship Times</h3>
+            {isEditing ? (
+              <textarea
+                value={churchData.worshipTimes.sunday}
+                onChange={(e) => setChurchData(prev => ({
+                  ...prev,
+                  worshipTimes: { ...prev.worshipTimes, sunday: e.target.value }
+                }))}
+                placeholder="Enter Sunday Worship Times"
+              />
+            ) : (
+              <p>{churchData.worshipTimes.sunday}</p>
+            )}
+
+            <h3>Midweek Worship Times</h3>
+            {isEditing ? (
+              <textarea
+                value={churchData.worshipTimes.midweek}
+                onChange={(e) => setChurchData(prev => ({
+                  ...prev,
+                  worshipTimes: { ...prev.worshipTimes, midweek: e.target.value }
+                }))}
+                placeholder="Enter Midweek Worship Times"
+              />
+            ) : (
+              <p>{churchData.worshipTimes.midweek}</p>
+            )}
+
+            <h3>Sacraments</h3>
+            {isEditing ? (
+              <textarea
+                value={churchData.sacraments.join(', ')}
+                onChange={(e) =>
+                  setChurchData(prev => ({ ...prev, sacraments: e.target.value.split(',').map(s => s.trim()) }))
+                }
+                placeholder="Enter Sacraments separated by commas"
+              />
+            ) : (
+              <ul>
+                {churchData.sacraments.map((s, idx) => (
+                  <li key={idx}>{s}</li>
+                ))}
+              </ul>
+            )}
+
+            <h3>Special Services</h3>
+            {isEditing ? (
+              <textarea
+                value={churchData.specialServices.join(', ')}
+                onChange={(e) =>
+                  setChurchData(prev => ({ ...prev, specialServices: e.target.value.split(',').map(s => s.trim()) }))
+                }
+                placeholder="Enter Special Services separated by commas"
+              />
+            ) : (
+              <ul>
+                {churchData.specialServices.map((s, idx) => (
+                  <li key={idx}>{s}</li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
 
         {/* Save Changes Button */}

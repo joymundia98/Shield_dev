@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import headerLogo from "../../assets/headerlogo.png";
 import { useNavigate } from "react-router-dom";
-import bcrypt from "bcryptjs";
 
 // ---------------------------
 // Validation Schema
@@ -147,7 +146,6 @@ const OrgRegister = () => {
 
   const onSubmit = async (data: OrgFormData) => {
     try {
-      const hashedPassword = await bcrypt.hash(data.password, 10);
 
       const districtToSend =
         data.district === "Not Listed" ? data.customDistrict : data.district;
@@ -164,8 +162,8 @@ const OrgRegister = () => {
         "http://localhost:3000/api/organizations/register",
         {
           name: data.name,
-          email: data.organization_email,
-          password: hashedPassword,
+          organization_email: data.organization_email, // <-- use this key,
+          password: data.password,
           org_type_id: Number(data.organizationType), // <-- convert to number
           denomination: fullDenomination,
           address: data.address,
