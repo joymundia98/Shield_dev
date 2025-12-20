@@ -70,6 +70,9 @@ import denominationRoutes from './modules/denomination/denominationRoutes.js';
 import organizationRoutes from './modules/organization/OrgRoutes.js';
 import orgTypeRoutes from './modules/organization_type/orgTypeRoutes.js';
 import { verifyJWT } from './middleware/auth.js';
+
+import reportRoutes from "./modules/reports/reportRoutes.js";
+
 // import { OrganizationController } from './modules/organization/organizationController.js';
 
 dotenv.config();
@@ -159,6 +162,8 @@ app.use('/api/profiles/sacraments', sacramentRoutes);
 app.use('/api/profiles/social_links', socialRoutes);
 app.use('/api/profiles/special_services', specialServiceRoutes);
 app.use('/api/profiles/worship', worshipRoutes);
+
+app.use("/api/reports", reportRoutes);
 
 app.use("/api/leave_requests", leaveRoutes);
 app.use("/api/denominations", verifyJWT, denominationRoutes);
