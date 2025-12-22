@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../../styles/global.css";
+import FinanceHeader from './FinanceHeader';
 
 interface Category {
   id?: number;
@@ -245,6 +246,10 @@ const FinanceCategoriesPage: React.FC = () => {
       </div>
 
       <div className="dashboard-content">
+
+        <FinanceHeader />
+                        
+        <br/>
 
         {/* Income Categories */}
         <div className="table-section">

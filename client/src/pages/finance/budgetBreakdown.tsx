@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../../styles/global.css"; // Ensure your styles are being imported
+import FinanceHeader from './FinanceHeader';
 
 interface Budget {
   id: number;
@@ -172,6 +173,11 @@ const BudgetBreakdownPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content container">
+
+        <FinanceHeader />
+                        
+        <br/>
+
         <header>
           <h1>Budget Breakdown</h1>
         </header>

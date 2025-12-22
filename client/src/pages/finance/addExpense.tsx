@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import FinanceHeader from './FinanceHeader';
 
 interface NewExpense {
   subcategory: number | "";
@@ -171,7 +172,13 @@ const AddExpense: React.FC = () => {
 
       {/* ---------------- MAIN CONTENT ---------------- */}
       <div className="dashboard-content">
+
+        <FinanceHeader />
+        
+        <br/>
+        
         <header className="page-header expense-header">
+          
           <h1>Add Expense</h1>
           <button className="hamburger" onClick={toggleSidebar}>☰</button>
         </header>

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import FinanceHeader from './FinanceHeader';
 
 const FinanceDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -119,6 +120,11 @@ const FinanceDashboard: React.FC = () => {
 
       {/* MAIN CONTENT */}
       <div className="dashboard-content">
+
+        <FinanceHeader />
+        
+        <br/>
+
         <h1>Finance Overview</h1>
 
         <br /><br />

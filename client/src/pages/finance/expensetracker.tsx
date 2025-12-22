@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import FinanceHeader from './FinanceHeader';
 
 interface ExpenseItem {
   id: number;
@@ -257,6 +258,10 @@ const ExpenseTrackerPage: React.FC = () => {
 
       {/* MAIN CONTENT */}
       <div className="dashboard-content">
+
+        <FinanceHeader />
+
+        <br/>
 
         <header className="page-header expense-header">
           <h1>Expense Tracker</h1>

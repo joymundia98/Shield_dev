@@ -3,6 +3,7 @@ import Chart from "chart.js/auto";
 import axios from "axios";
 import "../../styles/global.css";
 import { useNavigate } from "react-router-dom";
+import FinanceHeader from './FinanceHeader';
 
 interface IncomeCategory {
   id: number;
@@ -194,6 +195,11 @@ const IncomeDashboard: React.FC = () => {
 
       {/* ---------------- MAIN CONTENT ---------------- */}
       <div className="dashboard-content">
+
+        <FinanceHeader />
+                        
+        <br/>
+
         <header className="page-header income-header">
           <h1>Income Dashboard</h1>
 

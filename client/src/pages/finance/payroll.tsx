@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import FinanceHeader from './FinanceHeader';
 
 // Define the interface for Payroll record
 interface PayrollRecord {
@@ -313,6 +314,11 @@ const FinancePayrollPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <FinanceHeader />
+                        
+        <br/>
+
         <h1>Payroll</h1>
 
         {/* Search */}

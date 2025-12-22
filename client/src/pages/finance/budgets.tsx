@@ -11,6 +11,7 @@ import {
 } from "chart.js";
 import { Doughnut, Bar } from "react-chartjs-2";
 import "../../styles/global.css";
+import FinanceHeader from './FinanceHeader';
 
 ChartJS.register(CategoryScale, LinearScale, ArcElement, BarElement, Tooltip, Legend);
 
@@ -263,6 +264,11 @@ const BudgetsPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <FinanceHeader />
+                        
+        <br/>
+
         {/* Header */}
         <header className="page-header">
           <h1>Budget Overview</h1>

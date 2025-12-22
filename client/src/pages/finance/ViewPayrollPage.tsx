@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import FinanceHeader from './FinanceHeader';
 
 const FinanceViewPayrollPage: React.FC = () => {
   const navigate = useNavigate();
@@ -140,6 +141,11 @@ const FinanceViewPayrollPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <FinanceHeader />
+                        
+        <br/>
+
         <h1>Payroll Details</h1>
 
         <br />

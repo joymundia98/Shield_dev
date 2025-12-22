@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AxiosError } from "axios";
 import "../../styles/global.css"; // Ensure your styles are being imported
+import FinanceHeader from './FinanceHeader';
 
 interface Budgets {
   [category: string]: { [subCategory: string]: number };
@@ -206,6 +207,11 @@ const SetBudgetsPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content container">
+
+        <FinanceHeader />
+                        
+        <br/>
+
         <header>
           <h1>Budget Setup</h1>
         </header>

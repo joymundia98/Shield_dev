@@ -12,6 +12,7 @@ import {
   Legend
 } from "chart.js";
 import "../../styles/global.css";
+import FinanceHeader from './FinanceHeader';
 
 // Register Chart.js components
 ChartJS.register(
@@ -240,6 +241,11 @@ const ExpenseDashboardPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <FinanceHeader />
+                        
+        <br/>
+
         {/* HEADER */}
         <header className="page-header expense-header">
           <h1>Expense Dashboard</h1>
