@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "../../styles/global.css";
 import Chart from "chart.js/auto";
 import { useNavigate } from "react-router-dom";
+import GovernanceHeader from './GovernanceHeader';
 
 const GovernanceDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -125,6 +126,10 @@ const GovernanceDashboard: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <GovernanceHeader/>
+        <br/>
+
         <h1>Governance Overview</h1>
 
         <br/><br/>

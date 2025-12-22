@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import DonorsHeader from './DonorsHeader';
 
 const DonorDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -202,6 +203,9 @@ const DonorDashboard: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <DonorsHeader/><br/>
+        
         <h1>Donor Dashboard Overview</h1>
 
         <br /><br />

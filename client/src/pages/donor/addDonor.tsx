@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import DonorsHeader from './DonorsHeader';
 
 interface DonorType {
   id: number;
@@ -229,6 +230,9 @@ const AddDonor: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <DonorsHeader/><br/>
+        
         <header className="page-header">
           <h1>Add Donor</h1>
           <button className="add-btn" onClick={() => navigate("/donor/donors")}>

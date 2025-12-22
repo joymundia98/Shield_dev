@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import DonorsHeader from './DonorsHeader';
 
 interface DonorType {
   name: string;
@@ -64,6 +65,9 @@ const DonorCategoriesPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <DonorsHeader/><br/>
+        
         <header className="page-header income-header">
           <h1>Donor Categories</h1>
           <button className="hamburger" onClick={toggleSidebar}>

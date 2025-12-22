@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import DonorsHeader from './DonorsHeader';
 
 interface Donation {
   id: number | string;
@@ -159,6 +160,9 @@ const DonationViewPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <DonorsHeader/><br/>
+        
         <h1>Donation Details</h1>
 
         {/* Back to Donations List Button */}

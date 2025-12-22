@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import DonorsHeader from './DonorsHeader';
 
 interface Donor {
   id: number;
@@ -133,6 +134,9 @@ const DonorManagementPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <DonorsHeader/><br/>
+
         <h1>Donors</h1>
         <br />
         <div
