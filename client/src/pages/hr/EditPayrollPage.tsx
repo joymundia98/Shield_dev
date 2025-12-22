@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../../styles/global.css";
+import HRHeader from './HRHeader';
 
 // Define the interface for Payroll components
 interface Payroll {
@@ -286,6 +287,9 @@ const EditPayroll: React.FC = () => {
 
       {/* Page Content */}
       <div className="dashboard-content">
+
+        <HRHeader/><br/>
+
         <header className="page-header">
           <h1>Edit Payroll</h1>
           <div>

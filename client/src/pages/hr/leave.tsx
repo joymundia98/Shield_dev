@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import HRHeader from './HRHeader';
 
 interface Leave {
   id: number;
@@ -186,6 +187,9 @@ const LeaveManagementPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <HRHeader/><br/>
+
         <h1>Leave Management</h1>
 
         {/* Search */}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import HRHeader from './HRHeader';
 
 interface Department {
   id: number;
@@ -305,6 +306,9 @@ const DepartmentsPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <HRHeader/><br/>
+
         {/* Church Departments */}
         <div className="table-section">
           <div className="table-header">

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import HRHeader from './HRHeader';
 
 interface Leave {
   id: number;
@@ -152,6 +153,10 @@ const AddLeave: React.FC = () => {
 
       {/* Page Content */}
       <div className="dashboard-content">
+
+        <HRHeader/>
+        <br/>
+        
         <header className="page-header">
           <h1>Request Leave</h1>
           <div>

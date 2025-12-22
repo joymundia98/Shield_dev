@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import HRHeader from './HRHeader';
 
 const ViewStaffPage: React.FC = () => {
   const navigate = useNavigate();
@@ -113,6 +114,10 @@ const ViewStaffPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <HRHeader/>
+        <br/>
+
         <h1>Staff Details</h1>
 
         <br />

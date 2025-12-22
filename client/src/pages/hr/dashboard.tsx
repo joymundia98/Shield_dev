@@ -3,6 +3,7 @@ import "../../styles/global.css";
 import Chart from "chart.js/auto";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios'; // Import axios for API calls
+import HRHeader from './HRHeader';
 
 const HRDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -193,6 +194,9 @@ const HRDashboard: React.FC = () => {
 
       {/* Main Dashboard Content */}
       <div className="dashboard-content">
+
+        <HRHeader/><br/>
+
         <h1>HR Dashboard Overview</h1>
         <br /><br />
         <div className="kpi-container">

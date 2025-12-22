@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../../styles/global.css";
 import { authFetch } from "../../utils/api";
+import HRHeader from './HRHeader';
 
 interface Staff {
   user_id?: number;
@@ -192,6 +193,9 @@ const EditStaff: React.FC = () => {
 
       {/* Page Content */}
       <div className="dashboard-content">
+
+        <HRHeader/><br/>
+
         <header className="page-header">
           <h1>Edit Staff</h1>
           <div>

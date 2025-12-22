@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import HRHeader from './HRHeader';
 
 interface Leave {
   id: number;
@@ -157,6 +158,9 @@ const LeaveApplicationsPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <HRHeader/><br/>
+
         <h1>Your Leave Applications</h1>
 
         <br />
