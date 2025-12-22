@@ -23,7 +23,7 @@ router.get("/", OrganizationController.list);
 router.get(
   "/:id",
   verifyJWT,
-  requirePermission("organization.view"),
+  // requirePermission("organization.view"),
   OrganizationController.getById
 );
 
