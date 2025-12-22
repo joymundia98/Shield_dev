@@ -153,7 +153,7 @@ const ViewPayrollPage: React.FC = () => {
           <tbody>
             <tr>
               <td><strong>Staff Name</strong></td>
-              <td>{staffData.staff_name}</td> {/* Display staff name */}
+              <td>{staffData.name}</td>  {/* Display staff name */}
             </tr>
             <tr>
               <td><strong>Department</strong></td>

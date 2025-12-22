@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Chart from "chart.js/auto";
 import "../styles/global.css";
+import HeaderNav from '../components/HeaderNav';
 
 interface KPI {
   totalMembers: number;
@@ -221,6 +222,7 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className="dashboard-wrapper">
+      
       {/* Hamburger */}
       <button className="hamburger" onClick={toggleSidebar}>
         &#9776;
@@ -287,6 +289,11 @@ const DashboardPage: React.FC = () => {
 
       {/* Main Dashboard */}
       <div className="dashboard-content">
+
+        <HeaderNav />
+
+        <br/>
+
         <h1>Church Overview</h1>
 
         <br/><br/>

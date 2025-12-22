@@ -90,12 +90,19 @@ const StaffDirectoryPage: React.FC = () => {
 
   const filteredStaff = useMemo(() => {
     return staffData.filter((s) => {
+      // Skip staff if they don't match the department filter
       if (filter.department && s.department !== filter.department) return false;
+      
+      // Skip staff if they don't match the status filter
       if (filter.status && s.status !== filter.status) return false;
-      if (searchQuery && !s.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-      return true;
+
+      // Skip staff if search query is non-empty and name does not match
+      if (searchQuery && s.name && !s.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+
+      return true; // Include this staff member if no conditions are violated
     });
   }, [staffData, filter, searchQuery]);
+
 
   // ---------------- Modals ----------------
   const [editStaff, setEditStaff] = useState<Staff | null>(null);
@@ -123,6 +130,24 @@ const StaffDirectoryPage: React.FC = () => {
   const handleAddStaff = () => {
     navigate("/hr/addStaff"); // just navigate, no state
   };
+
+  // ---------------- Helper function ----------------
+    const formatDate = (date: string | null) => {
+      if (!date) {
+        return ""; // Return an empty string or any fallback value you'd like
+      }
+
+      // Create a new Date object from the string
+      const dateObj = new Date(date);
+
+      // Check if it's a valid date
+      if (isNaN(dateObj.getTime())) {
+        return ""; // Return an empty string for invalid dates
+      }
+
+      // Format the date as "DD/MM/YYYY"
+      return dateObj.toLocaleDateString("en-GB"); // "en-GB" will give "DD/MM/YYYY" format
+    };
 
   // ---------------- Render ----------------
   return (
@@ -185,14 +210,18 @@ const StaffDirectoryPage: React.FC = () => {
             className="search-input"
             placeholder="Search staff..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              console.log("Search Query Updated: ", e.target.value);  // Add this log for debugging
+              setSearchQuery(e.target.value);
+            }}
           />
+
           <button className="add-btn" onClick={handleAddStaff}>
             + Add New Staff
-          </button>
-          <button className="filter-btn" onClick={openFilter}>
+          </button>&emsp;
+          {/* <button className="filter-btn" onClick={openFilter}>
             &#x1F5D1; Filter
-          </button>
+          </button> */}
         </div>
 
         {/* Departments */}
@@ -223,12 +252,14 @@ const StaffDirectoryPage: React.FC = () => {
                       <td data-title="Name">{s.name}</td>
                       <td data-title="Role">{s.role}</td>
                       <td data-title="Status">
-                        <span className={`status ${s.status}`}>{s.status.replace("-", " ")}</span>
+                        <span className={`status ${s.status}`}>
+                          {(s.status || "").replace("-", " ")}
+                        </span>
                       </td>
-                      <td data-title="Join Date">{s.joinDate}</td>
+                      <td data-title="Join Date">{formatDate(s.joinDate)}</td>
                       <td className="actions" data-title="Actions">
-                        <button className="add-btn" onClick={() => openViewModal(s)}>View</button>
-                        <button className="edit-btn" onClick={() => openEditModal(s, index)}>Edit</button>
+                        <button className="add-btn" onClick={() => window.open(`/hr/viewStaff/${s.id}`, "_blank")}>View</button>
+                        <button className="edit-btn" onClick={() => window.open(`/hr/editStaff/${s.id}`, "_blank")}>Edit</button>
                       </td>
                     </tr>
                   );
@@ -342,7 +373,7 @@ const StaffDirectoryPage: React.FC = () => {
                   <tr><td>Role</td><td>{viewStaff.role}</td></tr>
                   <tr><td>Status</td><td>{viewStaff.status.replace("-", " ")}</td></tr>
                   <tr><td>Payment</td><td>{viewStaff.paid ? "Paid Staff" : "Unpaid / Volunteer"}</td></tr>
-                  <tr><td>Join Date</td><td>{viewStaff.joinDate}</td></tr>
+                  <tr><td>Join Date</td><td>{formatDate(viewStaff.joinDate)}</td></tr>
                   <tr><td>Gender</td><td>{viewStaff.gender}</td></tr>
                   <tr><td>NRC</td><td>{viewStaff.NRC}</td></tr>
                   <tr><td>Address</td><td>{viewStaff.address}</td></tr>

@@ -3,8 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { FaCheckCircle, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
 import './orgProfile.css'; // Assuming your styles are located here
 import ChurchLogo from "../../assets/Church Logo.jpg"; // Assuming your logo path remains the same
+import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 
 const EdittableChurchProfilePage: React.FC = () => {
+  const location = useLocation();
+  const orgData = location.state?.org;
+  const organizationId = location.state?.organization_id;
+
+  console.log("Organization ID:", organizationId); // Logs the organization_id passed from the login page
+  console.log("Organization Data:", orgData);
+
   const [churchData, setChurchData] = useState({
     name: 'Eternal Hope Ministries',
     establishmentYear: 2010,
@@ -51,6 +60,25 @@ const EdittableChurchProfilePage: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false); // State to control sidebar visibility
 
+  // Fetch organization data when the component is mounted or when organizationId changes
+  useEffect(() => {
+    if (organizationId) {
+      axios.get(`http://localhost:3000/api/organizations/${organizationId}`)
+        .then((response) => {
+          const org = response.data[0]; // Assuming the response is an array with a single item
+          // Update only name and email, keep other fields as default
+          setChurchData((prevData) => ({
+            ...prevData,
+            name: org.name || prevData.name,
+            email: org.organization_email || prevData.email,
+          }));
+        })
+        .catch((error) => {
+          console.error('Error fetching organization data:', error);
+        });
+    }
+  }, [organizationId]);
+
   // Handle input change
   const handleChange = (key: string, value: string) => {
     setChurchData(prevState => ({
@@ -88,11 +116,41 @@ const EdittableChurchProfilePage: React.FC = () => {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   useEffect(() => {
-      if (sidebarOpen) document.body.classList.add("sidebar-open");
-      else document.body.classList.remove("sidebar-open");
-  
-      return () => document.body.classList.remove("sidebar-open");
-    }, [sidebarOpen]);
+    if (sidebarOpen) document.body.classList.add("sidebar-open");
+    else document.body.classList.remove("sidebar-open");
+
+    return () => document.body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
+
+  // Save Profile Function
+  const saveProfile = async () => {
+    try {
+      const response = await axios.post('http://localhost:3000/api/churches', {
+        name: churchData.name,
+        establishment_year: churchData.establishmentYear,
+        denomination: churchData.denomination,
+        email: churchData.email,
+        phone: churchData.phone,
+        address: churchData.address,
+        profile_pic: churchData.profilePic,
+        social_links: churchData.socialLinks,
+        leadership: churchData.leadership,
+        ministries: churchData.ministries,
+        core_values: churchData.coreValues,
+        worship_times: churchData.worshipTimes,
+        sacraments: churchData.sacraments,
+        special_services: churchData.specialServices,
+        about: churchData.about,
+        vision: churchData.vision,
+        mission: churchData.mission,
+      });
+      console.log('Profile saved successfully:', response.data);
+      // Optionally navigate to another page after save
+      navigate('/Organization/orgLobby'); // Change as needed
+    } catch (error) {
+      console.error('Error saving profile:', error);
+    }
+  };
 
   return (
     <div className="orgProfileContainer">
@@ -308,6 +366,7 @@ const EdittableChurchProfilePage: React.FC = () => {
             </div>
           </div>
 
+          {/* Ministries Section */}
           <div className="content-card">
             <h2>Ministries & Programs</h2>
             <div className="space-y-5">
@@ -492,7 +551,7 @@ const EdittableChurchProfilePage: React.FC = () => {
         {/* Save Changes Button */}
         {isEditing && (
           <div className="save-btn-container">
-            <button onClick={() => setIsEditing(false)} className="add-btn">
+            <button onClick={saveProfile} className="add-btn">
               Save Changes
             </button>
           </div>

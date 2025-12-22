@@ -36,6 +36,8 @@ import AddLeave from "./pages/hr/addLeave";
 import LeaveApplicationsPage from "./pages/hr/leaveApplications";
 import ViewPayrollPage from "./pages/hr/ViewPayroll";  // Import the View Payroll page
 import EditPayroll from "./pages/hr/EditPayrollPage";
+import ViewStaff from "./pages/hr/viewStaff";
+import EditStaff from "./pages/hr/editStaff";
 
 // Asset Module Functional Pages
 import AssetsPage from "./pages/assets/assets";
@@ -225,6 +227,8 @@ function App() {
           <Route path="/hr/leaveApplications" element={<LeaveApplicationsPage />} />
           <Route path="/hr/ViewPayroll/:payrollId" element={<ViewPayrollPage />} />
           <Route path="/hr/EditPayrollPage/:payrollId" element={<EditPayroll />} />
+          <Route path="/hr/viewStaff/:id" element={<ViewStaff />} />
+          <Route path="/hr/editStaff/:id" element={<EditStaff />} />
 
           {/* ------------------------------
                   PROGRAMS MODULE

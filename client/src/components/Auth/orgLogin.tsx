@@ -1,4 +1,3 @@
-// client/src/components/Auth/orgLogin.tsx
 import './LoginForm.css';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -9,7 +8,7 @@ import axios from 'axios';
 import headerLogo from '../../assets/headerlogo.png';
 
 const orgLoginSchema = z.object({
-  accountId: z.string().min(1, 'Account ID is required'),
+  organization_account_id: z.string().min(1, 'Account ID is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
@@ -27,37 +26,50 @@ export const OrgLoginForm = () => {
   const navigate = useNavigate();
 
   const onSubmit = async (data: OrgLoginFormData) => {
-    setError('');
-    try {
-      const response = await axios.post('http://localhost:3000/api/organizations', {
-        accountId: data.accountId.trim(),
-        password: data.password.trim(),
-      });
+  setError('');
+  try {
+    const response = await axios.post('http://localhost:3000/api/organizations/login', {
+      organization_account_id: data.organization_account_id.trim(),
+      password: data.password.trim(),
+    });
 
-      // Assuming backend returns a JSON with success status and maybe organization info
-      console.log('Login response:', response.data);
+    console.log('Login response:', response.data);
 
-      if (response.data.success) {
-        setShowSuccessCard(true);
-        setTimeout(() => {
-          setShowSuccessCard(false);
-          navigate('/dashboard', { state: { org: response.data.organization } });
-        }, 2000);
-      } else {
-        setError(response.data.message || 'Invalid credentials.');
-      }
-    } catch (err: any) {
-      console.error('Login error:', err);
-      if (err.response) {
-        setError(err.response.data.message || 'Organization login failed.');
-      } else {
-        setError('Organization login failed.');
-      }
+    // Check if the login was successful
+    if (response.data.message === "Login successful") {
+      const orgData = response.data.organization;
+
+      // Save the organization data if needed (e.g., for persistence)
+      localStorage.setItem('organization', JSON.stringify(orgData));
+
+      // Show success card
+      setShowSuccessCard(true);
+      console.log("Login successful, redirecting...");
+
+      // Directly navigate after showing success card
+      setTimeout(() => {
+        setShowSuccessCard(false); // Hide success card after 2 seconds
+        console.log("Navigating to /Organization/edittableProfile...");
+
+        // Pass the organization_id and other data to the profile page
+        navigate('/Organization/edittableProfile', { state: { 
+          org: orgData, 
+          organization_id: orgData.id  // Passing organization_id to the profile page
+        } });
+      }, 2000);
+    } else {
+      setError(response.data.message || 'Invalid credentials.');
+      setShowSuccessCard(false); // Hide success card if login fails
     }
-  };
+  } catch (err: any) {
+    console.error('Login error:', err);
+    setError(err.response?.data?.message || 'Organization login failed.');
+    setShowSuccessCard(false);
+  }
+};
 
   const handleUserLogin = () => {
-    navigate('/login'); // redirect to user login page
+    navigate('/login'); // Redirect to user login page
   };
 
   return (
@@ -70,7 +82,7 @@ export const OrgLoginForm = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
           {/* Account ID */}
           <div className="field input-field">
-            <input type="text" required {...register('accountId')} />
+            <input type="text" required {...register('organization_account_id')} />
             <label>Account ID</label>
           </div>
 
@@ -128,7 +140,7 @@ export const OrgLoginForm = () => {
       {showSuccessCard && (
         <div className="success-card">
           <h3>✅ Login Successful!</h3>
-          <p>Redirecting to dashboard...</p>
+          <p>Redirecting to your profile...</p>
         </div>
       )}
     </div>
