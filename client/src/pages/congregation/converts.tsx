@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import CongregationHeader from './CongregationHeader';
 
 const ConvertsDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -233,6 +234,9 @@ const ConvertsDashboard: React.FC = () => {
 
       {/* MAIN CONTENT */}
       <div className="dashboard-content">
+
+        <CongregationHeader/><br/>
+        
         {/* HEADER */}
         <header>
           <h1>New Converts Overview</h1>

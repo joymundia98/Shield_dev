@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import CongregationHeader from './CongregationHeader';
 
 const ConvertsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -145,6 +146,9 @@ const ConvertsPage: React.FC = () => {
 
       {/* MAIN CONTENT */}
       <div className="dashboard-content">
+
+        <CongregationHeader/><br/>
+        
         <header>
           <h1>Converts Records</h1>
           <div className="header-buttons">

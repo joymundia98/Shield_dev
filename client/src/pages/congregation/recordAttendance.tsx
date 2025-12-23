@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../../styles/global.css";
+import CongregationHeader from './CongregationHeader';
 
 type Gender = "Male" | "Female";
 type Category = "Children" | "Youth" | "Adults" | "Elderly";
@@ -173,6 +174,9 @@ const RecordAttendance: React.FC = () => {
       </div>
 
       <div className="dashboard-content attendanceRollCall">
+
+        <CongregationHeader/><br/>
+        
         <header>
           <h1>Record Attendance</h1>
           <br />

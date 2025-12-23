@@ -3,6 +3,7 @@ import Chart from "chart.js/auto";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../../styles/global.css";
+import CongregationHeader from './CongregationHeader';
 
 interface Member {
   member_id: number;
@@ -182,6 +183,9 @@ const ChurchMembersDashboard: React.FC = () => {
       </div>
 
       <div className="dashboard-content">
+
+        <CongregationHeader/><br/>
+        
         <header>
           <h1>Church Members Overview</h1>
           <br/>

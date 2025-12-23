@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Chart from "chart.js/auto";
 import "../../styles/global.css";
+import AssetsHeader from './AssetsHeader';
 
 interface Asset {
   id: number;
@@ -152,6 +153,9 @@ const AssetDashboard: React.FC = () => {
 
       {/* Main Dashboard Content */}
       <div className="dashboard-content">
+
+        <AssetsHeader/><br/>
+
         <h1>Asset Management Overview</h1>
 
         <br/><br/>

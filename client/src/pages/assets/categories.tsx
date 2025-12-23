@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import AssetsHeader from './AssetsHeader';
 
 interface Category {
   id: number;
@@ -169,6 +170,9 @@ const CategoriesPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <AssetsHeader/><br/>
+
         <h1>Categories Management</h1>
 
         {/* ----------- Asset Categories ----------- */}

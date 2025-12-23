@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import AssetsHeader from './AssetsHeader';
 
 interface Asset {
   asset_id: number;
@@ -153,6 +154,9 @@ const ViewAssetPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <AssetsHeader/><br/>
+
         <h1>Asset Details</h1>
         <br />
         {/* Back to Asset Inventory Button */}

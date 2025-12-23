@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios"; // If using axios
 import "../../styles/global.css";
+import ProgramsHeader from './ProgramsHeader';
 
 // Interfaces for Program
 interface Program {
@@ -159,6 +160,9 @@ const RegisteredProgramsPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <ProgramsHeader/><br/>
+
         <h1>Registered Programs</h1>
 
         <div

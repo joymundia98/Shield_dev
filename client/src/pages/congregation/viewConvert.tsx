@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/global.css"; // Assuming global styles are already imported
+import CongregationHeader from './CongregationHeader';
 
 const ViewConvert: React.FC = () => {
   const { id } = useParams(); // Get the id from URL
@@ -129,6 +130,9 @@ const ViewConvert: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <CongregationHeader/><br/>
+        
         <h1>Convert Details</h1>
 
         <br />

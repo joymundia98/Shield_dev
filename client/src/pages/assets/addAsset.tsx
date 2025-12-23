@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import AssetsHeader from './AssetsHeader';
 
 interface Asset {
   id: string;
@@ -67,6 +68,9 @@ const AddAssetPage: React.FC = () => {
     <div className="dashboard-wrapper">
 
       <div className="dashboard-content">
+
+        <AssetsHeader/><br/>
+
         <h1>Add New Asset</h1>
 
         <div className="FormContainer">

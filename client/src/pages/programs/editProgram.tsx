@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios"; // Import axios for making HTTP requests
 import "../../styles/global.css";
+import ProgramsHeader from './ProgramsHeader';
 
 // Interfaces for Program, Category, and Department
 interface Program {
@@ -259,6 +260,9 @@ const EditProgram: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <ProgramsHeader/><br/>
+
         <h1>Edit Program</h1><br />
 
         <form className="add-form-styling" onSubmit={handleSubmit}>

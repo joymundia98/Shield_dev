@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import AssetsHeader from './AssetsHeader';
 
 interface Asset {
   id: string;
@@ -169,6 +170,9 @@ const DepreciationPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <AssetsHeader/><br/>
+
         <h1>Asset Depreciation</h1>
 
         <div className="table-header">

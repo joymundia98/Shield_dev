@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import ProgramsHeader from './ProgramsHeader';
 
 type Gender = "Male" | "Female";
 type Category = "Life Event" | "Church Business Event" | "Community Event" | "Spiritual Event";
@@ -159,6 +160,9 @@ const AttendeeManagement: React.FC = () => {
       </div>
 
       <div className="dashboard-content">
+
+        <ProgramsHeader/><br/>
+
         <h1>Manage Attendees</h1>
 
         <br />

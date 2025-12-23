@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";  // Make sure the styles are correctly imported
 import Calendar from "./Calendar"; // Import the Calendar component
-
+import ProgramsHeader from './ProgramsHeader';
 interface Event {
   id: number;
   name: string;
@@ -133,6 +133,9 @@ const ProgramsDashboard: React.FC = () => {
       </div>
 
       <div className="dashboard-content">
+
+        <ProgramsHeader/><br/>
+
         <h1>Programs & Events Overview</h1>
 
         <br/>

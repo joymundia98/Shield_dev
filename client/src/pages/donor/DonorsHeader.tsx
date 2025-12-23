@@ -11,7 +11,7 @@ const DonorsHeader: React.FC = () => {
     { name: "← Back to Main", href: "/dashboard" },
     { name: "Dashboard", href: "/donor/dashboard" },
     { name: "Donors", href: "/donor/donors" },
-    { name: "Add Donor", href: "/donor/add-donor" },
+    { name: "Add Donor", href: "/donor/addDonor" },
     { name: "Donations", href: "/donor/donations" },
     { name: "Donor Categories", href: "/donor/donorCategories" },
     // Add logout link with a special href

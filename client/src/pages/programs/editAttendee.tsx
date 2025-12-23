@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../../styles/global.css"; // Import your styles
+import ProgramsHeader from './ProgramsHeader';
 
 interface Event {
   id: number;
@@ -169,6 +170,9 @@ const EditAttendee: React.FC = () => {
       </div>
 
       <div className="dashboard-content">
+
+        <ProgramsHeader/><br/>
+
         <h1>Edit Attendee: {attendee.name}</h1>
 
         <br />

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import AssetsHeader from './AssetsHeader';
 
 interface Maintenance {
     asset: string;
@@ -120,6 +121,9 @@ const MaintenancePage: React.FC = () => {
 
             {/* Main Content */}
             <div className="dashboard-content">
+
+                <AssetsHeader/><br/>
+
                 <h1>Maintenance Schedule</h1>
 
                 {/* Buttons */}

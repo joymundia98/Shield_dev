@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../../styles/global.css";
+import CongregationHeader from './CongregationHeader';
 
 interface Visitor {
   id: number;
@@ -173,6 +174,9 @@ const VisitorRecordsPage: React.FC = () => {
 
       {/* MAIN CONTENT */}
       <div className="dashboard-content">
+
+        <CongregationHeader/><br/>
+        
         <header>
           <h1>Visitors Records</h1>
 

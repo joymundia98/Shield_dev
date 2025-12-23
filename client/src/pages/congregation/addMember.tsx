@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import CongregationHeader from './CongregationHeader';
 
 interface MemberForm {
   photo: string;
@@ -201,6 +202,9 @@ const AddMemberPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <CongregationHeader/><br/>
+        
         <header>
           <h1>Add New Member</h1>
           <div className="header-buttons">

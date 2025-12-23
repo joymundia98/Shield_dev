@@ -15,6 +15,7 @@ import {
 } from "chart.js";
 import { Line, Bar } from "react-chartjs-2";
 import "../../styles/global.css";
+import CongregationHeader from './CongregationHeader';
 
 ChartJS.register(
   CategoryScale,
@@ -154,6 +155,9 @@ const AttendancePage: React.FC = () => {
 
       {/* Main content */}
       <div className="dashboard-content">
+
+        <CongregationHeader/><br/>
+        
         <header className="page-header attendance-header">
           <h1>Attendance Tracker</h1>
           <button className="add-btn" style={{ margin: "10px 0" }} onClick={() => navigate("/congregation/recordAttendance")}>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import CongregationHeader from './CongregationHeader';
 
 const AddConvert: React.FC = () => {
   const navigate = useNavigate();
@@ -151,6 +152,9 @@ const AddConvert: React.FC = () => {
 
       {/* MAIN FORM */}
       <div className="FormContainer">
+
+        <CongregationHeader/><br/>
+        
         <form id="addConvertForm" onSubmit={handleSubmit}>
           {/* Convert Type */}
           <label>Convert Type</label>

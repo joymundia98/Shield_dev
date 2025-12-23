@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../../styles/global.css";
+import CongregationHeader from './CongregationHeader';
 
 interface VisitorForm {
   photoFile?: File | null;
@@ -172,6 +173,9 @@ const AddVisitorPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <CongregationHeader/><br/>
+        
         <header>
           <h1>Add New Visitor</h1>
           <div className="header-buttons" style={{ marginTop: 10 }}>

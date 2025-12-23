@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../../styles/global.css"; // Import your styles
+import ProgramsHeader from './ProgramsHeader';
 
 // Interfaces for Event and Attendee
 interface Event {
@@ -181,6 +182,9 @@ const NewAttendees: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <ProgramsHeader/><br/>
+
         <h1>Register Attendee for {event.name}</h1>
 
         <br/>

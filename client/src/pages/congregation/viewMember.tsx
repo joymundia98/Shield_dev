@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/global.css";
+import CongregationHeader from './CongregationHeader';
 
 interface Member {
   member_id: number;
@@ -137,6 +138,9 @@ const ViewMemberPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-content">
+
+        <CongregationHeader/><br/>
+        
         <h1>Member Profile</h1>
         <br />
         {/* Back to Members List Button */}
