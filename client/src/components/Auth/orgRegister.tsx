@@ -18,10 +18,8 @@ const orgSchema = z
       .email("Invalid email")
       .min(1, "Email is required"),
 
-    // organizationType now expects a number (org_type_id)
-    organizationType: z.number({
-      required_error: "Organization type is required"
-    }),
+    // Updated to use `message`
+    organizationType: z.number().min(1, { message: "Organization type is required" }),
 
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirm_password: z.string().min(1, "Confirm password is required"),
@@ -40,6 +38,7 @@ const orgSchema = z
     message: "Passwords do not match",
     path: ["confirm_password"]
   });
+
 
 type OrgFormData = z.infer<typeof orgSchema>;
 

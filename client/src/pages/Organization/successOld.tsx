@@ -52,12 +52,12 @@ const OrganizationSuccessPage = () => {
         {/* Next Steps */}
         <div className="next-steps">
           <p><strong>Next Steps:</strong></p>
-          <p>Login with your new credentials...</p>
+          <p>Create an admin account to login to the Shield software.</p>
         </div>
 
-        {/* Button to navigate to OrgLogin */}
-        <button className="create-account-btn" onClick={() => navigate('../../components/orgLogin.tsx', { state: { organizationID, accountID } })}>
-          Organization Login
+        {/* Button to navigate to Admin Account Creation */}
+        <button className="create-account-btn" onClick={() => navigate('/admin/create-account', { state: { organizationID, accountID } })}>
+          + Create Admin Account
         </button>
       </div>
     </div>

@@ -5,14 +5,29 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios'; // Import axios for API calls
 import HRHeader from './HRHeader';
 
+interface Staff {
+  id: number;
+  name: string;
+  department_id: number;  // Make sure this matches the actual property name from your API response
+  paid: boolean;
+}
+
+interface LeaveRequest {
+  status: string; // You can refine this type later if needed, e.g., "approved" | "pending"
+  start_date: string; // Assuming it's a string, but could be Date if needed
+  // Any other fields that are part of the leave request data
+}
+
+
 const HRDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
   // New state variables for API data
-  const [staffData, setStaffData] = useState([]);
-  const [departments, setDepartments] = useState([]);
-  const [leaveRequests, setLeaveRequests] = useState([]);
+  const [staffData, setStaffData] = useState<Staff[]>([]);
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+  const [departments, setDepartments] = useState<{ id: number; name: string }[]>([]);
+
   
   // Chart refs
   const deptChartRef = useRef<Chart | null>(null);
@@ -21,9 +36,9 @@ const HRDashboard: React.FC = () => {
 
   const blue = "#1A3D7C";
   const brown1 = "#5C4736";
-  const brown2 = "#AF907A";
+  //const _brown2 = "#AF907A";
   const gray = "#817E7A";
-  const dark = "#20262C";
+  //const _dark = "#20262C";
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
@@ -81,7 +96,7 @@ const HRDashboard: React.FC = () => {
   joinLeaveChartRef.current?.destroy();
 
   // Calculate staff counts per department and sort in descending order
-  const deptStaffCounts = departments.map(dept => ({
+  const deptStaffCounts = departments.map((dept: { id: number; name: string }) => ({
     name: dept.name,
     staffCount: staffData.filter(staff => staff.department_id === dept.id).length,
   }));

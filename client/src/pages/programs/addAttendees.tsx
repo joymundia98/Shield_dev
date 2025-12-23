@@ -138,9 +138,13 @@ const NewAttendees: React.FC = () => {
           console.error("Error registering attendee:", errorData);
           alert(`Error registering attendee: ${errorData.message || "Unknown error"}`);
         }
-      } catch (error) {
-        console.error("Error registering attendee:", error);
-        alert("Error registering attendee: " + error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          // Now TypeScript knows `error` is of type `Error`
+          alert("Error registering attendee: " + error.message);
+        } else {
+          alert("An unknown error occurred.");
+        }
       }
     } else {
       setErrors(validationErrors);

@@ -4,7 +4,7 @@ import "../../styles/global.css";
 import { authFetch } from "../../utils/api";
 import HRHeader from './HRHeader';
 
-interface Staff {
+{/*interface Staff {
   user_id?: number;
   name: string;
   role: string;
@@ -22,7 +22,7 @@ interface Staff {
   email: string;
   photo: string;
   paid: boolean;
-}
+}*/}
 
 interface Department {
   id: number;

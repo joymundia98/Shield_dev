@@ -1,42 +1,114 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import './OrgLobby.css'; // Ensure this CSS file contains the necessary styles
-import johnImage from '../../assets/Man.jpg'; // Import image from assets
-import janeImage from '../../assets/girl.jpg'; // Import image from assets
-import davidImage from '../../assets/Man2.jpg'; // Import image from assets
+import axios from "axios";
+import './OrgLobby.css';
+import johnImage from '../../assets/Man.jpg';
+//import janeImage from '../../assets/girl.jpg';
+//import davidImage from '../../assets/Man2.jpg';
 
-// TypeScript type for each lobby user card
 interface LobbyUser {
   name: string;
   imageSrc: string;
   altText: string;
 }
 
-const lobbyUsers: LobbyUser[] = [
-  { name: 'John Doe', imageSrc: johnImage, altText: 'John Doe' },
-  { name: 'Jane Smith', imageSrc: janeImage, altText: 'Jane Smith' },
-  { name: 'David Johnson', imageSrc: davidImage, altText: 'David Johnson' },
-];
-
 const OrgLobby: React.FC = () => {
   const navigate = useNavigate();
 
-  // Sidebar state
+  const [users, setUsers] = useState<LobbyUser[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [jwtToken, _setJwtToken] = useState<string | null>(localStorage.getItem("jwt"));
+  const [organization, setOrganization] = useState<any | null>(null); // Store organization data
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  // Sidebar toggle effect
   useEffect(() => {
+    console.log('JWT Token from localStorage:', jwtToken); // Debug log to check token from localStorage
     if (sidebarOpen) {
       document.body.classList.add("sidebar-open");
     } else {
       document.body.classList.remove("sidebar-open");
     }
-  }, [sidebarOpen]);
+  }, [sidebarOpen, jwtToken]);
+
+  const fetchUsers = useCallback(async () => {
+    console.log('Fetching users with JWT:', jwtToken); // Debug log: Check the token being used
+
+    if (!jwtToken) {
+      setError("No JWT token found, please log in.");
+      navigate("/login");
+      return;
+    }
+
+    // Check organization ID
+    const orgId = organization ? organization.id : null;
+    if (!orgId) {
+      setError("No organization found.");
+      return;
+    }
+
+    try {
+      const response = await axios.get("http://localhost:3000/api/users", {
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+        params: {
+          organization_id: orgId, // Pass organization_id as a parameter
+        },
+      });
+
+      console.log('Fetched users response:', response.data); // Log the full response
+
+      const allUsers = response.data;
+      if (allUsers.length === 0) {
+        console.log('No users found for the organization.');
+      }
+
+      // Filter users with status "pending" or null
+      const filteredUsers = allUsers.filter(
+        (user: any) => user.status === "pending" || user.status === null
+      );
+
+      console.log('Filtered users:', filteredUsers); // Log filtered users
+
+      const formattedUsers = filteredUsers.map((user: any) => ({
+        name: `${user.first_name} ${user.last_name}`,
+        imageSrc: johnImage, // Use actual user images or a default one
+        altText: `${user.first_name} ${user.last_name}`,
+      }));
+
+      setUsers(formattedUsers);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching users:', err);
+      setError("There was an error fetching users.");
+      setLoading(false);
+    }
+  }, [jwtToken, navigate, organization]);
+
+  useEffect(() => {
+    if (jwtToken) {
+      fetchUsers();
+    } else {
+      setLoading(false);
+    }
+  }, [jwtToken, fetchUsers]);
+
+  useEffect(() => {
+    const savedOrg = localStorage.getItem('organization');
+    if (savedOrg) {
+      const parsedOrg = JSON.parse(savedOrg);
+      console.log('Organization loaded from localStorage:', parsedOrg);
+      setOrganization(parsedOrg);  // Store the organization data in state
+    } else {
+      console.log('No organization data found in localStorage.');
+    }
+  }, []);
 
   return (
     <div className="dashboard-wrapper">
-      {/* SIDEBAR */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="close-wrapper">
           <div className="toggle close-btn">
@@ -45,58 +117,56 @@ const OrgLobby: React.FC = () => {
             <span className="label">X</span>
           </div>
         </div>
-
         <h2>ORG MANAGER</h2>
         <a href="/Organization/edittableProfile">Profile</a>
         <a href="/Organization/orgLobby" className="active">The Lobby</a>
         <a href="/Organization/ListedAccounts">Accounts Tracker</a>
-
         <hr className="sidebar-separator" />
         <a href="/dashboard" className="return-main">To SCI-ELD ERP</a>
-        <a
-          href="/"
-          className="logout-link"
-          onClick={(e) => { e.preventDefault(); localStorage.clear(); navigate("/"); }}
-        >
-          ➜ Logout
-        </a>
+        <a href="/" className="logout-link" onClick={(e) => { e.preventDefault(); localStorage.clear(); navigate("/"); }}> ➜ Logout </a>
       </div>
 
-      {/* MAIN CONTENT */}
       <div className="dashboard-content">
         <header className="page-header">
           <h1>The Lobby</h1>
-          <button className="hamburger" onClick={toggleSidebar}>
-            ☰
-          </button>
+          <button className="hamburger" onClick={toggleSidebar}> ☰ </button>
         </header>
 
-        
-          <h3 className="lobby-guide">
-            The users listed below are presently in the lobby.<br />
-            Please take a moment to review and either confirm or reject their account registration.
-          </h3>
+        <h3 className="lobby-guide">
+          The users listed below are presently in the lobby.<br />
+          Please take a moment to review and either confirm or reject their account registration.
+        </h3>
 
-          <br/>
+        {/* Display Organization Name */}
+        {organization && (
+          <div className="organization-info">
+            <h3>Welcome to {organization.name}</h3>
+            <p>Status: {organization.status}</p>
+          </div>
+        )}
 
         <div className="lobbyContainer">
-          {lobbyUsers.map((user, index) => (
-            <div key={index} className="lobbyCard">
-              <img
-                src={user.imageSrc}
-                alt={user.altText}
-                className="lobbyCard-image"
-              />
-              <div className="lobbyCard-content">
-                <h3 className="lobbyCard-name">{user.name}</h3>
-                <div className="lobbyCard-buttons">
-                  <button className="approve-btn">Approve</button>
-                  <button className="reject-btn">Reject</button>
-                  <button className="add-btn">View</button>
+          {error && <div className="error">{error}</div>} 
+
+          {loading ? (
+            <p>Loading users...</p>
+          ) : users.length > 0 ? (
+            users.map((user, index) => (
+              <div key={index} className="lobbyCard">
+                <img src={user.imageSrc} alt={user.altText} className="lobbyCard-image" />
+                <div className="lobbyCard-content">
+                  <h3 className="lobbyCard-name">{user.name}</h3>
+                  <div className="lobbyCard-buttons">
+                    <button className="approve-btn">Approve</button>
+                    <button className="reject-btn">Reject</button>
+                    <button className="add-btn">View</button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p>No users in the lobby with pending or null status.</p>
+          )}
         </div>
       </div>
     </div>

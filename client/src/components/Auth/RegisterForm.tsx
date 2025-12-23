@@ -27,12 +27,22 @@ const registerSchema = z
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
+interface Role {
+  id: number;
+  name: string;
+}
+
+interface Organization {
+  id: number;
+  name: string;
+}
+
 export const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showSuccessCard, setShowSuccessCard] = useState(false);
-  const [roles, setRoles] = useState<{ id: number; name: string }[]>([]);
-  const [organizations, setOrganizations] = useState<{ id: number; name: string }[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({
@@ -47,7 +57,7 @@ export const RegisterForm = () => {
     axios.get("http://localhost:3000/api/roles")
       .then(res => {
         // Sort roles alphabetically by name
-        setRoles(res.data.sort((a, b) => a.name.localeCompare(b.name)));
+        setRoles(res.data.sort((a: Role, b: Role) => a.name.localeCompare(b.name)));
       })
       .catch(err => console.error("Error fetching roles:", err));
 
@@ -55,7 +65,7 @@ export const RegisterForm = () => {
     axios.get("http://localhost:3000/api/organizations")
       .then(res => {
         // Sort organizations alphabetically by name
-        setOrganizations(res.data.sort((a, b) => a.name.localeCompare(b.name)));
+        setOrganizations(res.data.sort((a: Organization, b: Organization) => a.name.localeCompare(b.name)));
       })
       .catch(err => console.error("Error fetching organizations:", err));
   }, []);
@@ -81,9 +91,12 @@ export const RegisterForm = () => {
         setShowSuccessCard(false);
         navigate("/Organization/lobby"); // Redirect to lobby page
       }, 2000);
-    } catch (err: any) {
-      console.error(err);
-      setErrorMessage(err.response?.data?.message || "Registration failed");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setErrorMessage(err.message || "Registration failed");
+      } else {
+        setErrorMessage("An unknown error occurred");
+      }
     }
   };
 
@@ -134,7 +147,7 @@ export const RegisterForm = () => {
           <div className="field input-field select-field">
             <select {...register("role")}>
               <option value="">Select Role</option>
-              {roles.map(role => (
+              {roles.map((role: Role) => (
                 <option key={role.id} value={role.id}>{role.name}</option>
               ))}
             </select>
@@ -145,7 +158,7 @@ export const RegisterForm = () => {
           <div className="field input-field select-field">
             <select {...register("organization")}>
               <option value="">Select Organization</option>
-              {organizations.map(org => (
+              {organizations.map((org: Organization) => (
                 <option key={org.id} value={org.id}>{org.name}</option>
               ))}
             </select>

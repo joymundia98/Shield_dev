@@ -42,7 +42,7 @@ const AddProgram: React.FC = () => {
   ];
 
   // Event types based on categories, including "Other" for every category
-  const eventTypes = {
+  const eventTypes: { [key: number]: string[] } = {
     1: ["Weddings", "Child Dedication", "Child Naming", "Funeral & Memorials", "Other"], // Life Events
     2: ["Business Meetings", "Other"], // Church Business
     3: ["Outreach & Evangelism", "Conferences", "Other"], // Community Events
@@ -103,12 +103,17 @@ const AddProgram: React.FC = () => {
 
   // Handle event type change
   const handleEventTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedEventType = e.target.value;
-    setProgram((prevProgram) => ({
-      ...prevProgram,
-      event_type: selectedEventType, // Update event type based on selection
-    }));
-  };
+      const selectedEventType = e.target.value;
+      setProgram((prevProgram) => ({
+        ...prevProgram,
+        event_type: selectedEventType,
+      }));
+    };
+  
+    // Access eventTypes safely with optional chaining
+    const getEventTypesForCategory = (categoryId: number) => {
+      return eventTypes[categoryId] || []; // Return an empty array if categoryId doesn't exist
+    };
 
   // Handle department change and update department name
   const handleDepartmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -268,7 +273,8 @@ const AddProgram: React.FC = () => {
               className="form-input"
             >
               <option value="">Select Event Type</option>
-              {eventTypes[program.category_id]?.map((eventType) => (
+              {/* Use the helper function to get the event types for the selected category */}
+              {getEventTypesForCategory(program.category_id).map((eventType) => (
                 <option key={eventType} value={eventType}>
                   {eventType}
                 </option>

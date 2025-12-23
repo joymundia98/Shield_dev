@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";  // Make sure the styles are correctly imported
 import Calendar from "./Calendar"; // Import the Calendar component
 import ProgramsHeader from './ProgramsHeader';
+
 interface Event {
   id: number;
   name: string;
@@ -14,6 +15,20 @@ interface Event {
   link: string;
 }
 
+interface Program {
+  id: number;
+  name: string;
+  description: string;
+  date: string;
+  time: string;
+  venue: string;
+  event_type: string;
+  category_id: number;
+  status: string;
+  notes: string;
+}
+
+
 const ProgramsDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState<Event[]>([]);
@@ -23,7 +38,7 @@ const ProgramsDashboard: React.FC = () => {
     fetch("http://localhost:3000/api/programs")
       .then((response) => response.json())
       .then((data) => {
-        const formattedEvents = data.map((program) => ({
+        const formattedEvents = data.map((program: Program) => ({
           id: program.id.toString(),
           name: program.name,
           description: program.description,
@@ -54,20 +69,20 @@ const ProgramsDashboard: React.FC = () => {
     return () => body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
-  const categories = [
+  {/*const categories = [
     { category_id: 1, name: "Life Events" },
     { category_id: 2, name: "Church Business Events" },
     { category_id: 3, name: "Community Events" },
     { category_id: 4, name: "Spiritual Events" },
     { category_id: 5, name: "Other" }
-  ];
+  ];*/}
 
   // KPI Counts (grouped by category)
   const groupCounts = useMemo(() => {
     const counts = { "Life Events": 0, "Church Business Events": 0, "Community Events": 0, "Spiritual Events": 0, "Other": 0 };
 
     events.forEach((e) => {
-      const categoryMap = {
+      const categoryMap: Record<number, string> = {
         1: "Life Events",
         2: "Church Business Events",
         3: "Community Events",
@@ -76,8 +91,9 @@ const ProgramsDashboard: React.FC = () => {
       };
 
       const categoryName = categoryMap[e.category_id];
+
       if (categoryName) {
-        counts[categoryName]++;
+        counts[categoryName as keyof typeof counts]++;
       }
     });
 

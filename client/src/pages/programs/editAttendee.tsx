@@ -69,10 +69,16 @@ const EditAttendee: React.FC = () => {
         }
         const fetchedEvent = await responseEvent.json();
         setEvent(fetchedEvent);
-      } catch (error) {
-        console.error("Error fetching details:", error);
-        alert("Error fetching details: " + error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error("Error fetching details:", error);
+          alert("Error fetching details: " + error.message);
+        } else {
+          console.error("Unknown error:", error);
+          alert("Unknown error occurred.");
+        }
       }
+
     };
 
     fetchAttendeeDetails();
@@ -89,54 +95,64 @@ const EditAttendee: React.FC = () => {
 
   // Handling form submission for updating attendee
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const validationErrors: string[] = [];
+      e.preventDefault();
+      const validationErrors: string[] = [];
 
-    // Validate attendee data
-    if (!attendee?.name) validationErrors.push("Name is required.");
-    if (!attendee?.email) validationErrors.push("Email is required.");
-    if (!attendee?.phone) validationErrors.push("Phone is required.");
-    if (!attendee?.age) validationErrors.push("Age is required.");
-    if (!attendee?.gender) validationErrors.push("Gender is required.");
-    if (!attendee?.role) validationErrors.push("Role is required.");
-
-    // If there are no validation errors, send PUT request to update the attendee
-    if (validationErrors.length === 0) {
-      try {
-        const roleToSend = attendee.role === "Other" ? attendee.customRole : attendee.role;
-
-        const response = await fetch(`http://localhost:3000/api/programs/attendees/${attendeeId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: attendee.name,
-            email: attendee.email,
-            phone: attendee.phone,
-            age: attendee.age,
-            gender: attendee.gender,
-            role: roleToSend,
-            program_id: attendee.program_id,
-          }),
-        });
-
-        if (response.ok) {
-          alert("Attendee updated successfully!");
-          navigate(`/programs/attendeeManagement`); // Navigate to attendee management
-        } else {
-          const errorData = await response.json();
-          console.error("Error updating attendee:", errorData);
-          alert(`Error updating attendee: ${errorData.message || "Unknown error"}`);
-        }
-      } catch (error) {
-        console.error("Error updating attendee:", error);
-        alert("Error updating attendee: " + error.message);
+      // Ensure 'attendee' is not null before proceeding
+      if (!attendee) {
+        validationErrors.push("Attendee data is not available.");
+      } else {
+        if (!attendee.name) validationErrors.push("Name is required.");
+        if (!attendee.email) validationErrors.push("Email is required.");
+        if (!attendee.phone) validationErrors.push("Phone is required.");
+        if (!attendee.age) validationErrors.push("Age is required.");
+        if (!attendee.gender) validationErrors.push("Gender is required.");
+        if (!attendee.role) validationErrors.push("Role is required.");
       }
-    } else {
-      setErrors(validationErrors);
-    }
-  };
+
+      // If there are no validation errors, proceed to update attendee
+      if (validationErrors.length === 0 && attendee) {
+        try {
+          const roleToSend = attendee.role === "Other" ? attendee.customRole : attendee.role;
+
+          const response = await fetch(`http://localhost:3000/api/programs/attendees/${attendeeId}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name: attendee.name,
+              email: attendee.email,
+              phone: attendee.phone,
+              age: attendee.age,
+              gender: attendee.gender,
+              role: roleToSend,
+              program_id: attendee.program_id,
+            }),
+          });
+
+          if (response.ok) {
+            alert("Attendee updated successfully!");
+            navigate(`/programs/attendeeManagement`);
+          } else {
+            const errorData = await response.json();
+            console.error("Error updating attendee:", errorData);
+            alert(`Error updating attendee: ${errorData.message || "Unknown error"}`);
+          }
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            console.error("Error updating attendee:", error);
+            alert("Error updating attendee: " + error.message);
+          } else {
+            console.error("Unknown error:", error);
+            alert("Unknown error occurred.");
+          }
+        }
+      } else {
+        setErrors(validationErrors);
+      }
+    };
+
 
   if (!attendee || !event) {
     return <div>Loading attendee and event details...</div>;

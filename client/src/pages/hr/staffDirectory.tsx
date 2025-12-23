@@ -74,10 +74,11 @@ const StaffDirectoryPage: React.FC = () => {
   const [tempFilter, setTempFilter] = useState(filter);
   const [showFilterPopup, setShowFilterPopup] = useState(false);
 
-  const openFilter = () => {
+  {/*const openFilter = () => {
     setTempFilter(filter);
     setShowFilterPopup(true);
-  };
+  };*/}
+
   const closeFilter = () => setShowFilterPopup(false);
   const handleApplyFilter = () => {
     setFilter(tempFilter);
@@ -107,16 +108,18 @@ const StaffDirectoryPage: React.FC = () => {
 
   // ---------------- Modals ----------------
   const [editStaff, setEditStaff] = useState<Staff | null>(null);
-  const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [editIndex, _setEditIndex] = useState<number | null>(null);
   const [viewStaff, setViewStaff] = useState<Staff | null>(null);
 
-  const openEditModal = (staff?: Staff, index?: number) => {
+  {/*const openEditModal = (staff?: Staff, index?: number) => {
     setEditStaff(staff || null);
     setEditIndex(index ?? null);
-  };
+  };*/}
+
   const closeEditModal = () => setEditStaff(null);
 
-  const openViewModal = (staff: Staff) => setViewStaff(staff);
+  {/*const openViewModal = (staff: Staff) => setViewStaff(staff);*/}
+
   const closeViewModal = () => setViewStaff(null);
 
   const handleSaveStaff = (staff: Staff) => {
@@ -250,7 +253,7 @@ const StaffDirectoryPage: React.FC = () => {
               </thead>
               <tbody>
                 {staffList.map((s, i) => {
-                  const index = staffData.indexOf(s);
+                  //const index = staffData.indexOf(s);
                   return (
                     <tr key={i}>
                       <td data-title="Name">{s.name}</td>

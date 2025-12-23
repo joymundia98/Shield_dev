@@ -111,77 +111,82 @@ const BudgetsPage: React.FC = () => {
 
   // ---------------- Budget Allocation by Category ----------------
   const budgetAllocationByCategory = useMemo(() => {
-    // Group budget data by category
-    const categoryBudgets: { [key: number]: number } = {};
+  // Group budget data by category
+  const categoryBudgets: { [key: number]: number } = {}; // Ensuring it's a number
 
-    filteredBudgetData.forEach((budget) => {
-      if (categoryBudgets[budget.category_id]) {
-        categoryBudgets[budget.category_id] += parseFloat(budget.amount);
-      } else {
-        categoryBudgets[budget.category_id] = parseFloat(budget.amount);
-      }
-    });
+  filteredBudgetData.forEach((budget) => {
+    const amount = parseFloat(budget.amount.toString()); // Ensure it's a number, in case it's a string
+    if (categoryBudgets[budget.category_id]) {
+      categoryBudgets[budget.category_id] += amount; // Add to the existing amount
+    } else {
+      categoryBudgets[budget.category_id] = amount; // Set initial amount
+    }
+  });
 
-    // Create data for the Pie Chart
-    const categoryChartData = categoryData.map((category) => {
-      const budget = categoryBudgets[category.id] || 0;
-      return {
-        name: category.name,
-        budget,
-      };
-    });
+  // Create data for the Pie Chart
+  const categoryChartData = categoryData.map((category) => {
+    const budget = categoryBudgets[category.id] || 0;
+    return {
+      name: category.name,
+      budget,
+    };
+  });
 
-    return categoryChartData;
-  }, [filteredBudgetData, categoryData]);
+  return categoryChartData;
+}, [filteredBudgetData, categoryData]);
+
 
   // ---------------- Top 5 Expense Subcategories ----------------
   const top5ExpenseData = useMemo(() => {
-    // Group expenses by subcategory
-    const subcategoryExpenses: { [key: number]: number } = {};
+  // Group expenses by subcategory
+  const subcategoryExpenses: { [key: number]: number } = {};
 
-    filteredExpenseData.forEach((expense) => {
-      if (subcategoryExpenses[expense.subcategory_id]) {
-        subcategoryExpenses[expense.subcategory_id] += parseFloat(expense.amount);
-      } else {
-        subcategoryExpenses[expense.subcategory_id] = parseFloat(expense.amount);
-      }
-    });
+  filteredExpenseData.forEach((expense) => {
+    const amount = typeof expense.amount === 'string' ? parseFloat(expense.amount) : expense.amount; // Ensure amount is a number
+    
+    if (subcategoryExpenses[expense.subcategory_id]) {
+      subcategoryExpenses[expense.subcategory_id] += amount; // Add to existing value
+    } else {
+      subcategoryExpenses[expense.subcategory_id] = amount; // Initialize if not present
+    }
+  });
 
-    // Get the top 5 subcategories with the highest expense
-    const top5Subcategories = Object.entries(subcategoryExpenses)
-      .map(([subcategory_id, amount]) => ({
-        subcategory_id: parseInt(subcategory_id),
-        amount,
-      }))
-      .sort((a, b) => b.amount - a.amount)
-      .slice(0, 5);
+  // Get the top 5 subcategories with the highest expense
+  const top5Subcategories = Object.entries(subcategoryExpenses)
+    .map(([subcategory_id, amount]) => ({
+      subcategory_id: parseInt(subcategory_id),
+      amount,
+    }))
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 5);
 
-    // Fetch names and budgets for the top 5 subcategories
-    return top5Subcategories.map((item) => {
-      const subcategory = subcategoryData.find(
-        (sub) => sub.id === item.subcategory_id
-      );
-      const category = categoryMap[subcategory?.category_id || 0];
-      const budget = filteredBudgetData.find(
-        (b) => b.category_id === subcategory?.category_id
-      )?.amount;
+  // Fetch names and budgets for the top 5 subcategories
+  return top5Subcategories.map((item) => {
+    const subcategory = subcategoryData.find((sub) => sub.id === item.subcategory_id);
+    const category = categoryMap[subcategory?.category_id || 0];
+    const budget = filteredBudgetData.find((b) => b.category_id === subcategory?.category_id)?.amount;
 
-      return {
-        subcategory_name: subcategory?.name || "",
-        category_name: category || "",
-        expense: item.amount,
-        budget: budget || 0,
-      };
-    });
-  }, [filteredExpenseData, subcategoryData, categoryMap, filteredBudgetData]);
+    return {
+      subcategory_name: subcategory?.name || "",
+      category_name: category || "",
+      expense: item.amount,
+      budget: budget || 0,
+    };
+  });
+}, [filteredExpenseData, subcategoryData, categoryMap, filteredBudgetData]);
 
   // ---------------- KPIs ----------------
-  const totalBudget = filteredBudgetData.reduce((sum, b) => sum + parseFloat(b.amount), 0);
-  const totalSpent = filteredExpenseData.reduce((sum, e) => sum + parseFloat(e.amount), 0);
+  const totalBudget = filteredBudgetData.reduce((sum, b) => sum + (typeof b.amount === 'string' ? parseFloat(b.amount) : b.amount), 0);
+  const totalSpent = filteredExpenseData.reduce((sum, e) => sum + (typeof e.amount === 'string' ? parseFloat(e.amount) : e.amount), 0);
   const remainingBudget = totalBudget - totalSpent;
-  const overspentCategories = filteredBudgetData.filter(
-    (b) => filteredExpenseData.some((e) => e.subcategory_id === b.category_id && parseFloat(e.amount) > parseFloat(b.amount))
+
+  const overspentCategories = filteredBudgetData.filter((b) =>
+    filteredExpenseData.some((e) =>
+      e.subcategory_id === b.category_id &&
+      (typeof e.amount === 'string' ? parseFloat(e.amount) : e.amount) > (typeof b.amount === 'string' ? parseFloat(b.amount) : b.amount)
+    )
   ).length;
+
 
   // ---------------- Chart Data ----------------
   const categoryChartData = useMemo(() => ({

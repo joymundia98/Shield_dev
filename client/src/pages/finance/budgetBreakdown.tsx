@@ -31,7 +31,7 @@ const BudgetBreakdownPage: React.FC = () => {
   const [budgetData, setBudgetData] = useState<Budget[]>([]);
   const [selectedMonth, setSelectedMonth] = useState<string>("01"); // Default to January
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString()); // Default to current year
-  const [categories, setCategories] = useState<{ [category: string]: string[] }>({});
+  const [_categories, setCategories] = useState<{ [category: string]: string[] }>({});
   const [categoryIds, setCategoryIds] = useState<{ [category: string]: number }>({});
   const [subcategoryIds, setSubcategoryIds] = useState<{ [subcategory: string]: number }>({});
   const [budgetTitle, setBudgetTitle] = useState<string>("");

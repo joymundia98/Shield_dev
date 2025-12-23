@@ -80,11 +80,18 @@ const AddConvert: React.FC = () => {
 
       alert("Convert added successfully!");
       navigate("/congregation/convertRecords");  // Redirect to convert records page
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Error: " + error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Error:", error);
+        alert("Error: " + error.message);  // Access message after confirming it's an instance of Error
+      } else {
+        console.error("Unexpected error:", error);
+        alert("An unexpected error occurred.");
+      }
     }
+
   };
+
 
   return (
     <div className="dashboard-wrapper converts-wrapper">

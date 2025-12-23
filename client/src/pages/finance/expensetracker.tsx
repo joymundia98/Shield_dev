@@ -23,8 +23,9 @@ interface ExpenseGroup {
 }
 
 interface ExpenseCategories {
-  [category: string]: ExpenseGroup[];
+  [category: string]: ExpenseGroup[] | undefined;  // Can be an array or undefined
 }
+
 
 interface Department {
   id: number;
@@ -49,8 +50,8 @@ const ExpenseTrackerPage: React.FC = () => {
   }, [sidebarOpen]);
 
   // Data from backend
-  const [categories, setCategories] = useState<ExpenseCategories>({});
-  const [categoryList, setCategoryList] = useState<string[]>([]);
+  const [_categories, _setCategories] = useState<ExpenseCategories>({});
+  const [_categoryList, setCategoryList] = useState<string[]>([]);
   const [subcategories, setSubcategories] = useState<any[]>([]);
   const [expenseCategories, setExpenseCategories] = useState<any[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -149,26 +150,39 @@ const ExpenseTrackerPage: React.FC = () => {
 
   // ------------------- GROUPING EXPENSES BY DEPARTMENT -------------------
   const groupedExpenses = useMemo(() => {
-    const grouped: ExpenseCategories = {};
+  const grouped: { [key: string]: ExpenseGroup[] } = {};  // Initialize the type as an array, no 'undefined'
 
-    filteredExpenses.forEach((expense) => {
-      const deptName = expense.department;
-      if (!grouped[deptName]) grouped[deptName] = [];
+  filteredExpenses.forEach((expense) => {
+    const deptName = expense.department;
+    
+    // Ensure deptName exists, and initialize the array if not already
+    if (deptName && !grouped[deptName]) {
+      grouped[deptName] = [];  // Initialize an empty array for this department
+    }
 
-      let group = grouped[deptName].find(
-        (g) => g.name === expense.subcategory_name
-      );
+    let group = deptName && grouped[deptName] 
+    ? grouped[deptName].find((g: ExpenseGroup) => g.name === expense.subcategory_name) 
+    : undefined; // or use `[]` if you want group to be an empty array by default
 
-      if (!group) {
-        group = { name: expense.subcategory_name, items: [] };
-        grouped[deptName].push(group);
+    if (!group) {
+      // Create a new group if it doesn't exist
+      group = { name: expense.subcategory_name, items: [] };
+
+      // Check if deptName is defined before using it to index `grouped`
+      if (deptName !== undefined && grouped[deptName]) {
+        grouped[deptName].push(group); // Add the group to the department's array
+      } else if (deptName !== undefined) {
+        // Initialize grouped[deptName] as an empty array if it doesn't exist
+        grouped[deptName] = [group];
       }
+    }
 
-      group.items.push(expense);
-    });
+    group.items.push(expense); // Add the expense to the group
+  });
 
-    return grouped;
-  }, [filteredExpenses]);
+  return grouped;
+}, [filteredExpenses]);
+
 
   // ------------------- APPROVE/REJECT LOGIC -------------------
   const updateStatus = async (
@@ -345,9 +359,14 @@ const ExpenseTrackerPage: React.FC = () => {
                           </td>
 
                           <td>
-                            <button className="add-btn" onClick={() => openViewModal(item)}>
+                            <button
+                              className="add-btn"
+                              onClick={() => window.open(`http://localhost:3000/api/finance/viewExpense/${item.id}`, "_blank")}
+                            >
                               View
                             </button>
+
+
                             &nbsp;&nbsp;
 
                             {item.status === "Pending" && (

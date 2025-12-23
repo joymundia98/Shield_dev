@@ -125,10 +125,16 @@ const AttendeeManagement: React.FC = () => {
           );
           console.log(`Attendee with ID: ${attendeeId} deleted successfully`);
           alert("Attendee deleted successfully");
-        } catch (error) {
-          console.error("Error deleting attendee:", error);
-          alert("Error deleting attendee: " + error.message);
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            console.error("Error deleting attendee:", error.message);
+            alert("Error deleting attendee: " + error.message);
+          } else {
+            console.error("Unknown error:", error);
+            alert("An unknown error occurred while deleting attendee.");
+          }
         }
+
       };
       deleteAttendee();
     }

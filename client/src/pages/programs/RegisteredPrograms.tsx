@@ -79,7 +79,7 @@ const RegisteredProgramsPage: React.FC = () => {
         // Make the API call to delete the program from the backend
         axios
           .delete(`http://localhost:3000/api/programs/${id}`)  // Assuming this is the API endpoint to delete the program
-          .then((response) => {
+          .then(() => {
             // On success, filter out the deleted program from the local state
             setPrograms((prev) => prev.filter((program) => program.id !== Number(id)));
             alert("Program deleted successfully.");

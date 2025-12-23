@@ -184,7 +184,7 @@ const HrPayrollPage: React.FC = () => {
   };
 
   // ------------------- Delete Payroll -------------------
-  const deletePayroll = async (index: number, dept: string) => {
+  const deletePayroll = async (index: number) => {
     if (window.confirm("Are you sure you want to delete this payroll record?")) {
       const payrollRecord = filteredPayroll[index];
       try {
@@ -397,7 +397,7 @@ const HrPayrollPage: React.FC = () => {
                         >
                           Edit
                         </button>&emsp;
-                        <button className="delete-btn" onClick={() => deletePayroll(i, p.department)}>Delete</button>
+                        <button className="delete-btn" onClick={() => deletePayroll(i)}>Delete</button>
                       </td>
                     </tr>
                   ))}
