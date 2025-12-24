@@ -4,6 +4,9 @@ import axios from "axios"; // If using axios
 import "../../styles/global.css";
 import ProgramsHeader from './ProgramsHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 // Interfaces for Program
 interface Program {
   id: number;
@@ -45,8 +48,9 @@ const RegisteredProgramsPage: React.FC = () => {
   useEffect(() => {
     // Fetch programs from backend
     axios
-      .get("${baseURL}/api/programs") // backend API endpoint
+      .get(`${baseURL}/api/programs`) // backend API endpoint
       .then((response) => {
+        console.log("Response data:", response.data);
         setPrograms(response.data); // Set programs data from the response
       })
       .catch((error) => {
@@ -55,6 +59,10 @@ const RegisteredProgramsPage: React.FC = () => {
   }, []);
 
   const groupByCategory = (programs: Program[]) => {
+    if (!Array.isArray(programs)) {
+      console.error("Expected an array but got", programs);
+      return {};  // Return an empty object or handle as needed
+    }
     return programs.reduce((acc: Record<string, Program[]>, program) => {
       const category = program.category_id.toString();
       if (!acc[category]) acc[category] = [];
@@ -62,6 +70,7 @@ const RegisteredProgramsPage: React.FC = () => {
       return acc;
     }, {});
   };
+
 
   const groupedPrograms = useMemo(() => groupByCategory(programs), [programs]);
 
