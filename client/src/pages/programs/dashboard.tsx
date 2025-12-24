@@ -4,6 +4,9 @@ import "../../styles/global.css";  // Make sure the styles are correctly importe
 import Calendar from "./Calendar"; // Import the Calendar component
 import ProgramsHeader from './ProgramsHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Event {
   id: number;
   name: string;
@@ -35,7 +38,7 @@ const ProgramsDashboard: React.FC = () => {
 
   // Fetch events from backend on component mount
   useEffect(() => {
-    fetch("${baseURL}/api/programs")
+    fetch(`${baseURL}/api/programs`)
       .then((response) => response.json())
       .then((data) => {
         const formattedEvents = data.map((program: Program) => ({
