@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import HRHeader from './HRHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Leave {
   id: number;
   staff_id: number;
@@ -49,7 +52,7 @@ const LeaveManagementPage: React.FC = () => {
   useEffect(() => {
     const fetchLeaveRequests = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/leave_requests");
+        const response = await fetch(`${baseURL}/api/leave_requests`);
         if (!response.ok) throw new Error("Failed to fetch leave requests");
         const data = await response.json();
         setLeaves(data);
@@ -65,11 +68,11 @@ const LeaveManagementPage: React.FC = () => {
   useEffect(() => {
     const fetchStaffAndDepartments = async () => {
       try {
-        const staffResponse = await fetch("http://localhost:3000/api/staff");
+        const staffResponse = await fetch(`${baseURL}/api/staff`);
         const staffData = await staffResponse.json();
         setStaffMembers(staffData);
 
-        const deptResponse = await fetch("http://localhost:3000/api/departments");
+        const deptResponse = await fetch(`${baseURL}/api/departments`);
         const deptData = await deptResponse.json();
         setDepartments(deptData);
       } catch (err: any) {
@@ -108,7 +111,7 @@ const LeaveManagementPage: React.FC = () => {
   // Update Leave Status (Approve/Reject)
   const updateLeaveStatus = async (leaveId: number, status: "approved" | "rejected") => {
     try {
-      const response = await fetch(`http://localhost:3000/api/leave_requests/${leaveId}/status`, {
+      const response = await fetch(`${baseURL}/api/leave_requests/${leaveId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),

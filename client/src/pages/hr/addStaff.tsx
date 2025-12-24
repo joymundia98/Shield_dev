@@ -4,6 +4,9 @@ import "../../styles/global.css";
 import { authFetch } from "../../utils/api";
 import HRHeader from './HRHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Staff {
   user_id?: number;
   name: string;
@@ -56,13 +59,13 @@ const AddStaff: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const depRes = await fetch("http://localhost:3000/api/departments");
+        const depRes = await fetch(`${baseURL}/api/departments`);
         if (!depRes.ok) throw new Error("Failed fetching departments");
         const depData = await depRes.json();
 
         const [userData, roleData] = await Promise.all([
-          authFetch("http://localhost:3000/api/users"),
-          authFetch("http://localhost:3000/api/roles"),
+          authFetch(`${baseURL}/api/users`),
+          authFetch(`${baseURL}/api/roles`),
         ]);
 
         setDepartments(depData);
@@ -121,7 +124,7 @@ const AddStaff: React.FC = () => {
     console.log("Submitting staff:", form);
 
     try {
-      await authFetch("http://localhost:3000/api/staff", {
+      await authFetch(`${baseURL}/api/staff`, {
         method: "POST",
         body: JSON.stringify(form),
       });

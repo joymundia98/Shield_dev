@@ -7,6 +7,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import headerLogo from "../../assets/headerlogo.png";
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 // Validation schema
 const registerSchema = z
   .object({
@@ -54,7 +57,7 @@ export const RegisterForm = () => {
   // Fetch roles and organizations on mount
   useEffect(() => {
     // Fetch roles
-    axios.get("http://localhost:3000/api/roles")
+    axios.get(`${baseURL}/api/roles`)
       .then(res => {
         // Sort roles alphabetically by name
         setRoles(res.data.sort((a: Role, b: Role) => a.name.localeCompare(b.name)));
@@ -62,7 +65,7 @@ export const RegisterForm = () => {
       .catch(err => console.error("Error fetching roles:", err));
 
     // Fetch organizations
-    axios.get("http://localhost:3000/api/organizations")
+    axios.get(`${baseURL}/api/organizations`)
       .then(res => {
         // Sort organizations alphabetically by name
         setOrganizations(res.data.sort((a: Organization, b: Organization) => a.name.localeCompare(b.name)));
@@ -73,7 +76,7 @@ export const RegisterForm = () => {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       // Submit registration data to the backend
-      await axios.post("http://localhost:3000/api/auth/register", {
+      await axios.post(`${baseURL}/api/auth/register`, {
         first_name: data.first_name,
         last_name: data.last_name,
         email: data.email,

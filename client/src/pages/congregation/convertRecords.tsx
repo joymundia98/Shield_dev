@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import CongregationHeader from './CongregationHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 const ConvertsPage: React.FC = () => {
   const navigate = useNavigate();
 
@@ -23,9 +26,9 @@ const ConvertsPage: React.FC = () => {
   const fetchConverts = async () => {
     try {
       const [convertsResponse, visitorsResponse, membersResponse] = await Promise.all([
-        fetch("http://localhost:3000/api/converts").then(res => res.json()),
-        fetch("http://localhost:3000/api/visitor").then(res => res.json()),
-        fetch("http://localhost:3000/api/members").then(res => res.json()),
+        fetch(`${baseURL}/api/converts`).then(res => res.json()),
+        fetch(`${baseURL}/api/visitor`).then(res => res.json()),
+        fetch(`${baseURL}/api/members`).then(res => res.json()),
       ]);
 
       const visitors = visitorsResponse.reduce((acc: any, visitor: any) => {
@@ -67,7 +70,7 @@ const ConvertsPage: React.FC = () => {
 
     try {
       // Make DELETE request to delete the convert
-      await fetch(`http://localhost:3000/api/converts/${deleteConvertId}`, {
+      await fetch(`${baseURL}/api/converts/${deleteConvertId}`, {
         method: "DELETE",
       });
 

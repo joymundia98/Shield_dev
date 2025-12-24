@@ -8,6 +8,9 @@ import axios from 'axios';
 import headerLogo from '../../assets/headerlogo.png';
 import { AuthContext } from '../../context/AuthContext';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 const orgLoginSchema = z.object({
   organization_account_id: z.string().min(1, 'Account ID is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
@@ -37,7 +40,7 @@ export const OrgLoginForm = () => {
     setError('');
     try {
       const response = await axios.post(
-        'http://localhost:3000/api/organizations/login',
+        `${baseURL}/api/organizations/login`,
         {
           organization_account_id: data.organization_account_id.trim(),
           password: data.password.trim(),

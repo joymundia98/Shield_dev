@@ -35,7 +35,7 @@ const ProgramsDashboard: React.FC = () => {
 
   // Fetch events from backend on component mount
   useEffect(() => {
-    fetch("http://localhost:3000/api/programs")
+    fetch("${baseURL}/api/programs")
       .then((response) => response.json())
       .then((data) => {
         const formattedEvents = data.map((program: Program) => ({

@@ -3,6 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import DonorsHeader from './DonorsHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Donor {
   id: number;
   name: string;
@@ -46,7 +49,7 @@ const EditDonation: React.FC = () => {
   const [donors, setDonors] = useState<Donor[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/donors")
+    fetch(`${baseURL}/api/donors`)
       .then((res) => res.json())
       .then((data) => setDonors(data))
       .catch((err) => console.error("Failed to load donors", err));
@@ -77,7 +80,7 @@ const EditDonation: React.FC = () => {
     // Fetch the existing donation details
     const fetchDonation = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/donations/${donationId}`);
+        const res = await fetch(`${baseURL}/api/donations/${donationId}`);
         const data = await res.json();
         if (res.ok) {
           setForm({
@@ -146,7 +149,7 @@ const EditDonation: React.FC = () => {
 
     try {
       // 1️⃣ Update the donation in the database
-      const res = await fetch(`http://localhost:3000/api/donations/${donationId}`, {
+      const res = await fetch(`${baseURL}/api/donations/${donationId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(donationPayload),

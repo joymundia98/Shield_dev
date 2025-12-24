@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import FinanceHeader from './FinanceHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 // Define the interface for Payroll record
 interface PayrollRecord {
   payroll_id: number;
@@ -84,7 +87,7 @@ const FinancePayrollPage: React.FC = () => {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/departments");
+        const response = await fetch(`${baseURL}/api/departments`);
         const data: Department[] = await response.json();
         setDepartments(data);
       } catch (error) {
@@ -99,7 +102,7 @@ const FinancePayrollPage: React.FC = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/roles");
+        const response = await fetch(`${baseURL}/api/roles`);
         const data: Role[] = await response.json();
         setRoles(data);
       } catch (error) {
@@ -114,7 +117,7 @@ const FinancePayrollPage: React.FC = () => {
   useEffect(() => {
     const fetchStaffNames = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/staff");
+        const response = await fetch(`${baseURL}/api/staff`);
         const data = await response.json();
         setStaffNames(data);
       } catch (error) {
@@ -131,7 +134,7 @@ const FinancePayrollPage: React.FC = () => {
       if (departments.length === 0 || roles.length === 0 || staffNames.length === 0) return;
 
       try {
-        const response = await fetch("http://localhost:3000/api/payroll");
+        const response = await fetch(`${baseURL}/api/payroll`);
         const data: PayrollRecord[] = await response.json();
 
         // Map payroll data to include department names, roles, and staff names
@@ -161,7 +164,7 @@ const FinancePayrollPage: React.FC = () => {
   const updatePayrollStatus = async (payrollId: number, status: "Paid" | "Rejected") => {
     try {
       console.log(`Updating status for payroll ID ${payrollId} to ${status}`); // Log the request
-      await fetch(`http://localhost:3000/api/payroll/${payrollId}`, {
+      await fetch(`${baseURL}/api/payroll/${payrollId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

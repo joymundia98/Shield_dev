@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import HRHeader from './HRHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 // Define the interface for Payroll record
 interface PayrollRecord {
   payroll_id: number;
@@ -79,7 +82,7 @@ const HrPayrollPage: React.FC = () => {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/departments");
+        const response = await fetch(`${baseURL}/api/departments`);
         const data: Department[] = await response.json();
         setDepartments(data);
       } catch (error) {
@@ -94,7 +97,7 @@ const HrPayrollPage: React.FC = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/roles");
+        const response = await fetch(`${baseURL}/api/roles`);
         const data: Role[] = await response.json();
         setRoles(data);
       } catch (error) {
@@ -109,7 +112,7 @@ const HrPayrollPage: React.FC = () => {
   useEffect(() => {
     const fetchStaffNames = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/staff");
+        const response = await fetch(`${baseURL}/api/staff`);
         const data = await response.json();
         setStaffNames(data);
       } catch (error) {
@@ -126,7 +129,7 @@ const HrPayrollPage: React.FC = () => {
       if (departments.length === 0 || roles.length === 0 || staffNames.length === 0) return;
 
       try {
-        const response = await fetch("http://localhost:3000/api/payroll");
+        const response = await fetch(`${baseURL}/api/payroll`);
         const data: PayrollRecord[] = await response.json();
 
         // Map payroll data to include department names, roles, and staff names
@@ -188,7 +191,7 @@ const HrPayrollPage: React.FC = () => {
     if (window.confirm("Are you sure you want to delete this payroll record?")) {
       const payrollRecord = filteredPayroll[index];
       try {
-        await fetch(`http://localhost:3000/api/payroll/${payrollRecord.payroll_id}`, {
+        await fetch(`${baseURL}/api/payroll/${payrollRecord.payroll_id}`, {
           method: "DELETE",
         });
         // Remove the deleted payroll record from the state

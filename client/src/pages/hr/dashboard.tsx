@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios'; // Import axios for API calls
 import HRHeader from './HRHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Staff {
   id: number;
   name: string;
@@ -57,7 +60,7 @@ const HRDashboard: React.FC = () => {
     // Fetch staff data
     const fetchStaffData = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/staff');
+        const response = await axios.get(`${baseURL}/api/staff`);
         setStaffData(response.data);
       } catch (error) {
         console.error("Error fetching staff data:", error);
@@ -67,7 +70,7 @@ const HRDashboard: React.FC = () => {
     // Fetch department data
     const fetchDepartments = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/departments');
+        const response = await axios.get(`${baseURL}/api/departments`);
         setDepartments(response.data);
       } catch (error) {
         console.error("Error fetching departments:", error);
@@ -77,7 +80,7 @@ const HRDashboard: React.FC = () => {
     // Fetch leave requests data
     const fetchLeaveRequests = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/leave_requests');
+        const response = await axios.get(`${baseURL}/api/leave_requests`);
         setLeaveRequests(response.data);
       } catch (error) {
         console.error("Error fetching leave requests:", error);

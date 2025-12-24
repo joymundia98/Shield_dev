@@ -4,6 +4,9 @@ import axios from "axios";
 import "../../styles/global.css";
 import FinanceHeader from './FinanceHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Category {
   id?: number;
   name: string;
@@ -50,8 +53,8 @@ const FinanceCategoriesPage: React.FC = () => {
     const fetchIncomeData = async () => {
       try {
         const [categoriesRes, subcategoriesRes] = await Promise.all([
-          axios.get("http://localhost:3000/api/finance/income_categories"),
-          axios.get("http://localhost:3000/api/finance/income_subcategories"),
+          axios.get(`${baseURL}/api/finance/income_categories`),
+          axios.get(`${baseURL}/api/finance/income_subcategories`),
         ]);
 
         const categories: Category[] = categoriesRes.data.map((cat: any) => ({
@@ -83,8 +86,8 @@ const FinanceCategoriesPage: React.FC = () => {
     const fetchExpenseData = async () => {
       try {
         const [categoriesRes, subcategoriesRes] = await Promise.all([
-          axios.get("http://localhost:3000/api/finance/expense_categories"),
-          axios.get("http://localhost:3000/api/finance/expense_subcategories"),
+          axios.get(`${baseURL}/api/finance/expense_categories`),
+          axios.get(`${baseURL}/api/finance/expense_subcategories`),
         ]);
 
         const categories: Category[] = categoriesRes.data.map((cat: any) => ({

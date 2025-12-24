@@ -7,6 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import headerLogo from '../../assets/headerlogo.png';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
@@ -28,7 +31,7 @@ export const LoginForm = () => {
   // ✅ FIXED FULL LOGIN LOGIC
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const response = await axios.post('http://localhost:3000/api/auth/login', {
+      const response = await axios.post(`${baseURL}/api/auth/login`, {
         email: data.email,
         password: data.password,
       });

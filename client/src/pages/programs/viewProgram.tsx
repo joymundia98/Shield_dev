@@ -4,6 +4,9 @@ import axios from "axios";
 import "../../styles/global.css";
 import ProgramsHeader from './ProgramsHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 /* =========================
    Interfaces
 ========================= */
@@ -67,6 +70,9 @@ const ViewProgramPage: React.FC = () => {
      Fetch Program by ID
   ========================= */
   useEffect(() => {
+
+    const baseURL = import.meta.env.VITE_BASE_URL;
+
     const fetchProgram = async () => {
       if (!programId) {
         setError("Program ID is missing");
@@ -77,7 +83,7 @@ const ViewProgramPage: React.FC = () => {
       try {
         setLoading(true);
         const res = await axios.get(
-          `http://localhost:3000/api/programs/${programId}`
+          `${baseURL}/api/programs/${programId}`
         );
         setProgram(res.data);
       } catch (err: any) {
@@ -106,7 +112,7 @@ const ViewProgramPage: React.FC = () => {
 
     try {
       await axios.delete(
-        `http://localhost:3000/api/programs/${program.id}`
+        `${baseURL}/api/programs/${program.id}`
       );
       alert("Program deleted successfully.");
       navigate("/programs/RegisteredPrograms");

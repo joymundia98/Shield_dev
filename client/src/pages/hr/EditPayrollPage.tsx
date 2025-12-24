@@ -3,6 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import "../../styles/global.css";
 import HRHeader from './HRHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 // Define the interface for Payroll components
 interface Payroll {
   staff_id: number;
@@ -75,19 +78,19 @@ const EditPayroll: React.FC = () => {
   // Fetch departments, roles, and staff names
   useEffect(() => {
     const fetchDepartments = async () => {
-      const response = await fetch("http://localhost:3000/api/departments");
+      const response = await fetch(`${baseURL}/api/departments`);
       const data = await response.json();
       setDepartments(data);
     };
 
     const fetchRoles = async () => {
-      const response = await fetch("http://localhost:3000/api/roles");
+      const response = await fetch(`${baseURL}/api/roles`);
       const data = await response.json();
       setRoles(data);
     };
 
     const fetchStaffNames = async () => {
-      const response = await fetch("http://localhost:3000/api/staff");
+      const response = await fetch(`${baseURL}/api/staff`);
       const data = await response.json();
       setStaffNames(data);
     };
@@ -102,7 +105,7 @@ const EditPayroll: React.FC = () => {
     if (!payrollId) return;
     const fetchPayrollData = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/api/payroll/${payrollId}`);
+        const response = await fetch(`${baseURL}/api/payroll/${payrollId}`);
         const data = await response.json();
         setForm(data); // Prefill the form with the fetched data
       } catch (error) {
@@ -229,7 +232,7 @@ const EditPayroll: React.FC = () => {
     };
 
     try {
-      const response = await fetch(`http://localhost:3000/api/payroll/${payrollId}`, {
+      const response = await fetch(`${baseURL}/api/payroll/${payrollId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

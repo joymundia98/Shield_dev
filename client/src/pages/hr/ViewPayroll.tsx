@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import HRHeader from './HRHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 const ViewPayrollPage: React.FC = () => {
   const navigate = useNavigate();
   const { payrollId } = useParams(); // Extract payrollId from the URL
@@ -27,7 +30,7 @@ const ViewPayrollPage: React.FC = () => {
 
     const fetchPayrollData = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/api/payroll/${payrollId}`);
+        const response = await fetch(`${baseURL}/api/payroll/${payrollId}`);
         const data = await response.json();
         setPayrollRecord(data); // Store the payroll record data
 
@@ -46,7 +49,7 @@ const ViewPayrollPage: React.FC = () => {
   // Fetch staff data using staff_id from payroll record
   const fetchStaffData = async (staffId: number) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/staff/${staffId}`);
+      const response = await fetch(`${baseURL}/api/staff/${staffId}`);
       const data = await response.json();
       setStaffData(data); // Store the staff data
     } catch (error) {
@@ -57,7 +60,7 @@ const ViewPayrollPage: React.FC = () => {
   // Fetch department data using department_id from payroll record
   const fetchDepartmentData = async (departmentId: number) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/departments/${departmentId}`);
+      const response = await fetch(`${baseURL}/api/departments/${departmentId}`);
       const data = await response.json();
       setDepartmentData(data); // Store department data
     } catch (error) {
@@ -68,7 +71,7 @@ const ViewPayrollPage: React.FC = () => {
   // Fetch role data using role_id from payroll record
   const fetchRoleData = async (roleId: number) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/roles/${roleId}`);
+      const response = await fetch(`${baseURL}/api/roles/${roleId}`);
       const data = await response.json();
       setRoleData(data); // Store role data
     } catch (error) {

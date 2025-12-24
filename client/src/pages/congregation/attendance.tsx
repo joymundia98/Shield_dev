@@ -17,6 +17,9 @@ import { Line, Bar } from "react-chartjs-2";
 import "../../styles/global.css";
 import CongregationHeader from './CongregationHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -62,7 +65,7 @@ const AttendancePage: React.FC = () => {
   useEffect(() => {
     const fetchVisitors = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/visitor");
+        const res = await axios.get(`${baseURL}/api/visitor`);
         if (Array.isArray(res.data)) {
           setVisitors(res.data);
         } else {

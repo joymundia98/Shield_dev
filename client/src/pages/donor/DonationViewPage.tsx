@@ -3,6 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import DonorsHeader from './DonorsHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Donation {
   id: number | string;
   donor_name: string | null;
@@ -47,7 +50,7 @@ const DonationViewPage: React.FC = () => {
         setLoading(true);
         console.log("Fetching donations...");
 
-        const res = await fetch(`http://localhost:3000/api/donations`);
+        const res = await fetch(`${baseURL}/api/donations`);
         if (!res.ok) {
           throw new Error("Error fetching donations");
         }
@@ -96,7 +99,7 @@ const DonationViewPage: React.FC = () => {
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this donation?")) {
       try {
-        const res = await fetch(`http://localhost:3000/api/donations/${donation.id}`, {
+        const res = await fetch(`${baseURL}/api/donations/${donation.id}`, {
           method: "DELETE",
         });
 

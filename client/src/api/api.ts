@@ -1,8 +1,11 @@
 import axios from 'axios';
 import type { InternalAxiosRequestConfig } from 'axios';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api',
+  baseURL: `${baseURL}/api`,
 });
 
 // Request interceptor
@@ -18,7 +21,7 @@ api.interceptors.request.use(
         
         try {
           // Assuming your API has an endpoint to refresh the token
-          const response = await axios.post('http://localhost:3000/api/refresh-token', {
+          const response = await axios.post('${baseURL}/api/refresh-token', {
             token: localStorage.getItem('refreshToken')
           });
           token = response.data.accessToken;  // Assuming the API returns a new token

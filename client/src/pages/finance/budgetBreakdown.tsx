@@ -4,6 +4,9 @@ import axios from "axios";
 import "../../styles/global.css"; // Ensure your styles are being imported
 import FinanceHeader from './FinanceHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Budget {
   id: number;
   title: string;
@@ -40,7 +43,7 @@ const BudgetBreakdownPage: React.FC = () => {
   const fetchCategoriesAndBudgets = async () => {
     try {
       // Fetch categories
-      const categoryRes = await axios.get("http://localhost:3000/api/finance/expense_categories");
+      const categoryRes = await axios.get(`${baseURL}/api/finance/expense_categories`);
       const categoriesMap: { [category: string]: string[] } = {};
       const categoryIdsMap: { [category: string]: number } = {};
 
@@ -50,7 +53,7 @@ const BudgetBreakdownPage: React.FC = () => {
       });
 
       // Fetch subcategories
-      const subCategoryRes = await axios.get("http://localhost:3000/api/finance/expense_subcategories");
+      const subCategoryRes = await axios.get(`${baseURL}/api/finance/expense_subcategories`);
       const subcategoryIdsMap: { [subcategory: string]: number } = {};
 
       subCategoryRes.data.forEach((subCategory: any) => {
@@ -66,7 +69,7 @@ const BudgetBreakdownPage: React.FC = () => {
       setSubcategoryIds(subcategoryIdsMap);
 
       // Fetch budget data for selected month and year from the backend
-      const budgetRes = await axios.get("http://localhost:3000/api/finance/budgets", {
+      const budgetRes = await axios.get(`${baseURL}/api/finance/budgets`, {
         params: { month: selectedMonth, year: selectedYear } // Filter by selected month and year
       });
       

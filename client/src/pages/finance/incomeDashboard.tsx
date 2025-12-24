@@ -5,6 +5,9 @@ import "../../styles/global.css";
 import { useNavigate } from "react-router-dom";
 import FinanceHeader from './FinanceHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface IncomeCategory {
   id: number;
   name: string;
@@ -50,9 +53,9 @@ const IncomeDashboard: React.FC = () => {
     const fetchData = async () => {
       try {
         const [catRes, subRes, incomeRes] = await Promise.all([
-          axios.get("http://localhost:3000/api/finance/income_categories"),
-          axios.get("http://localhost:3000/api/finance/income_subcategories"),
-          axios.get("http://localhost:3000/api/finance/incomes")
+          axios.get(`${baseURL}/api/finance/income_categories`),
+          axios.get(`${baseURL}/api/finance/income_subcategories`),
+          axios.get(`${baseURL}/api/finance/incomes`)
         ]);
 
         setCategories(catRes.data);

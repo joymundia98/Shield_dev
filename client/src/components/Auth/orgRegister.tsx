@@ -7,6 +7,9 @@ import axios from "axios";
 import headerLogo from "../../assets/headerlogo.png";
 import { useNavigate } from "react-router-dom";
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 // ---------------------------
 // Validation Schema
 // ---------------------------
@@ -127,7 +130,7 @@ const OrgRegister = () => {
   useEffect(() => {
     const fetchOrgTypes = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/organization_type");
+        const response = await axios.get(`${baseURL}/api/organization_type`);
         setOrgTypes(response.data);
       } catch (error) {
         console.error("Failed to fetch organization types", error);
@@ -158,7 +161,7 @@ const OrgRegister = () => {
       const statusToSend = data.status || "active";
 
       const response = await axios.post(
-        "http://localhost:3000/api/organizations/register",
+        `${baseURL}/api/organizations/register`,
         {
           name: data.name,
           organization_email: data.organization_email, // <-- use this key,

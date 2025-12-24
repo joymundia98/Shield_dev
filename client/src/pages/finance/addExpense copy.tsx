@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface NewExpense {
   subcategory: number | "";
   department: number | "";
@@ -28,7 +31,7 @@ interface Department {
   name: string;
 }
 
-const BACKEND_URL = "http://localhost:3000/api";
+const BACKEND_URL = `${baseURL}/api`;
 
 const AddExpense: React.FC = () => {
   const navigate = useNavigate();

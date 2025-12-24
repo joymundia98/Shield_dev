@@ -4,6 +4,9 @@ import axios from "axios";
 import "../../styles/global.css";
 import CongregationHeader from './CongregationHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Visitor {
   id: number;
   photo: string | null;
@@ -57,7 +60,7 @@ const VisitorRecordsPage: React.FC = () => {
   useEffect(() => {
     const fetchVisitors = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/visitor");
+        const res = await axios.get(`${baseURL}/api/visitor`);
         const mapped = res.data.map((v: any) => ({
           id: v.id,
           photo: v.photo_url,
@@ -87,7 +90,7 @@ const VisitorRecordsPage: React.FC = () => {
     if (editIndex === null) return;
 
     try {
-      await axios.put(`http://localhost:3000/api/visitor/${updated.id}`, {
+      await axios.put(`${baseURL}/api/visitor/${updated.id}`, {
         name: updated.name,
         gender: updated.gender,
         age: updated.age,

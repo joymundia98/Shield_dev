@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import DonorsHeader from './DonorsHeader';
 
+
 interface DonorType {
   name: string;
   subcategories: string[];

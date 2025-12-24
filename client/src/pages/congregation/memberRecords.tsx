@@ -4,6 +4,9 @@ import axios from "axios";
 import "../../styles/global.css";
 import CongregationHeader from './CongregationHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Member {
   member_id: number;
   full_name: string;
@@ -34,7 +37,7 @@ const ChurchMembersPage: React.FC = () => {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/members");
+        const res = await axios.get(`${baseURL}/api/members`);
         const data: Member[] = res.data.map((m: any) => {
           let category: Member["category"] = "Adult";
           if (m.age < 18) category = "Child";

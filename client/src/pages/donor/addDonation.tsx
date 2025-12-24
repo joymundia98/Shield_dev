@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import DonorsHeader from './DonorsHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Donor {
   id: number;
   name: string;
@@ -45,7 +48,7 @@ const AddDonation: React.FC = () => {
   const [donors, setDonors] = useState<Donor[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/donors")
+    fetch(`${baseURL}/api/donors`)
       .then((res) => res.json())
       .then((data) => setDonors(data))
       .catch((err) => console.error("Failed to load donors", err));
@@ -115,7 +118,7 @@ const AddDonation: React.FC = () => {
 
     try {
       // 1️⃣ Submit to Donations table
-      const res = await fetch("http://localhost:3000/api/donations", {
+      const res = await fetch(`${baseURL}/api/donations`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(donationPayload),
@@ -150,7 +153,7 @@ const AddDonation: React.FC = () => {
       };
 
       const financeRes = await fetch(
-        "http://localhost:3000/api/finance/incomes",
+        `${baseURL}/api/finance/incomes`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

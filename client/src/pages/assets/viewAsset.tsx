@@ -3,6 +3,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import AssetsHeader from './AssetsHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Asset {
   asset_id: number;
   name: string;
@@ -64,7 +67,7 @@ const ViewAssetPage: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/assets/categories");
+        const response = await fetch(`${baseURL}/api/assets/categories`);
         const data: Category[] = await response.json();
         setCategories(data);
       } catch (error) {
@@ -84,7 +87,7 @@ const ViewAssetPage: React.FC = () => {
 
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:3000/api/assets/${assetId}`);
+        const response = await fetch(`${baseURL}/api/assets/${assetId}`);
         
         if (!response.ok) {
           throw new Error(`Asset not found. Status: ${response.status}`);
@@ -102,7 +105,7 @@ const ViewAssetPage: React.FC = () => {
         }
 
         // Fetch location name with a fallback
-        const locationResponse = await fetch(`http://localhost:3000/api/assets/location/${data.location_id}`);
+        const locationResponse = await fetch(`${baseURL}/api/assets/location/${data.location_id}`);
         if (!locationResponse.ok) {
           setLocationName("Unknown Location");
         } else {
@@ -111,7 +114,7 @@ const ViewAssetPage: React.FC = () => {
         }
 
         // Fetch department name with a fallback
-        const departmentResponse = await fetch(`http://localhost:3000/api/departments/${data.department_id}`);
+        const departmentResponse = await fetch(`${baseURL}/api/departments/${data.department_id}`);
         if (!departmentResponse.ok) {
           setDepartmentName("Unknown Department");
         } else {

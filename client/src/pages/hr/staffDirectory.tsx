@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import HRHeader from './HRHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Staff {
   id?: number;
   name: string;
@@ -48,7 +51,7 @@ const StaffDirectoryPage: React.FC = () => {
         setError(null);
 
         // ---------------- Updated fetch URL ----------------
-        const response = await fetch("http://localhost:3000/api/staff");
+        const response = await fetch(`${baseURL}/api/staff`);
         if (!response.ok) throw new Error("Failed to fetch staff data");
 
         const data = await response.json();

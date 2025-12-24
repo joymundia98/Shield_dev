@@ -3,6 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import CongregationHeader from './CongregationHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Member {
   member_id: number;
   full_name: string;
@@ -52,7 +55,7 @@ const ViewMemberPage: React.FC = () => {
 
       try {
         setLoading(true);
-        const res = await fetch(`http://localhost:3000/api/members/${id}`);
+        const res = await fetch(`${baseURL}/api/members/${id}`);
 
         if (!res.ok) {
           throw new Error("Member not found.");

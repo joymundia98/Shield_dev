@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import CongregationHeader from './CongregationHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 const ConvertsDashboard: React.FC = () => {
   const navigate = useNavigate();
 
@@ -35,15 +38,15 @@ const ConvertsDashboard: React.FC = () => {
     const fetchData = async () => {
       try {
         // Fetch members data
-        const membersResponse = await fetch("http://localhost:3000/api/members");
+        const membersResponse = await fetch(`${baseURL}/api/members`);
         const membersData = await membersResponse.json();
 
         // Fetch visitors data
-        const visitorsResponse = await fetch("http://localhost:3000/api/visitor");
+        const visitorsResponse = await fetch(`${baseURL}/api/visitor`);
         const visitorsData = await visitorsResponse.json();
 
         // Fetch converts data
-        const convertsResponse = await fetch("http://localhost:3000/api/converts");
+        const convertsResponse = await fetch(`${baseURL}/api/converts`);
         const convertsData = await convertsResponse.json();
 
         // Process gender distribution

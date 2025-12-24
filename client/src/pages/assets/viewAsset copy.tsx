@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import "../../styles/global.css";
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 // Interfaces for Asset, Location, Category, Department
 interface Asset {
   asset_id: number;
@@ -50,20 +53,20 @@ const ViewAsset: React.FC = () => {
   // Fetch asset data by ID
   useEffect(() => {
     const fetchAsset = async () => {
-      const response = await fetch(`http://localhost:3000/api/assets/${id}`);
+      const response = await fetch(`${baseURL}/api/assets/${id}`);
       const data: Asset = await response.json();
       setAsset(data);
       
       // Fetch related data (location, category, department)
-      const locationResponse = await fetch(`http://localhost:3000/api/assets/location/${data.location_id}`);
+      const locationResponse = await fetch(`${baseURL}/api/assets/location/${data.location_id}`);
       const locationData: Location = await locationResponse.json();
       setLocation(locationData);
 
-      const categoryResponse = await fetch(`http://localhost:3000/api/assets/categories/${data.category_id}`);
+      const categoryResponse = await fetch(`${baseURL}/api/assets/categories/${data.category_id}`);
       const categoryData: Category = await categoryResponse.json();
       setCategory(categoryData);
 
-      const departmentResponse = await fetch(`http://localhost:3000/api/departments/${data.department_id}`);
+      const departmentResponse = await fetch(`${baseURL}/api/departments/${data.department_id}`);
       const departmentData: Department = await departmentResponse.json();
       setDepartment(departmentData);
     };

@@ -74,7 +74,7 @@ const AddProgram: React.FC = () => {
   // Fetch departments from the backend API
   useEffect(() => {
     axios
-      .get("http://localhost:3000/api/departments")
+      .get("${baseURL}/api/departments")
       .then((response) => {
         setDepartments(response.data);
       })
@@ -149,7 +149,7 @@ const AddProgram: React.FC = () => {
     if (validationErrors.length === 0) {
       try {
         // Send a POST request to the backend to add the program
-        const response = await axios.post("http://localhost:3000/api/programs", {
+        const response = await axios.post("${baseURL}/api/programs", {
           name: program.title,
           description: program.agenda,
           category_id: program.category_id,

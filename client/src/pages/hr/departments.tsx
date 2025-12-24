@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import HRHeader from './HRHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Department {
   id: number;
   name: string;
@@ -39,7 +42,7 @@ const DepartmentsPage: React.FC = () => {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/departments");
+        const res = await fetch(`${baseURL}/api/departments`);
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
         const data = await res.json();
@@ -64,7 +67,7 @@ const DepartmentsPage: React.FC = () => {
             category: d.category,
           }));
 
-        const staffRes = await fetch("http://localhost:3000/api/staff");
+        const staffRes = await fetch(`${baseURL}/api/staff`);
         if (!staffRes.ok) throw new Error(`HTTP error! status: ${staffRes.status}`);
         const staffData = await staffRes.json();
 
@@ -112,7 +115,7 @@ const DepartmentsPage: React.FC = () => {
   /* --------------------FETCH FUNCTION --------------------*/
   const fetchDepartments = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/departments");
+      const res = await fetch(`${baseURL}/api/departments`);
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
       const data = await res.json();
@@ -137,7 +140,7 @@ const DepartmentsPage: React.FC = () => {
           category: d.category,
         }));
 
-      const staffRes = await fetch("http://localhost:3000/api/staff");
+      const staffRes = await fetch(`${baseURL}/api/staff`);
       if (!staffRes.ok) throw new Error(`HTTP error! status: ${staffRes.status}`);
       const staffData = await staffRes.json();
 
@@ -180,7 +183,7 @@ const DepartmentsPage: React.FC = () => {
           : corporateDepartments[editIndex].id;
 
       try {
-        const res = await fetch(`http://localhost:3000/api/departments/${deptId}`, {
+        const res = await fetch(`${baseURL}/api/departments/${deptId}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -202,7 +205,7 @@ const DepartmentsPage: React.FC = () => {
     } else {
       // Creating new department
       try {
-        const res = await fetch("http://localhost:3000/api/departments", {
+        const res = await fetch(`${baseURL}/api/departments`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -236,7 +239,7 @@ const DepartmentsPage: React.FC = () => {
       group === "church" ? churchDepartments[index].id : corporateDepartments[index].id;
 
     try {
-      const res = await fetch(`http://localhost:3000/api/departments/${deptId}`, {
+      const res = await fetch(`${baseURL}/api/departments/${deptId}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete department");

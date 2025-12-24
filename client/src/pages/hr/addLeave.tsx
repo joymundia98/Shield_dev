@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import HRHeader from './HRHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Leave {
   id: number;
   staff_id: number;
@@ -97,7 +100,7 @@ const AddLeave: React.FC = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/leave_requests", {
+      const response = await fetch(`${baseURL}/api/leave_requests`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

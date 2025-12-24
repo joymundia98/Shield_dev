@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import HRHeader from './HRHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 const ViewStaffPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams(); // Extract id from the URL
@@ -25,7 +28,7 @@ const ViewStaffPage: React.FC = () => {
 
     const fetchStaffData = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/api/staff/${id}`);
+        const response = await fetch(`${baseURL}/api/staff/${id}`);
         const data = await response.json();
         setStaffData(data); // Store the staff data
 
@@ -43,7 +46,7 @@ const ViewStaffPage: React.FC = () => {
   // Fetch department data using department_id from staff data
   const fetchDepartmentData = async (departmentId: number) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/departments/${departmentId}`);
+      const response = await fetch(`${baseURL}/api/departments/${departmentId}`);
       const data = await response.json();
       setDepartmentData(data); // Store department data
     } catch (error) {
@@ -54,7 +57,7 @@ const ViewStaffPage: React.FC = () => {
   // Fetch role data (if needed) based on staff's role field
   const fetchRoleData = async (role: string) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/roles/${role}`);
+      const response = await fetch(`${baseURL}/api/roles/${role}`);
       const data = await response.json();
       setRoleData(data); // Store role data
     } catch (error) {

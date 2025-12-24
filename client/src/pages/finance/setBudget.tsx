@@ -5,6 +5,9 @@ import { AxiosError } from "axios";
 import "../../styles/global.css"; // Ensure your styles are being imported
 import FinanceHeader from './FinanceHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Budgets {
   [category: string]: { [subCategory: string]: number };
 }
@@ -36,7 +39,7 @@ const SetBudgetsPage: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/finance/expense_categories");
+        const res = await axios.get(`${baseURL}/api/finance/expense_categories`);
         const categories: { [category: string]: string[] } = {};
         const categoryIdsMap: { [category: string]: number } = {};
         
@@ -46,7 +49,7 @@ const SetBudgetsPage: React.FC = () => {
         });
 
         // Fetch expense subcategories and group by category
-        const subCategoriesRes = await axios.get("http://localhost:3000/api/finance/expense_subcategories");
+        const subCategoriesRes = await axios.get(`${baseURL}/api/finance/expense_subcategories`);
         
         const subcategoryIdsMap: { [subCategory: string]: number } = {};
         subCategoriesRes.data.forEach((subCategory: any) => {
@@ -139,7 +142,7 @@ const SetBudgetsPage: React.FC = () => {
 
       // Send each budget entry separately
       for (const budgetData of dataToSave) {
-        const response = await axios.post("http://localhost:3000/api/finance/budgets", budgetData);
+        const response = await axios.post(`${baseURL}/api/finance/budgets`, budgetData);
         console.log("Response from backend:", response.data); // Log the response
       }
 

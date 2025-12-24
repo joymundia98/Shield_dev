@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import ProgramsHeader from './ProgramsHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 type Gender = "Male" | "Female";
 type Category = "Life Event" | "Church Business Event" | "Community Event" | "Spiritual Event";
 type Role = "Speaker" | "Participant" | "Volunteer" | "Organizer";
@@ -63,7 +66,7 @@ const AttendeeManagement: React.FC = () => {
   useEffect(() => {
     const fetchPrograms = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/programs");
+        const response = await fetch(`${baseURL}/api/programs`);
         const data = await response.json();
         setPrograms(data);
         console.log("Fetched Programs:", data);
@@ -80,7 +83,7 @@ const AttendeeManagement: React.FC = () => {
 
     const fetchAttendees = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/api/programs/attendees?program_id=${selectedProgram}`);
+        const response = await fetch(`${baseURL}/api/programs/attendees?program_id=${selectedProgram}`);
         if (!response.ok) {
           throw new Error(`Failed to fetch attendees. Status: ${response.status}`);
         }
@@ -113,7 +116,7 @@ const AttendeeManagement: React.FC = () => {
       // Call the API to delete the attendee from the database
       const deleteAttendee = async () => {
         try {
-          const response = await fetch(`http://localhost:3000/api/programs/attendees/${attendeeId}`, {
+          const response = await fetch(`${baseURL}/api/programs/attendees/${attendeeId}`, {
             method: "DELETE",
           });
           if (!response.ok) {

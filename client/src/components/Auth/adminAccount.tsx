@@ -6,6 +6,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import headerLogo from "../../assets/headerlogo.png";
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
+
 // Validation schema for admin registration
 const registerSchema = z
   .object({
@@ -48,7 +52,7 @@ export const AdminAccount = () => {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       // Submit the admin registration data with the organization_id
-      await axios.post("http://localhost:3000/api/auth/register", {
+      await axios.post(`${baseURL}/api/auth/register`, {
         first_name: data.first_name,
         last_name: data.last_name,
         email: data.email,

@@ -3,6 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import "../../styles/global.css"; // Import your styles
 import ProgramsHeader from './ProgramsHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 // Interfaces for Event and Attendee
 interface Event {
   id: number;        // Changed from event_id
@@ -64,7 +67,7 @@ const NewAttendees: React.FC = () => {
     const fetchEventDetails = async () => {
       try {
         console.log(`Fetching event details for programId: ${programId}`);  // Debugging log
-        const response = await fetch(`http://localhost:3000/api/programs/${programId}`);
+        const response = await fetch(`${baseURL}/api/programs/${programId}`);
         if (!response.ok) {
           throw new Error(`Failed to fetch event details. Status: ${response.status}`);
         }
@@ -113,7 +116,7 @@ const NewAttendees: React.FC = () => {
         // If role is "Other", replace with customRole
         const roleToSend = attendee.role === "Other" ? attendee.customRole : attendee.role;
 
-        const response = await fetch("http://localhost:3000/api/programs/attendees", {
+        const response = await fetch(`${baseURL}/api/programs/attendees`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

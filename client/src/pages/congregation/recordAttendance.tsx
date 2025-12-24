@@ -4,6 +4,9 @@ import axios from "axios";
 import "../../styles/global.css";
 import CongregationHeader from './CongregationHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 type Gender = "Male" | "Female";
 type Category = "Children" | "Youth" | "Adults" | "Elderly";
 
@@ -55,8 +58,8 @@ const RecordAttendance: React.FC = () => {
     const fetchPeople = async () => {
       try {
         const [membersRes, visitorsRes] = await Promise.all([
-          axios.get("http://localhost:3000/api/members"),
-          axios.get("http://localhost:3000/api/visitor")
+          axios.get(`${baseURL}/api/members`),
+          axios.get(`${baseURL}/api/visitor`)
         ]);
 
         const allMembers: Person[] = membersRes.data.map((m: any) => ({
@@ -100,7 +103,7 @@ const RecordAttendance: React.FC = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/services");
+        const res = await axios.get("${baseURL}/api/services");
         setServices(res.data);
       } catch (err) {
         console.error("Error fetching services:", err);
@@ -132,7 +135,7 @@ const RecordAttendance: React.FC = () => {
     console.log("Attendance records being sent:", records);
 
     try {
-      const response = await axios.post("http://localhost:3000/api/congregation/attendance", { records });
+      const response = await axios.post("${baseURL}/api/congregation/attendance", { records });
       console.log("Server response:", response); // Log the response from the backend
       alert("Attendance saved successfully!");
       navigate("/congregation/attendance");

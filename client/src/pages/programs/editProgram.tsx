@@ -4,6 +4,9 @@ import axios from "axios"; // Import axios for making HTTP requests
 import "../../styles/global.css";
 import ProgramsHeader from './ProgramsHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 // Interfaces for Program, Category, and Department
 interface Program {
   program_id: number;
@@ -75,9 +78,12 @@ const EditProgram: React.FC = () => {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   useEffect(() => {
+
+    const baseURL = import.meta.env.VITE_BASE_URL;
+
     // Fetch departments from the backend API
     axios
-      .get("http://localhost:3000/api/departments")
+      .get(`${baseURL}/api/departments`)
       .then((response) => {
         setDepartments(response.data);
       })
@@ -88,7 +94,7 @@ const EditProgram: React.FC = () => {
     // Fetch program data by ID if programId is present
     if (programId) {
       axios
-        .get(`http://localhost:3000/api/programs/${programId}`)
+        .get(`${baseURL}/api/programs/${programId}`)
         .then((response) => {
           const programData = response.data;
           setProgram({
@@ -179,7 +185,7 @@ const EditProgram: React.FC = () => {
     if (validationErrors.length === 0) {
       try {
         // Send a PUT request to the backend to update the program
-        const response = await axios.put(`http://localhost:3000/api/programs/${programId}`, {
+        const response = await axios.put(`${baseURL}/api/programs/${programId}`, {
           name: program.title,
           description: program.agenda,
           category_id: program.category_id,

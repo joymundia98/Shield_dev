@@ -3,6 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import "../../styles/global.css";
 import DonorsHeader from './DonorsHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface DonorType {
   id: number;
   name: string;
@@ -72,7 +75,7 @@ const EditDonor: React.FC = () => {
 
   // Fetch donor types
   useEffect(() => {
-    fetch("http://localhost:3000/api/donors/donor_types")
+    fetch(`${baseURL}/api/donors/donor_types`)
       .then((res) => res.json())
       .then((data) => setDonorTypes(data))
       .catch((err) => {
@@ -89,7 +92,7 @@ const EditDonor: React.FC = () => {
       return;
     }
 
-    fetch(`http://localhost:3000/api/donors/${donorId}`)
+    fetch(`${baseURL}/api/donors/${donorId}`)
       .then((res) => res.json())
       .then((data) => {
         // Set the form values with the existing donor data
@@ -124,7 +127,7 @@ const EditDonor: React.FC = () => {
     }
 
     fetch(
-      `http://localhost:3000/api/donors/donor_sub_category?donor_type_id=${form.donorTypeId}`
+      `${baseURL}/api/donors/donor_sub_category?donor_type_id=${form.donorTypeId}`
     )
       .then((res) => res.json())
       .then((data: DonorSubcategory[]) => {
@@ -164,7 +167,7 @@ const EditDonor: React.FC = () => {
         payload.organization_id = 1; // adjust if needed
       }
 
-      const res = await fetch(`http://localhost:3000/api/donors/${donorId}`, {
+      const res = await fetch(`${baseURL}/api/donors/${donorId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

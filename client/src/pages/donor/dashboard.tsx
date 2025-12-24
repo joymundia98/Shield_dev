@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import DonorsHeader from './DonorsHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 const DonorDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -36,8 +39,8 @@ const DonorDashboard: React.FC = () => {
         setLoading(true);
 
         // Fetch donors and donations data
-        const donorsRes = await fetch("http://localhost:3000/api/donors");
-        const donationsRes = await fetch("http://localhost:3000/api/donations");
+        const donorsRes = await fetch(`${baseURL}/api/donors`);
+        const donationsRes = await fetch(`${baseURL}/api/donations`);
 
         const donorsData = await donorsRes.json();
         const donationsData = await donationsRes.json();

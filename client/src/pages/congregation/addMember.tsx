@@ -22,7 +22,10 @@ interface MemberForm {
   dateOfBirth?: string; // Calculated from age
 }
 
-const BACKEND_URL = "http://localhost:3000/api/members";
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
+const BACKEND_URL = `${baseURL}/api/members`;
 
 const AddMemberPage: React.FC = () => {
   const navigate = useNavigate();

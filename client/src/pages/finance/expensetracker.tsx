@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import FinanceHeader from './FinanceHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface ExpenseItem {
   id: number;
   date: string;
@@ -34,7 +37,7 @@ interface Department {
   category?: string;
 }
 
-const BACKEND_URL = "http://localhost:3000/api";
+const BACKEND_URL = `${baseURL}/api`;
 
 const ExpenseTrackerPage: React.FC = () => {
   const navigate = useNavigate();
@@ -361,7 +364,7 @@ const ExpenseTrackerPage: React.FC = () => {
                           <td>
                             <button
                               className="add-btn"
-                              onClick={() => window.open(`http://localhost:3000/api/finance/viewExpense/${item.id}`, "_blank")}
+                              onClick={() => window.open(`${baseURL}/api/finance/viewExpense/${item.id}`, "_blank")}
                             >
                               View
                             </button>

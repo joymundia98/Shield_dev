@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import FinanceHeader from './FinanceHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface ExtraFields {
   [key: string]: string | number;
 }
@@ -30,7 +33,7 @@ interface Subcategory {
   category_id: number;
 }
 
-const BACKEND_URL = "http://localhost:3000/api";
+const BACKEND_URL = `${baseURL}/api`;
 
 const AddIncome: React.FC = () => {
   const navigate = useNavigate();

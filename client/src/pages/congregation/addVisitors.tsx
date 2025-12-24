@@ -4,6 +4,9 @@ import axios from "axios";
 import "../../styles/global.css";
 import CongregationHeader from './CongregationHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface VisitorForm {
   photoFile?: File | null;
   photoUrl: string;
@@ -97,7 +100,7 @@ const AddVisitorPage: React.FC = () => {
     try {
       // 1️⃣ CREATE VISITOR
       const visitorRes = await axios.post(
-        "http://localhost:3000/api/visitor",
+        `${baseURL}/api/visitor`,
         payload
       );
 
@@ -107,7 +110,7 @@ const AddVisitorPage: React.FC = () => {
 
       // 2️⃣ ADD SERVICE RELATIONSHIP
       if (formData.serviceAttended) {
-        await axios.post("http://localhost:3000/api/visitor-services", {
+        await axios.post(`${baseURL}/api/visitor-services`, {
           visitor_id: newVisitor.id, // IMPORTANT
           service_id: formData.serviceAttended,
         });

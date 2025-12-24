@@ -50,7 +50,7 @@ const OrgLobby: React.FC = () => {
     }
 
     try {
-      const response = await axios.get("http://localhost:3000/api/users", {
+      const response = await axios.get("${baseURL}/api/users", {
         headers: {
           Authorization: `Bearer ${jwtToken}`,
         },

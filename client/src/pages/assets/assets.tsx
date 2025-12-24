@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import AssetsHeader from './AssetsHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 // Interfaces for Asset, Category, Location, and Department
 interface Asset {
   asset_id: number;
@@ -64,25 +67,25 @@ const AssetsPage: React.FC = () => {
   // Fetch data functions
   useEffect(() => {
     const fetchAssets = async () => {
-      const response = await fetch("http://localhost:3000/api/assets");
+      const response = await fetch(`${baseURL}/api/assets`);
       const data: Asset[] = await response.json();
       setInventory(data);
     };
 
     const fetchCategories = async () => {
-      const response = await fetch("http://localhost:3000/api/assets/categories");
+      const response = await fetch(`${baseURL}/api/assets/categories`);
       const data: Category[] = await response.json();
       setCategories(data);
     };
 
     const fetchLocations = async () => {
-      const response = await fetch("http://localhost:3000/api/asset_locations");
+      const response = await fetch("${baseURL}/api/asset_locations");
       const data: Location[] = await response.json();
       setLocations(data);
     };
 
     const fetchDepartments = async () => {
-      const response = await fetch("http://localhost:3000/api/departments");
+      const response = await fetch(`${baseURL}/api/departments`);
       const data: Department[] = await response.json();
       setDepartments(data);
     };

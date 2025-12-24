@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import CongregationHeader from './CongregationHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 const AddConvert: React.FC = () => {
   const navigate = useNavigate();
 
@@ -25,7 +28,7 @@ const AddConvert: React.FC = () => {
   useEffect(() => {
     const fetchVisitors = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/visitor");
+        const response = await fetch(`${baseURL}/api/visitor`);
         const data = await response.json();
         console.log("Fetched visitors:", data);  // Debugging: Check fetched visitors data
         setVisitors(data); // Save visitors data to state
@@ -36,7 +39,7 @@ const AddConvert: React.FC = () => {
 
     const fetchMembers = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/members");
+        const response = await fetch(`${baseURL}/api/members`);
         const data = await response.json();
         console.log("Fetched members:", data);  // Debugging: Check fetched members data
         setMembers(data); // Save members data to state
@@ -66,7 +69,7 @@ const AddConvert: React.FC = () => {
     console.log("Sending data to the backend:", data);  // Debugging: Check the data being sent
 
     try {
-      const response = await fetch("http://localhost:3000/api/converts", {
+      const response = await fetch(`${baseURL}/api/converts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

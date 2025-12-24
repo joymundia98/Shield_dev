@@ -3,6 +3,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import DonorsHeader from './DonorsHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Donor {
   id: number;
   donor_type_id: number | null;
@@ -49,7 +52,7 @@ const ViewDonorPage: React.FC = () => {
 
       try {
         setLoading(true);
-        const res = await fetch(`http://localhost:3000/api/donors/${donorId}`);
+        const res = await fetch(`${baseURL}/api/donors/${donorId}`);
         if (!res.ok) throw new Error("Donor not found");
         
         const data: Donor = await res.json();
@@ -83,7 +86,7 @@ const ViewDonorPage: React.FC = () => {
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this donor?")) {
       try {
-        const res = await fetch(`http://localhost:3000/api/donors/${donor.id}`, {
+        const res = await fetch(`${baseURL}/api/donors/${donor.id}`, {
           method: "DELETE",
         });
 

@@ -3,6 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/global.css"; // Assuming global styles are already imported
 import CongregationHeader from './CongregationHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 const ViewConvert: React.FC = () => {
   const { id } = useParams(); // Get the id from URL
   const navigate = useNavigate();
@@ -22,7 +25,7 @@ const ViewConvert: React.FC = () => {
   useEffect(() => {
     const fetchConvert = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/api/converts/${id}`);
+        const response = await fetch(`${baseURL}/api/converts/${id}`);
         const data = await response.json();
 
         if (data) {
@@ -31,7 +34,7 @@ const ViewConvert: React.FC = () => {
           let additionalData = {};
 
           if (data.convert_type === "visitor") {
-            const visitorResponse = await fetch(`http://localhost:3000/api/visitor/${data.visitor_id}`);
+            const visitorResponse = await fetch(`${baseURL}/api/visitor/${data.visitor_id}`);
             const visitor = await visitorResponse.json();
             name = visitor.name;
             additionalData = {
@@ -42,7 +45,7 @@ const ViewConvert: React.FC = () => {
               address: visitor.address,
             };
           } else if (data.convert_type === "member") {
-            const memberResponse = await fetch(`http://localhost:3000/api/members/${data.member_id}`);
+            const memberResponse = await fetch(`${baseURL}/api/members/${data.member_id}`);
             const member = await memberResponse.json();
             name = member.full_name;
             additionalData = {

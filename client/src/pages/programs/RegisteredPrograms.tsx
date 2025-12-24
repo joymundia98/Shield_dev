@@ -45,7 +45,7 @@ const RegisteredProgramsPage: React.FC = () => {
   useEffect(() => {
     // Fetch programs from backend
     axios
-      .get("http://localhost:3000/api/programs") // backend API endpoint
+      .get("${baseURL}/api/programs") // backend API endpoint
       .then((response) => {
         setPrograms(response.data); // Set programs data from the response
       })
@@ -75,10 +75,12 @@ const RegisteredProgramsPage: React.FC = () => {
   };
 
   const handleDeleteProgram = (id: string) => {
+    const baseURL = import.meta.env.VITE_BASE_URL;
+
       if (window.confirm("Are you sure you want to delete this program?")) {
         // Make the API call to delete the program from the backend
         axios
-          .delete(`http://localhost:3000/api/programs/${id}`)  // Assuming this is the API endpoint to delete the program
+          .delete(`${baseURL}/api/programs/${id}`)  // Assuming this is the API endpoint to delete the program
           .then(() => {
             // On success, filter out the deleted program from the local state
             setPrograms((prev) => prev.filter((program) => program.id !== Number(id)));

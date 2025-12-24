@@ -13,6 +13,8 @@ import {
 } from "chart.js";
 import "../../styles/global.css";
 import FinanceHeader from './FinanceHeader';
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
 
 // Register Chart.js components
 ChartJS.register(
@@ -61,7 +63,7 @@ interface Budget {
   created_at: string;
 }
 
-const BACKEND_URL = "http://localhost:3000/api";
+const BACKEND_URL = `${baseURL}/api`;
 
 const ExpenseDashboardPage: React.FC = () => {
   const navigate = useNavigate();

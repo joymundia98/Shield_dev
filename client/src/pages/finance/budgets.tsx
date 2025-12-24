@@ -13,6 +13,9 @@ import { Doughnut, Bar } from "react-chartjs-2";
 import "../../styles/global.css";
 import FinanceHeader from './FinanceHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 ChartJS.register(CategoryScale, LinearScale, ArcElement, BarElement, Tooltip, Legend);
 
 interface BudgetCategory {
@@ -67,22 +70,22 @@ const BudgetsPage: React.FC = () => {
   // ---------------- Fetch Budget, Expense, Category, and Subcategory Data ----------------
   useEffect(() => {
     // Fetch budget data
-    fetch("http://localhost:3000/api/finance/budgets")
+    fetch(`${baseURL}/api/finance/budgets`)
       .then((response) => response.json())
       .then((data) => setBudgetData(data));
 
     // Fetch expense data
-    fetch("http://localhost:3000/api/finance/expenses")
+    fetch(`${baseURL}/api/finance/expenses`)
       .then((response) => response.json())
       .then((data) => setExpenseData(data));
 
     // Fetch category data
-    fetch("http://localhost:3000/api/finance/expense_categories")
+    fetch(`${baseURL}/api/finance/expense_categories`)
       .then((response) => response.json())
       .then((data) => setCategoryData(data));
 
     // Fetch subcategory data
-    fetch("http://localhost:3000/api/finance/expense_subcategories")
+    fetch(`${baseURL}/api/finance/expense_subcategories`)
       .then((response) => response.json())
       .then((data) => setSubcategoryData(data));
   }, []);

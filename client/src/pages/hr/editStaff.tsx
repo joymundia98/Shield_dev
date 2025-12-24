@@ -4,6 +4,9 @@ import "../../styles/global.css";
 import { authFetch } from "../../utils/api";
 import HRHeader from './HRHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 {/*interface Staff {
   user_id?: number;
   name: string;
@@ -59,13 +62,13 @@ const EditStaff: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
         try {
-        const depRes = await fetch("http://localhost:3000/api/departments");
+        const depRes = await fetch(`${baseURL}/api/departments`);
         if (!depRes.ok) throw new Error("Failed fetching departments");
         const depData = await depRes.json();
 
         const [userData, roleData] = await Promise.all([
-            authFetch("http://localhost:3000/api/users"),
-            authFetch("http://localhost:3000/api/roles"),
+            authFetch(`${baseURL}/api/users`),
+            authFetch(`${baseURL}/api/roles`),
         ]);
 
         setDepartments(depData);
@@ -74,7 +77,7 @@ const EditStaff: React.FC = () => {
 
         // Fetch the staff data by ID if editing an existing staff member
         if (id) {
-            const staffRes = await fetch(`http://localhost:3000/api/staff/${id}`);
+            const staffRes = await fetch(`${baseURL}/api/staff/${id}`);
             const staffData = await staffRes.json();
             
             // Make sure dates are in the correct format for <input type="date">
@@ -142,7 +145,7 @@ const EditStaff: React.FC = () => {
 
     try {
       // Send the updated data using PUT method
-      await authFetch(`http://localhost:3000/api/staff/${id}`, {
+      await authFetch(`${baseURL}/api/staff/${id}`, {
         method: "PUT",
         body: JSON.stringify(form),
       });

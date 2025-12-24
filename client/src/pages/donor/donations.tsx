@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import DonorsHeader from './DonorsHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 interface Donation {
   id: number | string;
   donor: string;
@@ -30,7 +33,7 @@ const DonationsManagementPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/donations")
+    fetch(`${baseURL}/api/donations`)
       .then((res) => res.json())
       .then((data) => {
         const mapped: Donation[] = data.map((d: any) => ({
