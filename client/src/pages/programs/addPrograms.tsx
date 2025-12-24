@@ -4,6 +4,9 @@ import axios from "axios"; // Import axios for making HTTP requests
 import "../../styles/global.css";
 import ProgramsHeader from './ProgramsHeader';
 
+// Declare the base URL here
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 // Interfaces for Program, Category, and Department
 interface Program {
   program_id: number;
@@ -74,7 +77,7 @@ const AddProgram: React.FC = () => {
   // Fetch departments from the backend API
   useEffect(() => {
     axios
-      .get("${baseURL}/api/departments")
+      .get(`${baseURL}/api/departments`)
       .then((response) => {
         setDepartments(response.data);
       })
