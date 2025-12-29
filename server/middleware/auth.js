@@ -1,10 +1,14 @@
+// middleware/verifyAnyJWT.js
+
 import jwt from "jsonwebtoken";
 import UserModel from "../modules/user/user.model.js";
-
+import OrganizationModel from "../modules/organization/organizationModel.js";
 
 export const verifyJWT = async (req, res, next) => {
   const header = req.headers.authorization || "";
-  const token = header.startsWith("Bearer ") ? header.split(" ")[1] : null;
+  const token = header.startsWith("Bearer ")
+    ? header.split(" ")[1]
+    : null;
 
   if (!token) {
     return res.status(401).json({ message: "No token provided" });
@@ -13,23 +17,19 @@ export const verifyJWT = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Correct: sub is the user ID
-    const user = await UserModel.getById(decoded.sub);
-    if (!user) {
-      return res.status(401).json({ message: "Invalid token" });
+    if (decoded.type === "user") {
+      const user = await UserModel.getById(decoded.sub);
+      if (!user) throw new Error("Invalid user token");
+
+      req.auth = { type: "user", user };
     }
 
-    // Fetch roles & permissions
-    const role = await UserModel.getRoleNameById(user.role_id);
-    const permissions = await UserModel.getUserPermissions(user.id);
+    if (decoded.type === "organization") {
+      const org = await OrganizationModel.getById(decoded.sub);
+      if (!org) throw new Error("Invalid org token");
 
-    req.user = {
-      id: user.id,
-      email: user.email,
-      role,
-      permissions,
-      organization_id: user.organization_id
-    };
+      req.auth = { type: "organization", organization: org };
+    }
 
     next();
 
