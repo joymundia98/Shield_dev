@@ -2,6 +2,7 @@
 
 import express from "express";
 import { OrganizationController } from "./organizationController.js";
+import { loginOrg } from "../auth/authController.js"
 import { createOrg } from "../auth/authController.js";
 import { verifyJWT } from "../../middleware/auth.js";
 import { requirePermission } from "../../middleware/accessControl.js";
@@ -16,6 +17,8 @@ const router = express.Router();
 router.post("/register", OrganizationController.create);
 
 router.post("/login", OrganizationController.login);
+
+router.post("/organization/login", loginOrg)
 
 router.get("/", OrganizationController.list);
 

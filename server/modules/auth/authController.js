@@ -55,6 +55,54 @@ export const login = async (req, res) => {
   }
 };
 
+export const loginOrg = async (req, res) => {
+  try {
+    const { organization_account_id, password } = req.body;
+
+    if (!organization_account_id || !password) {
+      return res.status(400).json({
+        message: "Organization account ID and password required",
+      });
+    }
+
+    const org = await OrganizationModel.login({
+      organization_account_id,
+      password,
+    });
+
+    if (!org) {
+      return res.status(401).json({
+        message: "Invalid organization account ID or password",
+      });
+    }
+
+    const payload = {
+      sub: org.id,
+      organization_account_id: org.organization_account_id,
+      type: "organization",
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    return res.json({
+      message: "Organization login successful",
+      accessToken: token,
+      organization: {
+        id: org.id,
+        name: org.name,
+        organization_account_id: org.organization_account_id,
+        status: org.status,
+      },
+    });
+
+  } catch (err) {
+    console.error("Organization login error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
 // ========================================
 // REGISTER – USER
 // ========================================
