@@ -66,6 +66,32 @@ const userController = {
     }
   },
 
+  // Add this function in userController.js
+async updateStatus(req, res) {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ error: 'Status is required' });
+    }
+
+    const user = await User.updateStatus(id, status);
+
+    // If the user doesn't exist or the update failed
+    if (!user) {
+      return res.status(404).json({ error: 'User not found or status update failed' });
+    }
+
+    // Return the updated user object
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update user status' });
+  }
+},
+
+
   async delete(req, res) {
     try {
       const { id } = req.params;

@@ -100,6 +100,37 @@ async update(id, data) {
   return result.rows[0];
 },
 
+// Updating status
+
+async updateStatus(id, status) {
+  try {
+    // Check if the status value is valid
+    if (status !== 'active' && status !== 'inactive') {
+      throw new Error('Invalid status value. Status must be either "active" or "inactive".');
+    }
+
+    const result = await pool.query(
+      `UPDATE users
+       SET status = $1
+       WHERE id = $2
+       RETURNING *`,
+      [status, id]
+    );
+
+    if (result.rows.length === 0) {
+      // If no rows are affected, it means the user was not found
+      console.error(`No user found with ID: ${id}`);
+      return null;
+    }
+
+    // Return the updated user object
+    return result.rows[0];
+  } catch (err) {
+    console.error("Error updating user status:", err);
+    throw err;  // Propagate error to be handled by controller
+  }
+},
+
   async delete(id) {
     const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING *', [id]);
     return result.rows[0];
