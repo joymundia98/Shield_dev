@@ -106,9 +106,11 @@ async update(id, data) {
 
 async updateStatus(id, status) {
   try {
-    // Check if the status value is valid
-    if (status !== 'active' && status !== 'inactive') {
-      throw new Error('Invalid status value. Status must be either "active" or "inactive".');
+    // Allow 'pending' as a valid status
+    const validStatuses = ['active', 'inactive', 'pending'];  // Allow 'pending'
+
+    if (!validStatuses.includes(status)) {
+      throw new Error('Invalid status value. Status must be either "active", "inactive", or "pending".');
     }
 
     const result = await pool.query(
