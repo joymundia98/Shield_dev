@@ -144,7 +144,7 @@ export const register = async (req, res) => {
       position,
       role_id,
       organization_id,
-      status: "inactive", // Set status explicitly to "inactive"
+      status: "pending", // Set status explicitly to "pending"
     });
 
     // Assign role to the user (if necessary)

@@ -36,11 +36,12 @@ const User = {
       position,
       role_id,
       organization_id,
+      status,
     } = data;
 
     const result = await pool.query(
-      `INSERT INTO users(first_name, last_name, email, password, phone, position, role_id, organization_id)
-       VALUES($1, $2, $3, $4, $5, $6, $7, $8)
+      `INSERT INTO users(first_name, last_name, email, password, phone, position, role_id, organization_id, status)
+       VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING *`,
       [
         first_name,
@@ -51,6 +52,7 @@ const User = {
         position,
         role_id,
         organization_id,
+        status,
       ]
     );
 
