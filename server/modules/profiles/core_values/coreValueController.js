@@ -1,4 +1,4 @@
-import CoreValue from './coreValueController.js';
+import CoreValue from './coreValue.js';  // Corrected import for the CoreValue model
 
 const coreValuesController = {
   async getAll(req, res) {
@@ -36,7 +36,17 @@ const coreValuesController = {
 
   async create(req, res) {
     try {
+      const { church_id, value } = req.body;
+
+      // Ensure that both church_id and value are present in the request body
+      if (!church_id || !value) {
+        return res.status(400).json({ error: 'Missing required fields: church_id or value' });
+      }
+
+      // If valid, create the core value in the database
       const coreValue = await CoreValue.create(req.body);
+
+      // Send back the created core value in the response
       res.status(201).json(coreValue);
     } catch (err) {
       console.error(err);

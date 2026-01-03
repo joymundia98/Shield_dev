@@ -36,6 +36,7 @@ const sacramentsController = {
 
   async create(req, res) {
     try {
+      console.log(req.body);  // Log the request body to see what is being sent
       const sacrament = await Sacraments.create(req.body);
       res.status(201).json(sacrament);
     } catch (err) {

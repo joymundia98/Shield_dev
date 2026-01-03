@@ -15,7 +15,7 @@ const Church = {
     const {
       name,
       establishment_year,
-      denomination,
+      denomination_id,
       email,
       phone,
       address,
@@ -27,10 +27,10 @@ const Church = {
 
     const result = await pool.query(
       `INSERT INTO churches 
-      (name, establishment_year, denomination, email, phone, address, profile_pic, vision, mission, organization_id)
+      (name, establishment_year, denomination_id, email, phone, address, profile_pic, vision, mission, organization_id)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
       RETURNING *`,
-      [name, establishment_year, denomination, email, phone, address, profile_pic, vision, mission, organization_id]
+      [name, establishment_year, denomination_id, email, phone, address, profile_pic, vision, mission, organization_id]
     );
 
     return result.rows[0];
@@ -40,7 +40,7 @@ const Church = {
     const {
       name,
       establishment_year,
-      denomination,
+      denomination_id,
       email,
       phone,
       address,
@@ -52,10 +52,10 @@ const Church = {
 
     const result = await pool.query(
       `UPDATE churches SET 
-        name=$1, establishment_year=$2, denomination=$3, email=$4, phone=$5, address=$6, profile_pic=$7, vision=$8, mission=$9, organization_id=$10
+        name=$1, establishment_year=$2, denomination_id=$3, email=$4, phone=$5, address=$6, profile_pic=$7, vision=$8, mission=$9, organization_id=$10
         WHERE church_id=$11
         RETURNING *`,
-      [name, establishment_year, denomination, email, phone, address, profile_pic, vision, mission, organization_id, id]
+      [name, establishment_year, denomination_id, email, phone, address, profile_pic, vision, mission, organization_id, id]
     );
 
     return result.rows[0];

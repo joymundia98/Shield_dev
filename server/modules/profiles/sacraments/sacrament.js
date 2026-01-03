@@ -17,13 +17,20 @@ const Sacraments = {
   },
 
   async create(data) {
-    const { church_id, sacrament_name } = data;
-    const result = await pool.query(
-      'INSERT INTO sacraments (church_id, sacrament_name) VALUES ($1, $2) RETURNING *',
-      [church_id, sacrament_name]
-    );
-    return result.rows[0];
-  },
+  console.log(data);  // Check if church_id is being passed
+  const { church_id, sacrament_name } = data;
+  console.log(`Inserting sacrament with church_id: ${church_id} and sacrament_name: ${sacrament_name}`);
+
+  if (!church_id) {
+    throw new Error('church_id is required');
+  }
+
+  const result = await pool.query(
+    'INSERT INTO sacraments (church_id, sacrament_name) VALUES ($1, $2) RETURNING *',
+    [church_id, sacrament_name]
+  );
+  return result.rows[0];
+},
 
   async update(id, data) {
     const { church_id, sacrament_name } = data;
