@@ -65,54 +65,54 @@ export const OrganizationController = {
   },
 
   // Login endpoint
-  async login(req, res) {
-    try {
-      const { organization_account_id, password } = req.body;
+  // async login(req, res) {
+  //   try {
+  //     const { organization_account_id, password } = req.body;
 
-      if (!organization_account_id || !password) {
-        return res.status(400).json({
-          message: "Organization account ID and password are required"
-        });
-      }
+  //     if (!organization_account_id || !password) {
+  //       return res.status(400).json({
+  //         message: "Organization account ID and password are required"
+  //       });
+  //     }
 
-      const org = await Organization.login({
-        organization_account_id,
-        password
-      });
+  //     const org = await Organization.login({
+  //       organization_account_id,
+  //       password
+  //     });
 
-      if (!org) {
-        return res.status(401).json({
-          message: "Invalid account ID or password"
-        });
-      }
+  //     if (!org) {
+  //       return res.status(401).json({
+  //         message: "Invalid account ID or password"
+  //       });
+  //     }
 
-      const payload = {
-        sub: org.id,
-        account_id: org.organization_account_id,
-        organization: org.id,
-        org_type_id: org.org_type_id
-      };
+  //     const payload = {
+  //       sub: org.id,
+  //       account_id: org.organization_account_id,
+  //       organization: org.id,
+  //       org_type_id: org.org_type_id
+  //     };
 
-      const token = jwt.sign(payload, process.env.JWT_SECRET, {
-        expiresIn: "1h"
-      });
+  //     const token = jwt.sign(payload, process.env.JWT_SECRET, {
+  //       expiresIn: "1h"
+  //     });
 
-      res.json({
-        message: "Login successful",
-        accessToken: token,
-        organization: {
-          id: org.id,
-          name: org.name,
-          account_id: org.organization_account_id,
-          org_type_id: org.org_type_id
-        }
-      });
+  //     res.json({
+  //       message: "Login successful",
+  //       accessToken: token,
+  //       organization: {
+  //         id: org.id,
+  //         name: org.name,
+  //         account_id: org.organization_account_id,
+  //         org_type_id: org.org_type_id
+  //       }
+  //     });
 
-    } catch (err) {
-      console.error("Organization login error:", err);
-      res.status(500).json({ message: "Server error" });
-    }
-  },
+  //   } catch (err) {
+  //     console.error("Organization login error:", err);
+  //     res.status(500).json({ message: "Server error" });
+  //   }
+  // },
 
   // LIST PUBLIC (for registration dropdown)
   async listPublic(req, res) {
