@@ -5,7 +5,7 @@ export const createAssetRequest = async (req, res) => {
   try {
     const request = await AssetRequest.create({
       ...req.body,
-      organization_id: req.user.organization_id, // inject org_id
+      organization_id: req.auth.organization_id, // inject org_id
     });
     res.status(201).json(request);
   } catch (err) {
@@ -17,7 +17,7 @@ export const createAssetRequest = async (req, res) => {
 // GET all asset requests for the organization
 export const getAssetRequests = async (req, res) => {
   try {
-    const requests = await AssetRequest.getAll(req.user.organization_id);
+    const requests = await AssetRequest.getAll(req.auth.organization_id);
     res.json(requests);
   } catch (err) {
     console.error(err);
@@ -28,7 +28,7 @@ export const getAssetRequests = async (req, res) => {
 // GET asset request by ID (organization scoped)
 export const getAssetRequestById = async (req, res) => {
   try {
-    const request = await AssetRequest.getById(req.params.id, req.user.organization_id);
+    const request = await AssetRequest.getById(req.params.id, req.auth.organization_id);
     if (!request) return res.status(404).json({ error: "Asset request not found" });
     res.json(request);
   } catch (err) {
@@ -56,7 +56,7 @@ export const updateAssetRequest = async (req, res) => {
 // DELETE asset request (organization scoped)
 export const deleteAssetRequest = async (req, res) => {
   try {
-    const deleted = await AssetRequest.delete(req.params.id, req.user.organization_id);
+    const deleted = await AssetRequest.delete(req.params.id, req.auth.organization_id);
     if (!deleted) return res.status(404).json({ error: "Asset request not found" });
     res.json({ message: "Asset request deleted", data: deleted });
   } catch (err) {

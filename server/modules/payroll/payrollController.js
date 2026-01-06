@@ -3,7 +3,7 @@ import Payroll from "./payroll.js";
 const payrollController = {
   async getAll(req, res) {
     try {
-      const {organization_id} = req.params
+      const {organization_id} = req.auth.organization_id
       const payrolls = await Payroll.getAll(organization_id);
       res.json(payrolls);
     } catch (err) {
@@ -15,7 +15,7 @@ const payrollController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const organization_id = req.user.organization_id;
+      const organization_id = req.auth.organization_id
       const payroll = await Payroll.getById(id,organization_id);
       if (!payroll) return res.status(404).json({ error: "Payroll not found" });
       res.json(payroll);
@@ -30,11 +30,11 @@ const payrollController = {
       const payroll = await Payroll.create(
         {
           ...req.body,
-          organization_id: req.user.organization_id,
+          organization_id: req.auth.organization_id,
         },
         {
           user_id: req.user.id,
-          organization_id: req.user.organization_id,
+          organization_id: req.auth.organization_id,
           ip_address: req.ip,
         }
       );
@@ -49,7 +49,7 @@ const payrollController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const organization_id = req.user.organization_id;
+      const organization_id = req.auth.organization_id;
 
       const updatedPayroll = await Payroll.update(
         id,

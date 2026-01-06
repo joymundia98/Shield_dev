@@ -5,7 +5,7 @@ const ExpenseSubcategoryController = {
   // GET /expense-subcategories?orgId=1
   async list(req, res) {
     try {
-      const { orgId } = req.query;
+      const { orgId } = req.auth.organization_id;
       if (!orgId) return res.status(400).json({ message: "Organization ID is required" });
 
       const data = await ExpenseSubcategory.getAll(orgId);
@@ -30,7 +30,8 @@ const ExpenseSubcategoryController = {
   // POST /expense-subcategories
   async create(req, res) {
     try {
-      const { name, category_id, organization_id } = req.body;
+      const { name, category_id } = req.body;
+      const { organization_id } = req.auth.organization_id;
       if (!organization_id) return res.status(400).json({ message: "Organization ID is required" });
 
       const created = await ExpenseSubcategory.create({ name, category_id, organization_id });

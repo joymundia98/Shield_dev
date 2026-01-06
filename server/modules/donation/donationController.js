@@ -3,7 +3,7 @@ import Donation from "./donationModel.js";
 // GET all donations (by organization)
 export const getAllDonations = async (req, res) => {
   try {
-    const organization_id = req.user.organization_id;
+    const organization_id = req.auth.organization_id;
 
     const donations = await Donation.getAll(organization_id);
     return res.json(donations);
@@ -18,7 +18,7 @@ export const getAllDonations = async (req, res) => {
 // GET donation by ID (org scoped)
 export const getDonationById = async (req, res) => {
   try {
-    const organization_id = req.user.organization_id;
+    const organization_id = req.auth.organization_id;
     const { id } = req.params;
 
     const donation = await Donation.getById(id, organization_id);
@@ -38,7 +38,7 @@ export const getDonationById = async (req, res) => {
 // POST create donation (org enforced)
 export const createDonation = async (req, res) => {
   try {
-    const organization_id = req.user.organization_id;
+    const organization_id = req.auth.organization_id;
 
     const newDonation = await Donation.create({
       ...req.body,
@@ -57,7 +57,7 @@ export const createDonation = async (req, res) => {
 // PUT update donation (org scoped)
 export const updateDonation = async (req, res) => {
   try {
-    const organization_id = req.user.organization_id;
+    const organization_id = req.auth.organization_id;
     const { id } = req.params;
 
     const updatedDonation = await Donation.update(
@@ -82,7 +82,7 @@ export const updateDonation = async (req, res) => {
 // DELETE donation (org scoped)
 export const deleteDonation = async (req, res) => {
   try {
-    const organization_id = req.user.organization_id;
+    const organization_id = req.auth.organization_id;
     const { id } = req.params;
 
     const deletedDonation = await Donation.delete(id, organization_id);

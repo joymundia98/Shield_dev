@@ -31,7 +31,7 @@ export const MemberController = {
   // POST /members
   async create(req, res) {
     try {
-      const memberData = req.user.organization_id;
+      const memberData = req.auth.organization_id;
 
       if (!memberData.organization_id) {
         return res

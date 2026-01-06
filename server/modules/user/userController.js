@@ -15,7 +15,7 @@ const userController = {
 
   async getById(req, res) {
     try {
-      const organization_id = req.user.organization_id;
+      const organization_id = req.auth.organization_id;
       const { id } = req.params;
       const user = await User.getById(id,organization_id);
       if (!user) return res.status(404).json({ error: 'User not found' });
@@ -28,7 +28,8 @@ const userController = {
 
   async getActiveUsers(req, res) {
     try {
-      const users = await User.getActiveUsers();
+      const {organization_id} = req.auth.organization_id;
+      const users = await User.getActiveUsers(organization_id);
       res.json({ message: "Active users fetched", data: users });
     } catch (err) {
       console.error(err);
@@ -38,7 +39,8 @@ const userController = {
 
   async getInactiveUsers(req, res) {
     try {
-      const users = await User.getInactiveUsers();
+      const {organization_id} = req.auth.organization_id;
+      const users = await User.getInactiveUsers(organization_id);
       res.json({ message: "Inactive users fetched", data: users });
     } catch (err) {
       console.error(err);
@@ -48,7 +50,10 @@ const userController = {
 
   async create(req, res) {
     try {
-      const user = await User.create(req.body);
+      const user = await User.create({
+        ...req.body,
+        organization_id: req.auth.organization_id,
+      });
       res.status(201).json(user);
     } catch (err) {
       console.error(err);

@@ -15,7 +15,7 @@ const LeaveRequestsController = {
   // GET /leave-requests/org (ORG-SCOPED)
   async getByOrganization(req, res) {
     try {
-      const orgId = req.user.organization_id;
+      const orgId = req.auth.organization_id;
       const data = await LeaveRequest.getByOrganization(orgId);
       return res.json(data);
     } catch (err) {
@@ -27,7 +27,7 @@ const LeaveRequestsController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const orgId = req.user.organization_id;
+      const orgId = req.auth.organization_id;
 
       const data = await LeaveRequest.getById(id, orgId);
       if (!data) {
@@ -43,7 +43,7 @@ const LeaveRequestsController = {
   // POST /leave-requests
   async create(req, res) {
     try {
-      const orgId = req.user.organization_id;
+      const orgId = req.auth.organization_id;
 
       const payload = {
         ...req.body,
@@ -61,7 +61,7 @@ const LeaveRequestsController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const orgId = req.user.organization_id;
+      const orgId = req.auth.organization_id;
 
       const existing = await LeaveRequest.getById(id, orgId);
       if (!existing) {
@@ -80,7 +80,7 @@ const LeaveRequestsController = {
     try {
       const { id } = req.params;
       const { status } = req.body;
-      const orgId = req.user.organization_id;
+      const orgId = req.auth.organization_id;
 
       if (!["approved", "rejected", "pending"].includes(status)) {
         return res.status(400).json({ message: "Invalid status value" });
@@ -102,7 +102,7 @@ const LeaveRequestsController = {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const orgId = req.user.organization_id;
+      const orgId = req.auth.organization_id;
 
       const deleted = await LeaveRequest.delete(id, orgId);
       if (!deleted) {
@@ -119,7 +119,7 @@ const LeaveRequestsController = {
   async getByStaff(req, res) {
     try {
       const { staffId } = req.params;
-      const orgId = req.user.organization_id;
+      const orgId = req.auth.organization_id;
 
       const data = await LeaveRequest.getByStaff(staffId, orgId);
       return res.json(data);

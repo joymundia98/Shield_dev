@@ -5,7 +5,7 @@ export const createAssetLocation = async (req, res) => {
   try {
     const location = await AssetLocation.create({
       ...req.body,
-      organization_id: req.user.organization_id, // inject org_id
+      organization_id: req.auth.organization_id, // inject org_id
     });
     res.status(201).json(location);
   } catch (err) {
@@ -17,7 +17,7 @@ export const createAssetLocation = async (req, res) => {
 // GET all locations for the organization
 export const getAssetLocations = async (req, res) => {
   try {
-    const locations = await AssetLocation.getAll(req.user.organization_id);
+    const locations = await AssetLocation.getAll(req.auth.organization_id);
     res.json(locations);
   } catch (err) {
     console.error(err);
@@ -28,7 +28,7 @@ export const getAssetLocations = async (req, res) => {
 // GET location by ID (organization scoped)
 export const getAssetLocationById = async (req, res) => {
   try {
-    const location = await AssetLocation.getById(req.params.id, req.user.organization_id);
+    const location = await AssetLocation.getById(req.params.id, req.auth.organization_id);
     if (!location) return res.status(404).json({ error: "Location not found" });
     res.json(location);
   } catch (err) {
@@ -40,7 +40,7 @@ export const getAssetLocationById = async (req, res) => {
 // UPDATE location (organization scoped)
 export const updateAssetLocation = async (req, res) => {
   try {
-    const location = await AssetLocation.update(req.params.id, req.user.organization_id, req.body);
+    const location = await AssetLocation.update(req.params.id, req.auth.organization_id, req.body);
     if (!location) return res.status(404).json({ error: "Location not found or nothing to update" });
     res.json(location);
   } catch (err) {
@@ -52,7 +52,7 @@ export const updateAssetLocation = async (req, res) => {
 // DELETE location (organization scoped)
 export const deleteAssetLocation = async (req, res) => {
   try {
-    const location = await AssetLocation.delete(req.params.id, req.user.organization_id);
+    const location = await AssetLocation.delete(req.params.id, req.auth.organization_id);
     if (!location) return res.status(404).json({ error: "Location not found" });
     res.json({ message: "Location deleted", data: location });
   } catch (err) {

@@ -3,7 +3,7 @@ import ClassCategoryModel from "./classCategory.js";
 export const classCategoryController = {
   async create(req, res) {
     try {
-      const { organization_id } = req.body;
+      const { organization_id } = req.auth.organization_id;
       if (!organization_id) {
         return res.status(400).json({ error: "organization_id is required" });
       }
@@ -18,7 +18,7 @@ export const classCategoryController = {
 
   async getAll(req, res) {
     try {
-      const { organization_id } = req.user.organization_id;
+      const { organization_id } = req.auth.organization_id;
       if (!organization_id) {
         return res.status(400).json({ error: "organization_id is required" });
       }
@@ -34,7 +34,7 @@ export const classCategoryController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const { organization_id } = req.user.organization_id;
+      const { organization_id } = req.auth.organization_id;
       if (!organization_id) {
         return res.status(400).json({ error: "organization_id is required" });
       }
@@ -53,7 +53,7 @@ export const classCategoryController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const { organization_id } = req.user.organization_id;
+      const { organization_id } = req.auth.organization_id;
       if (!organization_id) {
         return res.status(400).json({ error: "organization_id is required" });
       }
@@ -72,7 +72,7 @@ export const classCategoryController = {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const { organization_id } = req.user.organization_id;
+      const { organization_id } = req.auth.organization_id;
       if (!organization_id) {
         return res.status(400).json({ error: "organization_id is required" });
       }

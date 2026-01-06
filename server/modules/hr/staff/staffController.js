@@ -14,7 +14,7 @@ const StaffController = {
   // 🔐 Get staff by org (recommended default)
   async getByOrganization(req, res) {
     try {
-      const orgId = req.user.organization_id;
+      const orgId = req.auth.organization_id;
       const data = await Staff.getByOrganization(orgId);
       return res.json(data);
     } catch (err) {
@@ -25,7 +25,7 @@ const StaffController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const orgId = req.user.organization_id;
+      const orgId = req.auth.organization_id;
 
       const data = await Staff.getById(id, orgId);
 
@@ -40,7 +40,7 @@ const StaffController = {
 
   async create(req, res) {
     try {
-      const orgId = req.user.organization_id;
+      const orgId = req.auth.organization_id;
 
       const newStaff = await Staff.create(req.body, orgId);
       return res.status(201).json(newStaff);
@@ -52,7 +52,7 @@ const StaffController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const orgId = req.user.organization_id;
+      const orgId = req.auth.organization_id;
 
       const existing = await Staff.getById(id, orgId);
       if (!existing)
@@ -68,7 +68,7 @@ const StaffController = {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const orgId = req.user.organization_id;
+      const orgId = req.auth.organization_id;
 
       const deleted = await Staff.delete(id, orgId);
       if (!deleted)
@@ -83,7 +83,7 @@ const StaffController = {
   async getByDepartment(req, res) {
     try {
       const { id } = req.params; // department_id
-      const orgId = req.user.organization_id;
+      const orgId = req.auth.organization_id;
 
       const staff = await Staff.getByDepartment(id, orgId);
       return res.json(staff);
