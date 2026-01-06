@@ -4,7 +4,8 @@ const ServiceController = {
   // Get all services
   async getAll(req, res) {
     try {
-      const services = await Service.getAll();
+      const organization_id = req.user.organization_id;
+      const services = await Service.getAll(organization_id);
       res.json(services);
     } catch (err) {
       res.status(500).json({ error: "Error fetching services" });
@@ -14,8 +15,9 @@ const ServiceController = {
   // Get a service by ID
   async getById(req, res) {
     const { id } = req.params;
+    const organization_id = req.user.organization_id;
     try {
-      const service = await Service.getById(id);
+      const service = await Service.getById(id, organization_id);
       if (!service) {
         return res.status(404).json({ error: "Service not found" });
       }

@@ -4,10 +4,14 @@ import IncomeSubcategoryController from './incomeSubController.js';
 
 const router = express.Router();
 
-router.get('/', IncomeSubcategoryController.list);
-router.get('/:id', IncomeSubcategoryController.getById);
+router.get('/:orgId', IncomeSubcategoryController.list);
+
+router.get('/:orgId/:id', IncomeSubcategoryController.getById);
+
 router.post('/', IncomeSubcategoryController.create);
-router.put('/:id', IncomeSubcategoryController.update);
-router.delete('/:id', IncomeSubcategoryController.delete);
+
+router.put('/:orgId/:id', IncomeSubcategoryController.update);
+
+router.delete('/:orgId/:id', IncomeSubcategoryController.delete);
 
 export default router;

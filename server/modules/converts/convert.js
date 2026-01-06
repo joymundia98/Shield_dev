@@ -1,91 +1,145 @@
 import { pool } from "../../server.js";
 
 const ConvertsModel = {
-  // Create a new convert
-  async create({ convert_type, convert_date, member_id, visitor_id, organization_id, follow_up_status }) {
+  // CREATE convert (org enforced)
+  async create(
+    { convert_type, convert_date, member_id, visitor_id, follow_up_status },
+    organization_id
+  ) {
     const result = await pool.query(
       `
-      INSERT INTO converts 
-        (convert_type, convert_date, member_id, visitor_id, organization_id, follow_up_status, created_at, updated_at)
+      INSERT INTO converts (
+        convert_type,
+        convert_date,
+        member_id,
+        visitor_id,
+        organization_id,
+        follow_up_status,
+        created_at,
+        updated_at
+      )
       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
       RETURNING *
       `,
-      [convert_type, convert_date, member_id, visitor_id, organization_id, follow_up_status]  // No need for `created_at` and `updated_at` here
+      [
+        convert_type,
+        convert_date,
+        member_id,
+        visitor_id,
+        organization_id,
+        follow_up_status,
+      ]
     );
+
     return result.rows[0];
   },
 
-  // Get all converts
-  async findAll() {
-    const result = await pool.query(`
-      SELECT * FROM converts
+  // GET all converts (org scoped)
+  async findAll(organization_id) {
+    const result = await pool.query(
+      `
+      SELECT *
+      FROM converts
+      WHERE organization_id = $1
       ORDER BY created_at DESC
-    `);
+      `,
+      [organization_id]
+    );
+
     return result.rows;
   },
 
-  // Get convert by ID
-  async findById(id) {
+  // GET convert by ID (org scoped)
+  async findById(id, organization_id) {
     const result = await pool.query(
-      `SELECT * FROM converts WHERE id = $1 LIMIT 1`,
-      [id]
+      `
+      SELECT *
+      FROM converts
+      WHERE id = $1 AND organization_id = $2
+      LIMIT 1
+      `,
+      [id, organization_id]
     );
+
     return result.rows[0];
   },
 
-  // Update convert by ID
-  async update(id, { convert_type, convert_date, member_id, visitor_id, organization_id, follow_up_status }) {
+  // UPDATE convert (org locked)
+  async update(
+    id,
+    { convert_type, convert_date, member_id, visitor_id, follow_up_status },
+    organization_id
+  ) {
     const result = await pool.query(
       `
       UPDATE converts
-      SET 
-        convert_type = $2,
-        convert_date = $3,
-        member_id = $4,
-        visitor_id = $5,
-        organization_id = $6,
-        follow_up_status = $7,
+      SET
+        convert_type = $1,
+        convert_date = $2,
+        member_id = $3,
+        visitor_id = $4,
+        follow_up_status = $5,
         updated_at = NOW()
-      WHERE id = $8
+      WHERE id = $6 AND organization_id = $7
       RETURNING *
       `,
-      [convert_type, convert_date, member_id, visitor_id, organization_id, follow_up_status, id]
+      [
+        convert_type,
+        convert_date,
+        member_id,
+        visitor_id,
+        follow_up_status,
+        id,
+        organization_id,
+      ]
     );
+
     return result.rows[0];
   },
 
-  // Delete convert by ID
-  async delete(id) {
-    await pool.query(`DELETE FROM converts WHERE id = $1`, [id]);
-    return true;
+  // DELETE convert (org scoped)
+  async delete(id, organization_id) {
+    const result = await pool.query(
+      `
+      DELETE FROM converts
+      WHERE id = $1 AND organization_id = $2
+      RETURNING id
+      `,
+      [id, organization_id]
+    );
+
+    return result.rowCount > 0;
   },
 
-  // Get converts by member
-  async findByMember(member_id) {
+  // GET converts by member (org scoped)
+  async findByMember(member_id, organization_id) {
     const result = await pool.query(
-      `SELECT * FROM converts WHERE member_id = $1 ORDER BY created_at DESC`,
-      [member_id]
+      `
+      SELECT *
+      FROM converts
+      WHERE member_id = $1 AND organization_id = $2
+      ORDER BY created_at DESC
+      `,
+      [member_id, organization_id]
     );
+
     return result.rows;
   },
 
-  // Get converts by visitor
-  async findByVisitor(visitor_id) {
+  // GET converts by visitor (org scoped)
+  async findByVisitor(visitor_id, organization_id) {
     const result = await pool.query(
-      `SELECT * FROM converts WHERE visitor_id = $1 ORDER BY created_at DESC`,
-      [visitor_id]
+      `
+      SELECT *
+      FROM converts
+      WHERE visitor_id = $1 AND organization_id = $2
+      ORDER BY created_at DESC
+      `,
+      [visitor_id, organization_id]
     );
+
     return result.rows;
   },
-
-  // Get converts by organization
-  async findByOrganization(organization_id) {
-    const result = await pool.query(
-      `SELECT * FROM converts WHERE organization_id = $1 ORDER BY created_at DESC`,
-      [organization_id]
-    );
-    return result.rows;
-  }
 };
 
 export default ConvertsModel;

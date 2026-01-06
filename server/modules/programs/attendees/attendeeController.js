@@ -3,7 +3,10 @@ import { Attendee } from './attendee.js';
 export const attendeeController = {
   async create(req, res) {
     try {
-      const attendee = await Attendee.create(req.body);
+      const attendee = await Attendee.create({
+      ...req.body,
+      organization_id: req.user.organization_id,
+    });
       res.status(201).json(attendee);
     } catch (err) {
       console.error(err);
@@ -13,7 +16,8 @@ export const attendeeController = {
 
   async getAll(req, res) {
     try {
-      const attendees = await Attendee.getAll();
+      const {organization_id} = req.params
+      const attendees = await Attendee.getAll(organization_id);
       res.json(attendees);
     } catch (err) {
       console.error(err);
@@ -24,7 +28,8 @@ export const attendeeController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const attendee = await Attendee.getById(id);
+      const organization_id = req.user.organization_id;
+      const attendee = await Attendee.getById(id, organization_id);
       if (!attendee) return res.status(404).json({ error: "Attendee not found" });
       res.json(attendee);
     } catch (err) {

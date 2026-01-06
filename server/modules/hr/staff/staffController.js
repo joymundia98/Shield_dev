@@ -1,6 +1,7 @@
 import Staff from "../staff/staffModel.js";
 
 const StaffController = {
+  // 🔒 Admin only (all orgs) – optional
   async getAll(req, res) {
     try {
       const data = await Staff.getAll();
@@ -10,10 +11,23 @@ const StaffController = {
     }
   },
 
+  // 🔐 Get staff by org (recommended default)
+  async getByOrganization(req, res) {
+    try {
+      const orgId = req.user.organization_id;
+      const data = await Staff.getByOrganization(orgId);
+      return res.json(data);
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  },
+
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const data = await Staff.getById(id);
+      const orgId = req.user.organization_id;
+
+      const data = await Staff.getById(id, orgId);
 
       if (!data)
         return res.status(404).json({ message: "Staff not found" });
@@ -26,7 +40,9 @@ const StaffController = {
 
   async create(req, res) {
     try {
-      const newStaff = await Staff.create(req.body);
+      const orgId = req.user.organization_id;
+
+      const newStaff = await Staff.create(req.body, orgId);
       return res.status(201).json(newStaff);
     } catch (err) {
       return res.status(500).json({ error: err.message });
@@ -36,12 +52,13 @@ const StaffController = {
   async update(req, res) {
     try {
       const { id } = req.params;
+      const orgId = req.user.organization_id;
 
-      const existing = await Staff.getById(id);
+      const existing = await Staff.getById(id, orgId);
       if (!existing)
         return res.status(404).json({ message: "Staff record not found" });
 
-      const updated = await Staff.update(id, req.body);
+      const updated = await Staff.update(id, req.body, orgId);
       return res.json(updated);
     } catch (err) {
       return res.status(500).json({ error: err.message });
@@ -51,8 +68,9 @@ const StaffController = {
   async delete(req, res) {
     try {
       const { id } = req.params;
+      const orgId = req.user.organization_id;
 
-      const deleted = await Staff.delete(id);
+      const deleted = await Staff.delete(id, orgId);
       if (!deleted)
         return res.status(404).json({ message: "Staff not found" });
 
@@ -64,8 +82,10 @@ const StaffController = {
 
   async getByDepartment(req, res) {
     try {
-      const { id } = req.params;
-      const staff = await Staff.getByDepartment(id);
+      const { id } = req.params; // department_id
+      const orgId = req.user.organization_id;
+
+      const staff = await Staff.getByDepartment(id, orgId);
       return res.json(staff);
     } catch (err) {
       return res.status(500).json({ error: err.message });

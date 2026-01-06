@@ -3,19 +3,26 @@ import AuditLog from "../audit_tail/audit.js";
 
 const Payroll = {
 
-  async getAll() {
+  async getAll(organization_id) {
     const result = await pool.query(
-      `SELECT * FROM payroll ORDER BY payroll_id ASC`
+      `SELECT *
+       FROM payroll
+       WHERE organization_id = $1
+       ORDER BY payroll_id ASC`,
+      [organization_id]
     );
     return result.rows;
   },
 
-  async getById(payroll_id) {
+  async getById(payroll_id, organization_id) {
     const result = await pool.query(
-      `SELECT * FROM payroll WHERE payroll_id=$1`,
-      [payroll_id]
+      `SELECT *
+       FROM payroll
+       WHERE payroll_id = $1
+         AND organization_id = $2`,
+      [payroll_id, organization_id]
     );
-    return result.rows[0];
+    return result.rows[0] || null;
   },
 
   // CREATE PAYROLL
@@ -31,11 +38,12 @@ const Payroll = {
         loan_deduction, union_dues, health_insurance,
         nhima_contribution_percentage, nhima_contribution_amount,
         wcif, total_deductions, net_salary,
-        gratuity_percentage, gratuity_amount, status
+        gratuity_percentage, gratuity_amount, status,
+        organization_id
       ) VALUES (
         $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,
         $13,$14,$15,$16,$17,$18,$19,$20,$21,$22,
-        $23,$24,$25,$26,$27
+        $23,$24,$25,$26,$27,$28
       )
       RETURNING *
       `,
@@ -66,7 +74,8 @@ const Payroll = {
         data.net_salary,
         data.gratuity_percentage,
         data.gratuity_amount,
-        data.status
+        data.status,
+        data.organization_id
       ]
     );
 
@@ -84,10 +93,13 @@ const Payroll = {
   },
 
   // UPDATE PAYROLL
-  async update(payroll_id, data, auditMeta = {}) {
+  async update(payroll_id, organization_id, data, auditMeta = {}) {
     const oldResult = await pool.query(
-      `SELECT * FROM payroll WHERE payroll_id=$1`,
-      [payroll_id]
+      `SELECT *
+       FROM payroll
+       WHERE payroll_id = $1
+         AND organization_id = $2`,
+      [payroll_id, organization_id]
     );
 
     const oldData = oldResult.rows[0];
@@ -107,10 +119,14 @@ const Payroll = {
 
     if (!fields.length) return oldData;
 
-    values.push(payroll_id);
+    values.push(payroll_id, organization_id);
 
     const result = await pool.query(
-      `UPDATE payroll SET ${fields.join(", ")} WHERE payroll_id=$${i} RETURNING *`,
+      `UPDATE payroll
+       SET ${fields.join(", ")}
+       WHERE payroll_id = $${i}
+         AND organization_id = $${i + 1}
+       RETURNING *`,
       values
     );
 
@@ -129,18 +145,23 @@ const Payroll = {
   },
 
   // DELETE PAYROLL
-  async delete(payroll_id, auditMeta = {}) {
+  async delete(payroll_id, organization_id, auditMeta = {}) {
     const oldResult = await pool.query(
-      `SELECT * FROM payroll WHERE payroll_id=$1`,
-      [payroll_id]
+      `SELECT *
+       FROM payroll
+       WHERE payroll_id = $1
+         AND organization_id = $2`,
+      [payroll_id, organization_id]
     );
 
     const oldData = oldResult.rows[0];
     if (!oldData) return null;
 
     await pool.query(
-      `DELETE FROM payroll WHERE payroll_id=$1`,
-      [payroll_id]
+      `DELETE FROM payroll
+       WHERE payroll_id = $1
+         AND organization_id = $2`,
+      [payroll_id, organization_id]
     );
 
     await AuditLog.log({

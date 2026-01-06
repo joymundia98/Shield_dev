@@ -7,7 +7,7 @@ const router = express.Router();
 router.post("/", createAsset);
 
 // Get all assets
-router.get("/", getAssets);
+router.get("/org/:id", getAssets);
 
 // Get one asset
 router.get("/:id", getAssetById);

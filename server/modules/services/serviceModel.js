@@ -1,13 +1,13 @@
 import { pool } from "../../server.js";
 
 const Service = {
-  async getAll() {
-    const result = await pool.query(`SELECT * FROM services ORDER BY id ASC`);
+  async getAll(organization_id) {
+    const result = await pool.query(`SELECT * FROM services WHERE organization_id=$1 ORDER BY id ASC`, [organization_id]);
     return result.rows;
   },
 
-  async getById(id) {
-    const result = await pool.query(`SELECT * FROM services WHERE id=$1`, [id]);
+  async getById(id,organization_id) {
+    const result = await pool.query(`SELECT * FROM services WHERE id=$1 AND organization_id=$2`, [id,organization_id]);
     return result.rows[0] || null;
   },
 
@@ -19,10 +19,10 @@ const Service = {
     return result.rows[0];
   },
 
-  async delete(id) {
+  async delete(organization_id) {
     const result = await pool.query(
-      `DELETE FROM services WHERE id=$1 RETURNING *`,
-      [id]
+      `DELETE FROM services WHERE organization_id=$1 RETURNING *`,
+      [organization_id]
     );
     return result.rows[0];
   }

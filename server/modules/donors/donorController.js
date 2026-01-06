@@ -3,7 +3,9 @@ import Donor from "./donorModel.js";
 const DonorsController = {
   async getAll(req, res) {
     try {
-      const data = await Donor.getAll();
+      const { organization_id } = req.user;
+
+      const data = await Donor.getAll(organization_id);
       return res.json(data);
     } catch (err) {
       return res.status(500).json({ error: err.message });
@@ -13,7 +15,9 @@ const DonorsController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const data = await Donor.getById(id);
+      const { organization_id } = req.user.organization_id;
+
+      const data = await Donor.getById(id, organization_id);
 
       if (!data)
         return res.status(404).json({ message: "Donor not found" });
@@ -26,7 +30,13 @@ const DonorsController = {
 
   async create(req, res) {
     try {
-      const data = await Donor.create(req.body);
+      const { organization_id } = req.user.organization_id;
+
+      const data = await Donor.create({
+        ...req.body,
+        organization_id,
+      });
+
       return res.status(201).json(data);
     } catch (err) {
       return res.status(500).json({ error: err.message });
@@ -36,12 +46,13 @@ const DonorsController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const existing = await Donor.getById(id);
+      const { organization_id } = req.user.organization_id;
 
+      const existing = await Donor.getById(id, organization_id);
       if (!existing)
         return res.status(404).json({ message: "Donor not found" });
 
-      const updated = await Donor.update(id, req.body);
+      const updated = await Donor.update(id, organization_id, req.body);
       return res.json(updated);
     } catch (err) {
       return res.status(500).json({ error: err.message });
@@ -51,8 +62,9 @@ const DonorsController = {
   async delete(req, res) {
     try {
       const { id } = req.params;
+      const { organization_id } = req.user.organization_id;
 
-      const deleted = await Donor.delete(id);
+      const deleted = await Donor.delete(id, organization_id);
 
       if (!deleted)
         return res.status(404).json({ message: "Donor not found" });
@@ -61,7 +73,7 @@ const DonorsController = {
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
-  }
+  },
 };
 
 export default DonorsController;

@@ -3,6 +3,11 @@ import ClassCategoryModel from "./classCategory.js";
 export const classCategoryController = {
   async create(req, res) {
     try {
+      const { organization_id } = req.body;
+      if (!organization_id) {
+        return res.status(400).json({ error: "organization_id is required" });
+      }
+
       const category = await ClassCategoryModel.create(req.body);
       res.status(201).json(category);
     } catch (error) {
@@ -13,7 +18,12 @@ export const classCategoryController = {
 
   async getAll(req, res) {
     try {
-      const categories = await ClassCategoryModel.findAll();
+      const { organization_id } = req.user.organization_id;
+      if (!organization_id) {
+        return res.status(400).json({ error: "organization_id is required" });
+      }
+
+      const categories = await ClassCategoryModel.findAll(organization_id);
       res.json(categories);
     } catch (error) {
       console.error(error);
@@ -23,7 +33,13 @@ export const classCategoryController = {
 
   async getById(req, res) {
     try {
-      const category = await ClassCategoryModel.findById(req.params.id);
+      const { id } = req.params;
+      const { organization_id } = req.user.organization_id;
+      if (!organization_id) {
+        return res.status(400).json({ error: "organization_id is required" });
+      }
+
+      const category = await ClassCategoryModel.findById(id, organization_id);
       if (!category) {
         return res.status(404).json({ error: "Class category not found" });
       }
@@ -36,10 +52,13 @@ export const classCategoryController = {
 
   async update(req, res) {
     try {
-      const category = await ClassCategoryModel.update(
-        req.params.id,
-        req.body
-      );
+      const { id } = req.params;
+      const { organization_id } = req.user.organization_id;
+      if (!organization_id) {
+        return res.status(400).json({ error: "organization_id is required" });
+      }
+
+      const category = await ClassCategoryModel.update(id, req.body);
       if (!category) {
         return res.status(404).json({ error: "Class category not found" });
       }
@@ -52,8 +71,17 @@ export const classCategoryController = {
 
   async delete(req, res) {
     try {
-      await ClassCategoryModel.delete(req.params.id);
-      res.json({ message: "Class category deleted successfully" });
+      const { id } = req.params;
+      const { organization_id } = req.user.organization_id;
+      if (!organization_id) {
+        return res.status(400).json({ error: "organization_id is required" });
+      }
+
+      const deleted = await ClassCategoryModel.delete(id, organization_id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Class category not found or already deleted" });
+      }
+      res.json({ message: "Class category deleted successfully", deleted });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Failed to delete class category" });

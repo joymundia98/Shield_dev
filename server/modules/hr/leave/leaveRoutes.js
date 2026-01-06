@@ -3,25 +3,44 @@ import LeaveRequestsController from "./leaveController.js";
 
 const router = Router();
 
-// Get all leave requests
+/**
+ * ADMIN – get all leave requests (all orgs)
+ */
 router.get("/", LeaveRequestsController.getAll);
 
-// Get a specific leave request by ID
-router.get("/:id", LeaveRequestsController.getById);
+/**
+ * ORG-SCOPED – get leave requests for logged-in organization
+ */
+router.get("/org", LeaveRequestsController.getByOrganization);
 
-// Get leave requests by staff ID
+/**
+ * Get leave requests by staff ID (org-scoped)
+ */
 router.get("/staff/:staffId", LeaveRequestsController.getByStaff);
 
-// Create a new leave request
+/**
+ * Get a specific leave request by ID (org-scoped)
+ */
+router.get("/:id", LeaveRequestsController.getById);
+
+/**
+ * Create a new leave request (org-scoped)
+ */
 router.post("/", LeaveRequestsController.create);
 
-// Update a leave request (full update)
+/**
+ * Full update of a leave request
+ */
 router.put("/:id", LeaveRequestsController.update);
 
-// Update the status of a leave request (approved/rejected)
-router.patch("/:id/status", LeaveRequestsController.updateStatus); // This is the new route for updating status
+/**
+ * Update leave request status (approve / reject)
+ */
+router.patch("/:id/status", LeaveRequestsController.updateStatus);
 
-// Delete a leave request
+/**
+ * Delete a leave request
+ */
 router.delete("/:id", LeaveRequestsController.delete);
 
 export default router;

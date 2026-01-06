@@ -3,7 +3,11 @@ import { Program } from './program.js';
 export const programController = {
   async create(req, res) {
     try {
-      const program = await Program.create(req.body);
+      const program = await Program.create({
+        ...req.body,
+        organization_id: req.user.organization_id,
+      });
+
       res.status(201).json(program);
     } catch (err) {
       console.error(err);
@@ -13,7 +17,8 @@ export const programController = {
 
   async getAll(req, res) {
     try {
-      const programs = await Program.getAll();
+      const organization_id = req.user.organization_id;
+      const programs = await Program.getAll(organization_id);
       res.json(programs);
     } catch (err) {
       console.error(err);
@@ -24,7 +29,8 @@ export const programController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const program = await Program.getById(id);
+      const organization_id = req.user.organization_id;      
+      const program = await Program.getById(id,organization_id);
       if (!program) return res.status(404).json({ error: "Program not found" });
       res.json(program);
     } catch (err) {

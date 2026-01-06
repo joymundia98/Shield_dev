@@ -11,7 +11,7 @@ const router = express.Router();
 // router.get('/status/:status', programController.getByStatus);
 
 // Get all programs
-router.get('/', programController.getAll);
+router.get('/org/:id', programController.getAll);
 
 // Get a single program by ID
 router.get('/:id', programController.getById);
