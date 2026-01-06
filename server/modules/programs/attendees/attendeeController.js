@@ -5,7 +5,7 @@ export const attendeeController = {
     try {
       const attendee = await Attendee.create({
       ...req.body,
-      organization_id: rreq.auth.organization_id,
+      organization_id: req.auth.organization_id,
     });
       res.status(201).json(attendee);
     } catch (err) {
