@@ -1,41 +1,47 @@
 import { pool } from "../../../server.js";
 
 export const AssetWarranty = {
-  // Get all warranties
-  async getAll() {
+
+  // Get all warranties for an organization
+  async getAll(organization_id) {
     const result = await pool.query(
       `SELECT warranty_id, asset_id, vendor, start_date, end_date, support_contact, created_at
        FROM asset_warranty
-       ORDER BY start_date DESC`
+       WHERE organization_id = $1
+       ORDER BY start_date DESC`,
+      [organization_id]
     );
     return result.rows;
   },
 
-  // Get warranty by ID
-  async getById(warranty_id) {
+  // Get warranty by ID (organization scoped)
+  async getById(warranty_id, organization_id) {
     const result = await pool.query(
       `SELECT warranty_id, asset_id, vendor, start_date, end_date, support_contact, created_at
        FROM asset_warranty
-       WHERE warranty_id = $1`,
-      [warranty_id]
+       WHERE warranty_id = $1
+         AND organization_id = $2`,
+      [warranty_id, organization_id]
     );
     return result.rows[0] || null;
   },
 
   // Create a new warranty
   async create(data) {
-    const { asset_id, vendor, start_date, end_date, support_contact } = data;
+    const { asset_id, vendor, start_date, end_date, support_contact, organization_id } = data;
+
     const result = await pool.query(
-      `INSERT INTO asset_warranty (asset_id, vendor, start_date, end_date, support_contact)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO asset_warranty (asset_id, vendor, start_date, end_date, support_contact, organization_id)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING warranty_id, asset_id, vendor, start_date, end_date, support_contact, created_at`,
-      [asset_id, vendor, start_date, end_date, support_contact]
+      [asset_id, vendor, start_date, end_date, support_contact, organization_id]
     );
+
     return result.rows[0];
   },
 
-  // Update an existing warranty
-  async update(warranty_id, data) {
+  // Update an existing warranty (organization scoped)
+  async update(warranty_id, organization_id, data) {
     const fields = [];
     const values = [];
     let i = 1;
@@ -50,27 +56,28 @@ export const AssetWarranty = {
 
     if (fields.length === 0) return null; // Nothing to update
 
-    values.push(warranty_id);
+    values.push(warranty_id, organization_id);
 
     const result = await pool.query(
       `UPDATE asset_warranty
        SET ${fields.join(", ")}
-       WHERE warranty_id = $${i}
+       WHERE warranty_id = $${i} AND organization_id = $${i + 1}
        RETURNING warranty_id, asset_id, vendor, start_date, end_date, support_contact, created_at`,
       values
     );
 
-    return result.rows[0];
+    return result.rows[0] || null;
   },
 
-  // Delete a warranty
-  async delete(warranty_id) {
+  // Delete a warranty (organization scoped)
+  async delete(warranty_id, organization_id) {
     const result = await pool.query(
       `DELETE FROM asset_warranty
-       WHERE warranty_id = $1
+       WHERE warranty_id = $1 AND organization_id = $2
        RETURNING warranty_id, asset_id, vendor, start_date, end_date, support_contact, created_at`,
-      [warranty_id]
+      [warranty_id, organization_id]
     );
-    return result.rows[0];
+    return result.rows[0] || null;
   }
+
 };

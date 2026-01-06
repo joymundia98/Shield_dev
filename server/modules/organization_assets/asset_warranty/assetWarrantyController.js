@@ -1,9 +1,9 @@
 import { AssetWarranty } from "./assetWarranty.js";
 
-// Controller functions for asset warranties
+// GET all warranties for the organization
 export const getAllWarranties = async (req, res) => {
   try {
-    const data = await AssetWarranty.getAll();
+    const data = await AssetWarranty.getAll(req.user.organization_id);
     res.json(data);
   } catch (err) {
     console.error(err);
@@ -11,9 +11,10 @@ export const getAllWarranties = async (req, res) => {
   }
 };
 
+// GET warranty by ID (organization scoped)
 export const getWarrantyById = async (req, res) => {
   try {
-    const data = await AssetWarranty.getById(req.params.id);
+    const data = await AssetWarranty.getById(req.params.id, req.user.organization_id);
     if (!data) return res.status(404).json({ error: "Warranty not found" });
     res.json(data);
   } catch (err) {
@@ -22,9 +23,13 @@ export const getWarrantyById = async (req, res) => {
   }
 };
 
+// CREATE warranty (organization scoped)
 export const createWarranty = async (req, res) => {
   try {
-    const data = await AssetWarranty.create(req.body);
+    const data = await AssetWarranty.create({
+      ...req.body,
+      organization_id: req.user.organization_id, // inject org_id
+    });
     res.status(201).json(data);
   } catch (err) {
     console.error(err);
@@ -32,9 +37,15 @@ export const createWarranty = async (req, res) => {
   }
 };
 
+// UPDATE warranty (organization scoped)
 export const updateWarranty = async (req, res) => {
   try {
-    const data = await AssetWarranty.update(req.params.id, req.body);
+    const data = await AssetWarranty.update(
+      req.params.id,
+      req.user.organization_id,
+      req.body
+    );
+
     if (!data) return res.status(404).json({ error: "Warranty not found or nothing to update" });
     res.json(data);
   } catch (err) {
@@ -43,9 +54,10 @@ export const updateWarranty = async (req, res) => {
   }
 };
 
+// DELETE warranty (organization scoped)
 export const deleteWarranty = async (req, res) => {
   try {
-    const data = await AssetWarranty.delete(req.params.id);
+    const data = await AssetWarranty.delete(req.params.id, req.user.organization_id);
     if (!data) return res.status(404).json({ error: "Warranty not found" });
     res.json({ message: "Warranty deleted", data });
   } catch (err) {

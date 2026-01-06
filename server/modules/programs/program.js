@@ -41,23 +41,22 @@ export const Program = {
     return result.rows[0];
   },
 
-  async getAll() {
-    const result = await pool.query(`SELECT * FROM programs ORDER BY date ASC`);
+  async getAll(organization_id) {
+    const result = await pool.query(`SELECT * FROM programs WHERE organization_id=$1 ORDER BY date ASC`, [organization_id]);
     return result.rows;
   },
 
-  async getById(id) {
-    const result = await pool.query(`SELECT * FROM programs WHERE id=$1`, [id]);
+  async getById(id,organization_id) {
+    const result = await pool.query(`SELECT * FROM programs WHERE id=$1 AND organization_id=$2`, [id,organization_id]);
     return result.rows[0];
   },
 
-  async update(id, data) {
+  async update(id,organization_id, data) {
     const {
       name,
       description,
       department_id,
       category_id,
-      organization_id,
       date,
       time,
       venue,
@@ -82,6 +81,7 @@ export const Program = {
       event_type=$11,
       notes=$12
       WHERE id=$13
+      AND organization_id=$14
       RETURNING *`,
       [
         name,
@@ -103,13 +103,13 @@ export const Program = {
     return result.rows[0];
   },
 
-  async delete(id) {
-    const result = await pool.query(`DELETE FROM programs WHERE id=$1 RETURNING *`, [id]);
+  async delete(id, organization_id) {
+    const result = await pool.query(`DELETE FROM programs WHERE id=$1 AND organization_id=$2 RETURNING *`, [id, organization_id]);
     return result.rows[0];
   },
 
-  async getByStatus(status) {
-    const result = await pool.query(`SELECT * FROM programs WHERE status=$1 ORDER BY date ASC`, [status]);
+  async getByStatus(status, organization_id) {
+    const result = await pool.query(`SELECT * FROM programs WHERE status=$1 ABD organization_id=$2 ORDER BY date ASC`, [status, organization_id]);
     return result.rows;
   },
 };

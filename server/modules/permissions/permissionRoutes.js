@@ -19,7 +19,6 @@ router.post(
 router.get(
   "/",
   verifyJWT,
-  requirePermission("permissions.list"),
   PermissionController.list
 );
 

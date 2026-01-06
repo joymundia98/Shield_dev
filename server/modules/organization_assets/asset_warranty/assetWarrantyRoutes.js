@@ -9,7 +9,7 @@ import {
 
 const router = express.Router();
 
-router.get("/", getAllWarranties);
+router.get("/org/:id", getAllWarranties);
 router.get("/:id", getWarrantyById);
 router.post("/", createWarranty);
 router.put("/:id", updateWarranty);

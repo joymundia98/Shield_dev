@@ -1,24 +1,31 @@
 import { pool } from "../../../server.js";
 
 const AssetDepreciation = {
-  async getAll() {
-    const result = await pool.query(`
-      SELECT depreciation_id, asset_id, fiscal_year, opening_value, depreciation_rate,
-             depreciation_amount, closing_value, useful_life, created_at
-      FROM asset_depreciation
-      ORDER BY fiscal_year DESC
-    `);
+
+  // GET all depreciation records for an organization
+  async getAll(organization_id) {
+    const result = await pool.query(
+      `SELECT depreciation_id, asset_id, fiscal_year, opening_value, depreciation_rate,
+              depreciation_amount, closing_value, useful_life, created_at
+       FROM asset_depreciation
+       WHERE organization_id = $1
+       ORDER BY fiscal_year DESC`,
+      [organization_id]
+    );
     return result.rows;
   },
 
-  async getById(depreciation_id) {
+  // GET depreciation by ID (organization scoped)
+  async getById(depreciation_id, organization_id) {
     const result = await pool.query(
-      `SELECT * FROM asset_depreciation WHERE depreciation_id = $1`,
-      [depreciation_id]
+      `SELECT * FROM asset_depreciation
+       WHERE depreciation_id = $1 AND organization_id = $2`,
+      [depreciation_id, organization_id]
     );
     return result.rows[0] || null;
   },
 
+  // CREATE depreciation record (organization scoped)
   async create(data) {
     const {
       asset_id,
@@ -27,21 +34,23 @@ const AssetDepreciation = {
       depreciation_rate,
       depreciation_amount,
       closing_value,
-      useful_life
+      useful_life,
+      organization_id
     } = data;
 
     const result = await pool.query(
       `INSERT INTO asset_depreciation
-       (asset_id, fiscal_year, opening_value, depreciation_rate, depreciation_amount, closing_value, useful_life)
-       VALUES ($1,$2,$3,$4,$5,$6,$7)
+       (asset_id, fiscal_year, opening_value, depreciation_rate, depreciation_amount, closing_value, useful_life, organization_id)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
        RETURNING *`,
-      [asset_id, fiscal_year, opening_value, depreciation_rate, depreciation_amount, closing_value, useful_life]
+      [asset_id, fiscal_year, opening_value, depreciation_rate, depreciation_amount, closing_value, useful_life, organization_id]
     );
 
     return result.rows[0];
   },
 
-  async update(depreciation_id, data) {
+  // UPDATE depreciation record (organization scoped)
+  async update(depreciation_id, organization_id, data) {
     const fields = [];
     const values = [];
     let i = 1;
@@ -56,27 +65,28 @@ const AssetDepreciation = {
 
     if (fields.length === 0) return null;
 
-    values.push(depreciation_id);
+    values.push(depreciation_id, organization_id);
 
     const result = await pool.query(
       `UPDATE asset_depreciation
        SET ${fields.join(", ")}
-       WHERE depreciation_id = $${i}
+       WHERE depreciation_id = $${i} AND organization_id = $${i + 1}
        RETURNING *`,
       values
     );
 
-    return result.rows[0];
+    return result.rows[0] || null;
   },
 
-  async delete(depreciation_id) {
+  // DELETE depreciation record (organization scoped)
+  async delete(depreciation_id, organization_id) {
     const result = await pool.query(
       `DELETE FROM asset_depreciation
-       WHERE depreciation_id = $1
+       WHERE depreciation_id = $1 AND organization_id = $2
        RETURNING *`,
-      [depreciation_id]
+      [depreciation_id, organization_id]
     );
-    return result.rows[0];
+    return result.rows[0] || null;
   }
 };
 

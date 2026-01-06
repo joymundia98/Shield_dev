@@ -15,8 +15,9 @@ const userController = {
 
   async getById(req, res) {
     try {
+      const organization_id = req.user.organization_id;
       const { id } = req.params;
-      const user = await User.getById(id);
+      const user = await User.getById(id,organization_id);
       if (!user) return res.status(404).json({ error: 'User not found' });
       res.json(user);
     } catch (err) {

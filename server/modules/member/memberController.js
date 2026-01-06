@@ -30,9 +30,16 @@ export const MemberController = {
 
   // POST /members
   async create(req, res) {
-    const data = req.body;
     try {
-      const newMember = await Member.create(data);
+      const memberData = req.user.organization_id;
+
+      if (!memberData.organization_id) {
+        return res
+          .status(400)
+          .json({ message: "organization_id is required" });
+      }
+
+      const newMember = await Member.create(memberData);
       res.status(201).json(newMember);
     } catch (error) {
       console.error("Error creating member:", error);
@@ -43,9 +50,8 @@ export const MemberController = {
   // PUT /members/:id
   async update(req, res) {
     const { id } = req.params;
-    const data = req.body;
     try {
-      const updatedMember = await Member.update(id, data);
+      const updatedMember = await Member.update(id, req.body);
       if (!updatedMember) {
         return res.status(404).json({ message: "Member not found" });
       }

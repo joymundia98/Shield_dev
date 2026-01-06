@@ -2,21 +2,29 @@
 import { pool } from "../../server.js";
 
 const Member = {
-  async getAll() {
+
+  // GET ALL members for an organization
+  async getAll(organization_id) {
     const result = await pool.query(
-      `SELECT * FROM members ORDER BY member_id ASC`
+      `SELECT * FROM members
+       WHERE organization_id = $1
+       ORDER BY member_id ASC`,
+      [organization_id]
     );
     return result.rows;
   },
 
-  async getById(member_id) {
+  // GET member by ID (organization scoped)
+  async getById(member_id, organization_id) {
     const result = await pool.query(
-      `SELECT * FROM members WHERE member_id = $1`,
-      [member_id]
+      `SELECT * FROM members
+       WHERE member_id = $1 AND organization_id = $2`,
+      [member_id, organization_id]
     );
     return result.rows[0] || null;
   },
 
+  // CREATE member (organization scoped)
   async create(data) {
     const {
       full_name,
@@ -34,15 +42,23 @@ const Member = {
       guardian_name = null,
       guardian_phone = null,
       status = "Active",
+      organization_id
     } = data;
 
     const result = await pool.query(
       `
       INSERT INTO members (
-        full_name, email, phone, gender, date_of_birth, date_joined, 
-        user_id, age, disabled, orphan, widowed, nrc, guardian_name, guardian_phone, status, created_at, updated_at
+        full_name, email, phone, gender, date_of_birth, date_joined,
+        user_id, age, disabled, orphan, widowed, nrc,
+        guardian_name, guardian_phone, status, organization_id,
+        created_at, updated_at
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,NOW(),NOW())
+      VALUES (
+        $1,$2,$3,$4,$5,$6,
+        $7,$8,$9,$10,$11,$12,
+        $13,$14,$15,$16,
+        NOW(), NOW()
+      )
       RETURNING *
       `,
       [
@@ -60,100 +76,68 @@ const Member = {
         nrc,
         guardian_name,
         guardian_phone,
-        status
+        status,
+        organization_id
       ]
     );
 
     return result.rows[0];
   },
 
-  async update(member_id, data) {
-    const {
-      full_name,
-      email,
-      phone,
-      gender,
-      date_of_birth,
-      date_joined,
-      user_id,
-      age,
-      disabled,
-      orphan,
-      widowed,
-      nrc,
-      guardian_name,
-      guardian_phone,
-      status,
-    } = data;
+  // UPDATE member (organization scoped)
+  async update(member_id, organization_id, data) {
+    const fields = [];
+    const values = [];
+    let i = 1;
+
+    for (const key of [
+      "full_name", "email", "phone", "gender", "date_of_birth",
+      "date_joined", "user_id", "age", "disabled", "orphan",
+      "widowed", "nrc", "guardian_name", "guardian_phone", "status"
+    ]) {
+      if (data[key] !== undefined) {
+        fields.push(`${key} = $${i}`);
+        values.push(data[key]);
+        i++;
+      }
+    }
+
+    if (!fields.length) return null;
+
+    values.push(member_id, organization_id);
 
     const result = await pool.query(
       `
       UPDATE members
-      SET 
-        full_name = $1,
-        email = $2,
-        phone = $3,
-        gender = $4,
-        date_of_birth = $5,
-        date_joined = $6,
-        user_id = $7,
-        age = $8,
-        disabled = $9,
-        orphan = $10,
-        widowed = $11,
-        nrc = $12,
-        guardian_name = $13,
-        guardian_phone = $14,
-        status = $15,
-        updated_at = NOW()
-      WHERE member_id = $16
+      SET ${fields.join(", ")}, updated_at = NOW()
+      WHERE member_id = $${i} AND organization_id = $${i + 1}
       RETURNING *
       `,
-      [
-        full_name,
-        email,
-        phone,
-        gender,
-        date_of_birth,
-        date_joined,
-        user_id,
-        age,
-        disabled,
-        orphan,
-        widowed,
-        nrc,
-        guardian_name,
-        guardian_phone,
-        status,
-        member_id
-      ]
+      values
     );
 
-    return result.rows[0];
+    return result.rows[0] || null;
   },
 
-  async delete(member_id) {
+  // DELETE member (organization scoped)
+  async delete(member_id, organization_id) {
     const result = await pool.query(
-      `DELETE FROM members WHERE member_id = $1 RETURNING *`,
-      [member_id]
-    );
-    return result.rows[0];
-  },
-
-  async findByEmail(email) {
-    const result = await pool.query(
-      `SELECT * FROM members WHERE email = $1`,
-      [email]
+      `DELETE FROM members
+       WHERE member_id = $1 AND organization_id = $2
+       RETURNING *`,
+      [member_id, organization_id]
     );
     return result.rows[0] || null;
   },
 
-  async findByOrganization(orgId) {
+  // FIND member by email (organization scoped)
+  async findByEmail(email, organization_id) {
     const result = await pool.query(
-      `SELECT * FROM members WHERE organization_id = $1 ORDER BY member_id ASC`,
-      [orgId]
+      `SELECT * FROM members
+       WHERE email = $1 AND organization_id = $2`,
+      [email, organization_id]
     );
-    return result.rows;
+    return result.rows[0] || null;
   }
 };
 
