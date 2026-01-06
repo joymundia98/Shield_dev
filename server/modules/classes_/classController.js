@@ -4,7 +4,6 @@ export const classesController = {
   async getAll(req, res) {
     try {
       const organization_id = req.auth.organization_id;
-      const organization_id = req.user.organization_id;
       const classes = await ClassesModel.findAll(organization_idorganization_id);
       res.json(classes);
     } catch (err) {

@@ -1,13 +1,22 @@
 import RolePermissionsModel from "./rolePermissionModel.js";
 
 const RolePermissionsController = {
+  // ===============================
+  // ASSIGN PERMISSION TO ROLE
+  // ===============================
   async assign(req, res) {
     try {
       const { role_id, permission_id } = req.body;
+      const organization_id = req.auth.organization_id;
+
+      if (!role_id || !permission_id) {
+        return res.status(400).json({ message: "role_id and permission_id required" });
+      }
 
       const result = await RolePermissionsModel.assignPermission(
         role_id,
-        permission_id
+        permission_id,
+        organization_id
       );
 
       return res.status(201).json({
@@ -20,13 +29,22 @@ const RolePermissionsController = {
     }
   },
 
+  // ===============================
+  // REMOVE PERMISSION FROM ROLE
+  // ===============================
   async remove(req, res) {
     try {
       const { role_id, permission_id } = req.body;
+      const organization_id = req.auth.organization_id;
+
+      if (!role_id || !permission_id) {
+        return res.status(400).json({ message: "role_id and permission_id required" });
+      }
 
       const result = await RolePermissionsModel.removePermission(
         role_id,
-        permission_id
+        permission_id,
+        organization_id
       );
 
       if (!result) {
@@ -43,12 +61,18 @@ const RolePermissionsController = {
     }
   },
 
+  // ===============================
+  // GET PERMISSIONS BY ROLE
+  // ===============================
   async getPermissions(req, res) {
     try {
       const { role_id } = req.params;
+      const organization_id = req.auth.organization_id;
 
-      const permissions =
-        await RolePermissionsModel.getPermissionsByRole(role_id);
+      const permissions = await RolePermissionsModel.getPermissionsByRole(
+        role_id,
+        organization_id
+      );
 
       return res.status(200).json(permissions);
     } catch (error) {
@@ -57,12 +81,17 @@ const RolePermissionsController = {
     }
   },
 
+  // ===============================
+  // GET ROLES BY PERMISSION
+  // ===============================
   async getRoles(req, res) {
     try {
       const { permission_id } = req.params;
+      const organization_id = req.auth.organization_id;
 
       const roles = await RolePermissionsModel.getRolesByPermission(
-        permission_id
+        permission_id,
+        organization_id
       );
 
       return res.status(200).json(roles);

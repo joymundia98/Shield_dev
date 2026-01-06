@@ -10,7 +10,7 @@ router.get('/inactive', userController.getInactiveUsers);
 
 // Then parameterized and general routes
 router.get('/:id', userController.getById);
-router.get('/org/:id', userController.getAll);
+router.get('/', userController.getAll);
 router.post('/', userController.create);
 router.put('/:id', userController.update);
 

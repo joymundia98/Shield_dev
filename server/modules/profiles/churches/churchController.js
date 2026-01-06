@@ -1,9 +1,11 @@
 import Church from './church.js';
 
 const churchController = {
+  // Get all churches for the authenticated organization
   async getAll(req, res) {
     try {
-      const churches = await Church.getAll();
+      const organization_id = req.auth.organization_id;
+      const churches = await Church.getAll(organization_id);
       res.json({ data: churches });
     } catch (err) {
       console.error(err);
@@ -11,11 +13,15 @@ const churchController = {
     }
   },
 
+  // Get a single church by ID for the authenticated organization
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const church = await Church.getById(id);
+      const organization_id = req.auth.organization_id;
+
+      const church = await Church.getById(id, organization_id);
       if (!church) return res.status(404).json({ error: 'Church not found' });
+
       res.json(church);
     } catch (err) {
       console.error(err);
@@ -23,9 +29,11 @@ const churchController = {
     }
   },
 
+  // Create a new church for the authenticated organization
   async create(req, res) {
     try {
-      const church = await Church.create(req.body);
+      const organization_id = req.auth.organization_id;
+      const church = await Church.create({ ...req.body, organization_id });
       res.status(201).json(church);
     } catch (err) {
       console.error(err);
@@ -33,11 +41,15 @@ const churchController = {
     }
   },
 
+  // Update a church by ID for the authenticated organization
   async update(req, res) {
     try {
       const { id } = req.params;
-      const church = await Church.update(id, req.body);
+      const organization_id = req.auth.organization_id;
+
+      const church = await Church.update(id, req.body, organization_id);
       if (!church) return res.status(404).json({ error: 'Church not found' });
+
       res.json(church);
     } catch (err) {
       console.error(err);
@@ -45,11 +57,15 @@ const churchController = {
     }
   },
 
+  // Delete a church by ID for the authenticated organization
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const church = await Church.delete(id);
+      const organization_id = req.auth.organization_id;
+
+      const church = await Church.delete(id, organization_id);
       if (!church) return res.status(404).json({ error: 'Church not found' });
+
       res.json({ message: 'Church deleted successfully' });
     } catch (err) {
       console.error(err);

@@ -3,7 +3,8 @@ import Leadership from './leadership.js';
 const leadershipController = {
   async getAll(req, res) {
     try {
-      const leaders = await Leadership.getAll();
+      const organization_id = req.auth.organization_id;
+      const leaders = await Leadership.getAll(organization_id);
       res.json({ data: leaders });
     } catch (err) {
       console.error(err);
@@ -14,7 +15,8 @@ const leadershipController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const leader = await Leadership.getById(id);
+      const organization_id = req.auth.organization_id;
+      const leader = await Leadership.getById(id, organization_id);
       if (!leader) return res.status(404).json({ error: 'Leadership member not found' });
       res.json(leader);
     } catch (err) {
@@ -26,7 +28,8 @@ const leadershipController = {
   async getByChurchId(req, res) {
     try {
       const { church_id } = req.params;
-      const leaders = await Leadership.getByChurchId(church_id);
+      const organization_id = req.auth.organization_id;
+      const leaders = await Leadership.getByChurchId(church_id, organization_id);
       res.json({ data: leaders });
     } catch (err) {
       console.error(err);
@@ -36,7 +39,8 @@ const leadershipController = {
 
   async create(req, res) {
     try {
-      const leader = await Leadership.create(req.body);
+      const organization_id = req.auth.organization_id;
+      const leader = await Leadership.create({ ...req.body, organization_id });
       res.status(201).json(leader);
     } catch (err) {
       console.error(err);
@@ -47,7 +51,8 @@ const leadershipController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const leader = await Leadership.update(id, req.body);
+      const organization_id = req.auth.organization_id;
+      const leader = await Leadership.update(id, { ...req.body, organization_id });
       if (!leader) return res.status(404).json({ error: 'Leadership member not found' });
       res.json(leader);
     } catch (err) {
@@ -59,7 +64,8 @@ const leadershipController = {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const leader = await Leadership.delete(id);
+      const organization_id = req.auth.organization_id;
+      const leader = await Leadership.delete(id, organization_id);
       if (!leader) return res.status(404).json({ error: 'Leadership member not found' });
       res.json({ message: 'Leadership member deleted successfully' });
     } catch (err) {

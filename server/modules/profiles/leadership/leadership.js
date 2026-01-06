@@ -1,43 +1,67 @@
 import { pool } from '../../../server.js'; // adjust path to your pool
 
 const Leadership = {
-  async getAll() {
-    const result = await pool.query('SELECT * FROM leadership ORDER BY leadership_id ASC');
+  // Get all leadership for a specific organization
+  async getAll(organization_id) {
+    const result = await pool.query(
+      'SELECT * FROM leadership WHERE organization_id = $1 ORDER BY leadership_id ASC',
+      [organization_id]
+    );
     return result.rows;
   },
 
-  async getById(id) {
-    const result = await pool.query('SELECT * FROM leadership WHERE leadership_id = $1', [id]);
+  // Get a single leadership record by ID and organization
+  async getById(id, organization_id) {
+    const result = await pool.query(
+      'SELECT * FROM leadership WHERE leadership_id = $1 AND organization_id = $2',
+      [id, organization_id]
+    );
     return result.rows[0];
   },
 
-  async getByChurchId(church_id) {
-    const result = await pool.query('SELECT * FROM leadership WHERE church_id = $1 ORDER BY leadership_id ASC', [church_id]);
+  // Get leadership by church_id for a specific organization
+  async getByChurchId(church_id, organization_id) {
+    const result = await pool.query(
+      'SELECT * FROM leadership WHERE church_id = $1 AND organization_id = $2 ORDER BY leadership_id ASC',
+      [church_id, organization_id]
+    );
     return result.rows;
   },
 
+  // Create a new leadership record under the authenticated organization
   async create(data) {
-    const { church_id, role, name, year_start, year_end } = data;
+    const { church_id, role, name, year_start, year_end, organization_id } = data;
+
     const result = await pool.query(
-      `INSERT INTO leadership (church_id, role, name, year_start, year_end) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [church_id, role, name, year_start, year_end]
+      `INSERT INTO leadership (church_id, role, name, year_start, year_end, organization_id)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
+      [church_id, role, name, year_start, year_end, organization_id]
     );
+
     return result.rows[0];
   },
 
+  // Update leadership record under the authenticated organization
   async update(id, data) {
-    const { church_id, role, name, year_start, year_end } = data;
+    const { church_id, role, name, year_start, year_end, organization_id } = data;
+
     const result = await pool.query(
-      `UPDATE leadership SET church_id = $1, role = $2, name = $3, year_start = $4, year_end = $5 WHERE leadership_id = $6 RETURNING *`,
-      [church_id, role, name, year_start, year_end, id]
+      `UPDATE leadership SET 
+         church_id = $1, role = $2, name = $3, year_start = $4, year_end = $5, organization_id = $6
+       WHERE leadership_id = $7
+       RETURNING *`,
+      [church_id, role, name, year_start, year_end, organization_id, id]
     );
+
     return result.rows[0];
   },
 
-  async delete(id) {
+  // Delete leadership record under the authenticated organization
+  async delete(id, organization_id) {
     const result = await pool.query(
-      `DELETE FROM leadership WHERE leadership_id = $1 RETURNING *`,
-      [id]
+      `DELETE FROM leadership WHERE leadership_id = $1 AND organization_id = $2 RETURNING *`,
+      [id, organization_id]
     );
     return result.rows[0];
   }
