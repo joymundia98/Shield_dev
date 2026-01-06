@@ -16,19 +16,29 @@ export const verifyJWT = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(decoded)
 
     if (decoded.type === "user") {
-      const user = await UserModel.getById(decoded.sub);
+      const user = await UserModel.getById(decoded.sub, decoded.organization_id);
+      console.log(user)
       if (!user) throw new Error("Invalid user token");
 
-      req.auth = { type: "user", user };
+      req.auth = {
+        type: "user",
+        user_id: user.id,
+        organization_id: user.organization_id,
+        role: user.role,
+      };
     }
 
     if (decoded.type === "organization") {
       const org = await OrganizationModel.getById(decoded.sub);
       if (!org) throw new Error("Invalid org token");
 
-      req.auth = { type: "organization", organization: org };
+      req.auth = {
+        type: "organization",
+        organization_id: org.id,
+      };
     }
 
     next();

@@ -7,7 +7,7 @@ import OrganizationModel from "../organization/organizationModel.js";
 dotenv.config();
 
 // ========================================
-// LOGIN
+// LOGIN – USER
 // ========================================
 export const login = async (req, res) => {
   try {
@@ -25,13 +25,12 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
 
     const role = await UserModel.getRoleNameById(user.role_id);
-    
-    // const permissions = await UserModel.getUserPermissions(user.id);
 
     const payload = {
       sub: user.id,
+      type: "user",                     // ✅ REQUIRED
       email: user.email,
-      organization: user.organization_id,
+      organization_id: user.organization_id, // ✅ REQUIRED
       role,
     };
 
@@ -45,16 +44,20 @@ export const login = async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        organization: user.organization_id,
-        role: role,
+        organization_id: user.organization_id,
+        role,
       },
     });
+
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
+// ========================================
+// LOGIN – ORGANIZATION
+// ========================================
 export const loginOrg = async (req, res) => {
   try {
     const { organization_account_id, password } = req.body;
@@ -78,8 +81,9 @@ export const loginOrg = async (req, res) => {
 
     const payload = {
       sub: org.id,
-      organization_account_id: org.organization_account_id,
-      type: "organization",
+      type: "organization",      // ✅ REQUIRED
+      organization_id: org.id,   // ✅ REQUIRED (THIS WAS MISSING)
+      name: org.name,
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
@@ -119,22 +123,18 @@ export const register = async (req, res) => {
       organization_id,
     } = req.body;
 
-    // Validate required fields
     if (!first_name || !last_name || !email || !password || !role_id)
-      return res
-        .status(400)
-        .json({ message: "first_name, last_name, email, password, role_id required" });
+      return res.status(400).json({
+        message: "first_name, last_name, email, password, role_id required",
+      });
 
-    // Check if email exists
     const existing = await UserModel.findByEmail(email);
     if (existing)
       return res.status(409).json({ message: "Email already in use" });
 
-    // Hash password
     const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Create the user with status set to "inactive"
     const newUser = await UserModel.create({
       first_name,
       last_name,
@@ -144,13 +144,11 @@ export const register = async (req, res) => {
       position,
       role_id,
       organization_id,
-      status: "pending", // Set status explicitly to "pending"
+      status: "pending",
     });
 
-    // Assign role to the user (if necessary)
     await UserModel.assignRole(newUser.id, role_id);
 
-    // Return success response
     res.status(201).json({
       message: "User registered successfully",
       user: newUser,
@@ -163,31 +161,29 @@ export const register = async (req, res) => {
 };
 
 // ========================================
-// REGISTER ORG– MATCHES USER MODEL FIELDS
+// REGISTER – ORGANIZATION
 // ========================================
 export const createOrg = async (req, res) => {
   try {
-    // 3️⃣ Get fields from request body
     const {
       name,
       denomination,
       address,
       region,
       district,
-      status
+      status,
     } = req.body;
 
     if (!name)
       return res.status(400).json({ message: "Organization name is required" });
 
-    // 4️⃣ Create organization in DB
     const org = await OrganizationModel.create({
       name,
       denomination,
       address,
       region,
       district,
-      status
+      status,
     });
 
     return res.status(201).json({
