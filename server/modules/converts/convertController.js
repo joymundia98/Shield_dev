@@ -4,7 +4,7 @@ export const convertsController = {
   // GET all converts (org scoped)
   async getAll(req, res) {
     try {
-      const { organization_id } = req.user.organization_id;
+      const { organization_id } = req.auth.organization_id;
 
       const converts = await ConvertsModel.findAll(organization_id);
       res.json(converts);
@@ -18,7 +18,7 @@ export const convertsController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const { organization_id } = req.user.organization_id;
+      const { organization_id } = req.auth.organization_id;
 
       const convert = await ConvertsModel.findById(id, organization_id);
       if (!convert)
@@ -34,7 +34,7 @@ export const convertsController = {
   // CREATE convert (org enforced)
   async create(req, res) {
     try {
-      const { organization_id } = req.user;
+      const { organization_id } = req.auth.organization_id;
 
       const newConvert = await ConvertsModel.create(
         req.body,
@@ -52,7 +52,7 @@ export const convertsController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const { organization_id } = req.user.organization_id;
+      const { organization_id } = req.auth.organization_id;
 
       const updatedConvert = await ConvertsModel.update(
         id,
@@ -74,7 +74,7 @@ export const convertsController = {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const { organization_id } = req.user.organization_id;
+      const { organization_id } = req.auth.organization_id;
 
       const deleted = await ConvertsModel.delete(id, organization_id);
       if (!deleted)
@@ -91,7 +91,7 @@ export const convertsController = {
   async getByMember(req, res) {
     try {
       const { member_id } = req.params;
-      const { organization_id } = req.user.organization_id;
+      const { organization_id } = req.auth.organization_id;
 
       const converts = await ConvertsModel.findByMember(
         member_id,
@@ -109,7 +109,7 @@ export const convertsController = {
   async getByVisitor(req, res) {
     try {
       const { visitor_id } = req.params;
-      const { organization_id } = req.user.organization_id;
+      const { organization_id } = req.auth.organization_id;
 
       const converts = await ConvertsModel.findByVisitor(
         visitor_id,

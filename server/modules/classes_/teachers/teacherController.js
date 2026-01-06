@@ -3,7 +3,7 @@ import TeacherModel from "./teacher.js";
 export const teacherController = {
   async create(req, res) {
     try {
-      const data = { ...req.body, organization_id: req.user.organization_id };
+      const data = { ...req.body, organization_id: req.auth.organization_id };
       const teacher = await TeacherModel.create(data);
       res.status(201).json(teacher);
     } catch (err) {
@@ -14,7 +14,7 @@ export const teacherController = {
 
   async getAll(req, res) {
     try {
-      const teachers = await TeacherModel.findAll(req.user.organization_id);
+      const teachers = await TeacherModel.findAll(req.auth.organization_id);
       res.json(teachers);
     } catch (err) {
       console.error(err);
@@ -38,7 +38,7 @@ export const teacherController = {
 
   async update(req, res) {
     try {
-      const data = { ...req.body, organization_id: req.user.organization_id };
+      const data = { ...req.body, organization_id: req.auth.organization_id };
       const teacher = await TeacherModel.update(req.params.id, data);
       if (!teacher) return res.status(404).json({ message: "Teacher not found" });
       res.json(teacher);
@@ -50,7 +50,7 @@ export const teacherController = {
 
   async delete(req, res) {
     try {
-      const deleted = await TeacherModel.delete(req.params.id, req.user.organization_id);
+      const deleted = await TeacherModel.delete(req.params.id, req.auth.organization_id);
       if (!deleted) return res.status(404).json({ message: "Teacher not found" });
       res.json({ message: "Teacher deleted" });
     } catch (err) {

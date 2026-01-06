@@ -5,7 +5,7 @@ const ExpenseController = {
   // GET /expenses?orgId=1
   async list(req, res) {
     try {
-      const { orgId } = req.query;
+      const { orgId } = req.auth.organization_id;
       if (!orgId) {
         return res.status(400).json({ message: "Organization ID is required" });
       }
@@ -32,7 +32,7 @@ const ExpenseController = {
   // POST /expenses
   async create(req, res) {
     try {
-      const { organization_id } = req.body;
+      const { organization_id } = req.auth.organization_id;
       if (!organization_id) {
         return res.status(400).json({ message: "Organization ID is required" });
       }
@@ -48,7 +48,7 @@ const ExpenseController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const { organization_id } = req.body;
+      const { organization_id } = req.auth.organization_id;
       if (!organization_id) {
         return res.status(400).json({ message: "Organization ID is required" });
       }
@@ -92,7 +92,7 @@ const ExpenseController = {
   // Optional: GET /expenses/organization/:orgId
   async getByOrganization(req, res) {
     try {
-      const { orgId } = req.params;
+      const { orgId } = req.auth.organization_id;
       if (!orgId) return res.status(400).json({ message: "Organization ID is required" });
 
       const data = await Expense.getByOrganization(orgId);

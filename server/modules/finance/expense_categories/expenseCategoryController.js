@@ -5,7 +5,7 @@ const ExpenseCategoryController = {
   // List all categories for the requesting organization
   async list(req, res) {
     try {
-      const orgId = req.body.organization_id || req.query.organization_id;
+      const orgId = req.auth.organization_id;
       if (!orgId) return res.status(400).json({ message: 'Organization ID is required' });
 
       const data = await ExpenseCategory.getAll(orgId);
@@ -19,7 +19,7 @@ const ExpenseCategoryController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const orgId = req.body.organization_id || req.query.organization_id;
+      const orgId = req.auth.organization_id;
       if (!orgId) return res.status(400).json({ message: 'Organization ID is required' });
 
       const cat = await ExpenseCategory.getById(id, orgId);
@@ -34,7 +34,7 @@ const ExpenseCategoryController = {
   // Create a new category (requires orgId)
   async create(req, res) {
     try {
-      const { organization_id } = req.body;
+      const { organization_id } = req.auth.organization_id;
       if (!organization_id) return res.status(400).json({ message: 'Organization ID is required' });
 
       const created = await ExpenseCategory.create(req.body);
@@ -48,7 +48,7 @@ const ExpenseCategoryController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const { organization_id } = req.body;
+      const { organization_id } = req.auth.organization_id;
       if (!organization_id) return res.status(400).json({ message: 'Organization ID is required' });
 
       const existing = await ExpenseCategory.getById(id, organization_id);
@@ -65,7 +65,7 @@ const ExpenseCategoryController = {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const { organization_id } = req.body;
+      const { organization_id } = req.auth.organization_id;
       if (!organization_id) return res.status(400).json({ message: 'Organization ID is required' });
 
       const deleted = await ExpenseCategory.delete(id, organization_id);

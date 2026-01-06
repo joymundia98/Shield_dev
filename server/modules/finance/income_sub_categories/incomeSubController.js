@@ -5,7 +5,7 @@ const IncomeSubcategoryController = {
   // GET /income-subcategories/:orgId
   async list(req, res) {
     try {
-      const { orgId } = req.params;
+      const { orgId } = req.auth.organization_id;
       const data = await IncomeSubcategory.getAll(orgId);
       return res.json(data);
     } catch (err) {
@@ -16,7 +16,8 @@ const IncomeSubcategoryController = {
   // GET /income-subcategories/:orgId/:id
   async getById(req, res) {
     try {
-      const { orgId, id } = req.params;
+      const { id } = req.params;
+      const { orgId } = req.auth.organization_id;
       const item = await IncomeSubcategory.getById(orgId, id);
       if (!item) return res.status(404).json({ message: 'Not found' });
       return res.json(item);
@@ -39,7 +40,8 @@ const IncomeSubcategoryController = {
   // PUT /income-subcategories/:orgId/:id
   async update(req, res) {
     try {
-      const { orgId, id } = req.params;
+      const { id } = req.params;
+      const { orgId } = req.auth.organization_id;
       const updated = await IncomeSubcategory.update(orgId, id, req.body);
       if (!updated) return res.status(404).json({ message: 'Not found or not in this organization' });
       return res.json(updated);
@@ -51,7 +53,8 @@ const IncomeSubcategoryController = {
   // DELETE /income-subcategories/:orgId/:id
   async delete(req, res) {
     try {
-      const { orgId, id } = req.params;
+      const { id } = req.params;
+      const { orgId } = req.auth.organization_id;
       const deleted = await IncomeSubcategory.delete(orgId, id);
       if (!deleted) return res.status(404).json({ message: 'Not found or not in this organization' });
       return res.json({ message: 'Deleted successfully' });

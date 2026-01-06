@@ -5,7 +5,7 @@ export const createAssetCategory = async (req, res) => {
   try {
     const category = await AssetCategory.create({
       ...req.body,
-      organization_id: req.user.organization_id
+      organization_id: req.auth.organization_id
     });
 
     res.status(201).json(category);
@@ -18,7 +18,7 @@ export const createAssetCategory = async (req, res) => {
 // GET ALL categories (organization scoped)
 export const getAssetCategories = async (req, res) => {
   try {
-    const categories = await AssetCategory.getAll(req.user.organization_id);
+    const categories = await AssetCategory.getAll(req.auth.organization_id);
     res.json(categories);
   } catch (err) {
     console.error(err);
@@ -50,7 +50,7 @@ export const updateAssetCategory = async (req, res) => {
   try {
     const updated = await AssetCategory.update(
       req.params.id,
-      req.user.organization_id,
+      req.auth.organization_id,
       req.body
     );
 
@@ -72,7 +72,7 @@ export const deleteAssetCategory = async (req, res) => {
   try {
     const deleted = await AssetCategory.delete(
       req.params.id,
-      req.user.organization_id
+      req.auth.organization_id
     );
 
     if (!deleted) {

@@ -44,11 +44,11 @@ const User = {
     return result.rows;
   },
 
-  async findByEmail(email, organization_id) {
+  async findByEmail(email) {
     const result = await pool.query(
       `SELECT * FROM users 
-       WHERE email = $1 AND organization_id = $2`,
-      [email, organization_id]
+       WHERE email = $1`,
+      [email]
     );
     return result.rows[0] || null;
   },

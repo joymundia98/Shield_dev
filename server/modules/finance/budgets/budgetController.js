@@ -5,7 +5,7 @@ const BudgetController = {
   // List all budgets for an organization
   async list(req, res) {
     try {
-      const orgId = req.query.organization_id || req.body.organization_id;
+      const orgId = req.auth.organization_id;
       if (!orgId) return res.status(400).json({ error: "Organization ID is required" });
 
       const data = await Budget.getAll(orgId);
@@ -19,7 +19,7 @@ const BudgetController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const orgId = req.query.organization_id || req.body.organization_id;
+      const orgId = req.auth.organization_id;
       if (!orgId) return res.status(400).json({ error: "Organization ID is required" });
 
       const row = await Budget.getById(id, orgId);
@@ -56,7 +56,7 @@ const BudgetController = {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const orgId = req.query.organization_id || req.body.organization_id;
+      const orgId = req.auth.organization_id;
       if (!orgId) return res.status(400).json({ error: "Organization ID is required" });
 
       const deleted = await Budget.delete(id, orgId);

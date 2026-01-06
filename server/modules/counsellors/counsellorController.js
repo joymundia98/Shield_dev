@@ -4,7 +4,7 @@ export const counsellorsController = {
   // GET all counsellors (org scoped)
   async getAll(req, res) {
     try {
-      const { organization_id } = req.user.organization_id;
+      const { organization_id } = req.auth.organization_id;
 
       const counsellors = await CounsellorsModel.findAll(organization_id);
       res.json(counsellors);
@@ -18,7 +18,7 @@ export const counsellorsController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const { organization_id } = req.user.organization_id;
+      const { organization_id } = req.auth.organization_id;
 
       const counsellor = await CounsellorsModel.findById(id, organization_id);
 
@@ -36,7 +36,7 @@ export const counsellorsController = {
   // CREATE counsellor (org scoped)
   async create(req, res) {
     try {
-      const { organization_id } = req.user.organization_id;
+      const { organization_id } = req.auth.organization_id;
       const data = req.body;
 
       const newCounsellor = await CounsellorsModel.create(
@@ -55,7 +55,7 @@ export const counsellorsController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const { organization_id } = req.user.organization_id;
+      const { organization_id } = req.auth.organization_id;
       const data = req.body;
 
       const updatedCounsellor = await CounsellorsModel.update(
@@ -79,7 +79,7 @@ export const counsellorsController = {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const { organization_id } = req.user.organization_id;
+      const { organization_id } = req.auth.organization_id;
 
       const deleted = await CounsellorsModel.delete(id, organization_id);
 

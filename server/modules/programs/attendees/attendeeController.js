@@ -5,7 +5,7 @@ export const attendeeController = {
     try {
       const attendee = await Attendee.create({
       ...req.body,
-      organization_id: req.user.organization_id,
+      organization_id: req.auth.organization_id,
     });
       res.status(201).json(attendee);
     } catch (err) {
@@ -28,7 +28,7 @@ export const attendeeController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const organization_id = req.user.organization_id;
+      const organization_id = req.auth.organization_id;
       const attendee = await Attendee.getById(id, organization_id);
       if (!attendee) return res.status(404).json({ error: "Attendee not found" });
       res.json(attendee);
