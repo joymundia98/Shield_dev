@@ -4,8 +4,8 @@ import User from './user.model.js';
 const userController = {
   async getAll(req, res) {
     try {
-      const {id} = req.params
-      const users = await User.getAllByOrg(id);
+      const {organization_id} = req.auth.organization_id;
+      const users = await User.getAllByOrg(organization_id);
       res.json(users);
     } catch (err) {
       console.error(err);
