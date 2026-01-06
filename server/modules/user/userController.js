@@ -4,7 +4,7 @@ import User from './user.model.js';
 const userController = {
   async getAll(req, res) {
     try {
-      const {organization_id} = req.auth.organization_id;
+      const organization_id = req.auth.organization_id;
       const users = await User.getAllByOrg(organization_id);
       res.json(users);
     } catch (err) {
@@ -50,9 +50,10 @@ const userController = {
 
   async create(req, res) {
     try {
+      const {organization_id}= req.auth.organization_id;
       const user = await User.create({
         ...req.body,
-        organization_id: req.auth.organization_id,
+        organization_id,
       });
       res.status(201).json(user);
     } catch (err) {
