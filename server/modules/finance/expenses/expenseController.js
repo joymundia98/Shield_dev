@@ -5,7 +5,7 @@ const ExpenseController = {
   // GET /expenses?orgId=1
   async list(req, res) {
     try {
-      const { orgId } = req.auth.organization_id;
+      const orgId = req.auth.organization_id;
       if (!orgId) {
         return res.status(400).json({ message: "Organization ID is required" });
       }
