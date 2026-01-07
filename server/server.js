@@ -91,8 +91,8 @@ export { pool };
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/roles", rolesRoutes);
-app.use('/api/role_permissions', rolePermissionRoutes);
+app.use("/api/roles", verifyJWT, rolesRoutes);
+app.use('/api/role_permissions', verifyJWT, rolePermissionRoutes);
 app.use('/api/permissions', permissionRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", verifyJWT, userRoutes); // Protected route
@@ -134,7 +134,7 @@ app.use("/api/congregation/purposes", purposeRoutes);
 app.use("/api/congregation/sessions", sessionRoutes);
 app.use('/api/programs/attendees', attendeeRoutes);
 app.use('/api/programs', programRoutes);
-app.use("/api/finance/budgets", budgetsRoutes);
+app.use("/api/finance/budgets", verifyJWT, budgetsRoutes);
 app.use("/api/finance/attachments", attachmentRoutes);
 app.use('/api/finance/expense_categories', verifyJWT,financeExpenseCategoriesRoutes);
 app.use('/api/finance/expense_subcategories', verifyJWT,financeExpenseSubRoutes);
@@ -142,7 +142,7 @@ app.use('/api/finance/income_categories', verifyJWT, financeIncomeCategoriesRout
 app.use('/api/finance/income_subcategories', verifyJWT,financeIncomeSubRoutes);
 app.use('/api/finance/expenses', verifyJWT,expensesRoutes);
 app.use('/api/finance/incomes', verifyJWT,incomesRoutes);
-app.use('/api/payroll', payrollRoutes);
+app.use('/api/payroll', verifyJWT, payrollRoutes);
 app.use("/api/donations", donationRoutes);
 app.use('/api/finance/extra_fields', extraFieldsRoutes);
 app.use('/api/finance/budgets', budgetsRoutes);

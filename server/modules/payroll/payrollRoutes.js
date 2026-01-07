@@ -3,7 +3,7 @@ import payrollController from "./payrollController.js";
 
 const router = express.Router();
 
-router.get("/org/:id", payrollController.getAll);
+router.get("/", payrollController.getAll);
 router.get("/:id", payrollController.getById);
 router.post("/", payrollController.create);
 router.put("/:id", payrollController.update);

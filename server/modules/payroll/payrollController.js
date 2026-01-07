@@ -3,7 +3,7 @@ import Payroll from "./payroll.js";
 const payrollController = {
   async getAll(req, res) {
     try {
-      const {organization_id} = req.auth.organization_id
+      const organization_id = req.auth.organization_id
       const payrolls = await Payroll.getAll(organization_id);
       res.json(payrolls);
     } catch (err) {
