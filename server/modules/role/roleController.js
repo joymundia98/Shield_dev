@@ -35,7 +35,7 @@ const RolesController = {
 
   async getAll(req, res) {
     try {
-      const { organization_id } = req.auth;
+      const organization_id = req.auth.organization_id;
 
       const roles = await RolesModel.findAll(organization_id);
 
