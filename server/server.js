@@ -98,7 +98,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", verifyJWT, userRoutes); // Protected route
 app.use("/api/staff", staffRoutes);
 app.use("/api/members", membersRoutes)
-app.use("/api/departments", departmentRoutes);
+app.use("/api/departments", verifyJWT, departmentRoutes);
 
 // Donor types first
 app.use("/api/donors/donor_types", donorTypeRoutes);
