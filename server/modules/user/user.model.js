@@ -13,14 +13,15 @@ const User = {
     return result.rows;
   },
 
-  async getById(id, organization_id) {
-    const result = await pool.query(
-      `SELECT * FROM users 
-       WHERE id = $1 AND organization_id = $2`,
-      [id, organization_id]
-    );
-    return result.rows[0] || null;
-  },
+async getById(id) {
+  const result = await pool.query(
+    `SELECT * FROM users 
+     WHERE id = $1`,
+    [id]
+  );
+  return result.rows[0] || null;
+}
+,
 
   async getActiveUsers(organization_id) {
     const result = await pool.query(
