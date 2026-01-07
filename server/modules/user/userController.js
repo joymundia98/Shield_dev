@@ -79,12 +79,12 @@ async updateStatus(req, res) {
   try {
     const { id } = req.params;
     const { status } = req.body;
-
+    const organization_id = req.auth.organization_id;
     if (!status) {
       return res.status(400).json({ error: 'Status is required' });
     }
 
-    const user = await User.updateStatus(id, status);
+    const user = await User.updateStatus(id, organization_id);
 
     // If the user doesn't exist or the update failed
     if (!user) {

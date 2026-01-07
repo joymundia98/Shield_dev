@@ -3,7 +3,8 @@ import Sacraments from './sacrament.js';
 const sacramentsController = {
   async getAll(req, res) {
     try {
-      const sacraments = await Sacraments.getAll();
+      const organization_id = req.auth.organization_id;
+      const sacraments = await Sacraments.getAll(organization_id);
       res.json({ data: sacraments });
     } catch (err) {
       console.error(err);

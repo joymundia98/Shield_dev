@@ -147,12 +147,7 @@ async getById(id) {
     return result.rows[0] || null;
   },
 
-  async updateStatus(id, organization_id, status) {
-    const validStatuses = ["active", "inactive", "pending"];
-    if (!validStatuses.includes(status)) {
-      throw new Error("Invalid status value");
-    }
-
+  async updateStatus(id, organization_id) {
     const result = await pool.query(
       `
       UPDATE users
@@ -161,7 +156,7 @@ async getById(id) {
       AND organization_id = $3
       RETURNING *
       `,
-      [status, id, organization_id]
+      [id, organization_id]
     );
 
     return result.rows[0] || null;
