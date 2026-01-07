@@ -1,13 +1,14 @@
 // modules/finance/donors/donorsRoutes.js
 import express from "express";
 import DonorsController from "./donorController.js";
+import { verifyJWT } from "../../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/", DonorsController.getAll);
-router.get("/:id", DonorsController.getById);
+router.get("/", verifyJWT, DonorsController.getAll);
+router.get("/:id", verifyJWT, DonorsController.getById);
 router.post("/", DonorsController.create);
-router.put("/:id", DonorsController.update);
-router.delete("/:id", DonorsController.delete);
+router.put("/:id", verifyJWT, DonorsController.update);
+router.delete("/:id", verifyJWT, DonorsController.delete);
 
 export default router;
