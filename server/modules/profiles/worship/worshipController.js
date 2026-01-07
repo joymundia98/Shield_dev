@@ -3,7 +3,8 @@ import WorshipTimes from './worship.js';
 const worshipController = {
   async getAll(req, res) {
     try {
-      const times = await WorshipTimes.getAll();
+      const organization_id = req.auth.organization_id
+      const times = await WorshipTimes.getAll(organization_id);
       res.json({ data: times });
     } catch (err) {
       console.error(err);
@@ -14,7 +15,8 @@ const worshipController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const time = await WorshipTimes.getById(id);
+      const organization_id = req.auth.organization_id;
+      const time = await WorshipTimes.getById(id, organization_id);
       if (!time) return res.status(404).json({ error: 'Worship time not found' });
       res.json(time);
     } catch (err) {
@@ -26,7 +28,8 @@ const worshipController = {
   async getByChurchId(req, res) {
     try {
       const { church_id } = req.params;
-      const times = await WorshipTimes.getByChurchId(church_id);
+      const organization_id = req.auth.organization_id;
+      const times = await WorshipTimes.getByChurchId(church_id, organization_id);
       res.json({ data: times });
     } catch (err) {
       console.error(err);
@@ -36,7 +39,10 @@ const worshipController = {
 
   async create(req, res) {
     try {
-      const time = await WorshipTimes.create(req.body);
+      const time = await WorshipTimes.create({
+        ...req.body,
+        organization_id: req.auth.organization_id,
+      });
       res.status(201).json(time);
     } catch (err) {
       console.error(err);
@@ -59,7 +65,8 @@ const worshipController = {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const time = await WorshipTimes.delete(id);
+      const organization_id = req.auth.organization_id
+      const time = await WorshipTimes.delete(id, organization_id);
       if (!time) return res.status(404).json({ error: 'Worship time not found' });
       res.json({ message: 'Worship time deleted successfully' });
     } catch (err) {

@@ -2,17 +2,17 @@ import { pool } from '../../../server.js'; // adjust path
 
 const Sacraments = {
   async getAll(organization_id) {
-    const result = await pool.query('SELECT * FROM sacraments ORDER BY sacrament_id ASC', [organization_id]);
+    const result = await pool.query('SELECT * FROM sacraments ORDER BY organization_id ASC', [organization_id]);
     return result.rows;
   },
 
-  async getById(id) {
-    const result = await pool.query('SELECT * FROM sacraments WHERE sacrament_id = $1', [id]);
+  async getById(organization_id) {
+    const result = await pool.query('SELECT * FROM sacraments WHERE organization_id = $1', [organization_id]);
     return result.rows[0];
   },
 
-  async getByChurchId(church_id) {
-    const result = await pool.query('SELECT * FROM sacraments WHERE church_id = $1 ORDER BY sacrament_id ASC', [church_id]);
+  async getByChurchId(church_id, organization_id) {
+    const result = await pool.query('SELECT * FROM sacraments WHERE church_id = $1 AND organization_id = $2 ORDER BY organization_id ASC', [church_id, organization_id]);
     return result.rows;
   },
 

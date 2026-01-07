@@ -3,6 +3,7 @@ import sacramentsController from './sacrament.js';
 
 const router = express.Router();
 
+router.use(verifyJWT);
 // CRUD routes
 router.get('/', sacramentsController.getAll);
 router.get('/:id', sacramentsController.getById);

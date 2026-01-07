@@ -1,7 +1,10 @@
 import express from 'express';
 import worshipController from './worshipController.js';
+import { verifyJWT } from '../../../middleware/auth.js';
 
 const router = express.Router();
+
+router.use(verifyJWT);
 
 // CRUD routes
 router.get('/', worshipController.getAll);
