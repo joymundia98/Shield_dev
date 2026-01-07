@@ -1,17 +1,17 @@
 import { pool } from "../../../server.js";
 
 const Department = {
-  async getAll() {
+  async getAll(organization_id) {
     const result = await pool.query(
-      `SELECT department_id AS id, name, description, category FROM departments ORDER BY department_id ASC`
+      `SELECT department_id AS id, name, description, category FROM departments WHERE organization_id=$1 ORDER BY department_id ASC`, [organization_id]
     );
     return result.rows;
   },
 
-  async getById(id) {
+  async getById(id,organization_id) {
     const result = await pool.query(
-      `SELECT department_id AS id, name, description, category FROM departments WHERE department_id = $1`,
-      [id]
+      `SELECT department_id AS id, name, description, category FROM departments WHERE department_id = $1 AND organization_id=$2`,
+      [id, organization_id]
     );
     return result.rows[0] || null;
   },

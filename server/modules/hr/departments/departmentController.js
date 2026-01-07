@@ -3,8 +3,9 @@ import Department from "./departmentModel.js";
 
 const DepartmentsController = {
   async getAll(req, res) {
+    const organization_id =  req.auth.organization_id;
     try {
-      const data = await Department.getAll();
+      const data = await Department.getAll(organization_id);
       return res.json(data);
     } catch (err) {
       return res.status(500).json({ error: err.message });
@@ -14,7 +15,8 @@ const DepartmentsController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const data = await Department.getById(id);
+      const organization_id = req.auth.organization_id;
+      const data = await Department.getById(id, organization_id);
 
       if (!data)
         return res.status(404).json({ message: "Department not found" });
@@ -27,7 +29,10 @@ const DepartmentsController = {
 
   async create(req, res) {
     try {
-      const data = await Department.create(req.body);
+      const data = await Department.create({
+        ...req.body,
+        organization_id: req.auth.organization_id,
+      });
       return res.status(201).json(data);
     } catch (err) {
       return res.status(500).json({ error: err.message });
@@ -37,7 +42,8 @@ const DepartmentsController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const existing = await Department.getById(id);
+      const organization_id = req.auth.organization_id;
+      const existing = await Department.getById(id, organization_id);
 
       if (!existing)
         return res.status(404).json({ message: "Department not found" });
