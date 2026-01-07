@@ -4,7 +4,7 @@ import IncomeSubcategoryController from './incomeSubController.js';
 
 const router = express.Router();
 
-router.get('/:orgId', IncomeSubcategoryController.list);
+router.get('/', IncomeSubcategoryController.list);
 
 router.get('/:orgId/:id', IncomeSubcategoryController.getById);
 
