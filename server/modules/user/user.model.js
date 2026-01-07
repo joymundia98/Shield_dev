@@ -147,7 +147,7 @@ async getById(id) {
     return result.rows[0] || null;
   },
 
-  async updateStatus(id, organization_id) {
+  async updateStatus(id, status, organization_id) {
     const result = await pool.query(
       `
       UPDATE users
@@ -156,7 +156,7 @@ async getById(id) {
       AND organization_id = $3
       RETURNING *
       `,
-      [id, organization_id]
+      [id,status, organization_id]
     );
 
     return result.rows[0] || null;
