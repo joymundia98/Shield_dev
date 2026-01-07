@@ -17,41 +17,43 @@ const RolesModel = {
     return result.rows[0];
   },
 
-  async findAll() {
-    const result = await pool.query(`SELECT * FROM roles ORDER BY id DESC`);
+  async findAll(organization_id) {
+    const result = await pool.query(`SELECT * FROM roles WHERE organization_id=$1 ORDER BY id DESC`, [organization_id]);
     return result.rows;
   },
 
-  async findById(id) {
+  async findById(id, organization_id) {
     const result = await pool.query(
-      `SELECT * FROM roles WHERE id = $1`,
-      [id]
+      `SELECT * FROM roles WHERE id = $1 AND organization_id=$2`,
+      [id, organization_id]
     );
     return result.rows[0];
   },
 
-  async update(id, data) {
-    const { name, description } = data;
+async update(id, organization_id, data) {
+  const { name, description } = data;
 
+  const result = await pool.query(
+    `
+    UPDATE roles
+    SET
+      name = COALESCE($1, name),
+      description = COALESCE($2, description)
+      department = COALESCE($3, department)
+    WHERE id = $4
+      AND organization_id = $5
+    RETURNING *
+    `,
+    [name, description, id, organization_id]
+  );
+
+  return result.rows[0] || null;
+},
+
+  async delete(id, organization_id) {
     const result = await pool.query(
-      `
-      UPDATE roles
-      SET 
-        name = $1,
-        description = $2
-      WHERE id = $3
-      RETURNING *
-      `,
-      [name, description, id]
-    );
-
-    return result.rows[0];
-  },
-
-  async delete(id) {
-    const result = await pool.query(
-      `DELETE FROM roles WHERE id = $1 RETURNING *`,
-      [id]
+      `DELETE FROM roles WHERE id = $1 AND organization_id=$2 RETURNING *`,
+      [id, organization_id]
     );
     return result.rows[0];
   }

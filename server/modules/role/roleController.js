@@ -1,10 +1,30 @@
 // modules/roles/roles.controller.js
+import Department from "../hr/departments/departmentModel.js";
 import RolesModel from "./roleModel.js";
 
 const RolesController = {
   async create(req, res) {
     try {
-      const role = await RolesModel.create(req.body);
+      const organization_id = req.auth.organization_id;
+      const { department_id } = req.body;
+
+      // 🔒 Validate department belongs to this org
+      const department = await Department.getById(
+        department_id,
+        organization_id
+      );
+
+      if (!department) {
+        return res.status(404).json({
+          message: "Department not found in your organization",
+        });
+      }
+
+      const role = await RolesModel.create({
+        ...req.body,
+        organization_id,
+      });
+
       return res.status(201).json(role);
     } catch (error) {
       console.error("Create Role Error:", error);
@@ -12,9 +32,13 @@ const RolesController = {
     }
   },
 
+
   async getAll(req, res) {
     try {
-      const roles = await RolesModel.findAll();
+      const { organization_id } = req.auth;
+
+      const roles = await RolesModel.findAll(organization_id);
+
       return res.status(200).json(roles);
     } catch (error) {
       console.error("Get Roles Error:", error);
@@ -25,7 +49,8 @@ const RolesController = {
   async getOne(req, res) {
     try {
       const { id } = req.params;
-      const role = await RolesModel.findById(id);
+      const organization_id = req.auth.organization_id
+      const role = await RolesModel.findById(id, organization_id);
 
       if (!role) {
         return res.status(404).json({ message: "Role not found" });
@@ -41,7 +66,8 @@ const RolesController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const role = await RolesModel.update(id, req.body);
+      const organization_id = req.auth.organization_id
+      const role = await RolesModel.update(id, organization_id, req.body);
 
       if (!role) {
         return res.status(404).json({ message: "Role not found" });
@@ -57,7 +83,8 @@ const RolesController = {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const deleted = await RolesModel.delete(id);
+      const organization_id = req.auth.organization_id
+      const deleted = await RolesModel.delete(id, organization_id);
 
       if (!deleted) {
         return res.status(404).json({ message: "Role not found" });
