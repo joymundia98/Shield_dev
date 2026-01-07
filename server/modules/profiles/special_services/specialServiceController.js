@@ -1,9 +1,10 @@
-import SpecialServices from './specialServiceController.js';
+import SpecialServices from './specialService.js';
 
 const specialServicesController = {
   async getAll(req, res) {
     try {
-      const services = await SpecialServices.getAll();
+      const organization_id = req.auth.organization_id;
+      const services = await SpecialServices.getAll(organization_id);
       res.json({ data: services });
     } catch (err) {
       console.error(err);
@@ -14,7 +15,8 @@ const specialServicesController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const service = await SpecialServices.getById(id);
+      const organization_id = req.auth.organization_id;
+      const service = await SpecialServices.getById(id, organization_id);
       if (!service) return res.status(404).json({ error: 'Special service not found' });
       res.json(service);
     } catch (err) {
@@ -26,7 +28,8 @@ const specialServicesController = {
   async getByChurchId(req, res) {
     try {
       const { church_id } = req.params;
-      const services = await SpecialServices.getByChurchId(church_id);
+      const organization_id = req.auth.organization_id;
+      const services = await SpecialServices.getByChurchId(church_id, organization_id);
       res.json({ data: services });
     } catch (err) {
       console.error(err);
@@ -36,7 +39,10 @@ const specialServicesController = {
 
   async create(req, res) {
     try {
-      const service = await SpecialServices.create(req.body);
+      const service = await SpecialServices.create({
+        ...req.body,
+        organization_id: req.auth.organization_id,
+      });
       res.status(201).json(service);
     } catch (err) {
       console.error(err);

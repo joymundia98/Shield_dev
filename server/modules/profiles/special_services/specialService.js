@@ -1,23 +1,23 @@
 import { pool } from '../../../server.js'; // adjust path as needed
 
 const SpecialServices = {
-  async getAll() {
-    const result = await pool.query('SELECT * FROM special_services ORDER BY special_service_id ASC');
+  async getAll(organization_id) {
+    const result = await pool.query('SELECT * FROM special_services ORDER BY special_service_id ASC', [organization_id]);
     return result.rows;
   },
 
-  async getById(id) {
+  async getById(id, organization_id) {
     const result = await pool.query(
-      'SELECT * FROM special_services WHERE special_service_id = $1',
-      [id]
+      'SELECT * FROM special_services WHERE special_service_id = $1 AND organization_id = $2',
+      [id, organization_id]
     );
     return result.rows[0];
   },
 
-  async getByChurchId(church_id) {
+  async getByChurchId(church_id, organization_id) {
     const result = await pool.query(
-      'SELECT * FROM special_services WHERE church_id = $1 ORDER BY special_service_id ASC',
-      [church_id]
+      'SELECT * FROM special_services WHERE church_id = $1 AND organization_id ORDER BY special_service_id ASC',
+      [church_id, organization_id]
     );
     return result.rows;
   },
@@ -40,10 +40,10 @@ const SpecialServices = {
     return result.rows[0];
   },
 
-  async delete(id) {
+  async delete(id, organization_id) {
     const result = await pool.query(
-      'DELETE FROM special_services WHERE special_service_id = $1 RETURNING *',
-      [id]
+      'DELETE FROM special_services WHERE special_service_id = $1 AND organization_id = $2 RETURNING *',
+      [id, organization_id]
     );
     return result.rows[0];
   }

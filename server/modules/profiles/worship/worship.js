@@ -1,22 +1,22 @@
 import { pool } from '../../../server.js';
 
 const WorshipTimes = {
-  async getAll() {
-    const result = await pool.query('SELECT * FROM worship_times ORDER BY worship_time_id ASC');
+  async getAll(organization_id) {
+    const result = await pool.query('SELECT * FROM worship_times WHERE organization_id = $1 ORDER BY worship_time_id ASC', [organization_id]);
     return result.rows;
   },
 
-  async getById(id) {
+  async getById(id, organization_id) {
     const result = await pool.query(
-      'SELECT * FROM worship_times WHERE worship_time_id = $1',
-      [id]
+      'SELECT * FROM worship_times WHERE worship_time_id = $1 AND organization_id=$2',
+      [id, organization_id]
     );
     return result.rows[0];
   },
 
-  async getByChurchId(church_id) {
+  async getByChurchId(church_id, organization_id) {
     const result = await pool.query(
-      'SELECT * FROM worship_times WHERE church_id = $1 ORDER BY worship_time_id ASC',
+      'SELECT * FROM worship_times WHERE church_id = $1 and organization_id = $2 ORDER BY worship_time_id ASC',
       [church_id]
     );
     return result.rows;

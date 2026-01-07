@@ -3,6 +3,7 @@ import leadershipController from './leadershipController.js';
 
 const router = express.Router();
 
+router.use(verifyJWT);
 // CRUD routes
 router.get('/', leadershipController.getAll);
 router.get('/:id', leadershipController.getById);

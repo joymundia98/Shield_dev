@@ -91,13 +91,13 @@ export { pool };
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/roles", verifyJWT, rolesRoutes);
+app.use("/api/roles", rolesRoutes);
 app.use('/api/role_permissions', verifyJWT, rolePermissionRoutes);
 app.use('/api/permissions', permissionRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", verifyJWT, userRoutes); // Protected route
-app.use("/api/staff", staffRoutes);
-app.use("/api/members", membersRoutes)
+app.use("/api/staff", verifyJWT, staffRoutes);
+app.use("/api/members", verifyJWT, membersRoutes)
 app.use("/api/departments", verifyJWT, departmentRoutes);
 
 // Donor types first

@@ -1,8 +1,10 @@
 import express from 'express';
 import ministriesController from './ministryController.js';
+import { verifyJWT } from '../../../middleware/auth.js';
 
 const router = express.Router();
 
+router.use(verifyJWT);
 // CRUD routes
 router.get('/', ministriesController.getAll);
 router.get('/:id', ministriesController.getById);

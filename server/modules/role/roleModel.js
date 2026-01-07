@@ -22,6 +22,11 @@ const RolesModel = {
     return result.rows;
   },
 
+  async getAllOrgRoles() {
+    const result = await pool.query(`SELECT * FROM roles ORDER BY id DESC`);
+    return result.rows;
+  },
+
   async findById(id, organization_id) {
     const result = await pool.query(
       `SELECT * FROM roles WHERE id = $1 AND organization_id=$2`,

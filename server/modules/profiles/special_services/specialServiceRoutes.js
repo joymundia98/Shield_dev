@@ -1,8 +1,10 @@
 import express from 'express';
 import specialServicesController from './specialServiceController.js';
+import { verifyJWT } from '../../../middleware/auth.js';
 
 const router = express.Router();
 
+router.use(verifyJWT);
 // CRUD routes
 router.get('/', specialServicesController.getAll);
 router.get('/:id', specialServicesController.getById);

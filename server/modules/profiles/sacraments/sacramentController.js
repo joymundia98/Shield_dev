@@ -14,8 +14,9 @@ const sacramentsController = {
 
   async getById(req, res) {
     try {
-      const { id } = req.params;
-      const sacrament = await Sacraments.getById(id);
+      // const { id } = req.params;
+      const organization_id = req.auth.organization_id;
+      const sacrament = await Sacraments.getById(organization_id);
       if (!sacrament) return res.status(404).json({ error: 'Sacrament not found' });
       res.json(sacrament);
     } catch (err) {
@@ -27,7 +28,8 @@ const sacramentsController = {
   async getByChurchId(req, res) {
     try {
       const { church_id } = req.params;
-      const sacraments = await Sacraments.getByChurchId(church_id);
+      const organization_id = req.auth.organization_id;
+      const sacraments = await Sacraments.getByChurchId(church_id, organization_id);
       res.json({ data: sacraments });
     } catch (err) {
       console.error(err);
@@ -38,7 +40,10 @@ const sacramentsController = {
   async create(req, res) {
     try {
       console.log(req.body);  // Log the request body to see what is being sent
-      const sacrament = await Sacraments.create(req.body);
+      const sacrament = await Sacraments.create({
+        ...req.body,
+        organization_id: req.auth.organization_id,
+      });
       res.status(201).json(sacrament);
     } catch (err) {
       console.error(err);
