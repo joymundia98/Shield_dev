@@ -13,13 +13,13 @@ const Expense = {
     return result.rows;
   },
 
-  async getById(id) {
+  async getById(id, organization_id) {
     const result = await pool.query(
       `SELECT id, subcategory_id, user_id, department_id, organization_id,
               date, description, amount, status, created_at
        FROM expenses
-       WHERE id = $1`,
-      [id]
+       WHERE id = $1 AND organization_id = $2`,
+      [id, organization_id]
     );
     return result.rows[0] || null;
   },
@@ -98,22 +98,22 @@ const Expense = {
     return result.rows[0];
   },
 
-  async updateStatus(id, status) {
+  async updateStatus(id, status, organization_id) {
     const result = await pool.query(
       `UPDATE expenses
        SET status = $1
-       WHERE id = $2
+       WHERE id = $2 AND organization_id=$2
        RETURNING *`,
-      [status, id]
+      [status, id, organization_id]
     );
 
     return result.rows[0];
   },
 
-  async delete(id) {
+  async delete(id, organization_id) {
     const result = await pool.query(
-      `DELETE FROM expenses WHERE id=$1 RETURNING *`,
-      [id]
+      `DELETE FROM expenses WHERE id=$1 AND organization_id=$2 RETURNING *`,
+      [id, organization_id]
     );
     return result.rows[0];
   },

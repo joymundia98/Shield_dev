@@ -33,7 +33,10 @@ const BudgetController = {
   // Create a new budget
   async create(req, res) {
     try {
-      const created = await Budget.create(req.body);
+      const created = await Budget.create({
+        ...req.body,
+        organization_id: req.auth.organization_id,
+      });
       return res.status(201).json(created);
     } catch (err) {
       return res.status(500).json({ error: err.message });

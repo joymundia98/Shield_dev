@@ -5,7 +5,7 @@ const IncomeController = {
   // GET /org/:orgId/incomes
   async list(req, res) {
     try {
-      const { orgId } = req.auth.organization_id;
+      const orgId = req.auth.organization_id;
       const data = await Income.getAll(orgId);
       return res.json(data);
     } catch (err) {
@@ -17,7 +17,7 @@ const IncomeController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const { orgId } = req.auth.organization_id;
+      const orgId = req.auth.organization_id;
       const item = await Income.getById(id, orgId);
       if (!item) return res.status(404).json({ message: 'Income not found' });
       return res.json(item);
@@ -29,7 +29,7 @@ const IncomeController = {
   // POST /org/:orgId/incomes
   async create(req, res) {
     try {
-      const { orgId } = req.auth.organization_id;
+      const orgId = req.auth.organization_id;
       const data = { ...req.body, organization_id: orgId };
       const created = await Income.create(data);
       return res.status(201).json(created);
@@ -42,7 +42,7 @@ const IncomeController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const { orgId } = req.auth.organization_id
+      const orgId = req.auth.organization_id
       const updated = await Income.update(id, orgId, req.body);
       if (!updated) return res.status(404).json({ message: 'Income not found' });
       return res.json(updated);
@@ -55,7 +55,7 @@ const IncomeController = {
   async updateStatus(req, res) {
     try {
       const { id } = req.params;
-      const { orgId } = req.auth.organization_id;
+      const orgId = req.auth.organization_id;
       const { status } = req.body;
 
       if (!status) return res.status(400).json({ error: 'Status is required' });
@@ -73,7 +73,7 @@ const IncomeController = {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const { orgId } = req.auth.organization_id;
+      const orgId = req.auth.organization_id;
       const deleted = await Income.delete(id, orgId);
       if (!deleted) return res.status(404).json({ message: 'Income not found' });
       return res.json({ message: 'Income deleted successfully' });

@@ -34,7 +34,7 @@ const ExpenseCategoryController = {
   // Create a new category (requires orgId)
   async create(req, res) {
     try {
-      const { organization_id } = req.auth.organization_id;
+      const organization_id = req.auth.organization_id;
       if (!organization_id) return res.status(400).json({ message: 'Organization ID is required' });
 
       const created = await ExpenseCategory.create(req.body);
@@ -48,7 +48,7 @@ const ExpenseCategoryController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const { organization_id } = req.auth.organization_id;
+      const organization_id = req.auth.organization_id;
       if (!organization_id) return res.status(400).json({ message: 'Organization ID is required' });
 
       const existing = await ExpenseCategory.getById(id, organization_id);
@@ -65,7 +65,7 @@ const ExpenseCategoryController = {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const { organization_id } = req.auth.organization_id;
+      const organization_id = req.auth.organization_id;
       if (!organization_id) return res.status(400).json({ message: 'Organization ID is required' });
 
       const deleted = await ExpenseCategory.delete(id, organization_id);

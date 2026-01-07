@@ -14,12 +14,12 @@ const ExpenseSubcategory = {
     return result.rows;
   },
 
-  async getById(id) {
+  async getById(id, organization_id) {
     const result = await pool.query(
       `SELECT id, name, category_id, organization_id
        FROM expense_subcategories 
-       WHERE id=$1`,
-      [id]
+       WHERE id=$1 AND organization_id=$2`,
+      [id, organization_id]
     );
     return result.rows[0] || null;
   },
@@ -55,11 +55,11 @@ const ExpenseSubcategory = {
     return result.rows[0];
   },
 
-  async delete(id) {
+  async delete(id, organization_id) {
     const result = await pool.query(
-      `DELETE FROM expense_subcategories WHERE id=$1
+      `DELETE FROM expense_subcategories WHERE id=$1 AND organization_id=$2
        RETURNING id, name, category_id, organization_id`,
-      [id]
+      [id, organization_id]
     );
     return result.rows[0];
   }

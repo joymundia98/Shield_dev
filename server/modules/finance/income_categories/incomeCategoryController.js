@@ -5,7 +5,7 @@ const IncomeCategoryController = {
   // GET /income-categories/:orgId
   async list(req, res) {
     try {
-      const { orgId } = req.auth.organization_id;
+      const orgId = req.auth.organization_id;
       const data = await IncomeCategory.getAll(orgId);
       return res.json(data);
     } catch (err) {
@@ -17,7 +17,7 @@ const IncomeCategoryController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const { organization_id } = req.auth.organization_id
+      const organization_id = req.auth.organization_id
       const cat = await IncomeCategory.getById(organization_id, id);
       if (!cat) return res.status(404).json({ message: 'Not found' });
       return res.json(cat);
@@ -30,7 +30,7 @@ const IncomeCategoryController = {
   async create(req, res) {
     try {
       const { name } = req.body;
-      const { organization_id} = req.auth.organization_id;
+      const organization_id = req.auth.organization_id;
       if (!organization_id) return res.status(400).json({ message: "organization_id is required" });
 
       const created = await IncomeCategory.create({ name, organization_id });
@@ -44,7 +44,7 @@ const IncomeCategoryController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const { orgId } = req.auth.organization_id;
+      const orgId = req.auth.organization_id;
       const { name } = req.body;
 
       const updated = await IncomeCategory.update(orgId, id, { name });
@@ -60,7 +60,7 @@ const IncomeCategoryController = {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const { orgId } = req.auth.organization_id;
+      const orgId = req.auth.organization_id;
       const deleted = await IncomeCategory.delete(orgId, id);
       if (!deleted) return res.status(404).json({ message: 'Not found' });
 

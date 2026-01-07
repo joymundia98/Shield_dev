@@ -21,7 +21,8 @@ const ExpenseController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const item = await Expense.getById(id);
+      const organization_id = req.auth.organization_id
+      const item = await Expense.getById(id,organization_id);
       if (!item) return res.status(404).json({ message: 'Not found' });
       return res.json(item);
     } catch (err) {
@@ -32,7 +33,7 @@ const ExpenseController = {
   // POST /expenses
   async create(req, res) {
     try {
-      const { organization_id } = req.auth.organization_id;
+      const organization_id = req.auth.organization_id;
       if (!organization_id) {
         return res.status(400).json({ message: "Organization ID is required" });
       }
@@ -48,7 +49,7 @@ const ExpenseController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const { organization_id } = req.auth.organization_id;
+      const organization_id = req.auth.organization_id;
       if (!organization_id) {
         return res.status(400).json({ message: "Organization ID is required" });
       }
@@ -63,14 +64,14 @@ const ExpenseController = {
   // PATCH /expenses/:id/status
   async updateStatus(req, res) {
     try {
-      const { id } = req.params;
+      const { id, organization_id } = req.params;
       const { status } = req.body;
 
       if (!status) {
         return res.status(400).json({ error: "Status is required" });
       }
 
-      const updated = await Expense.updateStatus(id, status);
+      const updated = await Expense.updateStatus(id, status, organization_id);
       return res.json(updated);
     } catch (err) {
       return res.status(500).json({ error: err.message });
@@ -81,7 +82,8 @@ const ExpenseController = {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const deleted = await Expense.delete(id);
+      const organization_id = req.auth.organization_id
+      const deleted = await Expense.delete(id, organization_id);
       if (!deleted) return res.status(404).json({ message: 'Not found' });
       return res.json({ message: 'Deleted' });
     } catch (err) {

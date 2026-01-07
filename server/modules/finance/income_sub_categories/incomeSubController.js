@@ -5,7 +5,7 @@ const IncomeSubcategoryController = {
   // GET /income-subcategories/:orgId
   async list(req, res) {
     try {
-      const { orgId } = req.auth.organization_id;
+      const orgId = req.auth.organization_id;
       const data = await IncomeSubcategory.getAll(orgId);
       return res.json(data);
     } catch (err) {
@@ -17,7 +17,7 @@ const IncomeSubcategoryController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const { orgId } = req.auth.organization_id;
+      const orgId = req.auth.organization_id;
       const item = await IncomeSubcategory.getById(orgId, id);
       if (!item) return res.status(404).json({ message: 'Not found' });
       return res.json(item);
@@ -30,7 +30,10 @@ const IncomeSubcategoryController = {
   async create(req, res) {
     try {
       // Expect body to contain { name, category_id, organization_id }
-      const created = await IncomeSubcategory.create(req.body);
+      const created = await IncomeSubcategory.create({
+        ...req.body,
+        organization_id: req.auth.organization_id,
+      });
       return res.status(201).json(created);
     } catch (err) {
       return res.status(500).json({ error: err.message });
@@ -41,7 +44,7 @@ const IncomeSubcategoryController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const { orgId } = req.auth.organization_id;
+      const orgId = req.auth.organization_id;
       const updated = await IncomeSubcategory.update(orgId, id, req.body);
       if (!updated) return res.status(404).json({ message: 'Not found or not in this organization' });
       return res.json(updated);
@@ -54,7 +57,7 @@ const IncomeSubcategoryController = {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const { orgId } = req.auth.organization_id;
+      const orgId = req.auth.organization_id;
       const deleted = await IncomeSubcategory.delete(orgId, id);
       if (!deleted) return res.status(404).json({ message: 'Not found or not in this organization' });
       return res.json({ message: 'Deleted successfully' });
