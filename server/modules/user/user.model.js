@@ -66,6 +66,7 @@ async getById(id) {
       password,
       phone,
       position,
+      photo_url,
       role_id,
       organization_id,
       status,
@@ -79,11 +80,12 @@ async getById(id) {
         password,
         phone,
         position,
+        photo_url
         role_id,
         organization_id,
         status
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, $10)
       RETURNING *`,
       [
         first_name,
@@ -92,6 +94,7 @@ async getById(id) {
         password,
         phone,
         position,
+        photo_url,
         role_id,
         organization_id,
         status,
@@ -113,6 +116,7 @@ async getById(id) {
       password,
       phone,
       position,
+      photo_url,
       role_id,
     } = data;
 
@@ -126,9 +130,10 @@ async getById(id) {
         password   = $4,
         phone      = $5,
         position   = $6,
-        role_id    = $7
-      WHERE id = $8
-      AND organization_id = $9
+        photo_url  = $7,
+        role_id    = $8
+      WHERE id = $9
+      AND organization_id = $10
       RETURNING *
       `,
       [
@@ -138,6 +143,7 @@ async getById(id) {
         password,
         phone,
         position,
+        photo_url,
         role_id,
         id,
         organization_id,
