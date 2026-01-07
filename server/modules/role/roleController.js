@@ -32,6 +32,16 @@ const RolesController = {
     }
   },
 
+async getAllOrgRoles(req, res) {
+  try {
+    const roles = await RolesModel.getAllOrgRoles();
+    return res.status(200).json(roles);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Error fetching roles" });
+  }
+},
+
 
   async getAll(req, res) {
     try {
