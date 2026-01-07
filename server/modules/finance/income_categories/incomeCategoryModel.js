@@ -1,13 +1,13 @@
 import { pool } from "../../../server.js";
 
 const IncomeCategory = {
-  async getAll(orgId) {
+  async getAll(organization_id) {
     const result = await pool.query(
       `SELECT id, name, organization_id
        FROM income_categories
        WHERE organization_id = $1
        ORDER BY id ASC`,
-      [orgId]
+      [organization_id]
     );
     return result.rows;
   },
