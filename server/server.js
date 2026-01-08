@@ -128,7 +128,7 @@ app.use("/api/follow_up_sesions", followUpSessionRoutes);
 app.use("/api/visitor", visitorRoutes);
 app.use("/api/visitor-services", visitorServiceRoutes);
 app.use("/api/visitor-referrals", visitorReferralRoutes);
-app.use("/api/services", serviceRoutes);
+app.use("/api/services", verifyJWT, serviceRoutes);
 app.use("/api/referrals", referralRoutes);
 app.use("/api/congregation/purposes", purposeRoutes);
 app.use("/api/congregation/sessions", sessionRoutes);
