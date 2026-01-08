@@ -1,47 +1,61 @@
 import { pool } from "../../../server.js";
 
 const Purpose = {
-  async getAll() {
+  // Get all purposes for an organization
+  async getAll(organization_id) {
     const result = await pool.query(
-      `SELECT id, name, created_at, updated_at FROM purposes ORDER BY name ASC`
+      `SELECT id, name, created_at, updated_at
+       FROM purposes
+       WHERE organization_id = $1
+       ORDER BY name ASC`,
+      [organization_id]
     );
     return result.rows;
   },
 
-  async getById(id) {
+  // Get purpose by ID (organization-scoped)
+  async getById(id, organization_id) {
     const result = await pool.query(
-      `SELECT id, name, created_at, updated_at FROM purposes WHERE id = $1`,
-      [id]
+      `SELECT id, name, created_at, updated_at
+       FROM purposes
+       WHERE id = $1 AND organization_id = $2`,
+      [id, organization_id]
     );
     return result.rows[0] || null;
   },
 
-  async create(data) {
+  // Create a new purpose
+  async create(data, organization_id) {
     const { name } = data;
     const result = await pool.query(
-      `INSERT INTO purposes (name)
-       VALUES ($1)
+      `INSERT INTO purposes (name, organization_id)
+       VALUES ($1, $2)
        RETURNING id, name, created_at, updated_at`,
-      [name]
+      [name, organization_id]
     );
     return result.rows[0];
   },
 
-  async update(id, data) {
+  // Update a purpose (organization-scoped)
+  async update(id, data, organization_id) {
     const { name } = data;
     const result = await pool.query(
-      `UPDATE purposes SET name = $1, updated_at = NOW()
-       WHERE id = $2
+      `UPDATE purposes
+       SET name = $1, updated_at = NOW()
+       WHERE id = $2 AND organization_id = $3
        RETURNING id, name, created_at, updated_at`,
-      [name, id]
+      [name, id, organization_id]
     );
     return result.rows[0];
   },
 
-  async delete(id) {
+  // Delete a purpose (organization-scoped)
+  async delete(id, organization_id) {
     const result = await pool.query(
-      `DELETE FROM purposes WHERE id = $1 RETURNING id, name`,
-      [id]
+      `DELETE FROM purposes
+       WHERE id = $1 AND organization_id = $2
+       RETURNING id, name`,
+      [id, organization_id]
     );
     return result.rows[0];
   }

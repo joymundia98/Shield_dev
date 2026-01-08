@@ -1,21 +1,23 @@
 import Visitor from "./visitorModel.js";
 
 const VisitorController = {
-  // Get all visitors
+  // Get all visitors for the organization
   async getAll(req, res) {
     try {
-      const visitors = await Visitor.getAll();
+      const organization_id = req.auth.organization_id;
+      const visitors = await Visitor.getAll(organization_id);
       res.json(visitors);
     } catch (err) {
       res.status(500).json({ error: "Error fetching visitors" });
     }
   },
 
-  // Get a visitor by ID
+  // Get a visitor by ID within the organization
   async getById(req, res) {
     const { id } = req.params;
     try {
-      const visitor = await Visitor.getById(id);
+      const organization_id = req.auth.organization_id;
+      const visitor = await Visitor.getById(id, organization_id);
       if (!visitor) {
         return res.status(404).json({ error: "Visitor not found" });
       }
@@ -25,23 +27,25 @@ const VisitorController = {
     }
   },
 
-  // Create a new visitor
+  // Create a new visitor under the organization
   async create(req, res) {
     const visitorData = req.body;
     try {
-      const newVisitor = await Visitor.create(visitorData);
+      const organization_id = req.auth.organization_id;
+      const newVisitor = await Visitor.create(visitorData, organization_id);
       res.status(201).json(newVisitor);
     } catch (err) {
       res.status(500).json({ error: "Error creating visitor" });
     }
   },
 
-  // Update an existing visitor
+  // Update an existing visitor under the organization
   async update(req, res) {
     const { id } = req.params;
     const visitorData = req.body;
     try {
-      const updatedVisitor = await Visitor.update(id, visitorData);
+      const organization_id = req.auth.organization_id;
+      const updatedVisitor = await Visitor.update(id, visitorData, organization_id);
       if (!updatedVisitor) {
         return res.status(404).json({ error: "Visitor not found" });
       }
@@ -51,11 +55,12 @@ const VisitorController = {
     }
   },
 
-  // Delete a visitor
+  // Delete a visitor under the organization
   async delete(req, res) {
     const { id } = req.params;
     try {
-      const deletedVisitor = await Visitor.delete(id);
+      const organization_id = req.auth.organization_id;
+      const deletedVisitor = await Visitor.delete(id, organization_id);
       if (!deletedVisitor) {
         return res.status(404).json({ error: "Visitor not found" });
       }

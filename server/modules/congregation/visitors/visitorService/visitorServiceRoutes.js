@@ -1,7 +1,10 @@
 import express from 'express';
 import VisitorServiceController from './visitorServiceController.js';
+import { verifyJWT } from '../../../../middleware/auth.js';
 
 const router = express.Router();
+
+router.use(verifyJWT);
 
 // Routes for visitor-service relationships
 router.post('/', VisitorServiceController.add); // Add a visitor to a service

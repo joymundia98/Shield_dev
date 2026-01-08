@@ -1,7 +1,10 @@
 import express from "express";
 import SessionsController from "./sessionController.js";
+import { verifyJWT } from "../../../middleware/auth.js";
 
 const router = express.Router();
+
+router.use(verifyJWT);
 
 router.get("/", SessionsController.getAll);
 router.get("/:id", SessionsController.getById);

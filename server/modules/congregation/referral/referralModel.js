@@ -1,28 +1,38 @@
 import { pool } from "../../../server.js";
 
 const Referral = {
-  async getAll() {
-    const result = await pool.query(`SELECT * FROM referrals ORDER BY id ASC`);
+  // Get all referrals for the current organization
+  async getAll(organization_id) {
+    const result = await pool.query(
+      `SELECT * FROM referrals WHERE organization_id = $1 ORDER BY id ASC`,
+      [organization_id]
+    );
     return result.rows;
   },
 
-  async getById(id) {
-    const result = await pool.query(`SELECT * FROM referrals WHERE id=$1`, [id]);
+  // Get a referral by ID scoped to organization
+  async getById(id, organization_id) {
+    const result = await pool.query(
+      `SELECT * FROM referrals WHERE id = $1 AND organization_id = $2`,
+      [id, organization_id]
+    );
     return result.rows[0] || null;
   },
 
-  async create(source) {
+  // Create a new referral for the organization
+  async create(source, organization_id) {
     const result = await pool.query(
-      `INSERT INTO referrals (source) VALUES ($1) RETURNING *`,
-      [source]
+      `INSERT INTO referrals (source, organization_id) VALUES ($1, $2) RETURNING *`,
+      [source, organization_id]
     );
     return result.rows[0];
   },
 
-  async delete(id) {
+  // Delete a referral scoped to the organization
+  async delete(id, organization_id) {
     const result = await pool.query(
-      `DELETE FROM referrals WHERE id=$1 RETURNING *`,
-      [id]
+      `DELETE FROM referrals WHERE id = $1 AND organization_id = $2 RETURNING *`,
+      [id, organization_id]
     );
     return result.rows[0];
   }

@@ -1,46 +1,75 @@
 import { pool } from "../../../server.js";
 
 const MemberStatistics = {
-  // Get all statistics
-  async getAll() {
+  // GET ALL (organization scoped)
+  async getAll(organization_id) {
     const result = await pool.query(
-      `SELECT * FROM member_statistics ORDER BY stat_date DESC`
+      `
+      SELECT *
+      FROM member_statistics
+      WHERE organization_id = $1
+      ORDER BY stat_date DESC
+      `,
+      [organization_id]
     );
+
     return result.rows;
   },
 
-  // Get statistics by date
-  async getByDate(date) {
+  // GET BY DATE (organization scoped)
+  async getByDate(stat_date, organization_id) {
     const result = await pool.query(
-      `SELECT * FROM member_statistics WHERE stat_date = $1`,
-      [date]
+      `
+      SELECT *
+      FROM member_statistics
+      WHERE stat_date = $1
+        AND organization_id = $2
+      `,
+      [stat_date, organization_id]
     );
+
     return result.rows[0] || null;
   },
 
-  // Create or update statistics
-  async upsert(data) {
+  // UPSERT (organization enforced)
+  async upsert(data, organization_id) {
     const fields = [
-      "stat_date", "total_members", "total_widows", "total_orphans",
-      "total_disabled", "male_members", "female_members", "age_0_12",
-      "age_13_18", "age_19_35", "age_36_60", "age_60_plus",
-      "status_active", "status_visitor", "status_new_convert",
-      "status_inactive", "status_transferred"
+      "organization_id",
+      "stat_date",
+      "total_members",
+      "total_widows",
+      "total_orphans",
+      "total_disabled",
+      "male_members",
+      "female_members",
+      "age_0_12",
+      "age_13_18",
+      "age_19_35",
+      "age_36_60",
+      "age_60_plus",
+      "status_active",
+      "status_visitor",
+      "status_new_convert",
+      "status_inactive",
+      "status_transferred"
     ];
 
-    const values = fields.map((field) => data[field]);
+    const values = fields.map((field) =>
+      field === "organization_id" ? organization_id : data[field]
+    );
 
     const placeholders = values.map((_, i) => `$${i + 1}`).join(",");
 
     const updateSet = fields
-      .filter((f) => f !== "stat_date")
-      .map((f) => `${f}=EXCLUDED.${f}`)
+      .filter((f) => !["stat_date", "organization_id"].includes(f))
+      .map((f) => `${f} = EXCLUDED.${f}`)
       .join(", ");
 
     const query = `
-      INSERT INTO member_statistics (${fields.join(",")})
+      INSERT INTO member_statistics (${fields.join(", ")})
       VALUES (${placeholders})
-      ON CONFLICT (stat_date) DO UPDATE SET ${updateSet}
+      ON CONFLICT (organization_id, stat_date)
+      DO UPDATE SET ${updateSet}
       RETURNING *;
     `;
 
@@ -48,12 +77,12 @@ const MemberStatistics = {
     return result.rows[0];
   },
 
-  // Recalculate statistics for today
-  async recalculateToday() {
-
+  // RECALCULATE TODAY (organization scoped)
+  async recalculateToday(organization_id) {
     const query = `
       WITH stats AS (
         SELECT
+          $1::int AS organization_id,
           CURRENT_DATE AS stat_date,
 
           COUNT(*) AS total_members,
@@ -96,10 +125,12 @@ const MemberStatistics = {
           COUNT(*) FILTER (WHERE status = 'Transferred') AS status_transferred
 
         FROM members
+        WHERE organization_id = $1
       )
       INSERT INTO member_statistics
       SELECT * FROM stats
-      ON CONFLICT (stat_date) DO UPDATE SET
+      ON CONFLICT (organization_id, stat_date)
+      DO UPDATE SET
         total_members = EXCLUDED.total_members,
         total_widows = EXCLUDED.total_widows,
         total_orphans = EXCLUDED.total_orphans,
@@ -119,7 +150,7 @@ const MemberStatistics = {
       RETURNING *;
     `;
 
-    const result = await pool.query(query);
+    const result = await pool.query(query, [organization_id]);
     return result.rows[0];
   }
 };
