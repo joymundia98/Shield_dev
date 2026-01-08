@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import UserModel from "../user/user.model.js";
 import OrganizationModel from "../organization/organizationModel.js";
+import { SendEmail } from "../../utlis/email.js"; // ✅ import your Resend utility
 
 dotenv.config();
 
@@ -28,9 +29,9 @@ export const login = async (req, res) => {
 
     const payload = {
       sub: user.id,
-      type: "user",                     // ✅ REQUIRED
+      type: "user",
       email: user.email,
-      organization_id: user.organization_id, // ✅ REQUIRED
+      organization_id: user.organization_id,
       role,
     };
 
@@ -68,10 +69,7 @@ export const loginOrg = async (req, res) => {
       });
     }
 
-    const org = await OrganizationModel.login({
-      organization_account_id,
-      password,
-    });
+    const org = await OrganizationModel.login({ organization_account_id, password });
 
     if (!org) {
       return res.status(401).json({
@@ -81,8 +79,8 @@ export const loginOrg = async (req, res) => {
 
     const payload = {
       sub: org.id,
-      type: "organization",      // ✅ REQUIRED
-      organization_id: org.id,   // ✅ REQUIRED (THIS WAS MISSING)
+      type: "organization",
+      organization_id: org.id,
       name: org.name,
     };
 
@@ -108,7 +106,7 @@ export const loginOrg = async (req, res) => {
 };
 
 // ========================================
-// REGISTER – USER
+// REGISTER – USER (with welcome email)
 // ========================================
 export const register = async (req, res) => {
   try {
@@ -149,11 +147,27 @@ export const register = async (req, res) => {
 
     await UserModel.assignRole(newUser.id, role_id);
 
+    // ==========================
+    // SEND WELCOME EMAIL
+    // ==========================
+    try {
+      await SendEmail({
+        to: newUser.email,
+        subject: "Welcome to Your Organization",
+        html: `
+          <h1>Welcome ${newUser.first_name}!</h1>
+          <p>You have successfully registered. Please login to get started.</p>
+        `,
+      });
+    } catch (emailErr) {
+      console.error("Failed to send registration email:", emailErr);
+      // Note: Do NOT block registration if email fails
+    }
+
     res.status(201).json({
       message: "User registered successfully",
       user: newUser,
     });
-
   } catch (err) {
     console.error("Register error:", err);
     res.status(500).json({ message: "Server error" });
@@ -172,6 +186,8 @@ export const createOrg = async (req, res) => {
       region,
       district,
       status,
+      organization_email,
+      password
     } = req.body;
 
     if (!name)
@@ -184,13 +200,31 @@ export const createOrg = async (req, res) => {
       region,
       district,
       status,
+      organization_email,
+      password
     });
+
+    // ==========================
+    // SEND EMAIL TO ORGANIZATION
+    // ==========================
+    try {
+      await SendEmail({
+        to: org.organization_email,
+        subject: "Welcome to Our Platform",
+        html: `
+          <h1>Welcome ${org.name}!</h1>
+          <p>Your organization account has been created successfully.</p>
+          <p>Your account ID: <strong>${org.organization_account_id}</strong></p>
+        `,
+      });
+    } catch (emailErr) {
+      console.error("Failed to send organization registration email:", emailErr);
+    }
 
     return res.status(201).json({
       message: "Organization registered successfully",
       organization: org,
     });
-
   } catch (err) {
     console.error("Organization Register Error:", err);
     res.status(500).json({ message: "Server error" });

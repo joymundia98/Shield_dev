@@ -1,7 +1,7 @@
 // server/routes/memberRoutes.js
 
 import express from "express";
-import { MemberController } from "./memberController.js";
+import MemberController from "./memberController.js"
 import { verifyJWT } from "../../middleware/auth.js";
 import { requirePermission } from "../../middleware/accessControl.js";
 
