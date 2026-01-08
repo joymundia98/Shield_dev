@@ -2,9 +2,9 @@ import { pool } from "../../../server.js";
 
 const Staff = {
   // 🔒 Admin-only (all orgs)
-  async getAll() {
+  async getAll(organization_id) {
     const result = await pool.query(
-      `SELECT * FROM staff ORDER BY id ASC`
+      `SELECT * FROM staff WHERE organization_id = $1 ORDER BY id ASC`, [organization_id]
     );
     return result.rows;
   },

@@ -1,7 +1,10 @@
 import express from "express";
 import { classCategoryController } from "./classCategoryController.js";
+import { verifyJWT } from "../../../middleware/auth.js";
 
 const router = express.Router();
+
+router.use(verifyJWT);
 
 router.post("/", classCategoryController.create);
 router.get("/", classCategoryController.getAll);
