@@ -1,7 +1,10 @@
 import express from 'express';
 import VisitorController from './visitorController.js';
+import { verifyJWT } from '../../../middleware/auth.js';
 
 const router = express.Router();
+
+router.use(verifyJWT);
 
 // Routes for visitors
 router.get('/', VisitorController.getAll); // Get all visitors

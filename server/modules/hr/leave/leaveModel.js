@@ -3,9 +3,9 @@ import { pool } from "../../../server.js";
 
 const LeaveRequest = {
   // Get all leave requests (ADMIN / SUPER ONLY)
-  async getAll() {
+  async getAll(organization_id) {
     const result = await pool.query(
-      `SELECT * FROM leave_requests ORDER BY id ASC`
+      `SELECT * FROM leave_requests WHERE organization_id = $1 ORDER BY id ASC`, [organization_id]
     );
     return result.rows;
   },

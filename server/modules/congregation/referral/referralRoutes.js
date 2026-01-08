@@ -1,7 +1,10 @@
 import express from 'express';
 import ReferralController from './referralController.js';
+import { verifyJWT } from '../../../middleware/auth.js';
 
 const router = express.Router();
+
+router.use(verifyJWT);
 
 // Routes for referrals
 router.get('/', ReferralController.getAll); // Get all referral sources

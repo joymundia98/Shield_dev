@@ -7,6 +7,8 @@ import { requirePermission } from "../../middleware/accessControl.js";
 
 const router = express.Router();
 
+router.use(verifyJWT);
+
 router.post("/", MemberController.create);
 router.get("/", MemberController.getAll);
 router.get("/:id", MemberController.getById);

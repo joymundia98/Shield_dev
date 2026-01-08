@@ -1,7 +1,10 @@
 import { Router } from "express";
 import LeaveRequestsController from "./leaveController.js";
+import { verifyJWT } from "../../../middleware/auth.js";
 
 const router = Router();
+
+router.use(verifyJWT);
 
 /**
  * ADMIN – get all leave requests (all orgs)

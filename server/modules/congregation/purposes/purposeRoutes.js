@@ -6,8 +6,11 @@ import {
   updatePurpose,
   deletePurpose,
 } from "./purposeController.js";
+import { verifyJWT } from "../../../middleware/auth.js";
 
 const router = express.Router();
+
+router.use(verifyJWT);
 
 // GET all purposes
 router.get("/", getAllPurposes);

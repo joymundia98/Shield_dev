@@ -46,32 +46,32 @@ const payrollController = {
     }
   },
 
-  async update(req, res) {
-    try {
-      const { id } = req.params;
-      const organization_id = req.auth.organization_id;
+async update(req, res) {
+  try {
+    const { id } = req.params;
 
-      const updatedPayroll = await Payroll.update(
-        id,
-        organization_id,
-        req.body,
-        {
-          user_id: req.user.id,
-          organization_id,
-          ip_address: req.ip,
-        }
-      );
-
-      if (!updatedPayroll) {
-        return res.status(404).json({ error: "Payroll record not found" });
+    await Payroll.update(
+      id,
+      req.auth.organization_id,
+      req.body,
+      {
+        user_id: req.auth.user_id,
+        ip_address: req.ip,
+        user_agent: req.headers["user-agent"]
       }
+    );
 
-      res.status(200).json(updatedPayroll);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Failed to update payroll record" });
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.error(err);
+
+    if (err.message === "Payroll record not found") {
+      return res.status(404).json({ error: err.message });
     }
-  },
+
+    return res.status(500).json({ error: "Failed to update payroll" });
+  }
+},
 
   async delete(req, res) {
     try {

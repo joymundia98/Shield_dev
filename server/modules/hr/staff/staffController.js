@@ -4,7 +4,8 @@ const StaffController = {
   // 🔒 Admin only (all orgs) – optional
   async getAll(req, res) {
     try {
-      const data = await Staff.getAll();
+      const organization_id = req.auth.organization_id;
+      const data = await Staff.getAll(organization_id);
       return res.json(data);
     } catch (err) {
       return res.status(500).json({ error: err.message });

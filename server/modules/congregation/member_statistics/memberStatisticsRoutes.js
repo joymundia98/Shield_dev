@@ -1,7 +1,10 @@
 import express from "express";
 import MemberStatisticsController from "./memberStatisticsController.js";
+import { verifyJWT } from "../../../middleware/auth.js";
 
 const router = express.Router();
+
+router.use(verifyJWT);
 
 // Get all statistics
 router.get("/", MemberStatisticsController.getAll);

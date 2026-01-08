@@ -5,7 +5,8 @@ const LeaveRequestsController = {
   // GET /leave-requests (ADMIN / SUPER ADMIN)
   async getAll(req, res) {
     try {
-      const data = await LeaveRequest.getAll();
+      const organization_id = req.auth.organization_id
+      const data = await LeaveRequest.getAll(organization_id);
       return res.json(data);
     } catch (err) {
       return res.status(500).json({ error: err.message });
