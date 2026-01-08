@@ -93,56 +93,126 @@ const Payroll = {
   },
 
   // UPDATE PAYROLL
-  async update(payroll_id, organization_id, data, auditMeta = {}) {
-    const oldResult = await pool.query(
-      `SELECT *
-       FROM payroll
-       WHERE payroll_id = $1
-         AND organization_id = $2`,
-      [payroll_id, organization_id]
+async update(payrollId, organization_id, data, auditMeta = {}) {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // 1️⃣ Fetch existing payroll
+    const existing = await client.query(
+      `SELECT * FROM payroll WHERE payroll_id = $1 AND organization_id = $2`,
+      [payrollId, organization_id]
     );
 
-    const oldData = oldResult.rows[0];
-    if (!oldData) return null;
-
-    const { staff_id, year, month, ...otherFields } = data;
-
-    const fields = [];
-    const values = [];
-    let i = 1;
-
-    for (const key of Object.keys(otherFields)) {
-      fields.push(`${key} = $${i}`);
-      values.push(otherFields[key]);
-      i++;
+    if (existing.rowCount === 0) {
+      throw new Error("Payroll record not found");
     }
 
-    if (!fields.length) return oldData;
+    const oldPayroll = existing.rows[0];
 
-    values.push(payroll_id, organization_id);
+    // 2️⃣ Merge old + new data (PATCH-safe)
+    const payload = {
+      ...oldPayroll,
+      ...data
+    };
 
-    const result = await pool.query(
-      `UPDATE payroll
-       SET ${fields.join(", ")}
-       WHERE payroll_id = $${i}
-         AND organization_id = $${i + 1}
-       RETURNING *`,
-      values
+    // 3️⃣ Update payroll
+    const result = await client.query(
+      `
+      UPDATE payroll SET
+        staff_id = $1,
+        department_id = $2,
+        role_id = $3,
+        year = $4,
+        month = $5,
+        salary = $6,
+        housing_allowance = $7,
+        transport_allowance = $8,
+        medical_allowance = $9,
+        overtime = $10,
+        bonus = $11,
+        total_gross = $12,
+        paye_tax_percentage = $13,
+        paye_tax_amount = $14,
+        napsa_contribution_percentage = $15,
+        napsa_contribution_amount = $16,
+        loan_deduction = $17,
+        union_dues = $18,
+        health_insurance = $19,
+        nhima_contribution_percentage = $20,
+        nhima_contribution_amount = $21,
+        wcif = $22,
+        total_deductions = $23,
+        net_salary = $24,
+        gratuity_percentage = $25,
+        gratuity_amount = $26,
+        status = $27,
+        updated_at = NOW()
+      WHERE payroll_id = $28
+        AND organization_id = $29
+      RETURNING *
+      `,
+      [
+        payload.staff_id,
+        payload.department_id,
+        payload.role_id,
+        payload.year,
+        payload.month,
+        payload.salary,
+        payload.housing_allowance,
+        payload.transport_allowance,
+        payload.medical_allowance,
+        payload.overtime,
+        payload.bonus,
+        payload.total_gross,
+        payload.paye_tax_percentage,
+        payload.paye_tax_amount,
+        payload.napsa_contribution_percentage,
+        payload.napsa_contribution_amount,
+        payload.loan_deduction,
+        payload.union_dues,
+        payload.health_insurance,
+        payload.nhima_contribution_percentage,
+        payload.nhima_contribution_amount,
+        payload.wcif,
+        payload.total_deductions,
+        payload.net_salary,
+        payload.gratuity_percentage,
+        payload.gratuity_amount,
+        payload.status,
+        payrollId,
+        organization_id
+      ]
     );
 
-    const updated = result.rows[0];
+    const updatedPayroll = result.rows[0];
 
-    await AuditLog.log({
-      ...auditMeta,
-      module: "payroll",
-      action: "UPDATE",
-      record_id: payroll_id,
-      old_values: oldData,
-      new_values: updated
-    });
+    // 4️⃣ Log audit trail (schema-correct)
+await AuditLog.log({
+  user_id: auditMeta.user_id ?? null,
+  organization_id: organization_id,
+  module: "payroll",
+  action: "UPDATE",
+  record_id: payrollId,
+  old_data: oldPayroll,
+  new_data: updatedPayroll,
+  ip_address: auditMeta.ip_address,
+  user_agent: auditMeta.user_agent
+}, client);
 
-    return updated;
-  },
+console.log(auditMeta)
+
+    await client.query("COMMIT");
+
+    return updatedPayroll;
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+},
 
   // DELETE PAYROLL
   async delete(payroll_id, organization_id, auditMeta = {}) {
