@@ -3,6 +3,7 @@ import { counsellorsController } from './counsellorController.js';
 
 const router = express.Router();
 
+router.use(verifyJWT);
 // CRUD endpoints
 router.get('/', counsellorsController.getAll);
 router.get('/:id', counsellorsController.getById);

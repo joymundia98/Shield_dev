@@ -6,13 +6,14 @@ import {
   updateDonation,
   deleteDonation,
 } from "./donationController.js";
+import { verifyJWT } from "../../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/", getAllDonations);
-router.get("/:id", getDonationById);
-router.post("/", createDonation);
-router.put("/:id", updateDonation);
-router.delete("/:id", deleteDonation);
+router.get("/", verifyJWT, getAllDonations);
+router.get("/:id", verifyJWT, getDonationById);
+router.post("/", verifyJWT, createDonation);
+router.put("/:id", verifyJWT,  updateDonation);
+router.delete("/:id", verifyJWT, deleteDonation);
 
 export default router;
