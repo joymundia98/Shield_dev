@@ -8,10 +8,10 @@ const RolePermissionsModel = {
   async assignPermission(role_id, permission_id, organization_id) {
     const result = await pool.query(
       `
-      INSERT INTO role_permissions (role_id, permission_id)
+      INSERT INTO role_permissions (role_id, permission_id, organization_id)
       SELECT r.id, $2
       FROM roles r
-      WHERE r.id = $1 AND r.organization_id = $3
+      WHERE r.id = $1
       ON CONFLICT DO NOTHING
       RETURNING *
       `,
@@ -95,10 +95,9 @@ const RolePermissionsModel = {
         r.description AS role_description
       FROM users u
       LEFT JOIN user_roles ur ON ur.user_id = u.id
-      LEFT JOIN roles r ON r.id = ur.role_id
+      LEFT JOIN roles r ON r.id = ur.role_id AND r.organization_id = $2
       WHERE u.id = $1
         AND u.organization_id = $2
-        AND r.organization_id = $2
       LIMIT 1
       `,
       [user_id, organization_id]
@@ -107,7 +106,6 @@ const RolePermissionsModel = {
     if (result.rows.length === 0) return null;
 
     const row = result.rows[0];
-
     return {
       id: row.user_id,
       first_name: row.first_name,
@@ -147,13 +145,12 @@ const RolePermissionsModel = {
 
       FROM users u
       LEFT JOIN user_roles ur ON ur.user_id = u.id
-      LEFT JOIN roles r ON r.id = ur.role_id
+      LEFT JOIN roles r ON r.id = ur.role_id AND r.organization_id = $2
       LEFT JOIN role_permissions rp ON rp.role_id = r.id
       LEFT JOIN permissions p ON p.id = rp.permission_id
 
       WHERE u.id = $1
         AND u.organization_id = $2
-        AND r.organization_id = $2
       ORDER BY p.id
       `,
       [user_id, organization_id]
