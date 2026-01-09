@@ -35,7 +35,6 @@ const AttendanceController = {
   // CREATE a new attendance record (organization enforced)
   async create(req, res) {
     try {
-      const organization_id = req.auth.organization_id;
       const {
         service_id,
         member_id,
@@ -48,22 +47,24 @@ const AttendanceController = {
         return res.status(400).json({ error: "Attendance date is required" });
       }
 
+      if (!status) {
+        return res.status(400).json({ error: "status is required" });
+      }
+
+      if (!service_id) {
+        return res.status(400).json({ error: "service is required" });
+      }
+
       if (!member_id && !visitor_id) {
         return res.status(400).json({
           error: "Either member_id or visitor_id must be provided"
         });
       }
 
-      const record = await Attendance.create(
-        {
-          service_id,
-          member_id,
-          visitor_id,
-          status,
-          attendance_date
-        },
-        organization_id
-      );
+      const record = await Attendance.create({
+        ...req.body,
+        organization_id: req.auth.organization_id,
+      });
 
       return res.status(201).json(record);
     } catch (err) {

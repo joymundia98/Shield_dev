@@ -1,12 +1,10 @@
-// controllers/organization.controller.js
-import jwt from "jsonwebtoken";
 import Organization from "./organizationModel.js";
 
 export const OrganizationController = {
   // CREATE ORGANIZATION
   async create(req, res) {
     try {
-      const { name, org_type_id, password } = req.body;
+      const { name, org_type_id, headquaters_id, password } = req.body;
 
       if (!name) {
         return res.status(400).json({ message: "Organization name is required" });
@@ -14,6 +12,10 @@ export const OrganizationController = {
 
       if (!org_type_id) {
         return res.status(400).json({ message: "Organization type is required" });
+      }
+
+      if (!headquaters_id) {
+        return res.status(400).json({ message: "HQ is required" });
       }
 
       if (!password) {
@@ -63,56 +65,6 @@ export const OrganizationController = {
       res.status(500).json({ message: "Server error" });
     }
   },
-
-  // Login endpoint
-  // async login(req, res) {
-  //   try {
-  //     const { organization_account_id, password } = req.body;
-
-  //     if (!organization_account_id || !password) {
-  //       return res.status(400).json({
-  //         message: "Organization account ID and password are required"
-  //       });
-  //     }
-
-  //     const org = await Organization.login({
-  //       organization_account_id,
-  //       password
-  //     });
-
-  //     if (!org) {
-  //       return res.status(401).json({
-  //         message: "Invalid account ID or password"
-  //       });
-  //     }
-
-  //     const payload = {
-  //       sub: org.id,
-  //       account_id: org.organization_account_id,
-  //       organization: org.id,
-  //       org_type_id: org.org_type_id
-  //     };
-
-  //     const token = jwt.sign(payload, process.env.JWT_SECRET, {
-  //       expiresIn: "1h"
-  //     });
-
-  //     res.json({
-  //       message: "Login successful",
-  //       accessToken: token,
-  //       organization: {
-  //         id: org.id,
-  //         name: org.name,
-  //         account_id: org.organization_account_id,
-  //         org_type_id: org.org_type_id
-  //       }
-  //     });
-
-  //   } catch (err) {
-  //     console.error("Organization login error:", err);
-  //     res.status(500).json({ message: "Server error" });
-  //   }
-  // },
 
   // LIST PUBLIC (for registration dropdown)
   async listPublic(req, res) {
