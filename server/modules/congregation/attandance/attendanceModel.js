@@ -46,11 +46,12 @@ const Attendance = {
   },
 
   // CREATE (organization_id enforced)
-  async create(data, organization_id) {
+  async create(data) {
     const {
       service_id,
       member_id,
       visitor_id,
+      organization_id,
       status,
       attendance_date
     } = data;

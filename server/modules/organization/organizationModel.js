@@ -4,16 +4,20 @@ import { pool } from "../../server.js";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 
-const SALT_ROUNDS = 10; // For bcrypt
+const SALT_ROUNDS = 10;
 
+// ===============================
+// UTIL
+// ===============================
 function generateAccountId() {
-  // Example: ORG-8F3A9C1D
   const random = crypto.randomBytes(4).toString("hex").toUpperCase();
   return `ORG-${random}`;
 }
 
 const Organization = {
+  // ===============================
   // CREATE
+  // ===============================
   async create(data) {
     const {
       name,
@@ -23,13 +27,13 @@ const Organization = {
       district,
       status = "active",
       organization_email,
-      org_type_id, // references organization_type
+      org_type_id,
+      headquarters_id, // ✅ NEW
       password
     } = data;
 
     const organization_account_id = generateAccountId();
 
-    // Hash password if provided
     let hashedPassword = null;
     if (password) {
       hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
@@ -47,9 +51,10 @@ const Organization = {
         organization_email,
         organization_account_id,
         org_type_id,
+        headquarters_id,
         password
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
       RETURNING *
       `,
       [
@@ -62,6 +67,7 @@ const Organization = {
         organization_email,
         organization_account_id,
         org_type_id,
+        headquarters_id,
         hashedPassword
       ]
     );
@@ -69,7 +75,9 @@ const Organization = {
     return result.rows[0];
   },
 
+  // ===============================
   // GET BY ID
+  // ===============================
   async getById(id) {
     const result = await pool.query(
       `SELECT * FROM organizations WHERE id = $1`,
@@ -78,14 +86,20 @@ const Organization = {
     return result.rows[0];
   },
 
+  // ===============================
+  // GET BY EMAIL (FIXED TYPO)
+  // ===============================
   async getByEmail(email) {
     const result = await pool.query(
-      `SELECT * FROM orgranizations WHERE email = $1`,
+      `SELECT * FROM organizations WHERE organization_email = $1`,
       [email]
     );
     return result.rows[0];
   },
 
+  // ===============================
+  // GET BY ACCOUNT ID
+  // ===============================
   async getByAccId(org_acc_id) {
     const result = await pool.query(
       `SELECT * FROM organizations WHERE organization_account_id = $1`,
@@ -94,6 +108,9 @@ const Organization = {
     return result.rows[0];
   },
 
+  // ===============================
+  // LOGIN
+  // ===============================
   async login({ organization_account_id, password }) {
     const result = await pool.query(
       `SELECT * FROM organizations WHERE organization_account_id = $1`,
@@ -101,17 +118,18 @@ const Organization = {
     );
 
     const org = result.rows[0];
-    if (!org) return null;
+    if (!org || !org.password) return null;
 
     const match = await bcrypt.compare(password, org.password);
     if (!match) return null;
 
-    // Remove password before returning
     const { password: _, ...orgData } = org;
     return orgData;
   },
 
-  // LIST ALL
+  // ===============================
+  // LIST ALL (ADMIN USE)
+  // ===============================
   async getAll() {
     const result = await pool.query(
       `SELECT * FROM organizations ORDER BY id ASC`
@@ -119,7 +137,25 @@ const Organization = {
     return result.rows;
   },
 
+  // ===============================
+  // LIST BY HQ (HQ VISIBILITY)
+  // ===============================
+  async getByHeadquarters(headquarters_id) {
+    const result = await pool.query(
+      `
+      SELECT *
+      FROM organizations
+      WHERE headquarters_id = $1
+      ORDER BY name
+      `,
+      [headquarters_id]
+    );
+    return result.rows;
+  },
+
+  // ===============================
   // UPDATE
+  // ===============================
   async update(id, data) {
     const {
       name,
@@ -130,11 +166,14 @@ const Organization = {
       status,
       organization_email,
       org_type_id,
+      headquarters_id, // ✅ NEW
       password
     } = data;
 
-    // Hash password if provided
-    let hashedPassword = password ? await bcrypt.hash(password, SALT_ROUNDS) : undefined;
+    const hashedPassword =
+      password !== undefined
+        ? await bcrypt.hash(password, SALT_ROUNDS)
+        : undefined;
 
     const fields = [
       "name",
@@ -145,6 +184,7 @@ const Organization = {
       "status",
       "organization_email",
       "org_type_id",
+      "headquarters_id",
       "password"
     ];
 
@@ -157,28 +197,36 @@ const Organization = {
       status,
       organization_email,
       org_type_id,
+      headquarters_id,
       hashedPassword
     ];
 
-    // Only update fields that are defined
     const setClauses = fields
-      .map((field, idx) => (values[idx] !== undefined ? `${field} = $${idx + 1}` : null))
+      .map((field, idx) =>
+        values[idx] !== undefined ? `${field} = $${idx + 1}` : null
+      )
       .filter(Boolean);
 
     const filteredValues = values.filter(v => v !== undefined);
 
-    // Append id at the end
     filteredValues.push(id);
 
     const result = await pool.query(
-      `UPDATE organizations SET ${setClauses.join(", ")} WHERE id = $${filteredValues.length} RETURNING *`,
+      `
+      UPDATE organizations
+      SET ${setClauses.join(", ")}, updated_at = NOW()
+      WHERE id = $${filteredValues.length}
+      RETURNING *
+      `,
       filteredValues
     );
 
     return result.rows[0];
   },
 
+  // ===============================
   // DELETE
+  // ===============================
   async delete(id) {
     const result = await pool.query(
       `DELETE FROM organizations WHERE id = $1 RETURNING *`,

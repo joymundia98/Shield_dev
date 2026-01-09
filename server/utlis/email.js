@@ -14,7 +14,7 @@ export const SendEmail = async ({ to, subject, html }) => {
 
   try {
     const response = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL, // make sure this is set in .env
+      from: process.env.RESEND_FROM_EMAIL,
       to,
       subject,
       html,
