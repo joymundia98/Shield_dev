@@ -4,7 +4,7 @@ export const OrganizationController = {
   // CREATE ORGANIZATION
   async create(req, res) {
     try {
-      const { name, org_type_id, headquaters_id, password } = req.body;
+      const { name, org_type_id, password } = req.body;
 
       if (!name) {
         return res.status(400).json({ message: "Organization name is required" });
@@ -12,10 +12,6 @@ export const OrganizationController = {
 
       if (!org_type_id) {
         return res.status(400).json({ message: "Organization type is required" });
-      }
-
-      if (!headquaters_id) {
-        return res.status(400).json({ message: "HQ is required" });
       }
 
       if (!password) {

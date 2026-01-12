@@ -187,6 +187,7 @@ export const createOrg = async (req, res) => {
       district,
       status,
       organization_email,
+      headquarters_id,
       password
     } = req.body;
 
@@ -201,6 +202,7 @@ export const createOrg = async (req, res) => {
       district,
       status,
       organization_email,
+      headquarters_id,
       password
     });
 
