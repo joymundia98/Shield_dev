@@ -89,6 +89,24 @@ const RolePermissionsController = {
     }
   },
 
+    async getAllRolePermissions(req, res) {
+    try {
+      const organization_id = req.auth.organization_id;
+
+      if (!organization_id) {
+        return res.status(400).json({ message: "org id is required" });
+      }
+
+      const permissions = await RolePermissionsModel.getAllRolePermissions(
+        organization_id
+      );
+
+      return res.status(200).json({ data: permissions });
+    } catch (error) {
+      console.error("Fetch Permissions Error:", error);
+      return res.status(500).json({ message: "Error fetching permissions" });
+    }
+  },
   // ===============================
   // GET ROLES BY PERMISSION
   // ===============================

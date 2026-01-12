@@ -16,7 +16,7 @@ export const attendeeController = {
 
   async getAll(req, res) {
     try {
-      const organization_id = req.auth.organization_id
+      const organization_id = req.auth.organization_id;
       const attendees = await Attendee.getAll(organization_id);
       res.json(attendees);
     } catch (err) {

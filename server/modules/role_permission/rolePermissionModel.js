@@ -61,6 +61,22 @@ const RolePermissionsModel = {
     return result.rows;
   },
 
+    async getAllRolePermissions(organization_id) {
+    const result = await pool.query(
+      `
+      SELECT p.*
+      FROM permissions p
+      JOIN role_permissions rp ON p.id = rp.permission_id
+      JOIN roles r ON r.id = rp.role_id
+        AND r.organization_id = $1
+      ORDER BY p.id
+      `,
+      [organization_id]
+    );
+
+    return result.rows;
+  },
+
   // ===============================
   // GET ROLES BY PERMISSION (ORG SAFE)
   // ===============================

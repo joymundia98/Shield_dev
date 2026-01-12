@@ -4,7 +4,7 @@ import { attendeeController } from './attendeeController.js';
 const router = express.Router();
 
 // List all attendees
-router.get('/org/:id', attendeeController.getAll);
+router.get('/', attendeeController.getAll);
 
 // Create a new attendee
 router.post('/', attendeeController.create);
