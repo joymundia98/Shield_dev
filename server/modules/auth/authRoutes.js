@@ -9,6 +9,9 @@ const router = express.Router();
 // =============================
 // AUTH ROUTES
 // =============================
+router.post(
+  "/organizations/register", createOrg
+);
 
 // Login (Public)
 router.post("/login", login);
@@ -19,10 +22,6 @@ router.post("/register", register);
 router.post("/organiazations/login", loginOrg);
 
 // Register Organization (Protected + Permission required)
-router.post(
-  "/organizations/register",
-//   requirePermission("organization.create"), // Must have permission
-  createOrg
-);
+
 
 export default router;

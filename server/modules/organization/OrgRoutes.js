@@ -14,7 +14,7 @@ const router = express.Router();
 // =====================
 
 // Create a new organization
-router.post("/register", OrganizationController.create);
+// router.post("/register", OrganizationController.create);
 
 router.post("/login", loginOrg);
 

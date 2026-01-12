@@ -3,9 +3,7 @@ import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import UserModel from "../user/user.model.js";
 import OrganizationModel from "../organization/organizationModel.js";
-import { SendEmail } from "../../utlis/email.js"; // ✅ import your Resend utility
-
-dotenv.config();
+import { SendEmail } from "../../utils/email.js"; // ✅ import your Resend utility
 
 // ========================================
 // LOGIN – USER
