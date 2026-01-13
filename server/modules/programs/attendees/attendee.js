@@ -34,7 +34,16 @@ export const Attendee = {
     return result.rows[0];
   },
 
-  async update(id, data) {
+  async update(id, organization_id, data) {
+    const existing = await pool.query(
+      `SELECCT * FROM attendees WHERE id = $1 and organization_id = $2`,
+      [id, organization_id]
+    );
+
+    if (!existing.rows[0]) {
+      return null;
+    }
+
     const { name, email, phone, age, gender, program_id, role } = data;
 
     const result = await pool.query(

@@ -25,7 +25,16 @@ const CoreValue = {
     return result.rows[0];
   },
 
-  async update(id, data) {
+  async update(id, organization_id, data) {
+    const existing = await pool.query(
+      `SELECT * FROM core_values WHERE church_id = $1 AND organization_id = $2`,
+      [id, organization_id]
+    );
+
+    if (!existing.rows[0]) {
+      return null;
+    }
+
     const { church_id, value } = data;
     const result = await pool.query(
       `UPDATE core_values SET church_id = $1, value = $2 WHERE core_value_id = $3 RETURNING *`,

@@ -36,8 +36,18 @@ const Ministries = {
     return result.rows[0];
   },
 
-  async update(id, data) {
-    const { church_id, name, description, organization_id } = data;
+  async update(id, organization_id, data) {
+    // 1️⃣ Fetch existing program to ensure it exists
+    const existing = await pool.query(
+      `SELECT * FROM ministriea WHERE church_id = $1 AND organization_id = $2`,
+      [id, organization_id]
+    );
+
+    if (!existing.rows[0]) {
+      return null;
+    }
+    
+    const { church_id, name, description } = data;
     const result = await pool.query(
       `UPDATE ministries SET church_id = $1, name = $2, description = $3, organization_id = $4
        WHERE ministry_id = $5

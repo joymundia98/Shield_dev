@@ -48,18 +48,28 @@ const leadershipController = {
     }
   },
 
-  async update(req, res) {
-    try {
-      const { id } = req.params;
-      const organization_id = req.auth.organization_id;
-      const leader = await Leadership.update(id, { ...req.body, organization_id });
-      if (!leader) return res.status(404).json({ error: 'Leadership member not found' });
-      res.json(leader);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Failed to update leadership member' });
+async update(req, res) {
+  try {
+    const { id } = req.params;
+    const organization_id = req.auth.organization_id;
+
+    const leader = await Leadership.update(
+      id,
+      organization_id,
+      req.body
+    );
+
+    if (!leader) {
+      return res.status(404).json({ error: 'Leadership member not found' });
     }
-  },
+
+    res.json(leader);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update leadership member' });
+  }
+},
+
 
   async delete(req, res) {
     try {

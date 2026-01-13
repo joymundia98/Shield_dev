@@ -47,6 +47,15 @@ const Church = {
 
   // Update a church, only if it belongs to the organization
   async update(id, data, organization_id) {
+    const existing = await pool.query(
+      `SELECT * FROM churches WHERE id = $1 AND organization_id = $2`,
+      [id, organization_id]
+    );
+
+    if (!existing.rows[0]) {
+      return null;
+    }
+
     const {
       name,
       establishment_year,

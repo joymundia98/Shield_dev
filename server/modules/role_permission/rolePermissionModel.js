@@ -9,9 +9,7 @@ const RolePermissionsModel = {
     const result = await pool.query(
       `
       INSERT INTO role_permissions (role_id, permission_id, organization_id)
-      SELECT r.id, $2
-      FROM roles r
-      WHERE r.id = $1
+      VALUES ($1, $2, $3)
       ON CONFLICT DO NOTHING
       RETURNING *
       `,

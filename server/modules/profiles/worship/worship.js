@@ -32,6 +32,17 @@ const WorshipTimes = {
   },
 
   async update(id, data) {
+  // 1️⃣ Fetch existing worship to ensure it exists
+    const existing = await pool.query(
+      `SELECT * FROM worship_times WHERE worship_time_id = $1 AND organization_id = $2`,
+      [id, organization_id]
+    );
+
+    if (!existing.rows[0]) {
+      return null;
+    }
+  
+
     const { church_id, day, time } = data;
     const result = await pool.query(
       'UPDATE worship_times SET church_id = $1, day = $2, time = $3 WHERE worship_time_id = $4 RETURNING *',

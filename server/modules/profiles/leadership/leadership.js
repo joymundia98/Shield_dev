@@ -42,20 +42,36 @@ const Leadership = {
     return result.rows[0];
   },
 
-  // Update leadership record under the authenticated organization
-  async update(id, data) {
-    const { church_id, role, name, year_start, year_end, organization_id } = data;
+// Update leadership record under the authenticated organization
+async update(id, organization_id, data) {
+  // 1️⃣ Ensure record exists under this organization
+  const existing = await pool.query(
+    `SELECT * FROM leadership 
+     WHERE leadership_id = $1 AND organization_id = $2`,
+    [id, organization_id]
+  );
 
-    const result = await pool.query(
-      `UPDATE leadership SET 
-         church_id = $1, role = $2, name = $3, year_start = $4, year_end = $5, organization_id = $6
-       WHERE leadership_id = $7
-       RETURNING *`,
-      [church_id, role, name, year_start, year_end, organization_id, id]
-    );
+  if (!existing.rows[0]) {
+    return null;
+  }
 
-    return result.rows[0];
-  },
+  const { church_id, role, name, year_start, year_end } = data;
+
+  const result = await pool.query(
+    `UPDATE leadership SET 
+       church_id = $1,
+       role = $2,
+       name = $3,
+       year_start = $4,
+       year_end = $5
+     WHERE leadership_id = $6
+       AND organization_id = $7
+     RETURNING *`,
+    [church_id, role, name, year_start, year_end, id, organization_id]
+  );
+
+  return result.rows[0];
+},
 
   // Delete leadership record under the authenticated organization
   async delete(id, organization_id) {

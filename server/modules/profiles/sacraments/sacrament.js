@@ -32,7 +32,17 @@ const Sacraments = {
   return result.rows[0];
 },
 
-  async update(id, data) {
+  async update(id, organization_id, data) {
+    // 1️⃣ Fetch existing sacraments to ensure it exists
+    const existing = await pool.query(
+      `SELECT * FROM sacraments WHERE church_id = $1 AND organization_id = $2`,
+      [id, organization_id]
+    );
+
+    if (!existing.rows[0]) {
+      return null;
+    }
+    
     const { church_id, sacrament_name } = data;
     const result = await pool.query(
       'UPDATE sacraments SET church_id = $1, sacrament_name = $2 WHERE sacrament_id = $3 RETURNING *',
