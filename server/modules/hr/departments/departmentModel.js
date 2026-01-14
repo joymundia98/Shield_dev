@@ -17,15 +17,15 @@ const Department = {
   },
 
   async create(data) {
-    const { name, description, category } = data;
+    const { name, description, category, organization_id } = data;
 
     const result = await pool.query(
       `
-      INSERT INTO departments (name, description, category)
+      INSERT INTO departments (name, description, organization_id, category)
       VALUES ($1, $2, $3)
-      RETURNING department_id AS id, name, description, category
+      RETURNING *
       `,
-      [name, description, category]
+      [name, description, category, organization_id]
     );
 
     return result.rows[0];

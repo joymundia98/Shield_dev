@@ -7,7 +7,10 @@ const router = express.Router();
 router.post("/assign", RolePermissionsController.assign);
 
 
-router.post("/remove", RolePermissionsController.remove);
+router.delete(
+  "/remove",
+  RolePermissionsController.remove
+);
 
 
 router.get("/role/:role_id", RolePermissionsController.getPermissions);

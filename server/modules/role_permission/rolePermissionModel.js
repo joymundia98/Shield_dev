@@ -2,41 +2,73 @@
 import { pool } from "../../server.js";
 
 const RolePermissionsModel = {
+  /**
+   * Remove one or multiple permissions from a role
+   * @param {number} role_id
+   * @param {number|number[]} permission_ids
+   * @param {number} organization_id
+   */
   // ===============================
   // ASSIGN PERMISSION TO ROLE
   // ===============================
-  async assignPermission(role_id, permission_id, organization_id) {
-    const result = await pool.query(
-      `
-      INSERT INTO role_permissions (role_id, permission_id, organization_id)
-      VALUES ($1, $2, $3)
-      ON CONFLICT DO NOTHING
-      RETURNING *
-      `,
-      [role_id, permission_id, organization_id]
-    );
+  async assignPermissions(role_id, permission_ids, organization_id) {
+    if (!Array.isArray(permission_ids) || permission_ids.length === 0) {
+      throw new Error("permission_ids must be a non-empty array");
+    }
 
-    return result.rows[0] || null;
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      const query = `
+        INSERT INTO role_permissions (role_id, permission_id, organization_id)
+        VALUES ($1, $2, $3)
+        ON CONFLICT DO NOTHING
+      `;
+
+      for (const permission_id of permission_ids) {
+        await client.query(query, [
+          role_id,
+          permission_id,
+          organization_id,
+        ]);
+      }
+
+      await client.query("COMMIT");
+      return true;
+    } catch (err) {
+      await client.query("ROLLBACK");
+      throw err;
+    } finally {
+      client.release();
+    }
   },
 
   // ===============================
   // REMOVE PERMISSION FROM ROLE
   // ===============================
-  async removePermission(role_id, permission_id, organization_id) {
+  async removePermissions(role_id, permission_ids, organization_id) {
+    const ids = Array.isArray(permission_ids)
+      ? permission_ids
+      : [permission_ids];
+
+    if (ids.length === 0) {
+      throw new Error("permission_ids cannot be empty");
+    }
+
     const result = await pool.query(
       `
-      DELETE FROM role_permissions rp
-      USING roles r
-      WHERE rp.role_id = r.id
-        AND r.id = $1
-        AND rp.permission_id = $2
-        AND r.organization_id = $3
-      RETURNING rp.*
+      DELETE FROM role_permissions
+      WHERE role_id = $1
+        AND permission_id = ANY($2::int[])
+        AND organization_id = $3
+      RETURNING *
       `,
-      [role_id, permission_id, organization_id]
+      [role_id, ids, organization_id]
     );
 
-    return result.rows[0] || null;
+    return result.rows; // return all removed rows
   },
 
   // ===============================

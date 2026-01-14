@@ -4,66 +4,73 @@ const RolePermissionsController = {
   // ===============================
   // ASSIGN PERMISSION TO ROLE
   // ===============================
-  async assign(req, res) {
-    try {
-      const { role_id, permission_id } = req.body;
-      const organization_id = req.auth.organization_id;
+async assign(req, res) {
+  try {
+    const { role_id, permission_ids } = req.body;
+    const organization_id = req.auth.organization_id;
 
-      if (!role_id || !permission_id) {
-        return res.status(400).json({ message: "role_id and permission_id are required" });
-      }
-
-      const result = await RolePermissionsModel.assignPermission(
-        role_id,
-        permission_id,
-        organization_id
-      );
-
-      if (!result) {
-        return res.status(404).json({ message: "Role or permission not found in organization" });
-      }
-
-      return res.status(201).json({
-        message: "Permission successfully assigned to role",
-        data: result,
+    if (!role_id || !Array.isArray(permission_ids)) {
+      return res.status(400).json({
+        message: "role_id and permission_ids (array) are required",
       });
-    } catch (error) {
-      console.error("Assign Permission Error:", error);
-      return res.status(500).json({ message: "Error assigning permission" });
     }
-  },
+
+    await RolePermissionsModel.assignPermissions(
+      role_id,
+      permission_ids,
+      organization_id
+    );
+
+    return res.status(201).json({
+      message: "Permissions successfully assigned to role",
+    });
+  } catch (error) {
+    console.error("Assign Permission Error:", error);
+    return res.status(500).json({ message: "Error assigning permission" });
+  }
+},
 
   // ===============================
   // REMOVE PERMISSION FROM ROLE
   // ===============================
-  async remove(req, res) {
-    try {
-      const { role_id, permission_id } = req.body;
-      const organization_id = req.auth.organization_id;
+// rolePermissionController.js
+async remove(req, res) {
+  try {
+    const { role_id, permission_id, permission_ids } = req.body;
+    const organization_id = req.auth.organization_id;
 
-      if (!role_id || !permission_id) {
-        return res.status(400).json({ message: "role_id and permission_id are required" });
-      }
+    // Allow either permission_id OR permission_ids
+    const ids = permission_ids ?? permission_id;
 
-      const result = await RolePermissionsModel.removePermission(
-        role_id,
-        permission_id,
-        organization_id
-      );
-
-      if (!result) {
-        return res.status(404).json({ message: "Role-permission relation not found" });
-      }
-
-      return res.status(200).json({
-        message: "Permission successfully removed from role",
-        data: result,
+    if (!role_id || !ids) {
+      return res.status(400).json({
+        message: "role_id and permission_id(s) are required",
       });
-    } catch (error) {
-      console.error("Remove Permission Error:", error);
-      return res.status(500).json({ message: "Error removing permission" });
     }
-  },
+
+    const removed = await RolePermissionsModel.removePermissions(
+      role_id,
+      ids,
+      organization_id
+    );
+
+    if (!removed.length) {
+      return res.status(404).json({
+        message: "No permissions found to remove",
+      });
+    }
+
+    return res.json({
+      message: "Permission(s) removed successfully",
+      removed,
+    });
+  } catch (error) {
+    console.error("Remove Permission Error:", error);
+    return res.status(500).json({
+      message: "Error removing permission(s)",
+    });
+  }
+},
 
   // ===============================
   // GET PERMISSIONS BY ROLE
