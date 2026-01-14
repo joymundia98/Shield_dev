@@ -3,26 +3,25 @@ import Department from "../hr/departments/departmentModel.js";
 import RolesModel from "./roleModel.js";
 
 const RolesController = {
+  // Create a new role
   async create(req, res) {
     try {
       const organization_id = req.auth.organization_id;
       const { department_id } = req.body;
 
       // 🔒 Validate department belongs to this org
-      const department = await Department.getById(
-        department_id,
-        organization_id
-      );
-
-      if (!department) {
-        return res.status(404).json({
-          message: "Department not found in your organization",
-        });
+      if (department_id) {
+        const department = await Department.getById(department_id, organization_id);
+        if (!department) {
+          return res.status(404).json({
+            message: "Department not found in your organization",
+          });
+        }
       }
 
       const role = await RolesModel.create({
         ...req.body,
-        organization_id,
+        organization_id, // org-specific role
       });
 
       return res.status(201).json(role);
@@ -32,17 +31,7 @@ const RolesController = {
     }
   },
 
-async getAllOrgRoles(req, res) {
-  try {
-    const roles = await RolesModel.getAllOrgRoles();
-    return res.status(200).json(roles);
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Error fetching roles" });
-  }
-},
-
-
+  // Fetch all roles (global + org-specific)
   async getAll(req, res) {
     try {
       const organization_id = req.auth.organization_id;
@@ -56,10 +45,23 @@ async getAllOrgRoles(req, res) {
     }
   },
 
+  // Fetch all roles regardless of org (admin-level)
+  async getAllOrgRoles(req, res) {
+    try {
+      const roles = await RolesModel.getAllOrgRoles();
+      return res.status(200).json(roles);
+    } catch (err) {
+      console.error("Get All Org Roles Error:", err);
+      return res.status(500).json({ message: "Error fetching roles" });
+    }
+  },
+
+  // Fetch a single role (global + org-specific)
   async getOne(req, res) {
     try {
       const { id } = req.params;
-      const organization_id = req.auth.organization_id
+      const organization_id = req.auth.organization_id;
+
       const role = await RolesModel.findById(id, organization_id);
 
       if (!role) {
@@ -73,14 +75,16 @@ async getAllOrgRoles(req, res) {
     }
   },
 
+  // Update an org-specific role
   async update(req, res) {
     try {
       const { id } = req.params;
-      const organization_id = req.auth.organization_id
+      const organization_id = req.auth.organization_id;
+
       const role = await RolesModel.update(id, organization_id, req.body);
 
       if (!role) {
-        return res.status(404).json({ message: "Role not found" });
+        return res.status(404).json({ message: "Role not found or cannot update global role" });
       }
 
       return res.status(200).json(role);
@@ -90,14 +94,16 @@ async getAllOrgRoles(req, res) {
     }
   },
 
+  // Delete an org-specific role
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const organization_id = req.auth.organization_id
+      const organization_id = req.auth.organization_id;
+
       const deleted = await RolesModel.delete(id, organization_id);
 
       if (!deleted) {
-        return res.status(404).json({ message: "Role not found" });
+        return res.status(404).json({ message: "Role not found or cannot delete global role" });
       }
 
       return res.status(200).json({ message: "Role deleted" });
@@ -105,7 +111,7 @@ async getAllOrgRoles(req, res) {
       console.error("Delete Role Error:", error);
       return res.status(500).json({ message: "Error deleting role" });
     }
-  }
+  },
 };
 
 export default RolesController;
