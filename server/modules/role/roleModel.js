@@ -8,7 +8,7 @@ const RolesModel = {
     const result = await pool.query(
       `
       INSERT INTO roles (name, description, organization_id, department_id)
-      VALUES ($1, $2)
+      VALUES ($1, $2, $3, $4)
       RETURNING *
       `,
       [name, description, organization_id, department_id]
