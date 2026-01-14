@@ -22,7 +22,7 @@ const Department = {
     const result = await pool.query(
       `
       INSERT INTO departments (name, description, organization_id, category)
-      VALUES ($1, $2, $3)
+      VALUES ($1, $2, $3, $4)
       RETURNING *
       `,
       [name, description, category, organization_id]
