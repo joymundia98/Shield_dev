@@ -3,15 +3,15 @@ import { pool } from "../../server.js";
 
 const RolesModel = {
   async create(data) {
-    const { name, description } = data;
+    const { name, description, organization_id, department_id } = data;
 
     const result = await pool.query(
       `
-      INSERT INTO roles (name, description)
+      INSERT INTO roles (name, description, organization_id, department_id)
       VALUES ($1, $2)
       RETURNING *
       `,
-      [name, description]
+      [name, description, organization_id, department_id]
     );
 
     return result.rows[0];
