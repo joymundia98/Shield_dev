@@ -17,7 +17,7 @@ const Department = {
   },
 
   async create(data) {
-    const { name, description, category, organization_id } = data;
+    const { name, description, organization_id, category } = data;
 
     const result = await pool.query(
       `
@@ -25,7 +25,7 @@ const Department = {
       VALUES ($1, $2, $3, $4)
       RETURNING *
       `,
-      [name, description, category, organization_id]
+      [name, description, organization_id, category]
     );
 
     return result.rows[0];
