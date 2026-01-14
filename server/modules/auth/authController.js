@@ -25,16 +25,19 @@ export const login = async (req, res) => {
 
     const role = await UserModel.getRoleNameById(user.role_id);
 
+    console.log(role)
+
     const payload = {
       sub: user.id,
       type: "user",
       email: user.email,
       organization_id: user.organization_id,
-      role,
+      role_id: role.id,
+      role: role.id,
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "24h",
     });
 
     res.json({
@@ -44,6 +47,7 @@ export const login = async (req, res) => {
         id: user.id,
         email: user.email,
         organization_id: user.organization_id,
+        role_id: role.id,
         role,
       },
     });

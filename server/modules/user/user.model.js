@@ -15,8 +15,18 @@ const User = {
 
 async getById(id) {
   const result = await pool.query(
-    `SELECT * FROM users 
-     WHERE id = $1`,
+    `
+    SELECT
+      u.id,
+      u.email,
+      u.organization_id,
+      r.id as role_id,
+      r.name AS role,
+      u.password
+    FROM users u
+    LEFT JOIN roles r ON r.id = u.role_id
+    WHERE u.id = $1
+    `,
     [id]
   );
   return result.rows[0] || null;
@@ -47,8 +57,18 @@ async getById(id) {
 
   async findByEmail(email) {
     const result = await pool.query(
-      `SELECT * FROM users 
-       WHERE email = $1`,
+      `
+    SELECT
+      u.id,
+      u.email,
+      u.password,
+      u.organization_id,
+      r.id as role_id,
+      r.name AS role
+    FROM users u
+    LEFT JOIN roles r ON r.id = u.role_id
+    WHERE u.email = $1
+    `,
       [email]
     );
     return result.rows[0] || null;
@@ -189,10 +209,10 @@ async getById(id) {
 
   async getRoleNameById(role_id) {
     const result = await pool.query(
-      `SELECT name FROM roles WHERE id = $1 LIMIT 1`,
+      `SELECT * FROM roles WHERE id = $1`,
       [role_id]
     );
-    return result.rows[0]?.name || null;
+    return result.rows[0] || null;
   },
 
   async getUserPermissions(userId, organization_id) {
