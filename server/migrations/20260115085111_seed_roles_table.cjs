@@ -76,7 +76,7 @@ exports.up = async function(knex) {
     {
       name: "Organization Registrar",
       description: "Registrar for an organization",
-      organization_id: 10,
+      organization_id: null,
       department_id: null,
       created_at: knex.fn.now(),
     },
