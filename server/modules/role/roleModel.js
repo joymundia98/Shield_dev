@@ -43,7 +43,7 @@ const RolesModel = {
    * Fetch all roles (admin-level, no org scoping)
    */
   async getAllOrgRoles() {
-    const result = await pool.query(`SELECT * FROM roles ORDER BY id DESC`);
+    const result = await pool.query(`SELECT * FROM roles WHERE organization_id IS NULL ORDER BY id DESC`);
     return result.rows;
   },
 
