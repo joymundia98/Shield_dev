@@ -100,7 +100,7 @@ async getById(id) {
         password,
         phone,
         position,
-        photo_url
+        photo_url,
         role_id,
         organization_id,
         status
