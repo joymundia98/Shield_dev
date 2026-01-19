@@ -123,9 +123,9 @@ export const register = async (req, res) => {
       organization_id,
     } = req.body;
 
-    if (!first_name || !last_name || !email || !password || !role_id)
+    if (!first_name || !last_name || !email || !password)
       return res.status(400).json({
-        message: "first_name, last_name, email, password, role_id required",
+        message: "first_name, last_name, email, password",
       });
 
     const existing = await UserModel.findByEmail(email);
