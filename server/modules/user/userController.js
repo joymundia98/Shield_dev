@@ -50,7 +50,7 @@ const userController = {
 
   async create(req, res) {
     try {
-      const {organization_id}= req.auth.organization_id;
+      const organization_id= req.auth.organization_id;
       const user = await User.create({
         ...req.body,
         organization_id,
