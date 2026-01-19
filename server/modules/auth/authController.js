@@ -147,7 +147,7 @@ export const register = async (req, res) => {
       status: "pending",
     });
 
-    await UserModel.assignRole(newUser.id, role_id);
+    // await UserModel.assignRole(newUser.id, role_id);
 
     // ==========================
     // SEND WELCOME EMAIL
