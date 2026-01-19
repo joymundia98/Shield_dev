@@ -55,7 +55,7 @@ export const counsellorsController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const { organization_id } = req.auth.organization_id;
+      const  organization_id  = req.auth.organization_id;
       const data = req.body;
 
       const updatedCounsellor = await CounsellorsModel.update(

@@ -12,7 +12,7 @@ const router = express.Router();
 router.post("/", createAssetCategory);
 router.get("/", getAssetCategories);
 router.get("/:id", getAssetCategoryById);
-router.put("/:id", updateAssetCategory);
+router.patch("/:id", updateAssetCategory);
 router.delete("/:id", deleteAssetCategory);
 
 

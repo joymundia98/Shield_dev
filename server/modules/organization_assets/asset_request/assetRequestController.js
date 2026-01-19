@@ -42,7 +42,7 @@ export const updateAssetRequest = async (req, res) => {
   try {
     const updated = await AssetRequest.update(
       req.params.id,
-      req.user.organization_id,
+      req.auth.organization_id,
       req.body
     );
     if (!updated) return res.status(404).json({ error: "Asset request not found or nothing to update" });

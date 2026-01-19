@@ -13,7 +13,7 @@ router.get("/", getAssets);
 router.get("/:id", getAssetById);
 
 // Update asset
-router.put("/:id", updateAsset);
+router.patch("/:id", updateAsset);
 
 // Delete asset
 router.delete("/:id", deleteAsset);

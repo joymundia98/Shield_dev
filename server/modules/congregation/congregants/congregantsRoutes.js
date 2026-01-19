@@ -9,7 +9,7 @@ router.use(verifyJWT);
 router.get("/", CongregantController.getAll);
 router.get("/:id", CongregantController.getById);
 router.post("/", CongregantController.create);
-router.put("/:id", CongregantController.update);
+router.patch("/:id", CongregantController.update);
 router.delete("/:id", CongregantController.delete);
 
 export default router;

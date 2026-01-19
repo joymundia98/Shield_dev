@@ -9,7 +9,7 @@ router.use(verifyJWT);
 router.get("/", teacherController.getAll);
 router.get("/:id", teacherController.getById);
 router.post("/", teacherController.create);
-router.put("/:id", teacherController.update);
+router.patch("/:id", teacherController.update);
 router.delete("/:id", teacherController.delete);
 
 export default router;

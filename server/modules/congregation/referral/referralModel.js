@@ -20,12 +20,34 @@ const Referral = {
   },
 
   // Create a new referral for the organization
-  async create(source, organization_id) {
+  async create(data, organization_id) {
+    const { source, description } = data; // Include description if your table has it
     const result = await pool.query(
-      `INSERT INTO referrals (source, organization_id) VALUES ($1, $2) RETURNING *`,
-      [source, organization_id]
+      `
+      INSERT INTO referrals (source, description, organization_id) 
+      VALUES ($1, $2, $3) 
+      RETURNING *
+      `,
+      [source, description || null, organization_id]
     );
     return result.rows[0];
+  },
+
+  // Update a referral scoped to the organization
+  async update(id, data, organization_id) {
+    const { source, description } = data;
+    const result = await pool.query(
+      `
+      UPDATE referrals 
+      SET source = COALESCE($1, source),
+          description = COALESCE($2, description),
+          updated_at = NOW()
+      WHERE id = $3 AND organization_id = $4
+      RETURNING *
+      `,
+      [source, description, id, organization_id]
+    );
+    return result.rows[0] || null;
   },
 
   // Delete a referral scoped to the organization
@@ -35,7 +57,7 @@ const Referral = {
       [id, organization_id]
     );
     return result.rows[0];
-  }
+  },
 };
 
 export default Referral;

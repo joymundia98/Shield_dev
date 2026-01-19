@@ -13,7 +13,7 @@ router.post('/', attendeeController.create);
 router.get('/:id', attendeeController.getById);
 
 // Update attendee
-router.put('/:id', attendeeController.update);
+router.patch('/:id', attendeeController.update);
 
 // Delete attendee
 router.delete('/:id', attendeeController.delete);

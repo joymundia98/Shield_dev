@@ -11,5 +11,6 @@ router.get('/', ReferralController.getAll); // Get all referral sources
 router.get('/:id', ReferralController.getById); // Get a specific referral source by ID
 router.post('/', ReferralController.create); // Create a new referral source
 router.delete('/:id', ReferralController.delete); // Delete a referral source
+router.put('/:id', ReferralController.update);
 
 export default router;

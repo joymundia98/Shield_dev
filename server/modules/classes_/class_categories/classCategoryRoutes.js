@@ -9,7 +9,7 @@ router.use(verifyJWT);
 router.post("/", classCategoryController.create);
 router.get("/", classCategoryController.getAll);
 router.get("/:id", classCategoryController.getById);
-router.put("/:id", classCategoryController.update);
+router.patch("/:id", classCategoryController.update);
 router.delete("/:id", classCategoryController.delete);
 
 export default router;

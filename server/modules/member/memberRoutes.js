@@ -12,7 +12,7 @@ router.use(verifyJWT);
 router.post("/", MemberController.create);
 router.get("/", MemberController.getAll);
 router.get("/:id", MemberController.getById);
-// router.put("/:id", verifyJWT, requirePermission("member.update"), MemberController.updateMember);
-// router.delete("/:id", verifyJWT, requirePermission("member.delete"), MemberController.deleteMember);
+router.put("/:id", verifyJWT, MemberController.update);
+router.delete("/:id", verifyJWT, MemberController.delete);
 
 export default router;

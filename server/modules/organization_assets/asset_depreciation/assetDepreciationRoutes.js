@@ -6,7 +6,7 @@ const router = express.Router();
 router.get("/", AssetDepreciationController.getAll);
 router.get("/:id", AssetDepreciationController.getById);
 router.post("/", AssetDepreciationController.create);
-router.put("/:id", AssetDepreciationController.update);
+router.patch("/:id", AssetDepreciationController.update);
 router.delete("/:id", AssetDepreciationController.delete);
 
 export default router;

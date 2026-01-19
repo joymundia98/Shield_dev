@@ -18,7 +18,7 @@ router.get("/visitor/:visitor_id", convertsController.getByVisitor);
 router.get("/", convertsController.getAll);
 router.get("/:id", convertsController.getById);
 router.post("/", convertsController.create);
-router.put("/:id", convertsController.update);
+router.patch("/:id", convertsController.update);
 router.delete("/:id", convertsController.delete);
 
 export default router;

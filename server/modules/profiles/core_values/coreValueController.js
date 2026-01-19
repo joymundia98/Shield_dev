@@ -57,7 +57,8 @@ const coreValuesController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const coreValue = await CoreValue.update(id, req.body);
+      const organization_id = req.auth.organization_id;
+      const coreValue = await CoreValue.update(id,organization_id , req.body);
       if (!coreValue) return res.status(404).json({ error: 'Core value not found' });
       res.json(coreValue);
     } catch (err) {

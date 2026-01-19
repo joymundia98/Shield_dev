@@ -10,5 +10,6 @@ router.use(verifyJWT);
 router.post('/', VisitorServiceController.add); // Add a visitor to a service
 router.delete('/:visitor_id/:service_id', VisitorServiceController.remove); // Remove visitor from a service
 router.get('/:visitor_id', VisitorServiceController.getServicesByVisitor); // Get all services attended by a visitor
+router.put('/:id', VisitorServiceController.update);
 
 export default router;

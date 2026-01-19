@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/', IncomeCategoryController.list);
 router.get('/:id', IncomeCategoryController.getById);
 router.post('/', IncomeCategoryController.create);
-router.put('/:id', IncomeCategoryController.update);
+router.patch('/:id', IncomeCategoryController.update);
 router.delete('/:id', IncomeCategoryController.delete);
 
 export default router;

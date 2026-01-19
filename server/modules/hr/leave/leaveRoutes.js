@@ -34,7 +34,7 @@ router.post("/", LeaveRequestsController.create);
 /**
  * Full update of a leave request
  */
-router.put("/:id", LeaveRequestsController.update);
+router.patch("/:id", LeaveRequestsController.update);
 
 /**
  * Update leave request status (approve / reject)

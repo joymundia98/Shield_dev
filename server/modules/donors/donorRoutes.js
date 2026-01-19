@@ -8,7 +8,7 @@ const router = express.Router();
 router.get("/", verifyJWT, DonorsController.getAll);
 router.get("/:id", verifyJWT, DonorsController.getById);
 router.post("/", DonorsController.create);
-router.put("/:id", verifyJWT, DonorsController.update);
+router.patch("/:id", verifyJWT, DonorsController.update);
 router.delete("/:id", verifyJWT, DonorsController.delete);
 
 export default router;

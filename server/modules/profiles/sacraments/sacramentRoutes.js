@@ -10,7 +10,7 @@ router.get('/', sacramentsController.getAll);
 router.get('/:id', sacramentsController.getById);
 router.get('/church/:church_id', sacramentsController.getByChurchId);
 router.post('/', sacramentsController.create);
-router.put('/:id', sacramentsController.update);
+router.patch('/:id', sacramentsController.update);
 router.delete('/:id', sacramentsController.delete);
 
 export default router;

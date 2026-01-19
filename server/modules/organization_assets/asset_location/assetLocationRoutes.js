@@ -12,7 +12,7 @@ const router = express.Router();
 router.post("/", createAssetLocation);
 router.get("/", getAssetLocations);
 router.get("/:id", getAssetLocationById);
-router.put("/:id", updateAssetLocation);
+router.patch("/:id", updateAssetLocation);
 router.delete("/:id", deleteAssetLocation);
 
 export default router;

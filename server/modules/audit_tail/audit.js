@@ -43,6 +43,47 @@ const AuditLog = {
         user_agent ?? null
       ]
     );
+  },
+
+  async getLogs(organization_id, filters = {}, limit = 50, offset = 0) {
+    const { user_id, module, start_date, end_date } = filters;
+
+    const conditions = ["organization_id = $1"];
+    const values = [organization_id];
+    let idx = 2;
+
+    if (user_id) {
+      conditions.push(`user_id = $${idx++}`);
+      values.push(user_id);
+    }
+
+    if (module) {
+      conditions.push(`module = $${idx++}`);
+      values.push(module);
+    }
+
+    if (start_date) {
+      conditions.push(`created_at >= $${idx++}`);
+      values.push(start_date);
+    }
+
+    if (end_date) {
+      conditions.push(`created_at <= $${idx++}`);
+      values.push(end_date);
+    }
+
+    const query = `
+      SELECT *
+      FROM audit_trail
+      WHERE ${conditions.join(" AND ")}
+      ORDER BY created_at DESC
+      LIMIT $${idx++} OFFSET $${idx++}
+    `;
+
+    values.push(limit, offset);
+
+    const result = await pool.query(query, values);
+    return result.rows;
   }
 };
 

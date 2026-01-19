@@ -18,7 +18,7 @@ router.get("/department/:id", StaffController.getByDepartment);
 router.post("/", StaffController.create);
 
 // UPDATE a staff member (org-scoped)
-router.put("/:id", StaffController.update);
+router.patch("/:id", StaffController.update);
 
 // DELETE a staff member (org-scoped)
 router.delete("/:id", StaffController.delete);

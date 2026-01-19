@@ -43,7 +43,7 @@ export const updateAsset = async (req, res) => {
   try {
     const updated = await Asset.update(
       req.params.id,
-      req.user.organization_id,
+      req.auth.organization_id,
       req.body
     );
 

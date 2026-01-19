@@ -10,7 +10,7 @@ router.get('/:id', ExpenseSubcategoryController.getById);
 
 router.post('/', ExpenseSubcategoryController.create);
 
-router.put('/:id', ExpenseSubcategoryController.update);
+router.patch('/:id', ExpenseSubcategoryController.update);
 
 router.delete('/:id', ExpenseSubcategoryController.delete);
 

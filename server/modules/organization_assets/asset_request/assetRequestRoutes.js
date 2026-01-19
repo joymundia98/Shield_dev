@@ -19,7 +19,7 @@ router.get("/", getAssetRequests);
 router.get("/:id", getAssetRequestById);
 
 // UPDATE
-router.put("/:id", updateAssetRequest);
+router.patch("/:id", updateAssetRequest);
 
 // DELETE
 router.delete("/:id", deleteAssetRequest);

@@ -13,7 +13,7 @@ const router = express.Router();
 router.get("/", verifyJWT, getAllDonations);
 router.get("/:id", verifyJWT, getDonationById);
 router.post("/", verifyJWT, createDonation);
-router.put("/:id", verifyJWT,  updateDonation);
+router.patch("/:id", verifyJWT,  updateDonation);
 router.delete("/:id", verifyJWT, deleteDonation);
 
 export default router;

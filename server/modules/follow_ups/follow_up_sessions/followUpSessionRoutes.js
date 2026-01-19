@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/', followUpSessionsController.getAll);
 router.get('/:id', followUpSessionsController.getById);
 router.post('/', followUpSessionsController.create);
-router.put('/:id', followUpSessionsController.update);
+router.patch('/:id', followUpSessionsController.update);
 router.delete('/:id', followUpSessionsController.delete);
 
 // Additional filters

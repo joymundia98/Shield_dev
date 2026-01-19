@@ -24,6 +24,22 @@ const VisitorService = {
     return result.rows[0]; // Return the removed record or null if not found
   },
 
+  // Update a visitor's service assignment
+  async update(data, organization_id) {
+    const { visitor_id, old_service_id, new_service_id } = data;
+
+    // Update the record where visitor_id, old_service_id, and organization match
+    const result = await pool.query(
+      `UPDATE visitor_service
+       SET service_id = $1, updated_at = NOW()
+       WHERE visitor_id = $2 AND service_id = $3 AND organization_id = $4
+       RETURNING visitor_id, service_id, organization_id`,
+      [new_service_id, visitor_id, old_service_id, organization_id]
+    );
+
+    return result.rows[0]; // Return the updated record or null if not found
+  },
+
   // Get all services attended by a specific visitor within the organization
   async getServicesByVisitor(visitor_id, organization_id) {
     const result = await pool.query(

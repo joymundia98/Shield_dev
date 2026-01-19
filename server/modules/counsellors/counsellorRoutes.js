@@ -9,7 +9,7 @@ router.use(verifyJWT);
 router.get('/', counsellorsController.getAll);
 router.get('/:id', counsellorsController.getById);
 router.post('/', counsellorsController.create);
-router.put('/:id', counsellorsController.update);
+router.patch('/:id', counsellorsController.update);
 router.delete('/:id', counsellorsController.delete);
 
 export default router;

@@ -11,7 +11,7 @@ router.get('/:id', IncomeController.getById);
 
 router.post('/', IncomeController.create);
 
-router.put('/:id', IncomeController.update);
+router.patch('/:id', IncomeController.update);
 
 router.patch('/:id/status', IncomeController.updateStatus);
 

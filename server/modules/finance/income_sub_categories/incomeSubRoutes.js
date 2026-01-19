@@ -10,7 +10,7 @@ router.get('/:orgId/:id', IncomeSubcategoryController.getById);
 
 router.post('/', IncomeSubcategoryController.create);
 
-router.put('/:orgId/:id', IncomeSubcategoryController.update);
+router.patch('/:orgId/:id', IncomeSubcategoryController.update);
 
 router.delete('/:orgId/:id', IncomeSubcategoryController.delete);
 

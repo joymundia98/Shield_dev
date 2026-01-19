@@ -1,59 +1,100 @@
 import { pool } from "../../server.js";
 
 const FollowUpsModel = {
-  async create(data) {
-
-    //don't forget to change member_id to visitor_id in the database schema
+  // CREATE (organization enforced)
+  async create(data, organization_id) {
     const { visitor_id, followup_date, type, notes } = data;
+
     const result = await pool.query(
       `
-      INSERT INTO follow_ups (visitor_id, followup_date, type, notes)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO follow_ups (visitor_id, followup_date, type, notes, organization_id)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *
       `,
-      [visitor_id, followup_date, type, notes]
+      [visitor_id, followup_date, type, notes, organization_id]
     );
+
     return result.rows[0];
   },
 
-  async findAll() {
-    const result = await pool.query(`
-      SELECT * FROM follow_ups ORDER BY followup_date DESC
-    `);
+  // GET ALL (organization scoped)
+  async findAll(organization_id) {
+    const result = await pool.query(
+      `
+      SELECT * 
+      FROM follow_ups 
+      WHERE organization_id = $1
+      ORDER BY followup_date DESC
+      `,
+      [organization_id]
+    );
     return result.rows;
   },
 
-  async findById(id) {
+  // GET BY ID (organization scoped)
+  async findById(id, organization_id) {
     const result = await pool.query(
-      `SELECT * FROM follow_ups WHERE followup_id = $1 LIMIT 1`,
-      [id]
+      `
+      SELECT * 
+      FROM follow_ups 
+      WHERE followup_id = $1 
+        AND organization_id = $2
+      LIMIT 1
+      `,
+      [id, organization_id]
     );
-    return result.rows[0];
+    return result.rows[0] || null;
   },
 
-  async update(id, data) {
+  // UPDATE (organization safe)
+  async update(id, data, organization_id) {
     const { visitor_id, followup_date, type, notes } = data;
+
     const result = await pool.query(
       `
       UPDATE follow_ups
-      SET visitor_id=$1, followup_date=$2, type=$3, notes=$4, created_at=NOW()
-      WHERE followup_id=$5
+      SET 
+        visitor_id = COALESCE($1, visitor_id),
+        followup_date = COALESCE($2, followup_date),
+        type = COALESCE($3, type),
+        notes = COALESCE($4, notes),
+        updated_at = NOW()
+      WHERE followup_id = $5
+        AND organization_id = $6
       RETURNING *
       `,
-      [visitor_id, followup_date, type, notes, id]
+      [visitor_id, followup_date, type, notes, id, organization_id]
     );
-    return result.rows[0];
+
+    return result.rows[0] || null;
   },
 
-  async delete(id) {
-    await pool.query(`DELETE FROM follow_ups WHERE followup_id = $1`, [id]);
-    return true;
-  },
-
-  async findByMember(member_id) {
+  // DELETE (organization safe)
+  async delete(id, organization_id) {
     const result = await pool.query(
-      `SELECT * FROM follow_ups WHERE member_id = $1 ORDER BY followup_date DESC`,
-      [member_id]
+      `
+      DELETE FROM follow_ups
+      WHERE followup_id = $1
+        AND organization_id = $2
+      RETURNING *
+      `,
+      [id, organization_id]
+    );
+
+    return result.rows[0] || null;
+  },
+
+  // FIND BY VISITOR (organization scoped)
+  async findByVisitor(visitor_id, organization_id) {
+    const result = await pool.query(
+      `
+      SELECT * 
+      FROM follow_ups 
+      WHERE visitor_id = $1
+        AND organization_id = $2
+      ORDER BY followup_date DESC
+      `,
+      [visitor_id, organization_id]
     );
     return result.rows;
   },

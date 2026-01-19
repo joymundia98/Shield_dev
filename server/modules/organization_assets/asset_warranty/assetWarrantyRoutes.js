@@ -12,7 +12,7 @@ const router = express.Router();
 router.get("/org/:id", getAllWarranties);
 router.get("/:id", getWarrantyById);
 router.post("/", createWarranty);
-router.put("/:id", updateWarranty);
+router.patch("/:id", updateWarranty);
 router.delete("/:id", deleteWarranty);
 
 export default router;

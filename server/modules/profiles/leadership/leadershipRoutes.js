@@ -10,7 +10,7 @@ router.get('/', leadershipController.getAll);
 router.get('/:id', leadershipController.getById);
 router.get('/church/:church_id', leadershipController.getByChurchId);
 router.post('/', leadershipController.create);
-router.put('/:id', leadershipController.update);
+router.patch('/:id', leadershipController.update);
 router.delete('/:id', leadershipController.delete);
 
 export default router;
