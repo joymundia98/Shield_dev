@@ -14,10 +14,18 @@ function generateAccountId() {
   return `ORG-${random}`;
 }
 
+const defaultDepartments = [
+  { name: "Administration", category: "Administration" },
+  { name: "Finance", category: "Finance" },
+];
+
+const defaultRoles = [
+  { name: "Administrator", description: "Full system control", department: "Administration" },
+  { name: "Registrar", description: "Registrar for an organization", department: "Administration" },
+  { name: "Finance Officer", description: "Handles financial matters", department: "Finance" },
+];
+
 const Organization = {
-  // ===============================
-  // CREATE
-  // ===============================
   async create(data) {
     const {
       name,
@@ -28,7 +36,7 @@ const Organization = {
       status = "active",
       organization_email,
       org_type_id,
-      headquarters_id, // ✅ NEW
+      headquarters_id,
       password
     } = data;
 
@@ -39,40 +47,101 @@ const Organization = {
       hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
     }
 
-    const result = await pool.query(
-      `
-      INSERT INTO organizations (
-        name,
-        denomination,
-        address,
-        region,
-        district,
-        status,
-        organization_email,
-        organization_account_id,
-        org_type_id,
-        headquarters_id,
-        password
-      )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
-      RETURNING *
-      `,
-      [
-        name,
-        denomination,
-        address,
-        region,
-        district,
-        status,
-        organization_email,
-        organization_account_id,
-        org_type_id,
-        headquarters_id,
-        hashedPassword
-      ]
-    );
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
 
-    return result.rows[0];
+      // 1️⃣ Create organization
+      const orgResult = await client.query(
+        `
+        INSERT INTO organizations (
+          name, denomination, address, region, district, status,
+          organization_email, organization_account_id, org_type_id, headquarters_id, password
+        )
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+        RETURNING *
+        `,
+        [
+          name,
+          denomination,
+          address,
+          region,
+          district,
+          status,
+          organization_email,
+          organization_account_id,
+          org_type_id,
+          headquarters_id,
+          hashedPassword
+        ]
+      );
+
+      const org = orgResult.rows[0];
+      const organization_id = org.id; // ✅ Use the actual PK
+
+      // 2️⃣ Seed default departments
+      const departmentMap = {};
+
+      for (const dept of defaultDepartments) {
+        let deptRow = (
+          await client.query(
+            `SELECT * FROM departments WHERE name = $1 AND organization_id = $2`,
+            [dept.name, organization_id]
+          )
+        ).rows[0];
+
+        if (!deptRow) {
+          const insertDept = await client.query(
+            `
+            INSERT INTO departments (name, category, organization_id)
+            VALUES ($1, $2, $3)
+            RETURNING *
+            `,
+            [dept.name, dept.category, organization_id]
+          );
+          deptRow = insertDept.rows[0];
+        }
+
+        // Make sure we reference the correct PK column here!
+        departmentMap[dept.name] = deptRow; // deptRow.department_id or deptRow.id
+      }
+
+      // 3️⃣ Seed default roles
+      for (const role of defaultRoles) {
+        const existingRole = (
+          await client.query(
+            `SELECT * FROM roles WHERE name = $1 AND organization_id = $2`,
+            [role.name, organization_id]
+          )
+        ).rows[0];
+
+        if (!existingRole) {
+          await client.query(
+            `
+            INSERT INTO roles (name, description, organization_id, department_id)
+            VALUES ($1, $2, $3, $4)
+            `,
+            [
+              role.name,
+              role.description,
+              organization_id,
+              role.department
+                ? departmentMap[role.department]?.department_id || departmentMap[role.department]?.id
+                : null
+            ]
+          );
+        }
+      }
+
+      await client.query("COMMIT");
+      return org;
+    } catch (err) {
+      await client.query("ROLLBACK");
+      console.error("Organization creation failed:", err);
+      throw err;
+    } finally {
+      client.release();
+    }
   },
 
   // ===============================

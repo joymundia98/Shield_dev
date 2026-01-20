@@ -190,11 +190,15 @@ export const createOrg = async (req, res) => {
       status,
       organization_email,
       headquarters_id,
-      password
+      password,
+      org_type_id
     } = req.body;
 
     if (!name)
       return res.status(400).json({ message: "Organization name is required" });
+
+    if (!org_type_id)
+      return res.status(400).json({ message: "org_type_id is required" });
 
     const org = await OrganizationModel.create({
       name,
@@ -205,7 +209,8 @@ export const createOrg = async (req, res) => {
       status,
       organization_email,
       headquarters_id,
-      password
+      password,
+      org_type_id
     });
 
     // ==========================
@@ -234,3 +239,4 @@ export const createOrg = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
