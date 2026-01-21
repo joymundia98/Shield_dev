@@ -69,6 +69,7 @@ import rolePermissionRoutes from './modules/role_permission/rolePermRoutes.js';
 import denominationRoutes from './modules/denomination/denominationRoutes.js';
 import organizationRoutes from './modules/organization/OrgRoutes.js';
 import orgTypeRoutes from './modules/organization_type/orgTypeRoutes.js';
+import headQuartersRoutes from './modules/head_quarters/hqRoutes.js';
 import { verifyJWT } from './middleware/auth.js';
 
 import reportRoutes from "./modules/reports/reportRoutes.js";
@@ -169,6 +170,7 @@ app.use("/api/leave_requests", leaveRoutes);
 app.use("/api/denominations", verifyJWT, denominationRoutes);
 app.use("/api/organizations", organizationRoutes);
 app.use("/api/organization_type", orgTypeRoutes);
+app.use("/api/headquarters", verifyJWT,headQuartersRoutes);
 
 // Health check
 app.get("/", (req, res) => {

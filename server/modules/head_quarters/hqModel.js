@@ -50,6 +50,40 @@ const HeadquartersModel = {
     return result.rows[0];
   },
 
+    async getOrgsByHQId(id) {
+    const result = await pool.query(
+      `SELECT * FROM organizations WHERE headquaters_id = $1`,
+      [id]
+    );
+    return result.rows[0];
+  },
+
+async getOrgByIdUnderHQ(orgId, headquarterId) {
+  // Fetch the organization only if it belongs to the headquarter
+  const orgResult = await pool.query(
+    `
+    SELECT *
+    FROM organizations
+    WHERE id = $1 AND headquarters_id = $2
+    `,
+    [orgId, headquarterId]
+  );
+
+  const org = orgResult.rows[0];
+  if (!org) return null; // not found or does not belong to this HQ
+
+  // Optional: fetch departments and roles
+  const [departmentsResult, rolesResult] = await Promise.all([
+    pool.query(`SELECT * FROM departments WHERE organization_id = $1`, [org.id]),
+    pool.query(`SELECT * FROM roles WHERE organization_id = $1`, [org.id])
+  ]);
+
+  org.departments = departmentsResult.rows;
+  org.roles = rolesResult.rows;
+
+  return org;
+},
+
   // =========================
   // UPDATE HQ
   // =========================
