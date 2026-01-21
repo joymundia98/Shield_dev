@@ -50,13 +50,13 @@ const HeadquartersModel = {
     return result.rows[0];
   },
 
-    async getOrgsByHQId(id) {
-    const result = await pool.query(
-      `SELECT * FROM organizations WHERE headquaters_id = $1`,
-      [id]
-    );
-    return result.rows[0];
-  },
+async getOrgsByHQId(id) {
+  const result = await pool.query(
+    `SELECT * FROM organizations WHERE headquarters_id = $1`,
+    [id]
+  );
+  return result.rows; // return ALL organizations
+},
 
 async getOrgByIdUnderHQ(orgId, headquarterId) {
   // Fetch the organization only if it belongs to the headquarter
