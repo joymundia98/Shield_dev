@@ -15,8 +15,8 @@ function generateAccountId() {
 }
 
 const defaultDepartments = [
-  { name: "Administration", category: "Administration" },
-  { name: "Finance", category: "Finance" },
+  { name: "Administration", category: "church" },
+  { name: "Finance", category: "corporate" },
 ];
 
 const defaultRoles = [
