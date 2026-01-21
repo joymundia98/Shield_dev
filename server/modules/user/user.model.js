@@ -17,12 +17,9 @@ async getById(id) {
   const result = await pool.query(
     `
     SELECT
-      u.id,
-      u.email,
-      u.organization_id,
+      u.*,
       r.id as role_id,
-      r.name AS role,
-      u.password
+      r.name AS role
     FROM users u
     LEFT JOIN roles r ON r.id = u.role_id
     WHERE u.id = $1
