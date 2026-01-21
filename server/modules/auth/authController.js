@@ -23,9 +23,16 @@ export const login = async (req, res) => {
     if (!match)
       return res.status(401).json({ message: "Invalid email or password" });
 
-    const role = await UserModel.getRoleNameById(user.role_id);
+    // get the role
+    const role = user.role_id
+      ? await UserModel.getRoleNameById(user.role_id)
+      : null;
 
-    console.log(role)
+    if (!role) {
+      return res.status(400).json({
+        message: "User has no role assigned. Contact admin."
+      });
+    }
 
     const payload = {
       sub: user.id,
@@ -33,7 +40,7 @@ export const login = async (req, res) => {
       email: user.email,
       organization_id: user.organization_id,
       role_id: role.id,
-      role: role.id,
+      role: role.name,
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
@@ -48,7 +55,7 @@ export const login = async (req, res) => {
         email: user.email,
         organization_id: user.organization_id,
         role_id: role.id,
-        role,
+        role: role.name,
       },
     });
 
@@ -57,6 +64,7 @@ export const login = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // ========================================
 // LOGIN – ORGANIZATION
