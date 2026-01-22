@@ -13,22 +13,21 @@ const User = {
     return result.rows;
   },
 
-async getById(id) {
-  const result = await pool.query(
-    `
-    SELECT
-      u.*,
-      r.id as role_id,
-      r.name AS role
-    FROM users u
-    LEFT JOIN roles r ON r.id = u.role_id
-    WHERE u.id = $1
-    `,
-    [id]
-  );
-  return result.rows[0] || null;
-}
-,
+  async getById(id, organization_id) {
+    const result = await pool.query(
+      `
+      SELECT
+        u.*,
+        r.id as role_id,
+        r.name AS role
+      FROM users u
+      LEFT JOIN roles r ON r.id = u.role_id
+      WHERE u.id = $1 AND u.organization_id = $2
+      `,
+      [id, organization_id]
+    );
+    return result.rows[0] || null;
+  },
 
   async getActiveUsers(organization_id) {
     const result = await pool.query(
@@ -55,17 +54,17 @@ async getById(id) {
   async findByEmail(email) {
     const result = await pool.query(
       `
-    SELECT
-      u.id,
-      u.email,
-      u.password,
-      u.organization_id,
-      r.id as role_id,
-      r.name AS role
-    FROM users u
-    LEFT JOIN roles r ON r.id = u.role_id
-    WHERE u.email = $1
-    `,
+      SELECT
+        u.id,
+        u.email,
+        u.password,
+        u.organization_id,
+        r.id as role_id,
+        r.name AS role
+      FROM users u
+      LEFT JOIN roles r ON r.id = u.role_id
+      WHERE u.email = $1
+      `,
       [email]
     );
     return result.rows[0] || null;
@@ -74,7 +73,6 @@ async getById(id) {
   // =====================================
   // CREATE
   // =====================================
-
   async create(data) {
     const {
       first_name,
@@ -124,7 +122,6 @@ async getById(id) {
   // =====================================
   // UPDATE
   // =====================================
-
   async update(id, organization_id, data) {
     const {
       first_name,
@@ -170,6 +167,32 @@ async getById(id) {
     return result.rows[0] || null;
   },
 
+  // =====================================
+  // UPDATE USER ROLE
+  // =====================================
+  async updateRole(id, role_id, organization_id) {
+    // Check if the user exists in the organization
+    const userCheck = await pool.query(
+      `SELECT * FROM users WHERE id = $1 AND organization_id = $2`,
+      [id, organization_id]
+    );
+
+    if (userCheck.rows.length === 0) {
+      return null; // User not found in the organization
+    }
+
+    // Update the user's role_id
+    const result = await pool.query(
+      `UPDATE users
+       SET role_id = $1
+       WHERE id = $2 AND organization_id = $3
+       RETURNING *`,
+      [role_id, id, organization_id]
+    );
+
+    return result.rows[0] || null; // Return the updated user
+  },
+
   async updateStatus(id, status, organization_id) {
     const result = await pool.query(
       `
@@ -179,7 +202,7 @@ async getById(id) {
       AND organization_id = $3
       RETURNING *
       `,
-      [id,status, organization_id]
+      [status, id, organization_id]
     );
 
     return result.rows[0] || null;
@@ -188,7 +211,6 @@ async getById(id) {
   // =====================================
   // DELETE
   // =====================================
-
   async delete(id, organization_id) {
     const result = await pool.query(
       `DELETE FROM users
@@ -203,7 +225,6 @@ async getById(id) {
   // =====================================
   // ROLES & PERMISSIONS
   // =====================================
-
   async getRoleNameById(role_id) {
     const result = await pool.query(
       `SELECT * FROM roles WHERE id = $1`,
@@ -230,7 +251,7 @@ async getById(id) {
   },
 
   async assignRole(user_id, role_id, organization_id) {
-    // safety check: ensure user belongs to org
+    // Safety check: Ensure user belongs to the org
     const user = await this.getById(user_id, organization_id);
     if (!user) throw new Error("User not found in organization");
 

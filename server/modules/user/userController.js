@@ -17,7 +17,7 @@ const userController = {
     try {
       const organization_id = req.auth.organization_id;
       const { id } = req.params;
-      const user = await User.getById(id,organization_id);
+      const user = await User.getById(id, organization_id);
       if (!user) return res.status(404).json({ error: 'User not found' });
       res.json(user);
     } catch (err) {
@@ -28,29 +28,29 @@ const userController = {
 
   async getActiveUsers(req, res) {
     try {
-      const {organization_id} = req.auth.organization_id;
+      const { organization_id } = req.auth;
       const users = await User.getActiveUsers(organization_id);
-      res.json({ message: "Active users fetched", data: users });
+      res.json({ message: 'Active users fetched', data: users });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Failed to fetch active users" });
+      res.status(500).json({ error: 'Failed to fetch active users' });
     }
   },
 
   async getInactiveUsers(req, res) {
     try {
-      const {organization_id} = req.auth.organization_id;
+      const { organization_id } = req.auth;
       const users = await User.getInactiveUsers(organization_id);
-      res.json({ message: "Inactive users fetched", data: users });
+      res.json({ message: 'Inactive users fetched', data: users });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Failed to fetch inactive users" });
+      res.status(500).json({ error: 'Failed to fetch inactive users' });
     }
   },
 
   async create(req, res) {
     try {
-      const organization_id= req.auth.organization_id;
+      const organization_id = req.auth.organization_id;
       const user = await User.create({
         ...req.body,
         organization_id,
@@ -66,7 +66,7 @@ const userController = {
     try {
       const { id } = req.params;
       const organization_id = req.auth.organization_id;
-      const user = await User.update(id, organization_id,req.body);
+      const user = await User.update(id, organization_id, req.body);
       if (!user) return res.status(404).json({ error: 'User not found' });
       res.json(user);
     } catch (err) {
@@ -75,31 +75,52 @@ const userController = {
     }
   },
 
-  // Add this function in userController.js
-async updateStatus(req, res) {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-    const organization_id = req.auth.organization_id;
-    if (!status) {
-      return res.status(400).json({ error: 'Status is required' });
+  // Add the updateRole method to update the user's role
+  async updateRole(req, res) {
+    try {
+      const { id } = req.params;
+      const { role_id } = req.body;
+      const organization_id = req.auth.organization_id;
+
+      if (!role_id) {
+        return res.status(400).json({ error: 'Role ID is required' });
+      }
+
+      const user = await User.updateRole(id, role_id, organization_id);
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found or role update failed' });
+      }
+
+      res.json(user);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Failed to update user role' });
     }
+  },
 
-    const user = await User.updateStatus(status ,id, organization_id);
+  async updateStatus(req, res) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const organization_id = req.auth.organization_id;
 
-    // If the user doesn't exist or the update failed
-    if (!user) {
-      return res.status(404).json({ error: 'User not found or status update failed' });
+      if (!status) {
+        return res.status(400).json({ error: 'Status is required' });
+      }
+
+      const user = await User.updateStatus(status, id, organization_id);
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found or status update failed' });
+      }
+
+      res.json(user);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Failed to update user status' });
     }
-
-    // Return the updated user object
-    res.json(user);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to update user status' });
-  }
-},
-
+  },
 
   async delete(req, res) {
     try {
