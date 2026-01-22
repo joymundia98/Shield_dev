@@ -1,4 +1,3 @@
-// routes/userRoutes.js
 import express from 'express';
 import userController from './userController.js';
 
@@ -14,8 +13,13 @@ router.get('/', userController.getAll);
 router.post('/', userController.create);
 router.put('/:id', userController.update);
 
+// Separate PATCH for role_id update (new route)
+router.patch('/:id/role', userController.updateRole);  // new route for updating role_id
+
+// Existing PATCH for updating status
 router.patch('/:id', userController.updateStatus);
 
+// DELETE route for deleting a user
 router.delete('/:id', userController.delete);
 
 export default router;

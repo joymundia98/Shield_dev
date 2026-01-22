@@ -1,8 +1,7 @@
-// models/userModel.js
 import { pool } from "../../server.js";
 
 const User = {
-
+  // Fetch all users by organization
   async getAllByOrg(organization_id) {
     const result = await pool.query(
       `SELECT * FROM users 
@@ -13,23 +12,24 @@ const User = {
     return result.rows;
   },
 
-async getById(id) {
-  const result = await pool.query(
-    `
-    SELECT
-      u.*,
-      r.id as role_id,
-      r.name AS role
-    FROM users u
-    LEFT JOIN roles r ON r.id = u.role_id
-    WHERE u.id = $1
-    `,
-    [id]
-  );
-  return result.rows[0] || null;
-}
-,
+  // Fetch a user by ID and include role details
+  async getById(id) {
+    const result = await pool.query(
+      `
+      SELECT
+        u.*,
+        r.id as role_id,
+        r.name AS role
+      FROM users u
+      LEFT JOIN roles r ON r.id = u.role_id
+      WHERE u.id = $1
+      `,
+      [id]
+    );
+    return result.rows[0] || null;
+  },
 
+  // Fetch active users by organization
   async getActiveUsers(organization_id) {
     const result = await pool.query(
       `SELECT * FROM users 
@@ -41,6 +41,7 @@ async getById(id) {
     return result.rows;
   },
 
+  // Fetch inactive users by organization
   async getInactiveUsers(organization_id) {
     const result = await pool.query(
       `SELECT * FROM users 
@@ -52,20 +53,21 @@ async getById(id) {
     return result.rows;
   },
 
+  // Find a user by email and include role details
   async findByEmail(email) {
     const result = await pool.query(
       `
-    SELECT
-      u.id,
-      u.email,
-      u.password,
-      u.organization_id,
-      r.id as role_id,
-      r.name AS role
-    FROM users u
-    LEFT JOIN roles r ON r.id = u.role_id
-    WHERE u.email = $1
-    `,
+      SELECT
+        u.id,
+        u.email,
+        u.password,
+        u.organization_id,
+        r.id as role_id,
+        r.name AS role
+      FROM users u
+      LEFT JOIN roles r ON r.id = u.role_id
+      WHERE u.email = $1
+      `,
       [email]
     );
     return result.rows[0] || null;
@@ -74,7 +76,6 @@ async getById(id) {
   // =====================================
   // CREATE
   // =====================================
-
   async create(data) {
     const {
       first_name,
@@ -124,7 +125,6 @@ async getById(id) {
   // =====================================
   // UPDATE
   // =====================================
-
   async update(id, organization_id, data) {
     const {
       first_name,
@@ -170,7 +170,8 @@ async getById(id) {
     return result.rows[0] || null;
   },
 
-  async updateStatus(id, status, organization_id) {
+  // Update only the user's status (active/inactive)
+  async updateStatus(status, id, organization_id) {
     const result = await pool.query(
       `
       UPDATE users
@@ -179,7 +180,23 @@ async getById(id) {
       AND organization_id = $3
       RETURNING *
       `,
-      [id,status, organization_id]
+      [status, id, organization_id]
+    );
+
+    return result.rows[0] || null;
+  },
+
+  // Update only the user's role_id
+  async updateRole(id, role_id, organization_id) {
+    const result = await pool.query(
+      `
+      UPDATE users
+      SET role_id = $1
+      WHERE id = $2
+      AND organization_id = $3
+      RETURNING *
+      `,
+      [role_id, id, organization_id]
     );
 
     return result.rows[0] || null;
@@ -188,7 +205,6 @@ async getById(id) {
   // =====================================
   // DELETE
   // =====================================
-
   async delete(id, organization_id) {
     const result = await pool.query(
       `DELETE FROM users
@@ -203,7 +219,6 @@ async getById(id) {
   // =====================================
   // ROLES & PERMISSIONS
   // =====================================
-
   async getRoleNameById(role_id) {
     const result = await pool.query(
       `SELECT * FROM roles WHERE id = $1`,
