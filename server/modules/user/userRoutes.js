@@ -14,10 +14,8 @@ router.get('/', userController.getAll);
 router.post('/', userController.create);
 router.put('/:id', userController.update);
 
-// New route to update user role
-router.patch('/:id/role', userController.updateRole);
-
 router.patch('/:id', userController.updateStatus);
+
 router.delete('/:id', userController.delete);
 
 export default router;
