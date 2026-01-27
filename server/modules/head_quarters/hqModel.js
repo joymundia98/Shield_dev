@@ -39,6 +39,33 @@ const HeadquartersModel = {
     return result.rows;
   },
 
+async getDepartmentsByHQ(hq_id) {
+  const result = await pool.query(
+    `
+    SELECT d.*
+    FROM departments d
+    JOIN organizations o ON d.organization_id = o.id
+    WHERE o.headquarters_id = $1
+    `,
+    [hq_id]
+  );
+  return result.rows;
+},
+
+async getDepartmentsByHQAndOrg(hq_id, org_id) {
+  const result = await pool.query(
+    `
+    SELECT d.*
+    FROM departments d
+    JOIN organizations o ON d.organization_id = o.id
+    WHERE o.headquarters_id = $1
+      AND o.id = $2
+    `,
+    [hq_id, org_id]
+  );
+  return result.rows;
+},
+
   // =========================
   // GET HQ BY ID
   // =========================
@@ -56,6 +83,33 @@ async getOrgsByHQId(id) {
     [id]
   );
   return result.rows; // return ALL organizations
+},
+
+async getUsersByHQId(headquarter_id) {
+  const result = await pool.query(
+    `
+    SELECT u.*
+    FROM users u
+    JOIN organizations o ON u.organization_id = o.id
+    WHERE o.headquarters_id = $1
+    `,
+    [headquarter_id]
+  );
+  return result.rows;
+},
+
+
+async getDonorsByHQId(hq_id) {
+  const result = await pool.query(
+    `
+    SELECT d.*
+    FROM donors d
+    JOIN organizations o ON d.organization_id = o.id
+    WHERE o.headquarters_id = $1
+    `,
+    [hq_id]
+  );
+  return result.rows;
 },
 
 async getOrgByIdUnderHQ(orgId, headquarterId) {
@@ -82,6 +136,137 @@ async getOrgByIdUnderHQ(orgId, headquarterId) {
   org.roles = rolesResult.rows;
 
   return org;
+},
+
+async getMembersByHQId(hq_id) {
+  const result = await pool.query(
+    `
+    SELECT m.*
+    FROM members m
+    JOIN organizations o ON m.organization_id = o.id
+    WHERE o.headquarters_id = $1
+    `,
+    [hq_id]
+  );
+  return result.rows;
+},
+
+async getMembersByHQAndOrg(hq_id, org_id) {
+  const result = await pool.query(
+    `
+    SELECT m.*
+    FROM members m
+    JOIN organizations o ON m.organization_id = o.id
+    WHERE o.headquarters_id = $1
+      AND m.organization_id = $2
+    `,
+    [hq_id, org_id]
+  );
+  return result.rows;
+},
+
+
+async getUsersByHQAndOrg(hq_id, org_id) {
+  const result = await pool.query(
+    `
+    SELECT u.*
+    FROM users u
+    JOIN organizations o ON u.organization_id = o.id
+    WHERE o.headquarters_id = $1
+      AND o.id = $2
+    `,
+    [hq_id, org_id]
+  );
+  return result.rows;
+},
+
+async getProgramsByHQId(hq_id) {
+  const result = await pool.query(
+    `
+    SELECT p.*
+    FROM programs p
+    JOIN organizations o ON p.organization_id = o.id
+    WHERE o.headquarters_id = $1
+    `,
+    [hq_id]
+  );
+  return result.rows;
+},
+
+async getProgramsByHQAndOrg(hq_id, org_id) {
+  const result = await pool.query(
+    `
+    SELECT p.*
+    FROM programs p
+    JOIN organizations o ON p.organization_id = o.id
+    WHERE o.headquarters_id = $1
+      AND o.id = $2
+    `,
+    [hq_id, org_id]
+  );
+  return result.rows;
+},
+
+async getMinistriesByHQId(hq_id) {
+  const result = await pool.query(
+    `
+    SELECT m.*
+    FROM ministries m
+    JOIN organizations o ON m.organization_id = o.id
+    WHERE o.headquarters_id = $1
+    `,
+    [hq_id]
+  );
+  return result.rows;
+},
+
+async getDonationsByHQ(hq_id) {
+  const result = await pool.query(
+    `
+    SELECT d.*
+    FROM donations d
+    JOIN organizations o ON d.organization_id = o.id
+    WHERE o.headquarters_id = $1
+    `,
+    [hq_id]
+  );
+  return result.rows;
+},
+
+async getDonationsByHQAndOrg(hq_id, org_id) {
+  const result = await pool.query(
+    `
+    SELECT d.*
+    FROM donations d
+    JOIN organizations o ON d.organization_id = o.id
+    WHERE o.headquarters_id = $1
+      AND o.id = $2
+    `,
+    [hq_id, org_id]
+  );
+  return result.rows;
+},
+
+async getConvertsByOrganization(org_id) {
+  const result = await pool.query(
+    `SELECT * FROM converts WHERE organization_id = $1`,
+    [org_id]
+  );
+  return result.rows;
+},
+
+async getConvertsByHQAndOrg(hq_id, org_id) {
+  const result = await pool.query(
+    `
+    SELECT c.*
+    FROM converts c
+    JOIN organizations o ON c.organization_id = o.id
+    WHERE o.headquarters_id = $1
+      AND o.id = $2
+    `,
+    [hq_id, org_id]
+  );
+  return result.rows;
 },
 
   // =========================
