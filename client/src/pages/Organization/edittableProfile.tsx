@@ -7,6 +7,7 @@ import api from '../../api/api'; // import your Axios instance
 import { useLocation } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+import { orgFetch } from "../../utils/api"; // API fetch function
 //import axios from 'axios'; // Add this import // Ensure AxiosError is imported
 import OrganizationHeader from './OrganizationHeader';
 
@@ -154,29 +155,73 @@ const EdittableChurchProfilePage: React.FC = () => {
   const [showSuccessCard, setShowSuccessCard] = useState(false);
 
   const checkChurchExists = async (organizationId: string | number) => {
-    if (!organizationId) {
-      console.warn("Organization ID is required");
+  if (!organizationId) {
+    console.warn("Organization ID is required");
+    return null;
+  }
+
+  try {
+    // Get the auth token from localStorage
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      console.warn("No auth token found. Please log in.");
       return null;
     }
 
-    try {
-      // The API endpoint automatically filters by organization_id via authentication middleware
-      const response = await api.get(`${baseURL}/api/profiles/churches`);
-      console.log('Churches API response:', response);
-      
-      // Check if there's at least one church entry for this organization
-      if (response.data && Array.isArray(response.data) && response.data.length > 0) {
-        console.log('Church entry found:', response.data[0]);
-        return response.data[0]; // Return the first church entry
+    // Use orgFetch to send the request with the Bearer token
+    const response = await orgFetch(`${baseURL}/api/profiles/churches`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log('Churches API response:', response);
+
+    // Directly use the first item from the data (since the backend guarantees filtering by organization_id)
+    const churchData = response.data?.data?.[0] || null; // Take the first church if available
+    console.log('Church Data Organization id', churchData.organization_id);
+    console.log('Other Org_id', organizationId);
+
+    if (churchData) {
+      console.log('Church entry found:', churchData);
+
+      // Log the organization_id from the response and the passed organizationId before entering the comparison block
+      const orgIdFromResponse = String(churchData.organization_id).trim(); // Convert to string and remove any spaces
+      const orgIdFromParam = String(organizationId).trim(); // Convert to string and remove any spaces
+
+      // Log the raw values before the comparison happens
+      console.log('----- Debugging Organization ID Comparison -----');
+      console.log('Raw Organization ID from response:', JSON.stringify(churchData.organization_id));
+      console.log('Raw Organization ID passed as parameter:', JSON.stringify(organizationId));
+
+      // Log the values and types of both the response and passed IDs
+      console.log('Type of Organization ID from response:', typeof orgIdFromResponse);
+      console.log('Type of Organization ID passed as parameter:', typeof orgIdFromParam);
+
+      console.log('Comparing these values:');
+      console.log(`Response Organization ID (raw): ${JSON.stringify(churchData.organization_id)}`);
+      console.log(`Parameter Organization ID (raw): ${JSON.stringify(organizationId)}`);
+
+      // Perform the comparison
+      if (orgIdFromResponse === orgIdFromParam) {
+        console.log('Church entry matches the organization ID:', churchData);
+        return churchData; // Return the found church data
+      } else {
+        console.log('Comparison failed. Values do not match.');
+        console.log(`Comparison: ${orgIdFromResponse} !== ${orgIdFromParam}`);
+        return null; // No match found
       }
-      
-      console.log('No church entry found in churches table for this organization');
+    } else {
+      console.log('No church entry found for the given organization ID.');
       return null; // No church data found
-    } catch (error) {
-      console.error("Error checking if church exists:", error);
-      return null;
     }
-  };
+  } catch (error) {
+    console.error("Error checking if church exists:", error);
+    return null; // Return null in case of error
+  }
+};
+
+
 
   // Fetch organization data when the component is mounted or when organizationId changes
   useEffect(() => {
