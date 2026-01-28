@@ -160,19 +160,51 @@ export const register = async (req, res) => {
     // ==========================
     // SEND WELCOME EMAIL
     // ==========================
-    try {
-      await SendEmail({
-        to: newUser.email,
-        subject: "Welcome to Your Organization",
-        html: `
-          <h1>Welcome ${newUser.first_name}!</h1>
-          <p>You have successfully registered. Please login to get started.</p>
-        `,
-      });
-    } catch (emailErr) {
-      console.error("Failed to send registration email:", emailErr);
-      // Note: Do NOT block registration if email fails
-    }
+try {
+  const loginUrl = "https://sci-eld.org/login";
+
+  await SendEmail({
+    to: newUser.email,
+    subject: "Welcome to Your Organization",
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto;">
+        <h1>Welcome ${newUser.first_name}!</h1>
+        <p>You have successfully registered.</p>
+        <p>Please click the button below to log in and get started:</p>
+
+        <a href="${loginUrl}"
+           style="
+             display: inline-block;
+             margin-top: 20px;
+             padding: 12px 24px;
+             background-color: #2563eb;
+             color: #ffffff;
+             text-decoration: none;
+             border-radius: 6px;
+             font-weight: bold;
+           ">
+          Login to Your Account
+        </a>
+
+        <hr style="margin: 30px 0;" />
+
+        <p style="font-size: 12px; color: #777;">
+          If you did not create this account, please ignore this email.
+        </p>
+      </div>
+    `,
+    text: `Welcome ${newUser.first_name}!
+
+You have successfully registered. Please log in using the link below:
+
+${loginUrl}
+
+If you did not create this account, please ignore this email.`,
+  });
+} catch (error) {
+  console.error("Error sending welcome email:", error);
+}
+
 
     res.status(201).json({
       message: "User registered successfully",
@@ -224,19 +256,54 @@ export const createOrg = async (req, res) => {
     // ==========================
     // SEND EMAIL TO ORGANIZATION
     // ==========================
-    try {
-      await SendEmail({
-        to: org.organization_email,
-        subject: "Welcome to Our Platform",
-        html: `
-          <h1>Welcome ${org.name}!</h1>
-          <p>Your organization account has been created successfully.</p>
-          <p>Your account ID: <strong>${org.organization_account_id}</strong></p>
-        `,
-      });
-    } catch (emailErr) {
-      console.error("Failed to send organization registration email:", emailErr);
-    }
+try {
+  const loginUrl = "https://sci-eld.org/org-login"; // replace with your real login URL
+
+  await SendEmail({
+    to: org.organization_email,
+    subject: "Welcome to Our Platform",
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto;">
+        <h1>Welcome ${org.name}!</h1>
+        <p>Your organization account has been created successfully.</p>
+        <p>Your account ID: <strong>${org.organization_account_id}</strong></p>
+
+        <p>Please click the button below to log in and manage your organization:</p>
+
+        <a href="${loginUrl}"
+           style="
+             display: inline-block;
+             margin-top: 20px;
+             padding: 12px 24px;
+             background-color: #16a34a;
+             color: #ffffff;
+             text-decoration: none;
+             border-radius: 6px;
+             font-weight: bold;
+           ">
+          Login to Your Dashboard
+        </a>
+
+        <hr style="margin: 30px 0;" />
+
+        <p style="font-size: 12px; color: #777;">
+          If you did not request this account, please contact support.
+        </p>
+      </div>
+    `,
+    text: `Welcome ${org.name}!
+
+Your organization account has been created successfully.
+Your account ID: ${org.organization_account_id}
+
+Log in here: ${loginUrl}
+
+If you did not request this account, please contact support.`,
+  });
+} catch (emailErr) {
+  console.error("Failed to send organization registration email:", emailErr);
+}
+
 
     return res.status(201).json({
       message: "Organization registered successfully",
