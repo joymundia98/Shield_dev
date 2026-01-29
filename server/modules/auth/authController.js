@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import UserModel from "../user/user.model.js";
 import OrganizationModel from "../organization/organizationModel.js";
+import HeadquartersModel from "../head_quarters/hqModel.js";
 import { SendEmail } from "../../utils/email.js"; // ✅ import your Resend utility
 
 // ========================================
@@ -315,3 +316,106 @@ If you did not request this account, please contact support.`,
   }
 };
 
+export const headQuarterRegister = async (req, res) => {
+  try {
+    const {
+      name,
+      code,
+      email,
+      phone,
+      region,
+      country,
+      status,
+      password,
+    } = req.body;
+
+    if (!name || !email || !password)
+      return res.status(400).json({ message: "Name, email, and password are required" });
+
+    const hq = await HeadquartersModel.create({
+      name,
+      code,
+      email,
+      phone,
+      region,
+      country,
+      status,
+      password,
+    });
+
+    // Send welcome email
+    try {
+      const loginUrl = "https://sci-eld.org/hq-login";
+
+      await SendEmail({
+        to: hq.email,
+        subject: "Welcome to Our Platform (Headquarters)",
+        html: `
+          <h1>Welcome ${hq.name}!</h1>
+          <p>Your headquarters account has been created.</p>
+          <p>Your account ID: <strong>${hq.headquarters_account_id}</strong></p>
+          <a href="${loginUrl}">Login</a>
+        `,
+      });
+    } catch (emailErr) {
+      console.error("HQ email failed:", emailErr);
+    }
+
+    return res.status(201).json({
+      message: "Headquarters registered successfully",
+      headquarters: hq,
+    });
+  } catch (err) {
+    console.error("Headquarters Register Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+export const headQuarterLogin = async (req, res) => {
+  try {
+    const { headquarters_account_id, password } = req.body;
+
+    if (!headquarters_account_id || !password) {
+      return res.status(400).json({
+        message: "Headquarters account ID and password required",
+      });
+    }
+
+    const hq = await HeadquartersModel.login({
+      headquarters_account_id,
+      password,
+    });
+
+    if (!hq) {
+      return res.status(401).json({
+        message: "Invalid headquarters account ID or password",
+      });
+    }
+
+    const payload = {
+      sub: hq.id,
+      type: "headquarters",
+      headquarters_id: hq.id,
+      name: hq.name,
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    return res.json({
+      message: "Headquarters login successful",
+      accessToken: token,
+      headquarters: {
+        id: hq.id,
+        name: hq.name,
+        headquarters_account_id: hq.headquarters_account_id,
+        status: hq.status,
+      },
+    });
+  } catch (err) {
+    console.error("Headquarters login error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};

@@ -6,7 +6,7 @@ const ExpenseSubcategory = {
       `
       SELECT es.id, es.name, es.category_id, es.organization_id
       FROM expense_subcategories es
-      WHERE es.organization_id = $1
+      WHERE es.organization_id = $1 OR es.organization_id IS NULL
       ORDER BY es.id ASC
       `,
       [orgId]

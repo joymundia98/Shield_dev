@@ -1,14 +1,10 @@
-// middleware/verifyAnyJWT.js
-
 import jwt from "jsonwebtoken";
 import UserModel from "../modules/user/user.model.js";
 import OrganizationModel from "../modules/organization/organizationModel.js";
 
 export const verifyJWT = async (req, res, next) => {
   const header = req.headers.authorization || "";
-  const token = header.startsWith("Bearer ")
-    ? header.split(" ")[1]
-    : null;
+  const token = header.startsWith("Bearer ") ? header.split(" ")[1] : null;
 
   if (!token) {
     return res.status(401).json({ message: "No token provided" });
@@ -16,11 +12,10 @@ export const verifyJWT = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(decoded)
+    console.log(decoded);
 
     if (decoded.type === "user") {
       const user = await UserModel.getById(decoded.sub);
-      console.log(user)
       if (!user) throw new Error("Invalid user token");
 
       req.auth = {
@@ -30,9 +25,7 @@ export const verifyJWT = async (req, res, next) => {
         role: user.role,
         role_id: user.role_id,
       };
-    }
-
-    if (decoded.type === "organization") {
+    } else if (decoded.type === "organization") {
       const org = await OrganizationModel.getById(decoded.sub);
       if (!org) throw new Error("Invalid org token");
 
@@ -40,10 +33,18 @@ export const verifyJWT = async (req, res, next) => {
         type: "organization",
         organization_id: org.id,
       };
+    } else if (decoded.type === "headquarters") {
+      // ✅ Add HQ support
+      req.auth = {
+        type: "headquarters",
+        headquarters_id: decoded.headquarters_id,
+        name: decoded.name,
+      };
+    } else {
+      throw new Error("Unknown token type");
     }
 
     next();
-
   } catch (err) {
     console.error("JWT Error:", err);
     return res.status(401).json({ message: "Invalid or expired token" });
