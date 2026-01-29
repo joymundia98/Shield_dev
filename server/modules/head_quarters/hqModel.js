@@ -1,4 +1,13 @@
 import { pool } from "../../server.js";
+import crypto from "crypto";
+import bcrypt from "bcrypt";
+
+const SALT_ROUNDS = 10;
+
+function generateHQAccountId() {
+  const random = crypto.randomBytes(4).toString("hex").toUpperCase();
+  return `HQ-${random}`;
+}
 
 const HeadquartersModel = {
   // =========================
@@ -12,18 +21,41 @@ const HeadquartersModel = {
       phone,
       region,
       country,
-      status = "active"
+      password
     } = data;
+
+    const headquarters_account_id = generateHQAccountId();
+
+    let hashedPassword = null;
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+    }
 
     const result = await pool.query(
       `
       INSERT INTO headquarters (
-        name, code, email, phone, region, country, status
+        name,
+        code,
+        email,
+        phone,
+        region,
+        country,
+        headquarters_account_id,
+        password
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING *
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+      RETURNING id, name, code, email, phone, region, country, headquarters_account_id
       `,
-      [name, code, email, phone, region, country, status]
+      [
+        name,
+        code,
+        email,
+        phone,
+        region,
+        country,
+        headquarters_account_id,
+        hashedPassword
+      ]
     );
 
     return result.rows[0];
@@ -76,6 +108,31 @@ async getDepartmentsByHQAndOrg(hq_id, org_id) {
     );
     return result.rows[0];
   },
+
+  async findByAccountId(accountId) {
+    const result = await pool.query(
+      `SELECT * FROM headquarters WHERE headquarters_account_id = $1`,
+      [accountId]
+    );
+    return result.rows[0];
+  },
+
+
+async login({ headquarters_account_id, password }) {
+  const result = await pool.query(
+    `SELECT * FROM headquarters WHERE headquarters_account_id = $1`,
+    [headquarters_account_id]
+  );
+
+  const hq = result.rows[0];
+  if (!hq || !hq.password) return null;
+
+  const match = await bcrypt.compare(password, hq.password);
+  if (!match) return null;
+
+  const { password: _, ...hqData } = hq;
+  return hqData;
+},
 
 async getOrgsByHQId(id) {
   const result = await pool.query(

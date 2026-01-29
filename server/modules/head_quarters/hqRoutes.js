@@ -1,11 +1,14 @@
 import express from "express";
 import HeadquartersController from "./hqController.js";
 import { requirePermission } from "../../middleware/accessControl.js";
+import { OrganizationController } from "../organization/organizationController.js";
 
 const router = express.Router();
 
 // HQ management
 router.post("/", HeadquartersController.create);
+
+router.post("/organizations", OrganizationController.create);
 router.get("/", requirePermission("SUPER_ADMIN"), HeadquartersController.getAll);
 
 // Get all orgs under an HQ

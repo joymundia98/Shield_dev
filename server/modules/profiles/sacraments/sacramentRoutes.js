@@ -1,5 +1,5 @@
 import express from 'express';
-import sacramentsController from './sacrament.js';
+import sacramentsController from './sacramentController.js';
 import { verifyJWT } from '../../../middleware/auth.js';
 
 const router = express.Router();

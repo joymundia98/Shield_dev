@@ -2,34 +2,40 @@ import Organization from "./organizationModel.js";
 
 export const OrganizationController = {
   // CREATE ORGANIZATION
-  async create(req, res) {
-    try {
-      const { name, org_type_id, password } = req.body;
+  async create (req, res) {
+  try {
+    const headquarters_id = req.auth.headquarters_id; // 🔐 from HQ token
+    const { name, org_type_id, password, ...rest } = req.body;
 
-      if (!name) {
-        return res.status(400).json({ message: "Organization name is required" });
-      }
+    if (!name)
+      return res.status(400).json({ message: "Organization name is required" });
 
-      if (!org_type_id) {
-        return res.status(400).json({ message: "Organization type is required" });
-      }
+    if (!org_type_id)
+      return res.status(400).json({ message: "Organization type is required" });
 
-      if (!password) {
-        return res.status(400).json({ message: "Password is required" });
-      }
+    if (!password)
+      return res.status(400).json({ message: "Password is required" });
 
-      const org = await Organization.create(req.body);
+    const org = await Organization.create({
+      ...rest,
+      name,
+      org_type_id,
+      password,
+      headquarters_id, // ✅ force linkage to HQ
+    });
 
-      // Don't return password in response
-      const { password: _, ...orgData } = org;
+    const { password: _, ...orgData } = org;
 
-      res.status(201).json(orgData);
+    res.status(201).json({
+      message: "Organization created under headquarters",
+      organization: orgData,
+    });
 
-    } catch (err) {
-      console.error("Organization create error:", err);
-      res.status(500).json({ message: "Server error" });
-    }
-  },
+  } catch (err) {
+    console.error("Organization create error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+},
 
   // GET BY ID
   async getById(req, res) {

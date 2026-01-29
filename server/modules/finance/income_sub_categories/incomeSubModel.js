@@ -6,7 +6,7 @@ const IncomeSubcategory = {
     const result = await pool.query(`
       SELECT id, name, category_id, organization_id
       FROM income_subcategories
-      WHERE organization_id = $1
+      WHERE organization_id = $1 OR organization_id IS NULL
       ORDER BY id ASC
     `, [orgId]);
     return result.rows;

@@ -6,7 +6,7 @@ const ExpenseCategory = {
     const result = await pool.query(
       `SELECT id, name, organization_id
        FROM expense_categories
-       WHERE organization_id = $1
+       WHERE organization_id = $1 OR organization_id IS NULL
        ORDER BY id ASC`,
       [orgId]
     );
