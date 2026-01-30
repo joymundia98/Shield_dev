@@ -197,7 +197,7 @@ const BranchRegister = () => {
         setShowSuccessCard(true);
         setTimeout(() => {
         setShowSuccessCard(false);
-        navigate("/Organization/success", {
+        navigate("/HQ/branchDirectory", {
             state: { organizationID, accountID }
         });
         }, 2000);
