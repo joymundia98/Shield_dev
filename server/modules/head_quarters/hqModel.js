@@ -71,6 +71,13 @@ const HeadquartersModel = {
     return result.rows;
   },
 
+  async getAllByName() {
+    const result = await pool.query(
+      `SELECT name FROM headquarters ORDER BY id ASC`,
+    );
+    return result.rows;
+  },
+
 async getDepartmentsByHQ(hq_id) {
   const result = await pool.query(
     `

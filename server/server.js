@@ -73,6 +73,7 @@ import headQuartersRoutes from './modules/head_quarters/hqRoutes.js';
 import { verifyJWT } from './middleware/auth.js';
 
 import reportRoutes from "./modules/reports/reportRoutes.js";
+import uploadRoutes from "./modules/reports/upload/uploadRoutes.js";
 
 // import { OrganizationController } from './modules/organization/organizationController.js';
 
@@ -170,7 +171,9 @@ app.use("/api/leave_requests", leaveRoutes);
 app.use("/api/denominations", verifyJWT, denominationRoutes);
 app.use("/api/organizations", organizationRoutes);
 app.use("/api/organization_type", orgTypeRoutes);
-app.use("/api/headquarters", verifyJWT,headQuartersRoutes);
+app.use("/api/headquarters",headQuartersRoutes);
+
+app.use("/api/uploads", verifyJWT ,uploadRoutes);
 
 // Health check
 app.get("/", (req, res) => {
