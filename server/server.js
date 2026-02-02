@@ -173,6 +173,8 @@ app.use("/api/organizations", organizationRoutes);
 app.use("/api/organization_type", orgTypeRoutes);
 app.use("/api/headquarters",headQuartersRoutes);
 
+app.use("/api/public/hqs", headQuartersRoutes)
+
 app.use("/api/uploads", verifyJWT ,uploadRoutes);
 
 // Health check
