@@ -3,7 +3,7 @@ import { pool } from '../../../server.js'; // adjust path
 const Sacraments = {
 async getAll(organization_id) {
   const result = await pool.query(
-    'SELECT * FROM sacraments WHERE organization_id=$1 ORDER BY id ASC',
+    'SELECT * FROM sacraments WHERE organization_id=$1 ORDER BY sacrament_id ASC',
     [organization_id]
   );
   return result.rows;
