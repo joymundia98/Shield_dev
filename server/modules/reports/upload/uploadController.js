@@ -1,17 +1,59 @@
+// controllers/uploadController.js
 import fs from "fs";
 import csv from "csv-parser";
 import xlsx from "xlsx";
-import { USER_COLUMNS, MEMBER_COLUMNS, PROGRAM_COLUMNS } from "../../../utils/columnMap.js";
+import {
+  USER_COLUMNS,
+  MEMBER_COLUMNS,
+  PROGRAM_COLUMNS,
+  DEPARTMENT_COLUMNS,
+  FOLLOWUP_COLUMNS,
+  FOLLOWUP_SESSION_COLUMNS,
+  INCOME_COLUMNS,
+  EXPENSE_COLUMNS,
+  BUDGET_COLUMNS,
+  CONVERTS_COLUMNS,
+  ATTENDANCE_COLUMNS,
+  CONGREGANT_COLUMNS,
+  SESSION_COLUMNS,
+  SERVICE_COLUMNS,
+  VISITOR_COLUMNS
+} from "../../../utils/columnMap.js";
 import { insertRows } from "../../../utils/insertRows.js";
 
+// Map upload type to table config
 const getConfigByType = (type) => {
   switch (type) {
     case "users":
       return { COLUMN_MAP: USER_COLUMNS, tableName: "users", conflictColumn: "email" };
     case "members":
-      return { COLUMN_MAP: MEMBER_COLUMNS, tableName: "members", conflictColumn: "membership_id" };
+      return { COLUMN_MAP: MEMBER_COLUMNS, tableName: "members", conflictColumn: "member_id" };
     case "programs":
       return { COLUMN_MAP: PROGRAM_COLUMNS, tableName: "programs", conflictColumn: null };
+    case "departments":
+      return { COLUMN_MAP: DEPARTMENT_COLUMNS, tableName: "departments", conflictColumn: "department_id" };
+    case "follow_ups":
+      return { COLUMN_MAP: FOLLOWUP_COLUMNS, tableName: "follow_ups", conflictColumn: "followup_id" };
+    case "follow_up_sessions":
+      return { COLUMN_MAP: FOLLOWUP_SESSION_COLUMNS, tableName: "follow_up_sessions", conflictColumn: "follow_up_id" };
+    case "incomes":
+      return { COLUMN_MAP: INCOME_COLUMNS, tableName: "incomes", conflictColumn: "id" };
+    case "expenses":
+      return { COLUMN_MAP: EXPENSE_COLUMNS, tableName: "expenses", conflictColumn: "id" };
+    case "budgets":
+      return { COLUMN_MAP: BUDGET_COLUMNS, tableName: "budgets", conflictColumn: "id" };
+    case "converts":
+      return { COLUMN_MAP: CONVERTS_COLUMNS, tableName: "converts", conflictColumn: "id" };
+    case "attendance":
+      return { COLUMN_MAP: ATTENDANCE_COLUMNS, tableName: "attendance_records", conflictColumn: "record_id" };
+    case "congregants":
+      return { COLUMN_MAP: CONGREGANT_COLUMNS, tableName: "congregants", conflictColumn: "id" };
+    case "sessions":
+      return { COLUMN_MAP: SESSION_COLUMNS, tableName: "sessions", conflictColumn: "id" };
+    case "services":
+      return { COLUMN_MAP: SERVICE_COLUMNS, tableName: "services", conflictColumn: "id" };
+    case "visitors":
+      return { COLUMN_MAP: VISITOR_COLUMNS, tableName: "visitors", conflictColumn: "id" };
     default:
       throw new Error("Invalid upload type");
   }
@@ -36,7 +78,7 @@ export const uploadFile = async (req, res) => {
           fs.unlinkSync(filePath);
           res.json({ message: `${type} uploaded successfully`, count: rows.length });
         });
-    } else if (ext === "xlsx") {
+    } else if (ext === "xlsx" || ext === "xls") {
       const workbook = xlsx.readFile(filePath);
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       rows = xlsx.utils.sheet_to_json(sheet);
@@ -44,6 +86,7 @@ export const uploadFile = async (req, res) => {
       fs.unlinkSync(filePath);
       res.json({ message: `${type} uploaded successfully`, count: rows.length });
     } else {
+      fs.unlinkSync(filePath);
       res.status(400).json({ error: "Unsupported file type" });
     }
   } catch (error) {
