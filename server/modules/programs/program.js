@@ -122,7 +122,7 @@ export const Program = {
   },
 
   async getByStatus(status, organization_id) {
-    const result = await pool.query(`SELECT * FROM programs WHERE status=$1 ABD organization_id=$2 ORDER BY date ASC`, [status, organization_id]);
+    const result = await pool.query(`SELECT * FROM programs WHERE status=$1 AND organization_id=$2 ORDER BY date ASC`, [status, organization_id]);
     return result.rows;
   },
 };
