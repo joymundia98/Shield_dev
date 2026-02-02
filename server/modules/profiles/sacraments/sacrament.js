@@ -1,10 +1,13 @@
 import { pool } from '../../../server.js'; // adjust path
 
 const Sacraments = {
-  async getAll(organization_id) {
-    const result = await pool.query('SELECT * FROM sacraments ORDER BY organization_id ASC', [organization_id]);
-    return result.rows;
-  },
+async getAll(organization_id) {
+  const result = await pool.query(
+    'SELECT * FROM sacraments WHERE organization_id=$1 ORDER BY id ASC',
+    [organization_id]
+  );
+  return result.rows;
+},
 
   async getById(organization_id) {
     const result = await pool.query('SELECT * FROM sacraments WHERE organization_id = $1', [organization_id]);
