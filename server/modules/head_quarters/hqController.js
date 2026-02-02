@@ -26,6 +26,15 @@ const HeadquartersController = {
     }
   },
 
+
+  async getAllByName(req, res) {
+    try {
+      const hqs = await HeadquartersModel.getAllByName();
+      res.json(hqs);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to fetch headquarters" });
+    }
+  },
   // =========================
   // GET HQ BY ID
   // =========================
