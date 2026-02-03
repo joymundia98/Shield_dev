@@ -325,7 +325,7 @@ async getConvertsByHQ(req, res) {
     const converts = await HeadquartersModel.getConvertsByHQ(headquarter_id);
 
     if (!converts || converts.length === 0) {
-      return res.status(404).json({ message: "No donations found under this headquarters" });
+      return res.status(404).json({ message: "No converts found under this headquarters" });
     }
 
     res.json(converts);
@@ -377,16 +377,16 @@ async getVisitorsByHQId(req, res) {
   try {
     const { hq_id } = req.params;
 
-    const converts = await HeadquartersModel.getVisitorsByHQId(hq_id);
+    const visitors = await HeadquartersModel.getVisitorsByHQId(hq_id);
 
-    if (!converts || converts.length === 0) {
-      return res.status(404).json({ message: "No converts found for this organization" });
+    if (!visitors || visitors.length === 0) {
+      return res.status(404).json({ message: "No visitors found for this organization" });
     }
 
-    res.json(converts);
+    res.json(visitors);
   } catch (err) {
-    console.error("Fetch converts by organization error:", err);
-    res.status(500).json({ message: "Failed to fetch converts" });
+    console.error("Fetch visitors by organization error:", err);
+    res.status(500).json({ message: "Failed to fetch visitors" });
   }
 },
 

@@ -360,17 +360,17 @@ async getConvertsByHQAndOrg(hq_id, org_id) {
   async getVisitorsByHQId(headquarters_id) {
     const result = await pool.query(
       `
-      SELECT 
-        v.*,
-        o.id AS organization_id,
-        o.name AS organization_name,
-        h.id AS headquarters_id,
-        h.name AS headquarters_name
-      FROM visitors v
-      JOIN organizations o ON v.organization_id = o.id
-      JOIN headquarters h ON o.headquarters_id = h.id
-      WHERE h.id = $1
-      ORDER BY v.created_at DESC
+        SELECT 
+          v.*,
+          o.id AS organization_id,
+          o.name AS organization_name,
+          h.id AS headquarters_id,
+          h.name AS headquarters_name
+        FROM visitors v
+        JOIN organizations o ON v.organization_id = o.id
+        JOIN headquarters h ON o.headquarters_id = h.id
+        WHERE h.id = $1
+        ORDER BY v.id DESC;
       `,
       [headquarters_id]
     );
