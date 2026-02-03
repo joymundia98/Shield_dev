@@ -309,14 +309,14 @@ async getDonationsByHQ(hq_id) {
   return result.rows;
 },
 
-async getConvertsByHQ(hq_id) {
+async getConvertsByHQ(headquarters_id) {
   const result = await pool.query(
     `
     SELECT *
     FROM converts
     WHERE headquarters_id = $1
     `,
-    [hq_id]
+    [headquarters_id]
   );
   return result.rows;
 },

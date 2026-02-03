@@ -59,7 +59,7 @@ router.get(
 );
 
 router.get(
-  "/:hq_id/converts", verifyJWT,
+  "/:headquarter_id/converts", verifyJWT,
   HeadquartersController.getConvertsByHQ
 );
 
