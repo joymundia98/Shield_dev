@@ -7,7 +7,9 @@ const Member = {
   // REPORTS
   // ===============================
   async exportPDF(req, res) {
-    const { organization_id, gender, status } = req.query;
+    const { gender, status } = req.query;
+
+    const organization_id = req.auth?.organization_id;
 
     let query = `SELECT * FROM members WHERE organization_id = $1`;
     const values = [organization_id];
@@ -42,7 +44,9 @@ const Member = {
   },
 
   async exportExcel(req, res) {
-    const { organization_id, gender, status } = req.query;
+    const { gender, status } = req.query;
+
+    const organization_id = req.auth?.organization_id;
 
     let query = `SELECT * FROM members WHERE organization_id = $1`;
     const values = [organization_id];
@@ -87,7 +91,9 @@ const Member = {
   },
 
   async exportCSV(req, res) {
-    const { organization_id, gender, status } = req.query;
+    const { gender, status } = req.query;
+
+    const organization_id = req.auth?.organization_id;
 
     let query = `SELECT * FROM members WHERE organization_id = $1`;
     const values = [organization_id];

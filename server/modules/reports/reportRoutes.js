@@ -19,6 +19,7 @@ import Congregant from "./congregantReportsController.js";
 import Session from "./sessionsReportsController.js";
 import Service from "./servicesReportsController.js";
 import Visitor from "./visitorsReportsController.js";
+import { verifyJWT } from "../../middleware/auth.js";
 
 const router = express.Router();
 
@@ -30,9 +31,9 @@ router.get("/attendees/report/pdf", exportAttendeesPDF);
 router.get("/attendees/report/csv", exportAttendeesCSV);
 router.get("/hq_org/pdf", HqOrganization.exportHqOrgPDF);
 router.get("/hq_org/excel", HqOrganization.exportHqOrgExcel);
-router.get("/members/pdf", Member.exportPDF);
-router.get("/members/excel", Member.exportExcel);
-router.get("/members/csv", Member.exportCSV);
+router.get("/members/pdf", verifyJWT, Member.exportPDF);
+router.get("/members/excel", verifyJWT, Member.exportExcel);
+router.get("/members/csv", verifyJWT, Member.exportCSV);
 router.get("/departments/pdf", Department.exportPDF);
 router.get("/departments/excel", Department.exportExcel);
 router.get("/departments/csv", Department.exportCSV);
@@ -66,8 +67,8 @@ router.get("/sessions/csv", Session.exportCSV);
 router.get("/services/pdf", Service.exportPDF);
 router.get("/services/excel", Service.exportExcel);
 router.get("/services/csv", Service.exportCSV);
-router.get("/visitors/pdf", Visitor.exportPDF);
-router.get("/visitors/excel", Visitor.exportExcel);
-router.get("/visitors/csv", Visitor.exportCSV);
+router.get("/visitors/pdf", verifyJWT, Visitor.exportPDF);
+router.get("/visitors/excel", verifyJWT, Visitor.exportExcel);
+router.get("/visitors/csv", verifyJWT, Visitor.exportCSV);
 
 export default router;
