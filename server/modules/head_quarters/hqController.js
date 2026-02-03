@@ -253,6 +253,23 @@ async getMinistriesByHQId(req, res) {
   }
 },
 
+async getAttendanceRecByHQ(req, res) {
+  try {
+    const { headquarter_id } = req.params;
+
+    const attendanceRec = await HeadquartersModel.getAttendanceRecByHQ(headquarter_id);
+
+    if (!attendanceRec || attendanceRec.length === 0) {
+      return res.status(404).json({ message: "No records found under this headquarters" });
+    }
+
+    res.json(attendanceRec);
+  } catch (err) {
+    console.error("Fetch records by HQ error:", err);
+    res.status(500).json({ message: "Failed to fetch records" });
+  }
+},
+
 async getMinistriesByHQAndOrg(hq_id, org_id) {
   const result = await pool.query(
     `
@@ -301,6 +318,23 @@ async getDonationsByHQ(req, res) {
   }
 },
 
+async getConvertsByHQ(req, res) {
+  try {
+    const { headquarter_id } = req.params;
+
+    const converts = await HeadquartersModel.getConvertsByHQ(headquarter_id);
+
+    if (!converts || converts.length === 0) {
+      return res.status(404).json({ message: "No donations found under this headquarters" });
+    }
+
+    res.json(converts);
+  } catch (err) {
+    console.error("Fetch converts by HQ error:", err);
+    res.status(500).json({ message: "Failed to fetch converts" });
+  }
+},
+
 async getDonationsByHQAndOrg(req, res) {
   try {
     const { headquarter_id, org_id } = req.params;
@@ -327,6 +361,23 @@ async getConvertsByOrganization(req, res) {
     const { org_id } = req.params;
 
     const converts = await HeadquartersModel.getConvertsByOrganization(org_id);
+
+    if (!converts || converts.length === 0) {
+      return res.status(404).json({ message: "No converts found for this organization" });
+    }
+
+    res.json(converts);
+  } catch (err) {
+    console.error("Fetch converts by organization error:", err);
+    res.status(500).json({ message: "Failed to fetch converts" });
+  }
+},
+
+async getVisitorsByHQId(req, res) {
+  try {
+    const { hq_id } = req.params;
+
+    const converts = await HeadquartersModel.getVisitorsByHQId(hq_id);
 
     if (!converts || converts.length === 0) {
       return res.status(404).json({ message: "No converts found for this organization" });

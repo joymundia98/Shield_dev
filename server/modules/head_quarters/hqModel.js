@@ -284,6 +284,18 @@ async getMinistriesByHQId(hq_id) {
   return result.rows;
 },
 
+async getAttendanceRecByHQ(hq_id) {
+  const result = await pool.query(
+    `
+    SELECT *
+    FROM attendance_records
+    WHERE headquarters_id = $1
+    `,
+    [hq_id]
+  );
+  return result.rows;
+},
+
 async getDonationsByHQ(hq_id) {
   const result = await pool.query(
     `
@@ -291,6 +303,18 @@ async getDonationsByHQ(hq_id) {
     FROM donations d
     JOIN organizations o ON d.organization_id = o.id
     WHERE o.headquarters_id = $1
+    `,
+    [hq_id]
+  );
+  return result.rows;
+},
+
+async getConvertsByHQ(hq_id) {
+  const result = await pool.query(
+    `
+    SELECT *
+    FROM converts
+    WHERE headquarters_id = $1
     `,
     [hq_id]
   );
@@ -332,6 +356,27 @@ async getConvertsByHQAndOrg(hq_id, org_id) {
   );
   return result.rows;
 },
+
+  async getVisitorsByHQId(headquarters_id) {
+    const result = await pool.query(
+      `
+      SELECT 
+        v.*,
+        o.id AS organization_id,
+        o.name AS organization_name,
+        h.id AS headquarters_id,
+        h.name AS headquarters_name
+      FROM visitors v
+      JOIN organizations o ON v.organization_id = o.id
+      JOIN headquarters h ON o.headquarters_id = h.id
+      WHERE h.id = $1
+      ORDER BY v.created_at DESC
+      `,
+      [headquarters_id]
+    );
+
+    return result.rows;
+  },
 
   // =========================
   // UPDATE HQ

@@ -36,6 +36,11 @@ router.get(
   HeadquartersController.getDonorsByHQId
 );
 
+router.get(
+  "/:headquarter_id/visitors", verifyJWT,
+  HeadquartersController.getVisitorsByHQId
+);
+
 
 router.get(
   "/:headquarter_id/organizations/:org_id/members", verifyJWT,
@@ -51,6 +56,11 @@ router.put("/:id", requirePermission("HQ_ADMIN"), HeadquartersController.update)
 router.get(
   "/organizations/:org_id/converts",
   HeadquartersController.getConvertsByOrganization
+);
+
+router.get(
+  "/:hq_id/converts",
+  HeadquartersController.getConvertsByHQ
 );
 
 router.get(
@@ -73,6 +83,12 @@ router.get(
 router.get(
   "/:headquarter_id/organizations/:org_id/donations", verifyJWT,
   HeadquartersController.getDonationsByHQAndOrg
+);
+
+
+router.get(
+  "/:headquarter_id/attendance_records", verifyJWT,
+  HeadquartersController.getAttendanceRecByHQ
 );
 
 
