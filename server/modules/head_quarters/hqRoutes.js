@@ -37,7 +37,7 @@ router.get(
 );
 
 router.get(
-  "/:headquarter_id/visitors", verifyJWT,
+  "/:hq_id/visitors", verifyJWT,
   HeadquartersController.getVisitorsByHQId
 );
 
