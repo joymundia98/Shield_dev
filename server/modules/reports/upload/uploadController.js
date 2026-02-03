@@ -71,21 +71,24 @@ export const uploadFile = async (req, res) => {
   try {
     const { COLUMN_MAP, tableName, conflictColumn } = getConfigByType(type);
 
-    // 🏢 Extract organization_id from authenticated user
-    const organization_id = req.user.organization_id;
+    // 🏢 Pull organization_id from your auth middleware
+    const organization_id = req.auth?.organization_id;
+    if (!organization_id) {
+      throw new Error("Organization ID missing from token");
+    }
 
     let rawRows = [];
 
     // 📄 Parse CSV
-    if (ext === "csv") {
-      await new Promise((resolve, reject) => {
-        fs.createReadStream(filePath)
-          .pipe(csv())
-          .on("data", (row) => rawRows.push(row))
-          .on("end", resolve)
-          .on("error", reject);
-      });
-    }
+if (ext === "csv") {
+  await new Promise((resolve, reject) => {
+    fs.createReadStream(filePath)
+      .pipe(csv({ mapHeaders: ({ header }) => header.trim() })) // trim all headers
+      .on("data", (row) => rawRows.push(row))
+      .on("end", resolve)
+      .on("error", reject);
+  });
+}
     // 📊 Parse Excel
     else if (ext === "xlsx" || ext === "xls") {
       const workbook = xlsx.readFile(filePath);
@@ -106,10 +109,8 @@ export const uploadFile = async (req, res) => {
         normalized.password = await bcrypt.hash(normalized.password, 10);
       }
 
-      // 🏢 Auto-assign organization_id if table supports it
-      if ("organization_id" in normalized || tableName !== "users") {
-        normalized.organization_id = organization_id;
-      }
+      // 🏢 Always assign organization_id
+      normalized.organization_id = organization_id;
 
       processedRows.push(normalized);
     }
