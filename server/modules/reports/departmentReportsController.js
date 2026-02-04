@@ -7,7 +7,7 @@ const Department = {
   // REPORTS
   // ===============================
   async exportPDF(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT department_id AS id, name, description, category 
        FROM departments 
@@ -34,7 +34,7 @@ const Department = {
   },
 
   async exportExcel(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT department_id AS id, name, description, category 
        FROM departments 
@@ -70,7 +70,7 @@ const Department = {
   },
 
   async exportCSV(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT department_id AS id, name, description, category 
        FROM departments 

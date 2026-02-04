@@ -8,7 +8,7 @@ const Budget = {
   // EXPORT REPORTS
   // ===============================
   async exportPDF(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(`
       SELECT id, title, amount, year, month, category_id, expense_subcategory_id
       FROM budgets
@@ -34,7 +34,7 @@ const Budget = {
   },
 
   async exportExcel(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(`
       SELECT id, title, amount, year, month, category_id, expense_subcategory_id
       FROM budgets
@@ -65,7 +65,7 @@ const Budget = {
   },
 
   async exportCSV(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(`
       SELECT id, title, amount, year, month, category_id, expense_subcategory_id
       FROM budgets

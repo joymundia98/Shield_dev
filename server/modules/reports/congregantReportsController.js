@@ -7,7 +7,7 @@ const Congregant = {
   // REPORT EXPORTS
   // ===============================
   async exportPDF(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT id, name, gender, category_id FROM congregants WHERE organization_id=$1 ORDER BY id ASC`,
       [organization_id]
@@ -31,7 +31,7 @@ const Congregant = {
   },
 
   async exportExcel(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT id, name, gender, category_id FROM congregants WHERE organization_id=$1 ORDER BY id ASC`,
       [organization_id]
@@ -57,7 +57,7 @@ const Congregant = {
   },
 
   async exportCSV(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT id, name, gender, category_id FROM congregants WHERE organization_id=$1 ORDER BY id ASC`,
       [organization_id]

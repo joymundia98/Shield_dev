@@ -8,7 +8,7 @@ const Session = {
   // REPORT EXPORTS
   // ===============================
   async exportPDF(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT id, name, date, description FROM sessions WHERE organization_id=$1 ORDER BY date DESC`,
       [organization_id]
@@ -32,7 +32,7 @@ const Session = {
   },
 
   async exportExcel(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT id, name, date, description FROM sessions WHERE organization_id=$1 ORDER BY date DESC`,
       [organization_id]
@@ -63,7 +63,7 @@ const Session = {
   },
 
   async exportCSV(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT id, name, date, description FROM sessions WHERE organization_id=$1 ORDER BY date DESC`,
       [organization_id]

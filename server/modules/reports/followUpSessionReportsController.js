@@ -7,7 +7,7 @@ const FollowUpSessionsModel = {
   // REPORTS
   // ===============================
   async exportPDF(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT * FROM follow_up_sessions WHERE organization_id=$1 ORDER BY follow_up_date DESC`,
       [organization_id]
@@ -33,7 +33,7 @@ const FollowUpSessionsModel = {
   },
 
   async exportExcel(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT * FROM follow_up_sessions WHERE organization_id=$1 ORDER BY follow_up_date DESC`,
       [organization_id]
@@ -70,7 +70,7 @@ const FollowUpSessionsModel = {
   },
 
   async exportCSV(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT * FROM follow_up_sessions WHERE organization_id=$1 ORDER BY follow_up_date DESC`,
       [organization_id]

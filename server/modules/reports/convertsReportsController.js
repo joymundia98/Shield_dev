@@ -8,7 +8,7 @@ const ConvertsModel = {
   // EXPORT REPORTS
   // ===============================
   async exportPDF(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT * FROM converts WHERE organization_id=$1 ORDER BY created_at DESC`,
       [organization_id]
@@ -32,7 +32,7 @@ const ConvertsModel = {
   },
 
   async exportExcel(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT * FROM converts WHERE organization_id=$1 ORDER BY created_at DESC`,
       [organization_id]
@@ -67,7 +67,7 @@ const ConvertsModel = {
   },
 
   async exportCSV(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT * FROM converts WHERE organization_id=$1 ORDER BY created_at DESC`,
       [organization_id]
