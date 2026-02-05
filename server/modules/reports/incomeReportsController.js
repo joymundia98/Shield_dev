@@ -7,7 +7,7 @@ const Income = {
   // REPORTS
   // ===============================
   async exportPDF(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT id, subcategory_id, user_id, donor_id, date, giver, description, amount, status 
        FROM incomes WHERE organization_id=$1 ORDER BY date ASC`,
@@ -32,7 +32,7 @@ const Income = {
   },
 
   async exportExcel(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT id, subcategory_id, user_id, donor_id, date, giver, description, amount, status 
        FROM incomes WHERE organization_id=$1 ORDER BY date ASC`,
@@ -76,7 +76,7 @@ const Income = {
   },
 
   async exportCSV(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT id, subcategory_id, user_id, donor_id, date, giver, description, amount, status 
        FROM incomes WHERE organization_id=$1 ORDER BY date ASC`,

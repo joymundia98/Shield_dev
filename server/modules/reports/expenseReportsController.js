@@ -7,7 +7,7 @@ const Expense = {
   // REPORTS
   // ===============================
   async exportPDF(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(`
       SELECT id, subcategory_id, user_id, department_id, date, description, amount, status
       FROM expenses
@@ -33,7 +33,7 @@ const Expense = {
   },
 
   async exportExcel(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(`
       SELECT id, subcategory_id, user_id, department_id, date, description, amount, status
       FROM expenses
@@ -76,7 +76,7 @@ const Expense = {
   },
 
   async exportCSV(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(`
       SELECT id, subcategory_id, user_id, department_id, date, description, amount, status
       FROM expenses

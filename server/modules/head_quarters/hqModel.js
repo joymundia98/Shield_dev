@@ -176,6 +176,24 @@ async getDonorsByHQId(hq_id) {
   return result.rows;
 },
 
+async getIncomeByHQId(hq_id) {
+  const result = await pool.query(
+    `
+    SELECT 
+      i.*,
+      h.id AS headquarters_id,
+      h.name AS headquarters_name
+    FROM incomes i
+    JOIN organizations o ON i.organization_id = o.id
+    JOIN headquarters h ON o.headquarters_id = h.id
+    WHERE h.id = $1
+    ORDER BY i.id DESC;
+    `,
+    [hq_id]
+  );
+  return result.rows;
+},
+
 async getOrgByIdUnderHQ(orgId, headquarterId) {
   // Fetch the organization only if it belongs to the headquarter
   const orgResult = await pool.query(

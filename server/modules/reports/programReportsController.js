@@ -6,7 +6,9 @@ import { pool } from "../../server.js";
  * EXPORT PROGRAMS PDF
  */
 export const exportProgramsPDF = async (req, res) => {
-  const { organization_id, status, year, month } = req.query;
+  const { status, year, month } = req.query;
+
+  const organization_id = req.auth?.organization_id;
 
   let query = `
     SELECT 
@@ -89,7 +91,9 @@ export const exportProgramsPDF = async (req, res) => {
  * EXPORT PROGRAMS CSV
  */
 export const exportProgramsCSV = async (req, res) => {
-  const { organization_id, status, year, month } = req.query;
+  const { status, year, month } = req.query;
+
+  const organization_id = req.auth?.organization_id;
 
   let query = `
     SELECT 

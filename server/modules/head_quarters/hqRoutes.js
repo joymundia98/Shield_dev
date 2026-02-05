@@ -36,6 +36,8 @@ router.get(
   HeadquartersController.getDonorsByHQId
 );
 
+router.get("/:headquarter_id", verifyJWT, HeadquartersController.getIncomeByHQId);
+
 router.get(
   "/:hq_id/visitors", verifyJWT,
   HeadquartersController.getVisitorsByHQId

@@ -9,7 +9,7 @@ const Visitor = {
   // REPORT EXPORTS
   // ===============================
   async exportPDF(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT id, name, gender, age, visit_date, phone, email, first_time 
        FROM visitors WHERE organization_id=$1 ORDER BY id ASC`,
@@ -36,7 +36,7 @@ const Visitor = {
   },
 
   async exportExcel(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT id, name, gender, age, visit_date, phone, email, first_time 
        FROM visitors WHERE organization_id=$1 ORDER BY id ASC`,
@@ -76,7 +76,7 @@ const Visitor = {
   },
 
   async exportCSV(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT id, name, gender, age, visit_date, phone, email, first_time 
        FROM visitors WHERE organization_id=$1 ORDER BY id ASC`,

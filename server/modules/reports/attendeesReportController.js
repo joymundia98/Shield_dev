@@ -6,7 +6,9 @@ import { pool } from "../../server.js";
  * EXPORT ATTENDEES PDF
  */
 export const exportAttendeesPDF = async (req, res) => {
-  const { organization_id, program_id, gender, role } = req.query;
+  const { program_id, gender, role } = req.query;
+
+  const organization_id = req.auth?.organization_id;
 
   let query = `
     SELECT 
@@ -82,7 +84,9 @@ export const exportAttendeesPDF = async (req, res) => {
  * EXPORT ATTENDEES EXCEL
  */
 export const exportAttendeesExcel = async (req, res) => {
-  const { organization_id, program_id, gender, role } = req.query;
+  const { program_id, gender, role } = req.query;
+
+  const organization_id = req.auth?.organization_id;
 
   let query = `
     SELECT 
@@ -165,7 +169,9 @@ export const exportAttendeesExcel = async (req, res) => {
  * EXPORT ATTENDEES CSV
  */
 export const exportAttendeesCSV = async (req, res) => {
-  const { organization_id, program_id, gender, role } = req.query;
+  const { program_id, gender, role } = req.query;
+
+  const organization_id = req.auth?.organization_id;
 
   let query = `
     SELECT 

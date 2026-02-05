@@ -202,6 +202,22 @@ async getDonorsByHQId(req, res) {
   }
 },
 
+async getIncomeByHQId(req, res) {
+  try {
+    const { headquarter_id } = req.params;
+
+    const incomes = await HeadquartersController.getIncomeByHQId(headquarter_id);
+
+    if(!incomes || incomes.length === 0) {
+      return res.status(404).json({message: "no incomes found for this HQ"})
+    }
+    res.json(incomes);
+  } catch(err) {
+      console.error("fetch incomes by HQ error:", err);
+      res.status(500).json({ message: "failed to fetch incomes"})
+  }
+},
+
 async getProgramsByHQId(req, res) {
   try {
     const { headquarter_id } = req.params;

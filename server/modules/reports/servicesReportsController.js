@@ -7,7 +7,7 @@ const Service = {
   // REPORT EXPORTS
   // ===============================
   async exportPDF(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT id, name, description, created_at FROM services WHERE organization_id=$1 ORDER BY id ASC`,
       [organization_id]
@@ -31,7 +31,7 @@ const Service = {
   },
 
   async exportExcel(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT id, name, description, created_at FROM services WHERE organization_id=$1 ORDER BY id ASC`,
       [organization_id]
@@ -62,7 +62,7 @@ const Service = {
   },
 
   async exportCSV(req, res) {
-    const { organization_id } = req.query;
+    const organization_id = req.auth?.organization_id;
     const result = await pool.query(
       `SELECT id, name, description, created_at FROM services WHERE organization_id=$1 ORDER BY id ASC`,
       [organization_id]

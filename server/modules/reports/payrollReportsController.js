@@ -8,9 +8,11 @@ import { pool } from "../../server.js";
 export const exportPayrollPDF = async (req, res) => {
   const { year, month } = req.query;
 
+  const organization_id = req.auth?.organization_id;
+
   const result = await pool.query(
-    `SELECT * FROM payroll WHERE year=$1 AND month=$2 ORDER BY staff_id`,
-    [year, month]
+    `SELECT * FROM payroll WHERE year=$1 AND month=$2 AND organization_id=$3 ORDER BY staff_id`,
+    [year, month, organization_id]
   );
 
   const doc = new PDFDocument({ margin: 40, size: "A4" });
