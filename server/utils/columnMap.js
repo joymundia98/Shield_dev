@@ -7,7 +7,6 @@ export const USER_COLUMNS = {
   "Password": "password",
   "Phone": "phone",
   "Position": "position",
-  "Role ID": "role_id",
   "Organization ID": "organization_id",
   "Status": "status",
   "Photo URL": "photo_url"

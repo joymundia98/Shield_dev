@@ -119,6 +119,7 @@ export const loginOrg = async (req, res) => {
 // ========================================
 // REGISTER – USER (with welcome email)
 // ========================================
+
 export const register = async (req, res) => {
   try {
     const {
@@ -132,17 +133,21 @@ export const register = async (req, res) => {
       organization_id,
     } = req.body;
 
-    if (!first_name || !last_name || !email || !password)
+    if (!first_name || !last_name || !email)
       return res.status(400).json({
-        message: "first_name, last_name, email, password",
+        message: "first_name, last_name, and email are required",
       });
 
     const existing = await UserModel.findByEmail(email);
     if (existing)
       return res.status(409).json({ message: "Email already in use" });
 
+    // ✅ Generate password if not provided
+    const plainPassword =
+      password || crypto.randomBytes(8).toString("base64").slice(0, 12);
+
     const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
-    const passwordHash = await bcrypt.hash(password, saltRounds);
+    const passwordHash = await bcrypt.hash(plainPassword, saltRounds);
 
     const newUser = await UserModel.create({
       first_name,
@@ -156,56 +161,57 @@ export const register = async (req, res) => {
       status: "pending",
     });
 
-    // await UserModel.assignRole(newUser.id, role_id);
-
     // ==========================
     // SEND WELCOME EMAIL
     // ==========================
-try {
-  const loginUrl = "https://sci-eld.org/login";
+    try {
+      const loginUrl = "https://sci-eld.org/login";
 
-  await SendEmail({
-    to: newUser.email,
-    subject: "Welcome to Your Organization",
-    html: `
-      <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto;">
-        <h1>Welcome ${newUser.first_name}!</h1>
-        <p>You have successfully registered.</p>
-        <p>Please click the button below to log in and get started:</p>
+      await SendEmail({
+        to: newUser.email,
+        subject: "Welcome to Your Organization",
+        html: `
+          <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto;">
+            <h1>Welcome ${newUser.first_name}!</h1>
+            <p>Your account has been created successfully.</p>
+            <p><strong>Your temporary password:</strong> ${plainPassword}</p>
+            <p>Please log in and change your password immediately.</p>
 
-        <a href="${loginUrl}"
-           style="
-             display: inline-block;
-             margin-top: 20px;
-             padding: 12px 24px;
-             background-color: #2563eb;
-             color: #ffffff;
-             text-decoration: none;
-             border-radius: 6px;
-             font-weight: bold;
-           ">
-          Login to Your Account
-        </a>
+            <a href="${loginUrl}"
+               style="
+                 display: inline-block;
+                 margin-top: 20px;
+                 padding: 12px 24px;
+                 background-color: #2563eb;
+                 color: #ffffff;
+                 text-decoration: none;
+                 border-radius: 6px;
+                 font-weight: bold;
+               ">
+              Login to Your Account
+            </a>
 
-        <hr style="margin: 30px 0;" />
+            <hr style="margin: 30px 0;" />
 
-        <p style="font-size: 12px; color: #777;">
-          If you did not create this account, please ignore this email.
-        </p>
-      </div>
-    `,
-    text: `Welcome ${newUser.first_name}!
+            <p style="font-size: 12px; color: #777;">
+              If you did not create this account, please ignore this email.
+            </p>
+          </div>
+        `,
+        text: `Welcome ${newUser.first_name}!
 
-You have successfully registered. Please log in using the link below:
+Your account has been created successfully.
 
+Temporary password: ${plainPassword}
+
+Please log in and change your password immediately:
 ${loginUrl}
 
 If you did not create this account, please ignore this email.`,
-  });
-} catch (error) {
-  console.error("Error sending welcome email:", error);
-}
-
+      });
+    } catch (error) {
+      console.error("Error sending welcome email:", error);
+    }
 
     res.status(201).json({
       message: "User registered successfully",
