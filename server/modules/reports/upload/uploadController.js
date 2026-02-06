@@ -1,3 +1,4 @@
+// uploadController.js
 import fs from "fs";
 import csv from "csv-parser";
 import xlsx from "xlsx";
@@ -21,8 +22,8 @@ import {
 } from "../../../utils/columnMap.js";
 import { insertRows } from "../../../utils/insertRows.js";
 import { normalizeRow } from "../../../utils/normalizeRow.js";
+import { SendEmail } from "../../../utils/email.js";
 
-// Map upload type to table config
 const getConfigByType = (type) => {
   switch (type) {
     case "users":
@@ -71,26 +72,20 @@ export const uploadFile = async (req, res) => {
   try {
     const { COLUMN_MAP, tableName, conflictColumn } = getConfigByType(type);
 
-    // 🏢 Pull organization_id from your auth middleware
     const organization_id = req.auth?.organization_id;
-    if (!organization_id) {
-      throw new Error("Organization ID missing from token");
-    }
+    if (!organization_id) throw new Error("Organization ID missing from token");
 
     let rawRows = [];
 
-    // 📄 Parse CSV
-if (ext === "csv") {
-  await new Promise((resolve, reject) => {
-    fs.createReadStream(filePath)
-      .pipe(csv({ mapHeaders: ({ header }) => header.trim() })) // trim all headers
-      .on("data", (row) => rawRows.push(row))
-      .on("end", resolve)
-      .on("error", reject);
-  });
-}
-    // 📊 Parse Excel
-    else if (ext === "xlsx" || ext === "xls") {
+    if (ext === "csv") {
+      await new Promise((resolve, reject) => {
+        fs.createReadStream(filePath)
+          .pipe(csv({ mapHeaders: ({ header }) => header.trim() }))
+          .on("data", (row) => rawRows.push(row))
+          .on("end", resolve)
+          .on("error", reject);
+      });
+    } else if (ext === "xlsx" || ext === "xls") {
       const workbook = xlsx.readFile(filePath);
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       rawRows = xlsx.utils.sheet_to_json(sheet);
@@ -100,22 +95,73 @@ if (ext === "csv") {
     }
 
     const processedRows = [];
+    const emailQueue = [];
+
+    const generateRandomPassword = (length = 12) => {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
+      let password = "";
+      for (let i = 0; i < length; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return password;
+    };
 
     for (const row of rawRows) {
       const normalized = normalizeRow(row, COLUMN_MAP);
 
-      // 🔐 Hash password if users table
-      if (type === "users" && normalized.password) {
-        normalized.password = await bcrypt.hash(normalized.password, 10);
+      if (type === "users") {
+        const plainPassword = normalized.password || generateRandomPassword(12);
+        normalized.password = await bcrypt.hash(plainPassword, 10);
+
+        normalized.status = normalized.status || "pending";
+
+        emailQueue.push({
+          email: normalized.email,
+          first_name: normalized.first_name,
+          plainPassword
+        });
       }
 
-      // 🏢 Always assign organization_id
       normalized.organization_id = organization_id;
-
       processedRows.push(normalized);
     }
 
+    console.log("🧪 FINAL ROWS TO INSERT:", processedRows);
+
     await insertRows(tableName, processedRows, COLUMN_MAP, conflictColumn);
+
+    if (type === "users") {
+      for (const user of emailQueue) {
+        try {
+          await SendEmail({
+            to: user.email,
+            subject: "Your Account Has Been Created",
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width:600px;">
+                <h1>Welcome ${user.first_name || "User"}!</h1>
+                <p>Your account has been created successfully.</p>
+                <p><strong>Email:</strong> ${user.email}</p>
+                <p><strong>Password:</strong> ${user.plainPassword}</p>
+                <p>Please log in and change your password immediately.</p>
+                <a href="https://sci-eld.org/login"
+                   style="padding:10px 20px; background:#2563eb; color:#fff; text-decoration:none; border-radius:4px;">
+                  Login
+                </a>
+              </div>
+            `,
+            text: `Welcome!
+
+Your account has been created successfully.
+Email: ${user.email}
+Password: ${user.plainPassword}
+
+Log in at https://sci-eld.org/login and change your password immediately.`
+          });
+        } catch (emailErr) {
+          console.error(`Failed to send email to ${user.email}:`, emailErr);
+        }
+      }
+    }
 
     fs.unlinkSync(filePath);
 
@@ -124,7 +170,7 @@ if (ext === "csv") {
       count: processedRows.length
     });
   } catch (error) {
-    console.error("Upload error:", error);
+    console.error("❌ Upload error:", error);
     if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     res.status(500).json({ error: error.message || "Upload failed" });
   }

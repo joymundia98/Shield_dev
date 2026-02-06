@@ -1,36 +1,35 @@
+// utils/insertRows.js
 import { pool } from "../server.js";
-import { normalizeRow } from "./normalizeRow.js";
-import bcrypt from "bcrypt";
 
 export const insertRows = async (tableName, rows, COLUMN_MAP, conflictColumn = null) => {
   const client = await pool.connect();
+
   try {
     await client.query("BEGIN");
 
+    const columns = Object.values(COLUMN_MAP);
+    const placeholders = columns.map((_, i) => `$${i + 1}`).join(", ");
+
+    const query = `
+      INSERT INTO ${tableName} (${columns.join(", ")})
+      VALUES (${placeholders})
+      ${conflictColumn ? `ON CONFLICT (${conflictColumn}) DO NOTHING` : ""}
+    `;
+
+    console.log("🧪 SQL QUERY:", query);
+
     for (const row of rows) {
-      const normalized = normalizeRow(row, COLUMN_MAP);
+      const values = columns.map(col => row[col] ?? null);
+      console.log("🧪 VALUES:", values);
 
-      // 🔐 Hash password if inserting into users table
-      if (tableName === "users" && normalized.password) {
-        const saltRounds = 10;
-        normalized.password = await bcrypt.hash(normalized.password, saltRounds);
-      }
-
-      const columns = Object.values(COLUMN_MAP).join(", ");
-      const values = Object.values(COLUMN_MAP).map((_, i) => `$${i + 1}`);
-
-      const query = `
-        INSERT INTO ${tableName} (${columns})
-        VALUES (${values.join(", ")})
-        ${conflictColumn ? `ON CONFLICT (${conflictColumn}) DO NOTHING` : ""}
-      `;
-
-      await client.query(query, Object.values(normalized));
+      const result = await client.query(query, values);
+      console.log("🧪 ROW INSERTED:", result.rowCount);
     }
 
     await client.query("COMMIT");
   } catch (err) {
     await client.query("ROLLBACK");
+    console.error("❌ INSERT FAILED:", err);
     throw err;
   } finally {
     client.release();
