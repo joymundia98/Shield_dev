@@ -105,6 +105,8 @@ const GeneralReport: React.FC = () => {
 
   const attendanceChartRef = useRef<Chart | null>(null);
   const growthChartRef = useRef<Chart | null>(null);
+  const convertChartRef = useRef<Chart | null>(null);
+
 
   /* =======================
      FETCH MEMBERS
@@ -318,6 +320,70 @@ const GeneralReport: React.FC = () => {
   };
 
   /* =======================
+     CONVERTS CHART EFFECT
+  ======================= */
+  const convertBreakdown = useMemo(() => {
+    const memberConverts = converts.filter(c => c.convert_type === "member").length;
+    const visitorConverts = converts.filter(c => c.convert_type === "visitor").length;
+    const total = memberConverts + visitorConverts;
+
+    return {
+      memberConverts,
+      visitorConverts,
+      memberPercentage: total ? ((memberConverts / total) * 100).toFixed(1) : "0",
+      visitorPercentage: total ? ((visitorConverts / total) * 100).toFixed(1) : "0",
+    };
+  }, [converts]);
+
+
+  useEffect(() => {
+  convertChartRef.current?.destroy();
+
+  const ctx = document.getElementById("convertChart") as HTMLCanvasElement;
+  if (!ctx) return;
+
+  convertChartRef.current = new Chart(ctx, {
+    type: "pie", // 👈 THIS makes it a PIE, not donut
+    data: {
+      labels: ["From Visitors", "From Members"],
+      datasets: [
+        {
+          data: [
+            convertBreakdown.visitorConverts,
+            convertBreakdown.memberConverts,
+          ],
+          backgroundColor: ["#AF907A", "#5C4736"],
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: "bottom",
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              const total =
+                convertBreakdown.memberConverts +
+                convertBreakdown.visitorConverts;
+              const value = context.raw as number;
+              const percentage = total
+                ? ((value / total) * 100).toFixed(1)
+                : 0;
+              return `${context.label}: ${value} (${percentage}%)`;
+            },
+          },
+        },
+      },
+    },
+  });
+}, [convertBreakdown]);
+
+
+  /* =======================
      ATTENDANCE CHART EFFECT
   ======================= */
   useEffect(() => {
@@ -497,6 +563,18 @@ const GeneralReport: React.FC = () => {
             <canvas id="growthChart" />
           </div>
         </div>
+
+        <div className="chart-grid">
+          <div className="chart-box">
+            <h3>Convert Breakdown</h3>
+            <canvas id="convertChart" />
+            <p style={{ textAlign: "center", marginTop: "10px" }}>
+              Visitors: {convertBreakdown.visitorPercentage}% &nbsp;|&nbsp;
+              Members: {convertBreakdown.memberPercentage}%
+            </p>
+          </div>
+        </div>
+
       </div>
     </div>
   );
