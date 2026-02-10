@@ -33,13 +33,11 @@ const ExpenseController = {
   // POST /expenses
   async create(req, res) {
     try {
-      const organization_id = req.auth.organization_id;
-      if (!organization_id) {
-        return res.status(400).json({ message: "Organization ID is required" });
-      }
-
-      const created = await Expense.create(req.body);
-      return res.status(201).json(created);
+      const expense = await Expense.create({
+        ...req.body,
+        organization_id: req.auth.organization_id,
+      });
+      return res.status(201).json(expense);
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }

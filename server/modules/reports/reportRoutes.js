@@ -47,7 +47,7 @@ router.get("/incomes/pdf", verifyJWT, Income.exportPDF);
 router.get("/incomes/excel", verifyJWT, Income.exportExcel);
 router.get("/incomes/csv", verifyJWT, Income.exportCSV);
 router.get("/expenses/pdf", verifyJWT, Expense.exportPDF);
-router.get("/expenses/excel", Expense.exportExcel);
+router.get("/expenses/excel", verifyJWT, Expense.exportExcel);
 router.get("/expenses/csv", verifyJWT, Expense.exportCSV);
 router.get("/budgets/pdf", verifyJWT, Budget.exportPDF);
 router.get("/budgets/excel", verifyJWT, Budget.exportExcel);
