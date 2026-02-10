@@ -45,8 +45,15 @@ const Attendance = {
     return result.rows[0] || null;
   },
 
-  // CREATE (organization_id enforced)
-  async create(data) {
+// CREATE (organization_id enforced) — supports single or bulk
+async create(data) {
+  // Normalize input to array
+  const records = Array.isArray(data) ? data : [data];
+
+  const values = [];
+  const placeholders = [];
+
+  records.forEach((record, index) => {
     const {
       service_id,
       member_id,
@@ -54,40 +61,47 @@ const Attendance = {
       organization_id,
       status,
       attendance_date
-    } = data;
+    } = record;
 
-    const result = await pool.query(
-      `
-      INSERT INTO attendance_records (
-        organization_id,
-        status,
-        attendance_date,
-        service_id,
-        member_id,
-        visitor_id
-      )
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING
-        record_id,
-        status,
-        attendance_date,
-        created_at,
-        service_id,
-        member_id,
-        visitor_id
-      `,
-      [
-        organization_id,
-        status,
-        attendance_date,
-        service_id,
-        member_id || null,
-        visitor_id || null
-      ]
+    const baseIndex = index * 6;
+
+    placeholders.push(
+      `($${baseIndex + 1}, $${baseIndex + 2}, $${baseIndex + 3}, $${baseIndex + 4}, $${baseIndex + 5}, $${baseIndex + 6})`
     );
 
-    return result.rows[0];
-  },
+    values.push(
+      organization_id,
+      status,
+      attendance_date,
+      service_id,
+      member_id || null,
+      visitor_id || null
+    );
+  });
+
+  const query = `
+    INSERT INTO attendance_records (
+      organization_id,
+      status,
+      attendance_date,
+      service_id,
+      member_id,
+      visitor_id
+    )
+    VALUES ${placeholders.join(", ")}
+    RETURNING
+      record_id,
+      status,
+      attendance_date,
+      created_at,
+      service_id,
+      member_id,
+      visitor_id
+  `;
+
+  const result = await pool.query(query, values);
+  return Array.isArray(data) ? result.rows : result.rows[0];
+},
 
   // UPDATE (organization-safe)
   async update(record_id, organization_id, data) {
