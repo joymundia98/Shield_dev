@@ -32,27 +32,34 @@ const AttendanceController = {
     }
   },
 
-  // CREATE a new attendance record (organization enforced)
-  async create(req, res) {
-    try {
+// CREATE new attendance record(s) (organization enforced)
+async create(req, res) {
+  try {
+    const organization_id = req.auth.organization_id;
+    const payload = req.body;
+
+    const records = Array.isArray(payload) ? payload : [payload];
+
+    // 🔍 Validate all records
+    for (const record of records) {
       const {
         service_id,
         member_id,
         visitor_id,
         status,
         attendance_date
-      } = req.body;
+      } = record;
 
       if (!attendance_date) {
         return res.status(400).json({ error: "Attendance date is required" });
       }
 
       if (!status) {
-        return res.status(400).json({ error: "status is required" });
+        return res.status(400).json({ error: "Status is required" });
       }
 
       if (!service_id) {
-        return res.status(400).json({ error: "service is required" });
+        return res.status(400).json({ error: "Service is required" });
       }
 
       if (!member_id && !visitor_id) {
@@ -60,18 +67,23 @@ const AttendanceController = {
           error: "Either member_id or visitor_id must be provided"
         });
       }
-
-      const record = await Attendance.create({
-        ...req.body,
-        organization_id: req.auth.organization_id,
-      });
-
-      return res.status(201).json(record);
-    } catch (err) {
-      console.error("Error creating attendance:", err);
-      return res.status(500).json({ error: "Failed to create attendance record" });
     }
-  },
+
+    // 🏢 Attach organization_id to all records
+    const recordsWithOrg = records.map(record => ({
+      ...record,
+      organization_id
+    }));
+
+    const result = await Attendance.create(recordsWithOrg);
+
+    return res.status(201).json(result);
+  } catch (err) {
+    console.error("Error creating attendance:", err);
+    return res.status(500).json({ error: "Failed to create attendance record(s)" });
+  }
+},
+
 
   // UPDATE attendance record (organization safe)
   async update(req, res) {

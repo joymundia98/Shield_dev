@@ -2,7 +2,7 @@ import { pool } from '../../../server.js'; // adjust path as needed
 
 const SpecialServices = {
   async getAll(organization_id) {
-    const result = await pool.query('SELECT * FROM special_services WHERE organzation_id = $1 ORDER BY special_service_id ASC', [organization_id]);
+    const result = await pool.query('SELECT * FROM special_services WHERE organization_id = $1 ORDER BY special_service_id ASC', [organization_id]);
     return result.rows;
   },
 
