@@ -12,6 +12,7 @@ router.get('/:id', worshipController.getById);
 router.get('/church/:church_id', worshipController.getByChurchId);
 router.post('/', worshipController.create);
 router.patch('/:id', worshipController.update);
+router.put('/:id', worshipController.update);
 router.delete('/:id', worshipController.delete);
 
 export default router;
