@@ -36,26 +36,14 @@ const VisitorController = {
   async create(req, res) {
     try {
       const organization_id = req.auth.organization_id;
-      const {
-        name,
-        visit_date,
-        service_id
-      } = req.body;
 
-      // Minimal required validation
-      if (!name) {
-        return res.status(400).json({ error: "Name is required" });
+      const visitorData = { ...req.body, organization_id };
+
+      if (!organization_id) {
+        return res.status(400).json({ message: "organization_id is required" });
       }
 
-      if (!visit_date) {
-        return res.status(400).json({ error: "Visit date is required" });
-      }
-
-      if (service_id && isNaN(service_id)) {
-        return res.status(400).json({ error: "Invalid service_id" });
-      }
-
-      const newVisitor = await Visitor.create(req.body, organization_id);
+      const newVisitor = await Visitor.create(visitorData);
       res.status(201).json(newVisitor);
 
     } catch (err) {

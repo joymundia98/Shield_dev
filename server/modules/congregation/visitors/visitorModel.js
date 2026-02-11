@@ -29,7 +29,7 @@ const Visitor = {
   },
 
   // Create a visitor for the organization
-  async create(data, organization_id) {
+  async create(data) {
     const {
       name,
       gender,
@@ -43,7 +43,8 @@ const Visitor = {
       first_time,
       needs_follow_up,
       service_id,
-      church_find_out
+      church_find_out,
+      organization_id
     } = data;
 
     const result = await pool.query(

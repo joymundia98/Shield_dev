@@ -10,6 +10,7 @@ router.get('/', churchController.getAll);
 router.get('/:id', churchController.getById);
 router.post('/', churchController.create);
 router.patch('/:id', churchController.update);
+router.put('/:id', churchController.update);
 router.delete('/:id', churchController.delete);
 
 export default router;
