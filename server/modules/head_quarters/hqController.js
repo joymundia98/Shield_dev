@@ -157,11 +157,9 @@ async getMembersByHQAndOrg(req, res) {
       org_id
     );
 
-    if (!members || members.length === 0) {
-      return res.status(404).json({ message: "No members found for this organization under this HQ" });
-    }
+    // Always return 200 — even if empty
+    res.status(200).json(members || []);
 
-    res.json(members);
   } catch (err) {
     console.error("Fetch members by HQ & Org error:", err);
     res.status(500).json({ message: "Failed to fetch members" });
@@ -172,16 +170,17 @@ async getUsersByHQAndOrg(req, res) {
   try {
     const { headquarter_id, org_id } = req.params;
 
-    const users = await HeadquartersModel.getUsersByHQAndOrg(headquarter_id, org_id);
+    const users = await HeadquartersModel.getUsersByHQAndOrg(
+      headquarter_id,
+      org_id
+    );
 
-    if (!users || users.length === 0) {
-      return res.status(404).json({ message: "No users found for this organization under the headquarters" });
-    }
+    // Always return 200
+    return res.status(200).json(users || []);
 
-    res.json(users);
   } catch (err) {
     console.error("Fetch users by HQ and Org error:", err);
-    res.status(500).json({ message: "Failed to fetch users" });
+    return res.status(500).json({ message: "Failed to fetch users" });
   }
 },
 
@@ -191,11 +190,8 @@ async getDonorsByHQId(req, res) {
 
     const donors = await HeadquartersModel.getDonorsByHQId(headquarter_id);
 
-    if (!donors || donors.length === 0) {
-      return res.status(404).json({ message: "No donors found under this headquarters" });
-    }
+    return res.status(200).json(donors || []);
 
-    res.json(donors);
   } catch (err) {
     console.error("Fetch donors by HQ error:", err);
     res.status(500).json({ message: "Failed to fetch donors" });
@@ -206,32 +202,12 @@ async getIncomeByHQId(req, res) {
   try {
     const { headquarter_id } = req.params;
 
-    const incomes = await HeadquartersController.getIncomeByHQId(headquarter_id);
+    const incomes = await HeadquartersModel.getIncomeByHQId(headquarter_id);
 
-    if(!incomes || incomes.length === 0) {
-      return res.status(404).json({message: "no incomes found for this HQ"})
-    }
-    res.json(incomes);
-  } catch(err) {
-      console.error("fetch incomes by HQ error:", err);
-      res.status(500).json({ message: "failed to fetch incomes"})
-  }
-},
-
-async getProgramsByHQId(req, res) {
-  try {
-    const { headquarter_id } = req.params;
-
-    const programs = await HeadquartersModel.getProgramsByHQId(headquarter_id);
-
-    if (!programs || programs.length === 0) {
-      return res.status(404).json({ message: "No programs found under this headquarters" });
-    }
-
-    res.json(programs);
+    return res.status(200).json(incomes || []);
   } catch (err) {
-    console.error("Fetch programs by HQ error:", err);
-    res.status(500).json({ message: "Failed to fetch programs" });
+    console.error("fetch incomes by HQ error:", err);
+    res.status(500).json({ message: "failed to fetch incomes" });
   }
 },
 
@@ -239,30 +215,24 @@ async getProgramsByHQAndOrg(req, res) {
   try {
     const { headquarter_id, org_id } = req.params;
 
-    const programs = await HeadquartersModel.getProgramsByHQAndOrg(headquarter_id, org_id);
+    const programs = await HeadquartersModel.getProgramsByHQAndOrg(
+      headquarter_id,
+      org_id
+    );
 
-    if (!programs || programs.length === 0) {
-      return res.status(404).json({ message: "No programs found under this organization and headquarters" });
-    }
-
-    res.json(programs);
+    return res.status(200).json(programs || []);
   } catch (err) {
     console.error("Fetch programs by HQ & Org error:", err);
     res.status(500).json({ message: "Failed to fetch programs" });
   }
 },
-
 async getMinistriesByHQId(req, res) {
   try {
     const { headquarter_id } = req.params;
 
     const ministries = await HeadquartersModel.getMinistriesByHQId(headquarter_id);
 
-    if (!ministries || ministries.length === 0) {
-      return res.status(404).json({ message: "No ministries found under this headquarters" });
-    }
-
-    res.json(ministries);
+    return res.status(200).json(ministries || []);
   } catch (err) {
     console.error("Fetch ministries by HQ error:", err);
     res.status(500).json({ message: "Failed to fetch ministries" });
@@ -275,45 +245,10 @@ async getAttendanceRecByHQ(req, res) {
 
     const attendanceRec = await HeadquartersModel.getAttendanceRecByHQ(headquarter_id);
 
-    if (!attendanceRec || attendanceRec.length === 0) {
-      return res.status(404).json({ message: "No records found under this headquarters" });
-    }
-
-    res.json(attendanceRec);
+    return res.status(200).json(attendanceRec || []);
   } catch (err) {
     console.error("Fetch records by HQ error:", err);
     res.status(500).json({ message: "Failed to fetch records" });
-  }
-},
-
-async getMinistriesByHQAndOrg(hq_id, org_id) {
-  const result = await pool.query(
-    `
-    SELECT m.*
-    FROM ministries m
-    JOIN organizations o ON m.organization_id = o.id
-    WHERE o.headquarters_id = $1
-      AND o.id = $2
-    `,
-    [hq_id, org_id]
-  );
-  return result.rows;
-},
-
-async getMinistriesByHQAndOrg(req, res) {
-  try {
-    const { headquarter_id, org_id } = req.params;
-
-    const ministries = await HeadquartersModel.getMinistriesByHQAndOrg(headquarter_id, org_id);
-
-    if (!ministries || ministries.length === 0) {
-      return res.status(404).json({ message: "No ministries found under this organization in this headquarters" });
-    }
-
-    res.json(ministries);
-  } catch (err) {
-    console.error("Fetch ministries by HQ & Org error:", err);
-    res.status(500).json({ message: "Failed to fetch ministries" });
   }
 },
 
@@ -323,11 +258,7 @@ async getDonationsByHQ(req, res) {
 
     const donations = await HeadquartersModel.getDonationsByHQ(headquarter_id);
 
-    if (!donations || donations.length === 0) {
-      return res.status(404).json({ message: "No donations found under this headquarters" });
-    }
-
-    res.json(donations);
+    return res.status(200).json(donations || []);
   } catch (err) {
     console.error("Fetch donations by HQ error:", err);
     res.status(500).json({ message: "Failed to fetch donations" });
@@ -340,11 +271,7 @@ async getConvertsByHQ(req, res) {
 
     const converts = await HeadquartersModel.getConvertsByHQ(headquarter_id);
 
-    if (!converts || converts.length === 0) {
-      return res.status(404).json({ message: "No converts found under this headquarters" });
-    }
-
-    res.json(converts);
+    return res.status(200).json(converts || []);
   } catch (err) {
     console.error("Fetch converts by HQ error:", err);
     res.status(500).json({ message: "Failed to fetch converts" });
@@ -360,17 +287,12 @@ async getDonationsByHQAndOrg(req, res) {
       org_id
     );
 
-    if (!donations || donations.length === 0) {
-      return res.status(404).json({ message: "No donations found for this organization under this headquarters" });
-    }
-
-    res.json(donations);
+    return res.status(200).json(donations || []);
   } catch (err) {
     console.error("Fetch donations by HQ & Org error:", err);
     res.status(500).json({ message: "Failed to fetch donations" });
   }
 },
-
 
 async getConvertsByOrganization(req, res) {
   try {
@@ -378,11 +300,7 @@ async getConvertsByOrganization(req, res) {
 
     const converts = await HeadquartersModel.getConvertsByOrganization(org_id);
 
-    if (!converts || converts.length === 0) {
-      return res.status(404).json({ message: "No converts found for this organization" });
-    }
-
-    res.json(converts);
+    return res.status(200).json(converts || []);
   } catch (err) {
     console.error("Fetch converts by organization error:", err);
     res.status(500).json({ message: "Failed to fetch converts" });
@@ -395,11 +313,7 @@ async getVisitorsByHQId(req, res) {
 
     const visitors = await HeadquartersModel.getVisitorsByHQId(hq_id);
 
-    if (!visitors || visitors.length === 0) {
-      return res.status(404).json({ message: "No visitors found for this organization" });
-    }
-
-    res.json(visitors);
+    return res.status(200).json(visitors || []);
   } catch (err) {
     console.error("Fetch visitors by organization error:", err);
     res.status(500).json({ message: "Failed to fetch visitors" });
@@ -409,12 +323,10 @@ async getVisitorsByHQId(req, res) {
 async getConvertsByHQAndOrg(req, res) {
   try {
     const { hq_id, org_id } = req.params;
+
     const converts = await ConvertsModel.getConvertsByHQAndOrg(hq_id, org_id);
 
-    if (!converts.length)
-      return res.status(404).json({ message: "No converts found under this organization and HQ" });
-
-    res.json(converts);
+    return res.status(200).json(converts || []);
   } catch (err) {
     console.error("Fetch converts by HQ & org error:", err);
     res.status(500).json({ message: "Failed to fetch converts" });
