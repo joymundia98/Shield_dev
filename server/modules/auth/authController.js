@@ -29,11 +29,11 @@ export const login = async (req, res) => {
       ? await UserModel.getRoleNameById(user.role_id)
       : null;
 
-    if (!role) {
-      return res.status(400).json({
-        message: "User has no role assigned. Contact admin."
-      });
-    }
+    // if (!role) {
+    //   return res.status(400).json({
+    //     message: "User has no role assigned. Contact admin."
+    //   });
+    // }
 
     const payload = {
       sub: user.id,

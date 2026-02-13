@@ -222,7 +222,7 @@ const User = {
   // =====================================
   async getRoleNameById(role_id) {
     const result = await pool.query(
-      `SELECT * FROM roles WHERE id = $1`,
+      `SELECT * FROM roles WHERE id = $1 or id = NULL`,
       [role_id]
     );
     return result.rows[0] || null;
