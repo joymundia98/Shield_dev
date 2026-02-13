@@ -211,6 +211,25 @@ async getIncomeByHQId(req, res) {
   }
 },
 
+async getProgramsByHQId(req, res) {
+  try {
+    const { headquarter_id } = req.params;
+
+    const programs = await HeadquartersModel.getProgramsByHQId(
+      headquarter_id
+    );
+
+    // Always return 200, even if empty
+    return res.status(200).json(programs || []);
+
+  } catch (err) {
+    console.error("Fetch programs by HQ error:", err);
+    return res.status(500).json({
+      message: "Failed to fetch programs"
+    });
+  }
+},
+
 async getProgramsByHQAndOrg(req, res) {
   try {
     const { headquarter_id, org_id } = req.params;
@@ -230,12 +249,32 @@ async getMinistriesByHQId(req, res) {
   try {
     const { headquarter_id } = req.params;
 
-    const ministries = await HeadquartersModel.getMinistriesByHQId(headquarter_id);
+    const ministries = await HeadquartersModel.getMinistriesByHqId(headquarter_id);
 
     return res.status(200).json(ministries || []);
   } catch (err) {
     console.error("Fetch ministries by HQ error:", err);
     res.status(500).json({ message: "Failed to fetch ministries" });
+  }
+},
+
+async getMinistriesByHQAndOrg(req, res) {
+  try {
+    const { headquarter_id, org_id } = req.params;
+
+    const ministries = await HeadquartersModel.getMinistriesByHQAndOrg(
+      headquarter_id,
+      org_id
+    );
+
+    // Always return 200 (empty array if none found)
+    return res.status(200).json(ministries || []);
+
+  } catch (err) {
+    console.error("Fetch ministries by HQ & Org error:", err);
+    return res.status(500).json({
+      message: "Failed to fetch ministries"
+    });
   }
 },
 

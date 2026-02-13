@@ -289,7 +289,20 @@ async getProgramsByHQAndOrg(hq_id, org_id) {
   return result.rows;
 },
 
-async getMinistriesByHQId(hq_id) {
+async getMinistriesByHQAndOrg(hq_id, org_id) {
+  const result = await pool.query(
+    `
+    SELECT m.*
+    FROM ministries m
+    JOIN organizations o ON m.organization_id = o.id
+    WHERE o.headquarters_id = $1 AND o.id = $2
+    `,
+    [hq_id, org_id]
+  );
+  return result.rows;
+},
+
+async getMinistriesByHqId(hq_id) {
   const result = await pool.query(
     `
     SELECT m.*
