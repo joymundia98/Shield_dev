@@ -5,7 +5,11 @@ const Service = {
   // Get all services for an organization
   async getAll(organization_id) {
     const result = await pool.query(
-      `SELECT * FROM services WHERE organization_id = $1 ORDER BY id ASC`,
+      `
+    SELECT *
+    FROM services
+    WHERE organization_id = $1 OR organization_id IS NULL
+    ORDER BY name ASC`,
       [organization_id]
     );
     return result.rows;
