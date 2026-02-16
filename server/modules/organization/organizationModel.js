@@ -182,7 +182,14 @@ const Organization = {
   // ===============================
   async login({ organization_account_id, password }) {
     const result = await pool.query(
-      `SELECT * FROM organizations WHERE organization_account_id = $1`,
+      `SELECT 
+          o.*,
+          ot.name AS org_type_name,
+          h.name AS headquarters_name
+        FROM organizations o
+        LEFT JOIN organization_type ot ON o.org_type_id = ot.org_type_id
+        LEFT JOIN headquarters h ON o.headquarters_id = h.id
+        WHERE o.organization_account_id = $1`,
       [organization_account_id]
     );
 
