@@ -52,7 +52,9 @@ router.get(
 router.get("/:id/users", verifyJWT, HeadquartersController.getUsersByHQId);
 
 // HQ CRUD
-router.get("/:id", requirePermission("HQ_ADMIN"), HeadquartersController.getById);
+router.get("/:id", HeadquartersController.getById);
+
+
 router.put("/:id", requirePermission("HQ_ADMIN"), HeadquartersController.update);
 
 router.get(
