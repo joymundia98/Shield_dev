@@ -39,6 +39,14 @@ const RolesModel = {
     return result.rows;
   },
 
+  async getRolesByName() {
+    const result = await pool.query(
+      `
+      SELECT id, name FROM roles
+      `
+    )
+  },
+
   /**
    * Fetch all roles (admin-level, no org scoping)
    */

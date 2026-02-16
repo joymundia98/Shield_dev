@@ -45,6 +45,18 @@ const RolesController = {
     }
   },
 
+  async getRolesByName(req, res) {
+
+    try {
+    const roles = await RolesModel.getRolesByName();
+
+    return res.status(200).json(roles);
+    }catch(error) {
+      console.error("can't return roles:", error);
+      return res.status(500).json({message: "error fetching roles"})
+    }
+  },
+
   // Fetch all roles regardless of org (admin-level)
   async getAllOrgRoles(req, res) {
     try {
