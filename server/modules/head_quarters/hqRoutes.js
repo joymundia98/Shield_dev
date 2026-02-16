@@ -10,7 +10,7 @@ const router = express.Router();
 router.post("/", HeadquartersController.create);
 
 router.post("/organizations", verifyJWT, OrganizationController.create);
-router.get("/", requirePermission("SUPER_ADMIN"), HeadquartersController.getAll);
+router.get("/", HeadquartersController.getAll);
 
 router.get("/names", HeadquartersController.getAllByName);
 
