@@ -73,7 +73,7 @@ const HeadquartersModel = {
 
   async getAllByName() {
     const result = await pool.query(
-      `SELECT * FROM headquarters ORDER BY id ASC`,
+      `SELECT name FROM headquarters ORDER BY id ASC`,
     );
     return result.rows;
   },
