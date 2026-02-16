@@ -52,19 +52,56 @@ const userController = {
   },
 
   // Create a new user in the organization
-  async create(req, res) {
-    try {
-      const organization_id = req.auth.organization_id;
-      const user = await User.create({
-        ...req.body,
-        organization_id,
-      });
-      res.status(201).json(user);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Failed to create user' });
-    }
-  },
+async create(req, res) {
+  try {
+    const organization_id = req.auth.organization_id;
+
+    // 🔒 Determine status based on creator role
+    const status = req.auth.role_id === 1 || req.auth.role_id === 98 ? "active" : "pending";
+
+    // ✅ Whitelist only allowed fields from body
+    const {
+      first_name,
+      last_name,
+      email,
+      password,
+      phone,
+      position,
+      photo_url,
+      role_id
+    } = req.body;
+
+    // ✅ Generate random password if not provided
+    const plainPassword = password || crypto.randomBytes(8).toString("base64").slice(0, 12);
+
+    // ✅ Hash password
+    const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
+    const passwordHash = await bcrypt.hash(plainPassword, saltRounds);
+
+    // ✅ Insert into DB
+    const user = await User.create({
+      first_name,
+      last_name,
+      email,
+      password: passwordHash,
+      phone,
+      position,
+      photo_url,
+      role_id,
+      organization_id,
+      status
+    });
+
+    // Optional: return plain password for sending in email
+    user.plainPassword = plainPassword;
+
+    res.status(201).json(user);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create user" });
+  }
+},
 
   // Update user details (first_name, last_name, email, etc.)
   async update(req, res) {

@@ -151,6 +151,12 @@ export const register = async (req, res) => {
     const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
     const passwordHash = await bcrypt.hash(plainPassword, saltRounds);
 
+    const status =
+      position === "System Administrator" ||
+      position === "Admin"
+        ? "active"
+        : "pending";
+
     const newUser = await UserModel.create({
       first_name,
       last_name,
@@ -158,10 +164,11 @@ export const register = async (req, res) => {
       password: passwordHash,
       phone,
       position,
-      role_id,
+      role_id: role_id,
       organization_id,
-      status: "pending",
+      status,
     });
+
 
     // ==========================
     // SEND WELCOME EMAIL
