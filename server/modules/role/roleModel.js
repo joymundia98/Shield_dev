@@ -44,7 +44,8 @@ const RolesModel = {
       `
       SELECT id, name FROM roles
       `
-    )
+    );
+    return result.rows;
   },
 
   /**
