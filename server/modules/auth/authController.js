@@ -84,7 +84,10 @@ export const loginOrg = async (req, res) => {
       });
     }
 
-    const org = await OrganizationModel.login({ organization_account_id, password });
+    const org = await OrganizationModel.login({
+      organization_account_id,
+      password,
+    });
 
     if (!org) {
       return res.status(401).json({
@@ -97,6 +100,8 @@ export const loginOrg = async (req, res) => {
       type: "organization",
       organization_id: org.id,
       name: org.name,
+      org_type_id: org.org_type_id,
+      headquarters_id: org.headquarters_id,
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
@@ -111,16 +116,25 @@ export const loginOrg = async (req, res) => {
         name: org.name,
         organization_account_id: org.organization_account_id,
         status: org.status,
+
+        // FK IDs
         org_type_id: org.org_type_id,
-        headquaters_id: org.headquarters_id,
+        headquarters_id: org.headquarters_id,
+
+        // Joined readable names
+        org_type_name: org.org_type_name,
+        headquarters_name: org.headquarters_name,
       },
     });
 
   } catch (err) {
     console.error("Organization login error:", err);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({
+      message: "Server error",
+    });
   }
 };
+
 
 // ========================================
 // REGISTER – USER (with welcome email)
