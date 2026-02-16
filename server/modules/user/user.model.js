@@ -63,6 +63,7 @@ const User = {
         u.password,
         u.organization_id,
         u.status,
+        u.headquarter_id,
         r.id as role_id,
         r.name AS role
       FROM users u
