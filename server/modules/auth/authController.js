@@ -111,6 +111,8 @@ export const loginOrg = async (req, res) => {
         name: org.name,
         organization_account_id: org.organization_account_id,
         status: org.status,
+        org_type_id: org.org_type_id,
+        headquaters_id: org.headquarters_id,
       },
     });
 
