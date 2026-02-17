@@ -151,7 +151,7 @@ export const register = async (req, res) => {
       position,
       role_id,
       organization_id,
-      headquater_id,
+      headquarter_id,
     } = req.body;
 
     if (!first_name || !last_name || !email)
@@ -185,7 +185,7 @@ export const register = async (req, res) => {
       position,
       role_id: role_id,
       organization_id,
-      headquater_id,
+      headquarter_id,
       status,
     });
 
