@@ -22,6 +22,7 @@ export const verifyJWT = async (req, res, next) => {
         type: "user",
         user_id: user.id,
         organization_id: user.organization_id,
+        headquarter_id: user.headquarter_id,
         role: user.role,
         role_id: user.role_id,
       };

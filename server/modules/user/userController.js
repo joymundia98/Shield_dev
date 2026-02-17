@@ -56,6 +56,8 @@ async create(req, res) {
   try {
     const organization_id = req.auth.organization_id;
 
+    const headquarter_id = req.auth.headquarter_id;
+
     // 🔒 Determine status based on creator role
     const status = req.auth.role_id === 1 || req.auth.role_id === 98 ? "active" : "pending";
 
@@ -89,6 +91,7 @@ async create(req, res) {
       photo_url,
       role_id,
       organization_id,
+      headquarter_id,
       status
     });
 

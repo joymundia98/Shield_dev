@@ -90,6 +90,7 @@ const User = {
       role_id,
       organization_id,
       status,
+      headquarter_id
     } = data;
 
     const result = await pool.query(
@@ -103,9 +104,10 @@ const User = {
         photo_url,
         role_id,
         organization_id,
-        status
+        status,
+        headquarter_id
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, $10)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10, $11)
       RETURNING *`,
       [
         first_name,
@@ -118,6 +120,7 @@ const User = {
         role_id,
         organization_id,
         status,
+        headquarter_id,
       ]
     );
 
