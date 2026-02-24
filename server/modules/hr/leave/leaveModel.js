@@ -46,7 +46,7 @@ const LeaveRequest = {
       start_date,
       end_date,
       days,
-      status = "Pending"
+      status = "pending"
     } = data;
 
     const result = await pool.query(

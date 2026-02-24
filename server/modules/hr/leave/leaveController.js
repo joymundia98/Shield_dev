@@ -44,11 +44,11 @@ const LeaveRequestsController = {
   // POST /leave-requests
   async create(req, res) {
     try {
-      const orgId = req.auth.organization_id;
+      const organization_id = req.auth.organization_id;
 
       const payload = {
         ...req.body,
-        organization_id: orgId
+        organization_id: organization_id
       };
 
       const newReq = await LeaveRequest.create(payload);
