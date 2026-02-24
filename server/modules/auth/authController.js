@@ -292,62 +292,76 @@ export const createOrg = async (req, res) => {
     // ==========================
     // SEND EMAIL TO ORGANIZATION
     // ==========================
-try {
-  const loginUrl = "https://sci-eld.org/org-login"; // replace with your real login URL
+    try {
+      const loginUrl = "https://sci-eld.org/org-login";
 
-  await SendEmail({
-    to: org.organization_email,
-    subject: "Welcome to Our Platform",
-    html: `
-      <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto;">
-        <h1>Welcome ${org.name}!</h1>
-        <p>Your organization account has been created successfully.</p>
-        <p>Your account ID: <strong>${org.organization_account_id}</strong></p>
-
-        <p>Please click the button below to log in and manage your organization:</p>
-
-        <a href="${loginUrl}"
-           style="
-             display: inline-block;
-             margin-top: 20px;
-             padding: 12px 24px;
-             background-color: #16a34a;
-             color: #ffffff;
-             text-decoration: none;
-             border-radius: 6px;
-             font-weight: bold;
-           ">
-          Login to Your Dashboard
-        </a>
-
-        <hr style="margin: 30px 0;" />
-
-        <p style="font-size: 12px; color: #777;">
-          If you did not request this account, please contact support.
-        </p>
-      </div>
-    `,
-    text: `Welcome ${org.name}!
-
+      await SendEmail({
+        to: org.organization_email,
+        subject: "Welcome to Our Platform",
+        html: `
+          <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto;">
+            <h1>Welcome ${org.name}!</h1>
+            <p>Your organization account has been created successfully.</p>
+            <p>Your account ID: <strong>${org.organization_account_id}</strong></p>
+            <p>Please click the button below to log in and manage your organization:</p>
+            <a href="${loginUrl}"
+               style="
+                 display: inline-block;
+                 margin-top: 20px;
+                 padding: 12px 24px;
+                 background-color: #16a34a;
+                 color: #ffffff;
+                 text-decoration: none;
+                 border-radius: 6px;
+                 font-weight: bold;
+               ">
+              Login to Your Dashboard
+            </a>
+            <hr style="margin: 30px 0;" />
+            <p style="font-size: 12px; color: #777;">
+              If you did not request this account, please contact support.
+            </p>
+          </div>
+        `,
+        text: `Welcome ${org.name}!
 Your organization account has been created successfully.
 Your account ID: ${org.organization_account_id}
-
-Log in here: ${loginUrl}
-
-If you did not request this account, please contact support.`,
-  });
-} catch (emailErr) {
-  console.error("Failed to send organization registration email:", emailErr);
-}
-
+Log in here: ${loginUrl}`
+      });
+    } catch (emailErr) {
+      console.error("Failed to send organization registration email:", emailErr);
+      // Do NOT fail registration if email fails
+    }
 
     return res.status(201).json({
       message: "Organization registered successfully",
       organization: org,
     });
+
   } catch (err) {
     console.error("Organization Register Error:", err);
-    res.status(500).json({ message: "Server error" });
+
+    // ✅ Handle duplicate key (unique constraint)
+    if (err.code === "23505") {
+      // Optional: detect which field caused it
+      if (err.detail?.includes("organization_email")) {
+        return res.status(409).json({
+          message: "Organization email already exists",
+        });
+      }
+
+      if (err.detail?.includes("organization_account_id")) {
+        return res.status(409).json({
+          message: "Organization account ID already exists",
+        });
+      }
+
+      return res.status(409).json({
+        message: "Duplicate value detected",
+      });
+    }
+
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -364,8 +378,11 @@ export const headQuarterRegister = async (req, res) => {
       password,
     } = req.body;
 
-    if (!name || !email || !password)
-      return res.status(400).json({ message: "Name, email, and password are required" });
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        message: "Name, email, and password are required",
+      });
+    }
 
     const hq = await HeadquartersModel.create({
       name,
@@ -378,7 +395,9 @@ export const headQuarterRegister = async (req, res) => {
       password,
     });
 
-    // Send welcome email
+    // ==========================
+    // SEND WELCOME EMAIL
+    // ==========================
     try {
       const loginUrl = "https://sci-eld.org/hq-login";
 
@@ -394,18 +413,48 @@ export const headQuarterRegister = async (req, res) => {
       });
     } catch (emailErr) {
       console.error("HQ email failed:", emailErr);
+      // Do not fail registration if email fails
     }
 
     return res.status(201).json({
       message: "Headquarters registered successfully",
       headquarters: hq,
     });
+
   } catch (err) {
     console.error("Headquarters Register Error:", err);
-    res.status(500).json({ message: "Server error" });
+
+    // ✅ Handle PostgreSQL unique constraint violation
+    if (err.code === "23505") {
+
+      if (err.detail?.includes("email")) {
+        return res.status(409).json({
+          message: "Email already exists",
+        });
+      }
+
+      if (err.detail?.includes("code")) {
+        return res.status(409).json({
+          message: "Headquarters code already exists",
+        });
+      }
+
+      if (err.detail?.includes("headquarters_account_id")) {
+        return res.status(409).json({
+          message: "Headquarters account ID already exists",
+        });
+      }
+
+      return res.status(409).json({
+        message: "Duplicate value detected",
+      });
+    }
+
+    return res.status(500).json({
+      message: "Server error",
+    });
   }
 };
-
 
 export const headQuarterLogin = async (req, res) => {
   try {

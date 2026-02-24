@@ -134,7 +134,7 @@ app.use("/api/services", verifyJWT, serviceRoutes);
 app.use("/api/referrals", referralRoutes);
 app.use("/api/congregation/purposes", purposeRoutes);
 app.use("/api/congregation/sessions", sessionRoutes);
-app.use('/api/programs/attendees', attendeeRoutes);
+app.use('/api/programs/attendees', verifyJWT, attendeeRoutes);
 app.use('/api/programs', programRoutes);
 app.use("/api/finance/budgets", verifyJWT, budgetsRoutes);
 app.use("/api/finance/attachments", attachmentRoutes);

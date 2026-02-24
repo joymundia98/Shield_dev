@@ -30,10 +30,10 @@ const DonorsController = {
 
   async create(req, res) {
     try {
-      // const organization_id = req.auth.organization_id;
+      const organization_id = req.auth.organization_id;
 
       const data = await Donor.create({
-        // ...req.body,
+        ...req.body,
         organization_id,
       });
 
