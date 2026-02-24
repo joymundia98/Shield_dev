@@ -145,7 +145,7 @@ app.use('/api/finance/income_subcategories', verifyJWT,financeIncomeSubRoutes);
 app.use('/api/finance/expenses', verifyJWT,expensesRoutes);
 app.use('/api/finance/incomes', verifyJWT,incomesRoutes);
 app.use('/api/payroll', verifyJWT, payrollRoutes);
-app.use("/api/donations", donationRoutes);
+app.use('/api/donations', donationRoutes);
 app.use('/api/finance/extra_fields', extraFieldsRoutes);
 app.use('/api/finance/budgets', budgetsRoutes);
 app.use('/api/assets/categories', assetCategoryRoutes);
