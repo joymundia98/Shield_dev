@@ -1,10 +1,7 @@
 import express from "express";
 import payrollController from "./payrollController.js";
-import { verifyJWT } from "../../middleware/auth.js";
 
 const router = express.Router();
-
-router.use(verifyJWT);
 
 router.get("/", payrollController.getAll);
 router.get("/:id", payrollController.getById);

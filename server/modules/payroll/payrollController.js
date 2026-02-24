@@ -30,11 +30,9 @@ const payrollController = {
       const payroll = await Payroll.create(
         {
           ...req.body,
+          staff_id: req.body.staff_id,
           organization_id: req.auth.organization_id,
-        },
-        {
-          user_id: req.user.id,
-          organization_id: req.auth.organization_id,
+          user_id: req.auth.sub,
           ip_address: req.ip,
         }
       );
