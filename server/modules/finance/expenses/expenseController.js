@@ -62,7 +62,8 @@ const ExpenseController = {
   // PATCH /expenses/:id/status
   async updateStatus(req, res) {
     try {
-      const { id, organization_id } = req.params;
+      const { id } = req.params;
+      const organization_id = req.auth.organization_id;
       const { status } = req.body;
 
       if (!status) {
