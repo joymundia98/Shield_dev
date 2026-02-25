@@ -145,17 +145,17 @@ app.use('/api/finance/income_subcategories', verifyJWT,financeIncomeSubRoutes);
 app.use('/api/finance/expenses', verifyJWT,expensesRoutes);
 app.use('/api/finance/incomes', verifyJWT,incomesRoutes);
 app.use('/api/payroll', verifyJWT, payrollRoutes);
-app.use('/api/donations', donationRoutes);
+app.use('/api/donations', verifyJWT, donationRoutes);
 app.use('/api/finance/extra_fields', extraFieldsRoutes);
-app.use('/api/finance/budgets', budgetsRoutes);
-app.use('/api/assets/categories', assetCategoryRoutes);
-app.use('/api/assets/requests', assetRequestRoutes);
-app.use('/api/assets/location', assetLocationRoutes)
-app.use('/api/assets', assetRoutes);
-app.use('/api/assets/maintenance_categories', assetMaintenaceCategoryRoutes);
-app.use('/api/assets/maintenance_records', assetMaintenaceRecordRoutes);
-app.use('/api/assets/depreciation', assetDepreciationRoutes);
-app.use('/api/assets/warranty', assetWarrantyRoutes);
+app.use('/api/finance/budgets', verifyJWT, budgetsRoutes);
+app.use('/api/assets/categories', verifyJWT, assetCategoryRoutes);
+app.use('/api/assets/requests', verifyJWT, assetRequestRoutes);
+app.use('/api/assets/location', verifyJWT, assetLocationRoutes)
+app.use('/api/assets', verifyJWT, assetRoutes);
+app.use('/api/assets/maintenance_categories', verifyJWT, assetMaintenaceCategoryRoutes);
+app.use('/api/assets/maintenance_records', verifyJWT, assetMaintenaceRecordRoutes);
+app.use('/api/assets/depreciation', verifyJWT, assetDepreciationRoutes);
+app.use('/api/assets/warranty', verifyJWT, assetWarrantyRoutes);
 app.use('/api/profiles/churches', churchRoutes);
 app.use('/api/profiles/core_values', coreValueRoutes);
 app.use('/api/profiles/leadership', leadershipRoutes);
