@@ -1,0 +1,101 @@
+full_name,email,phone,gender,date_of_birth,date_joined,age,disabled,orphan,widowed,nrc,guardian_name,guardian_phone
+Priscilla Mwansa,priscilla.mwansa31@example.com,971000030,Female,2009-05-11,2022-03-03,17,FALSE,FALSE,FALSE,,Peter Mweemba,971001030
+Yvonne Nkombo,yvonne.nkombo34@example.com,971000033,Female,2011-09-27,2021-10-06,15,FALSE,FALSE,FALSE,,Clive Chilongo,971001033
+Uma Chama,uma.chama53@example.com,971000052,Female,1991-03-07,2025-01-29,35,TRUE,FALSE,FALSE,705295/55/53,,
+Kenneth Muntanga,kenneth.muntanga37@example.com,971000036,Male,1941-07-24,2024-01-26,85,TRUE,FALSE,FALSE,332997/55/37,,
+Selina Mwewa,selina.mwewa66@example.com,971000065,Female,2014-04-25,2022-05-13,12,FALSE,TRUE,FALSE,,Lydia Chikonde,971001065
+Grace Chanda,grace.chanda90@example.com,971000089,Female,1980-12-02,2020-07-07,46,FALSE,FALSE,FALSE,999525/55/90,,
+Patience Chilongo,patience.chilongo28@example.com,971000027,Female,1950-09-02,2024-07-21,76,TRUE,FALSE,FALSE,429997/55/28,,
+Catherine Mwila,catherine.mwila6@example.com,971000005,Female,1957-11-15,2021-10-11,69,FALSE,FALSE,FALSE,754421/55/6,,
+Phillip Chola,phillip.chola58@example.com,971000057,Male,1941-08-18,2020-03-17,85,FALSE,FALSE,FALSE,267360/55/58,,
+Josephine Chileshe-Kalaba,josephine.chileshe-kalaba27@example.com,971000026,Female,2002-10-24,2023-08-24,24,FALSE,FALSE,FALSE,418828/55/27,,
+Harrison Zimba,harrison.zimba52@example.com,971000051,Male,2010-05-25,2021-09-07,16,FALSE,FALSE,FALSE,,Eliza Chilongo,971001051
+Beatrice Chiti,beatrice.chiti77@example.com,971000076,Female,1937-02-23,2023-10-11,89,FALSE,FALSE,TRUE,256625/55/77,,
+Matthew Musonda,matthew.musonda61@example.com,971000060,Male,2011-11-21,2023-04-19,15,FALSE,FALSE,FALSE,,Caleb Chibwe,971001060
+Patience Chansa,patience.chansa72@example.com,971000071,Female,1967-06-04,2021-06-24,59,TRUE,FALSE,FALSE,407839/55/72,,
+Anna Musonda,anna.musonda59@example.com,971000058,Female,1936-06-06,2022-08-05,90,FALSE,FALSE,FALSE,378537/55/59,,
+Anthony Kalaba,anthony.kalaba87@example.com,971000086,Male,2009-10-03,2024-12-09,17,FALSE,FALSE,FALSE,,Beatrice Mumba,971001086
+Delilah Nkonde,delilah.nkonde81@example.com,971000080,Female,1943-09-21,2025-03-07,83,FALSE,FALSE,FALSE,454130/55/81,,
+Maria Chakamba,maria.chakamba92@example.com,971000091,Female,2004-11-09,2023-07-22,22,TRUE,FALSE,FALSE,230936/55/92,,
+Priscilla Chakamba,priscilla.chakamba33@example.com,971000032,Female,1990-09-23,2024-11-10,36,TRUE,FALSE,FALSE,121760/55/33,,
+Irene Chakamba,irene.chakamba98@example.com,971000097,Female,1958-07-24,2020-08-26,68,FALSE,FALSE,FALSE,275079/55/98,,
+Ryan Mwewa,ryan.mwewa84@example.com,971000083,Male,1965-01-03,2023-01-17,61,FALSE,FALSE,FALSE,517859/55/84,,
+Brian Ngoma,brian.ngoma26@example.com,971000025,Male,1995-10-01,2023-04-04,31,FALSE,FALSE,FALSE,779961/55/26,,
+Hannah Bwalya-Mulenga,hannah.bwalya-mulenga25@example.com,971000024,Female,1998-10-07,2021-10-23,28,FALSE,FALSE,FALSE,271109/55/25,,
+Roselyn Mwewa,roselyn.mwewa62@example.com,971000061,Female,1983-10-19,2024-01-20,43,TRUE,FALSE,FALSE,461725/55/62,,
+Beatrice Ngulube,beatrice.ngulube17@example.com,971000016,Female,2009-02-03,2025-01-01,17,FALSE,FALSE,FALSE,,Ezekiel Phiri,971001016
+Kate Chansa,kate.chansa23@example.com,971000022,Female,2010-05-08,2023-12-28,16,FALSE,FALSE,FALSE,,Mark Zimba,971001022
+Genevieve Chikoti,genevieve.chikoti12@example.com,971000011,Female,2021-04-05,2020-07-31,5,FALSE,FALSE,FALSE,,Roselyn Chibwe,971001011
+Yvonne Chama,yvonne.chama11@example.com,971000010,Female,1947-03-22,2021-08-06,79,FALSE,FALSE,FALSE,413941/55/11,,
+Felicity Chanda,felicity.chanda50@example.com,971000049,Female,2013-09-10,2021-10-04,13,FALSE,FALSE,FALSE,,Nathan Chileshe,971001049
+Gabriel Tembo,gabriel.tembo55@example.com,971000054,Male,1967-06-23,2020-05-12,59,FALSE,FALSE,FALSE,786019/55/55,,
+Monica Sichinga,monica.sichinga97@example.com,971000096,Female,2008-07-02,2025-07-29,18,FALSE,FALSE,FALSE,887556/55/97,,
+Carol Chikonde,carol.chikonde73@example.com,971000072,Female,2024-01-18,2020-01-22,2,TRUE,FALSE,FALSE,,Clara Mwila,971001072
+Karen Chisala,karen.chisala68@example.com,971000067,Female,1969-11-26,2025-08-10,57,FALSE,FALSE,FALSE,586918/55/68,,
+Kenneth Chola,kenneth.chola78@example.com,971000077,Male,1976-05-09,2025-01-02,50,FALSE,FALSE,FALSE,905947/55/78,,
+Mercy Chansa,mercy.chansa10@example.com,971000009,Female,1975-12-20,2025-11-04,51,FALSE,FALSE,FALSE,132762/55/10,,
+Wendy Chilufya,wendy.chilufya64@example.com,971000063,Female,1956-12-06,2020-02-24,70,FALSE,FALSE,FALSE,528451/55/64,,
+Frank Chilongo,frank.chilongo56@example.com,971000055,Male,1937-12-09,2024-04-26,89,FALSE,FALSE,FALSE,764389/55/56,,
+Josephine Kalunga,josephine.kalunga41@example.com,971000040,Female,1996-07-16,2024-01-16,30,FALSE,FALSE,FALSE,591916/55/41,,
+Kavita Chikuni,kavita.chikuni93@example.com,971000092,Female,1941-06-20,2021-06-29,85,FALSE,FALSE,FALSE,310733/55/93,,
+Angela Chikoti,angela.chikoti100@example.com,971000099,Female,2009-08-07,2023-09-11,17,FALSE,FALSE,FALSE,,Beatrice Tembo,971001099
+Helena Ngulube,helena.ngulube83@example.com,971000082,Female,2014-03-12,2022-05-11,12,FALSE,FALSE,FALSE,,Josephine Sikazwe,971001082
+Evelyn Mwamba,evelyn.mwamba74@example.com,971000073,Female,1959-04-05,2022-09-03,67,FALSE,FALSE,TRUE,356079/55/74,,
+Faith Nkoloma,faith.nkoloma18@example.com,971000017,Female,1984-05-11,2020-05-06,42,FALSE,FALSE,FALSE,206002/55/18,,
+Ryan Tembo,ryan.tembo95@example.com,971000094,Male,1995-07-22,2023-02-23,31,FALSE,FALSE,FALSE,237985/55/95,,
+Sophia Chama-Lungu,sophia.chama-lungu70@example.com,971000069,Female,1987-04-13,2023-07-17,39,TRUE,FALSE,FALSE,825840/55/70,,
+Vivian Chiti,vivian.chiti88@example.com,971000087,Female,1938-12-25,2024-06-23,88,FALSE,FALSE,FALSE,131251/55/88,,
+Nathan Chansa,nathan.chansa96@example.com,971000095,Male,1971-10-25,2024-11-16,55,FALSE,FALSE,FALSE,143553/55/96,,
+Kavita Banda,kavita.banda15@example.com,971000014,Female,1941-05-04,2021-06-04,85,FALSE,FALSE,FALSE,348841/55/15,,
+Angela Chinyama,angela.chinyama80@example.com,971000079,Female,1981-03-03,2023-10-20,45,TRUE,FALSE,FALSE,502891/55/80,,
+Josephine Chikoti,josephine.chikoti71@example.com,971000070,Female,1994-12-09,2025-10-16,32,TRUE,FALSE,FALSE,112325/55/71,,
+Angela Lungu,angela.lungu76@example.com,971000075,Female,2000-08-17,2022-09-07,26,TRUE,FALSE,FALSE,690168/55/76,,
+Nancy Muntanga,nancy.muntanga57@example.com,971000056,Female,2018-06-21,2020-11-19,8,TRUE,TRUE,FALSE,,Frederick Tembo,971001056
+Esther Phiri-Kabwe,esther.phiri-kabwe8@example.com,971000007,Female,1947-03-27,2020-06-21,79,FALSE,FALSE,FALSE,769699/55/8,,
+Stephen Tembo,stephen.tembo67@example.com,971000066,Male,1968-12-06,2021-03-24,58,FALSE,FALSE,FALSE,926179/55/67,,
+Mercy Sikazwe,mercy.sikazwe9@example.com,971000008,Female,1967-06-02,2020-11-14,59,FALSE,FALSE,FALSE,326385/55/9,,
+Rachel Kaponda,rachel.kaponda1@example.com,971000000,Female,1992-06-06,2023-02-08,34,FALSE,FALSE,FALSE,490818/55/1,,
+Liam Chilongo,liam.chilongo40@example.com,971000039,Male,2026-09-03,2023-12-11,0,FALSE,FALSE,FALSE,,Karen Mwila,971001039
+Harrison Sikazwe,harrison.sikazwe85@example.com,971000084,Male,2025-09-27,2023-03-03,1,TRUE,FALSE,FALSE,,Olga Chanda,971001084
+Victoria Chilufya,victoria.chilufya3@example.com,971000002,Female,1974-11-15,2025-08-03,52,TRUE,FALSE,FALSE,341338/55/3,,
+Evelyn Chanda,evelyn.chanda44@example.com,971000043,Female,1996-12-18,2024-06-16,30,FALSE,FALSE,FALSE,329323/55/44,,
+Linda Ngulube,linda.ngulube51@example.com,971000050,Female,1954-10-25,2022-04-11,72,FALSE,FALSE,FALSE,699713/55/51,,
+Helena Mwansa,helena.mwansa54@example.com,971000053,Female,1957-09-02,2022-11-17,69,FALSE,FALSE,FALSE,315725/55/54,,
+Sophia Chansa,sophia.chansa13@example.com,971000012,Female,1937-04-22,2023-05-28,89,FALSE,FALSE,FALSE,137956/55/13,,
+Dominic Nkombo,dominic.nkombo30@example.com,971000029,Male,2002-04-19,2020-01-06,24,FALSE,FALSE,FALSE,739671/55/30,,
+Irene Chikupi,irene.chikupi4@example.com,971000003,Female,2008-02-27,2021-06-05,18,TRUE,FALSE,FALSE,462915/55/4,,
+Faith Lundazi,faith.lundazi94@example.com,971000093,Female,1991-11-04,2021-04-16,35,FALSE,FALSE,FALSE,478819/55/94,,
+Linda Ngoma,linda.ngoma43@example.com,971000042,Female,2004-05-06,2025-05-24,22,FALSE,FALSE,FALSE,718709/55/43,,
+Carol Zulu,carol.zulu89@example.com,971000088,Female,2023-01-24,2024-07-19,3,FALSE,FALSE,FALSE,,George Chileshe,971001088
+Abigail Chama,abigail.chama79@example.com,971000078,Female,1955-02-14,2025-05-03,71,TRUE,FALSE,FALSE,702272/55/79,,
+Phillip Phiri,phillip.phiri99@example.com,971000098,Male,1949-07-05,2023-02-04,77,FALSE,FALSE,FALSE,878228/55/99,,
+Karen Chiti,karen.chiti39@example.com,971000038,Female,1942-11-06,2020-07-20,84,FALSE,FALSE,FALSE,324821/55/39,,
+Beatrice Chileshe-Kalaba,beatrice.chileshe-kalaba2@example.com,971000001,Female,2020-08-15,2022-12-14,6,FALSE,FALSE,FALSE,,Helena Chanda,971001001
+Harrison Chilongo,harrison.chilongo29@example.com,971000028,Male,1998-06-10,2020-08-30,28,FALSE,FALSE,FALSE,243745/55/29,,
+Frederick Mbewe,frederick.mbewe21@example.com,971000020,Male,1949-01-17,2020-02-19,77,FALSE,FALSE,FALSE,673022/55/21,,
+Helena Lukwesa,helena.lukwesa38@example.com,971000037,Female,2020-11-26,2023-07-12,6,FALSE,FALSE,FALSE,,Wilfred Chilongo,971001037
+Anna Chola,anna.chola20@example.com,971000019,Female,1971-07-27,2023-12-04,55,FALSE,FALSE,FALSE,315148/55/20,,
+Yara Nkandu,yara.nkandu14@example.com,971000013,Female,1954-04-05,2020-03-17,72,FALSE,FALSE,FALSE,837383/55/14,,
+Clara Chiti,clara.chiti91@example.com,971000090,Female,1940-06-19,2025-09-17,86,FALSE,FALSE,FALSE,588069/55/91,,
+Gloria Phiri,gloria.phiri63@example.com,971000062,Female,1972-01-10,2025-06-18,54,FALSE,FALSE,FALSE,325293/55/63,,
+Selina Chiti,selina.chiti5@example.com,971000004,Female,1988-12-23,2024-07-27,38,TRUE,FALSE,FALSE,378918/55/5,,
+Chisomo Bwalya,chisomo.bwalya16@example.com,971000015,Female,2002-11-12,2024-04-10,24,TRUE,FALSE,FALSE,783307/55/16,,
+Patrick Chilongo,patrick.chilongo24@example.com,971000023,Male,1969-07-08,2025-10-29,57,FALSE,FALSE,FALSE,362506/55/24,,
+Ryan Chikoti,ryan.chikoti49@example.com,971000048,Male,2024-09-10,2024-04-09,2,FALSE,FALSE,FALSE,,Frederick Muntanga,971001048
+Selina Chanda,selina.chanda82@example.com,971000081,Female,1939-08-08,2024-11-17,87,FALSE,FALSE,FALSE,705886/55/82,,
+Angela Mbewe,angela.mbewe46@example.com,971000045,Female,1996-11-15,2022-05-22,30,FALSE,FALSE,FALSE,429456/55/46,,
+Ezekiel Mbewe-Chilufya,ezekiel.mbewe-chilufya47@example.com,971000046,Male,1974-03-07,2020-12-10,52,FALSE,FALSE,FALSE,326389/55/47,,
+Xander Musonda,xander.musonda22@example.com,971000021,Male,1998-06-12,2021-08-11,28,FALSE,FALSE,FALSE,909896/55/22,,
+Janet Chiti,janet.chiti45@example.com,971000044,Female,1940-06-05,2021-08-01,86,FALSE,FALSE,FALSE,417670/55/45,,
+Karen Kabwe,karen.kabwe75@example.com,971000074,Female,1995-07-11,2024-02-25,31,FALSE,FALSE,FALSE,189710/55/75,,
+Winifred Chinyama,winifred.chinyama35@example.com,971000034,Female,1967-10-24,2021-07-14,59,FALSE,FALSE,FALSE,548188/55/35,,
+Monica Mutale,monica.mutale69@example.com,971000068,Female,2018-07-19,2021-01-03,8,FALSE,FALSE,FALSE,,Janet Chisala,971001068
+Davidson Chilongo,davidson.chilongo7@example.com,971000006,Male,2002-12-19,2023-05-09,24,FALSE,FALSE,FALSE,234967/55/7,,
+Roselyn Kalunga,roselyn.kalunga48@example.com,971000047,Female,1985-08-06,2025-08-07,41,TRUE,FALSE,FALSE,205609/55/48,,
+Patience Mwewa,patience.mwewa42@example.com,971000041,Female,1963-11-24,2025-07-26,63,FALSE,FALSE,FALSE,379656/55/42,,
+Priscilla Lukwesa,priscilla.lukwesa36@example.com,971000035,Female,1941-09-04,2020-04-28,85,FALSE,FALSE,FALSE,276827/55/36,,
+Maria Tembo,maria.tembo65@example.com,971000064,Female,2026-03-11,2022-07-23,0,FALSE,FALSE,FALSE,,Kavita Chikoti,971001064
+Uma Mutale,uma.mutale86@example.com,971000085,Female,1983-11-25,2022-01-21,43,FALSE,FALSE,FALSE,221501/55/86,,
+Selina Bwalya,selina.bwalya60@example.com,971000059,Female,1960-02-26,2024-12-13,66,FALSE,FALSE,TRUE,436360/55/60,,
+Lawrence Mbewe,lawrence.mbewe19@example.com,971000018,Male,1947-03-25,2025-01-15,79,FALSE,FALSE,FALSE,384010/55/19,,
+Chisomo Chishimba,chisomo.chishimba32@example.com,971000031,Female,1939-04-08,2023-10-26,87,FALSE,FALSE,FALSE,766120/55/32,,
