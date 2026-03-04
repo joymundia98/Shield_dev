@@ -26,8 +26,14 @@ const Payroll = {
   },
 
   // CREATE PAYROLL
-  async create(data, auditMeta = {}) {
-    const result = await pool.query(
+async create(data, auditMeta = {}) {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // 1️⃣ Insert Payroll
+    const payrollResult = await client.query(
       `
       INSERT INTO payroll (
         staff_id, department_id, role_id, year, month,
@@ -79,8 +85,36 @@ const Payroll = {
       ]
     );
 
-    const payroll = result.rows[0];
+    const payroll = payrollResult.rows[0];
 
+    // 2️⃣ Insert Expense automatically
+    await client.query(
+      `
+      INSERT INTO expenses (
+        subcategory_id,
+        user_id,
+        department_id,
+        organization_id,
+        date,
+        description,
+        amount,
+        status
+      )
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+      `,
+      [
+        data.payroll_expense_subcategory_id, // 👈 define this properly
+        data.staff_id,
+        data.department_id,
+        data.organization_id,
+        new Date(),
+        `Payroll for ${data.month}/${data.year}`,
+        data.net_salary,
+        "Approved"
+      ]
+    );
+
+    // 3️⃣ Audit log
     await AuditLog.log({
       ...auditMeta,
       module: "payroll",
@@ -89,8 +123,17 @@ const Payroll = {
       new_data: payroll
     });
 
+    await client.query("COMMIT");
+
     return payroll;
-  },
+
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+},
 
   // UPDATE PAYROLL
 async update(payrollId, organization_id, data, auditMeta = {}) {

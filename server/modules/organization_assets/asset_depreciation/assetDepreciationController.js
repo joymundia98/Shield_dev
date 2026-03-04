@@ -5,7 +5,8 @@ const AssetDepreciationController = {
   // GET all depreciation records for the organization
   async getAll(req, res) {
     try {
-      const data = await AssetDepreciation.getAll(req.auth.organization_id);
+      const organization_id = req.auth.organization_id;
+      const data = await AssetDepreciation.getAll(organization_id);
       res.json(data);
     } catch (err) {
       console.error(err);
@@ -17,7 +18,8 @@ const AssetDepreciationController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const data = await AssetDepreciation.getById(id, req.auth.organization_id);
+      const organization_id = req.auth.organization_id;
+      const data = await AssetDepreciation.getById(id, organization_id);
 
       if (!data) return res.status(404).json({ message: "Depreciation record not found" });
 
