@@ -192,7 +192,6 @@ export const SERVICE_COLUMNS = {
 };
 
 export const VISITOR_COLUMNS = {
-  "Visitor ID": "id",
   "Name": "name",
   "Gender": "gender",
   "Age": "age",

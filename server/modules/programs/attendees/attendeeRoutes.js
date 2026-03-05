@@ -15,6 +15,8 @@ router.get('/:id', attendeeController.getById);
 // Update attendee
 router.patch('/:id', attendeeController.update);
 
+router.put('/:id', attendeeController.update);
+
 // Delete attendee
 router.delete('/:id', attendeeController.delete);
 

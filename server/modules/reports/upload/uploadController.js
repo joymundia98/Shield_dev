@@ -106,25 +106,31 @@ export const uploadFile = async (req, res) => {
       return password;
     };
 
-    for (const row of rawRows) {
-      const normalized = normalizeRow(row, COLUMN_MAP);
+  for (const row of rawRows) {
+    const normalized = normalizeRow(row, COLUMN_MAP);
 
-      if (type === "users") {
-        const plainPassword = normalized.password || generateRandomPassword(12);
-        normalized.password = await bcrypt.hash(plainPassword, 10);
+    // USERS LOGIC
+    if (type === "users") {
+      const plainPassword = normalized.password || generateRandomPassword(12);
+      normalized.password = await bcrypt.hash(plainPassword, 10);
 
-        normalized.status = normalized.status || "pending";
+      normalized.status = normalized.status || "pending";
 
-        emailQueue.push({
-          email: normalized.email,
-          first_name: normalized.first_name,
-          plainPassword
-        });
-      }
-
-      normalized.organization_id = organization_id;
-      processedRows.push(normalized);
+      emailQueue.push({
+        email: normalized.email,
+        first_name: normalized.first_name,
+        plainPassword
+      });
     }
+
+    // MEMBERS LOGIC
+    if (type === "members") {
+      normalized.status = "active";
+    }
+
+    normalized.organization_id = organization_id;
+    processedRows.push(normalized);
+  }
 
     console.log("🧪 FINAL ROWS TO INSERT:", processedRows);
 
