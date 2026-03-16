@@ -16,6 +16,8 @@ export const verifyJWT = async (req, res, next) => {
 
     if (decoded.type === "user") {
       const user = await UserModel.getById(decoded.sub);
+
+      console.log("DB USER:", user);
       if (!user) throw new Error("Invalid user token");
 
       req.auth = {

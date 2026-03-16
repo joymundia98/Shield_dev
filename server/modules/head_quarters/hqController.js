@@ -365,6 +365,8 @@ async getVisitorsByHQId(req, res) {
   try {
     const headquarter_id = req.auth.headquarter_id;
 
+    console.log("this is the value",headquarter_id);
+
     const visitors = await HeadquartersModel.getVisitorsByHQId(headquarter_id);
 
     return res.status(200).json(visitors || []);

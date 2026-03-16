@@ -2,37 +2,45 @@ import { pool } from "../../server.js";
 
 const ConvertsModel = {
   // CREATE convert (org enforced)
-  async create(
-    { convert_type, convert_date, member_id, visitor_id, follow_up_status },
-    organization_id
-  ) {
-    const result = await pool.query(
-      `
-      INSERT INTO converts (
-        convert_type,
-        convert_date,
-        member_id,
-        visitor_id,
-        organization_id,
-        follow_up_status,
-        created_at,
-        updated_at
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
-      RETURNING *
-      `,
-      [
-        convert_type,
-        convert_date,
-        member_id,
-        visitor_id,
-        organization_id,
-        follow_up_status,
-      ]
-    );
+async create(
+  { convert_type, convert_date, member_id, visitor_id, follow_up_status },
+  organization_id,
+  headquarter_id
+) {
 
-    return result.rows[0];
-  },
+  if (!organization_id || !headquarter_id) {
+    throw new Error("Organization or Headquarter ID missing");
+  }
+
+  const result = await pool.query(
+    `
+    INSERT INTO converts (
+      convert_type,
+      convert_date,
+      member_id,
+      visitor_id,
+      organization_id,
+      headquarters_id,
+      follow_up_status,
+      created_at,
+      updated_at
+    )
+    VALUES ($1,$2,$3,$4,$5,$6,$7,NOW(),NOW())
+    RETURNING *
+    `,
+    [
+      convert_type,
+      convert_date,
+      member_id || null,
+      visitor_id || null,
+      organization_id,
+      headquarter_id,
+      follow_up_status
+    ]
+  );
+
+  return result.rows[0];
+},
 
   // GET all converts (org scoped)
   async findAll(organization_id) {

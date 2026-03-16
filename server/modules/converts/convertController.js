@@ -32,21 +32,24 @@ export const convertsController = {
   },
 
   // CREATE convert (org enforced)
-  async create(req, res) {
-    try {
-      const organization_id = req.auth.organization_id;
+async create(req, res) {
+  try {
+    const organization_id = req.auth.organization_id;
+    const headquarter_id = req.auth.headquarter_id;
 
-      const newConvert = await ConvertsModel.create(
-        req.body,
-        organization_id
-      );
+    const newConvert = await ConvertsModel.create(
+      req.body,
+      organization_id,
+      headquarter_id
+    );
 
-      res.status(201).json(newConvert);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Failed to create convert" });
-    }
-  },
+    res.status(201).json(newConvert);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create convert" });
+  }
+},
 
   // UPDATE convert (org locked)
   async update(req, res) {
