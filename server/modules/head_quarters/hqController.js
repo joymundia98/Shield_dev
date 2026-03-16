@@ -40,7 +40,7 @@ const HeadquartersController = {
   // =========================
   async getById(req, res) {
     try {
-      const hq = await HeadquartersModel.getById(req.params.id);
+      const hq = await HeadquartersModel.getById(req.auth.headquarters_id);
       if (!hq) return res.status(404).json({ message: "HQ not found" });
       res.json(hq);
     } catch (err) {
@@ -50,7 +50,7 @@ const HeadquartersController = {
 
   async getOrganizationsByHQId(req, res) {
     try {
-      const hq = await HeadquartersModel.getOrgsByHQId(req.params.id);
+      const hq = await HeadquartersModel.getOrgsByHQId(eq.auth.headquarters_id);
       if (!hq) return res.status(404).json({ message: "organizations under HQ not found" });
       res.json(hq);
     } catch (err) {
@@ -60,9 +60,9 @@ const HeadquartersController = {
 
   async getUsersByHQId(req, res) {
   try {
-    const { id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
 
-    const users = await HeadquartersModel.getUsersByHQId(id);
+    const users = await HeadquartersModel.getUsersByHQId(headquarters_id);
 
     if (!users || users.length === 0) {
       return res.status(404).json({ message: "No users found under this headquarters" });
@@ -77,12 +77,14 @@ const HeadquartersController = {
 
 async getOrgUnderHQ(req, res) {
   try {
-    const { headquarter_id, org_id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
 
-    if (!headquarter_id || !org_id)
+    const organization_id = req.auth.organization_id;
+
+    if (!headquarters_id || !organization_id)
       return res.status(400).json({ message: "headquarter_id and org_id are required" });
 
-    const org = await HeadquartersModel.getOrgByIdUnderHQ(org_id, headquarter_id);
+    const org = await HeadquartersModel.getOrgByIdUnderHQ(organization_id, headquarters_id);
 
     if (!org)
       return res.status(404).json({ message: "Organization not found under this headquarter" });
@@ -99,9 +101,9 @@ async getOrgUnderHQ(req, res) {
 
 async getDepartmentsByHQ(req, res) {
   try {
-    const { headquarter_id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
 
-    const departments = await HeadquartersModel.getDepartmentsByHQ(headquarter_id);
+    const departments = await HeadquartersModel.getDepartmentsByHQ(headquarters_id);
 
     if (!departments || departments.length === 0) {
       return res.status(404).json({ message: "No departments found under this headquarters" });
@@ -116,9 +118,11 @@ async getDepartmentsByHQ(req, res) {
 
 async getDepartmentsByHQAndOrg(req, res) {
   try {
-    const { headquarter_id, org_id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
 
-    const departments = await HeadquartersModel.getDepartmentsByHQAndOrg(headquarter_id, org_id);
+    const organization_id = req.auth.organization_id;
+
+    const departments = await HeadquartersModel.getDepartmentsByHQAndOrg(headquarters_id, organization_id);
 
     if (!departments || departments.length === 0) {
       return res.status(404).json({ message: "No departments found for this organization under this headquarters" });
@@ -133,9 +137,9 @@ async getDepartmentsByHQAndOrg(req, res) {
 
 async getMembersByHQId(req, res) {
   try {
-    const { headquarter_id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
 
-    const members = await HeadquartersModel.getMembersByHQId(headquarter_id);
+    const members = await HeadquartersModel.getMembersByHQId(headquarters_id);
 
     if (!members || members.length === 0) {
       return res.status(404).json({ message: "No members found under this headquarters" });
@@ -150,11 +154,13 @@ async getMembersByHQId(req, res) {
 
 async getMembersByHQAndOrg(req, res) {
   try {
-    const { headquarter_id, org_id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
+
+    const organization_id = req.auth.organization_id;
 
     const members = await HeadquartersModel.getMembersByHQAndOrg(
-      headquarter_id,
-      org_id
+      headquarters_id,
+      organization_id
     );
 
     // Always return 200 — even if empty
@@ -168,11 +174,13 @@ async getMembersByHQAndOrg(req, res) {
 
 async getUsersByHQAndOrg(req, res) {
   try {
-    const { headquarter_id, org_id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
+
+    const organization_id = req.auth.organization_id;
 
     const users = await HeadquartersModel.getUsersByHQAndOrg(
-      headquarter_id,
-      org_id
+      headquarters_id,
+      organization_id
     );
 
     // Always return 200
@@ -186,9 +194,11 @@ async getUsersByHQAndOrg(req, res) {
 
 async getDonorsByHQId(req, res) {
   try {
-    const { headquarter_id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
 
-    const donors = await HeadquartersModel.getDonorsByHQId(headquarter_id);
+    const organization_id = req.auth.organization_id;
+
+    const donors = await HeadquartersModel.getDonorsByHQId(headquarters_id);
 
     return res.status(200).json(donors || []);
 
@@ -200,9 +210,9 @@ async getDonorsByHQId(req, res) {
 
 async getIncomeByHQId(req, res) {
   try {
-    const { headquarter_id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
 
-    const incomes = await HeadquartersModel.getIncomeByHQId(headquarter_id);
+    const incomes = await HeadquartersModel.getIncomeByHQId(headquarters_id);
 
     return res.status(200).json(incomes || []);
   } catch (err) {
@@ -213,10 +223,10 @@ async getIncomeByHQId(req, res) {
 
 async getProgramsByHQId(req, res) {
   try {
-    const { headquarter_id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
 
     const programs = await HeadquartersModel.getProgramsByHQId(
-      headquarter_id
+      headquarters_id
     );
 
     // Always return 200, even if empty
@@ -232,11 +242,13 @@ async getProgramsByHQId(req, res) {
 
 async getProgramsByHQAndOrg(req, res) {
   try {
-    const { headquarter_id, org_id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
+
+    const organization_id = req.auth.organization_id;
 
     const programs = await HeadquartersModel.getProgramsByHQAndOrg(
-      headquarter_id,
-      org_id
+      headquarters_id,
+      organization_id
     );
 
     return res.status(200).json(programs || []);
@@ -247,9 +259,9 @@ async getProgramsByHQAndOrg(req, res) {
 },
 async getMinistriesByHQId(req, res) {
   try {
-    const { headquarter_id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
 
-    const ministries = await HeadquartersModel.getMinistriesByHqId(headquarter_id);
+    const ministries = await HeadquartersModel.getMinistriesByHqId(headquarters_id);
 
     return res.status(200).json(ministries || []);
   } catch (err) {
@@ -260,11 +272,13 @@ async getMinistriesByHQId(req, res) {
 
 async getMinistriesByHQAndOrg(req, res) {
   try {
-    const { headquarter_id, org_id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
+
+    const organization_id = req.auth.organization_id;
 
     const ministries = await HeadquartersModel.getMinistriesByHQAndOrg(
-      headquarter_id,
-      org_id
+      headquarters_id,
+      organization_id
     );
 
     // Always return 200 (empty array if none found)
@@ -280,9 +294,9 @@ async getMinistriesByHQAndOrg(req, res) {
 
 async getAttendanceRecByHQ(req, res) {
   try {
-    const { headquarter_id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
 
-    const attendanceRec = await HeadquartersModel.getAttendanceRecByHQ(headquarter_id);
+    const attendanceRec = await HeadquartersModel.getAttendanceRecByHQ(headquarters_id);
 
     return res.status(200).json(attendanceRec || []);
   } catch (err) {
@@ -293,9 +307,9 @@ async getAttendanceRecByHQ(req, res) {
 
 async getDonationsByHQ(req, res) {
   try {
-    const { headquarter_id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
 
-    const donations = await HeadquartersModel.getDonationsByHQ(headquarter_id);
+    const donations = await HeadquartersModel.getDonationsByHQ(headquarters_id);
 
     return res.status(200).json(donations || []);
   } catch (err) {
@@ -306,9 +320,9 @@ async getDonationsByHQ(req, res) {
 
 async getConvertsByHQ(req, res) {
   try {
-    const { headquarter_id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
 
-    const converts = await HeadquartersModel.getConvertsByHQ(headquarter_id);
+    const converts = await HeadquartersModel.getConvertsByHQ(headquarters_id);
 
     return res.status(200).json(converts || []);
   } catch (err) {
@@ -319,11 +333,13 @@ async getConvertsByHQ(req, res) {
 
 async getDonationsByHQAndOrg(req, res) {
   try {
-    const { headquarter_id, org_id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
+
+    const organization_id = req.auth.organization_id;
 
     const donations = await HeadquartersModel.getDonationsByHQAndOrg(
-      headquarter_id,
-      org_id
+      headquarters_id,
+      organization_id
     );
 
     return res.status(200).json(donations || []);
@@ -335,9 +351,10 @@ async getDonationsByHQAndOrg(req, res) {
 
 async getConvertsByOrganization(req, res) {
   try {
-    const { org_id } = req.params;
 
-    const converts = await HeadquartersModel.getConvertsByOrganization(org_id);
+    const organization_id = req.auth.organization_id;
+
+    const converts = await HeadquartersModel.getConvertsByOrganization(organization_id);
 
     return res.status(200).json(converts || []);
   } catch (err) {
@@ -348,9 +365,9 @@ async getConvertsByOrganization(req, res) {
 
 async getVisitorsByHQId(req, res) {
   try {
-    const { hq_id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
 
-    const visitors = await HeadquartersModel.getVisitorsByHQId(hq_id);
+    const visitors = await HeadquartersModel.getVisitorsByHQId(headquarters_id);
 
     return res.status(200).json(visitors || []);
   } catch (err) {
@@ -361,9 +378,11 @@ async getVisitorsByHQId(req, res) {
 
 async getConvertsByHQAndOrg(req, res) {
   try {
-    const { hq_id, org_id } = req.params;
+    const headquarters_id = req.auth.headquarters_id;
 
-    const converts = await ConvertsModel.getConvertsByHQAndOrg(hq_id, org_id);
+    const organization_id = req.auth.organization_id;
+
+    const converts = await ConvertsModel.getConvertsByHQAndOrg(headquarters_id, organization_id);
 
     return res.status(200).json(converts || []);
   } catch (err) {
@@ -377,7 +396,7 @@ async getConvertsByHQAndOrg(req, res) {
   // =========================
   async update(req, res) {
     try {
-      const hq = await HeadquartersModel.update(req.params.id, req.body);
+      const hq = await HeadquartersModel.update(req.auth.headquarters_id, req.body);
       if (!hq) return res.status(404).json({ message: "HQ not found" });
       res.json(hq);
     } catch (err) {
@@ -390,7 +409,7 @@ async getConvertsByHQAndOrg(req, res) {
   // =========================
   async delete(req, res) {
     try {
-      const hq = await HeadquartersModel.delete(req.params.id);
+      const hq = await HeadquartersModel.delete(req.auth.headquarters_id);
       if (!hq) return res.status(404).json({ message: "HQ not found" });
       res.json({ message: "HQ deleted" });
     } catch (err) {
@@ -403,7 +422,10 @@ async getConvertsByHQAndOrg(req, res) {
   // =========================
   async getOrganizations(req, res) {
     try {
-      const orgs = await HeadquartersModel.getOrganizations(req.params.id);
+
+    const headquarters_id = req.auth.headquarters_id;
+  
+      const orgs = await HeadquartersModel.getOrganizations(headquarters_id);
       res.json(orgs);
     } catch (err) {
       res.status(500).json({ message: "Failed to fetch organizations" });
