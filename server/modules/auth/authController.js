@@ -170,11 +170,7 @@ export const register = async (req, res) => {
     const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
     const passwordHash = await bcrypt.hash(plainPassword, saltRounds);
 
-    let status = "pending";
-
-    if (req.auth?.organization_id) {
-      status = "active";
-    }
+    const status = position === "System Administrator" || position === "Admin" ? "active" : "pending";
 
     const newUser = await UserModel.create({
       first_name,
