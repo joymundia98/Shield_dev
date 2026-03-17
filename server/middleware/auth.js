@@ -7,7 +7,7 @@ export const verifyJWT = async (req, res, next) => {
   const token = header.startsWith("Bearer ") ? header.split(" ")[1] : null;
 
   if (!token) {
-    return res.status(401).json({ message: "No token provided" });
+    return next(); // 👈 allow request without token
   }
 
   try {
@@ -50,6 +50,7 @@ export const verifyJWT = async (req, res, next) => {
     next();
   } catch (err) {
     console.error("JWT Error:", err);
+    next();
     return res.status(401).json({ message: "Invalid or expired token" });
   }
 };

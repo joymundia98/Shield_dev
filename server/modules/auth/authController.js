@@ -170,11 +170,115 @@ export const register = async (req, res) => {
     const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
     const passwordHash = await bcrypt.hash(plainPassword, saltRounds);
 
-    const status =
-      position === "System Administrator" ||
-      position === "Admin"
-        ? "active"
-        : "pending";
+    const status = position === "System Administrator" || position === "Admin" ? "active" : "pending";
+
+    const newUser = await UserModel.create({
+      first_name,
+      last_name,
+      email,
+      password: passwordHash,
+      phone,
+      position,
+      role_id: role_id,
+      organization_id,
+      headquarter_id,
+      status,
+    });
+
+
+    // ==========================
+    // SEND WELCOME EMAIL
+    // ==========================
+    try {
+      const loginUrl = "https://sci-eld.org/login";
+
+      await SendEmail({
+        to: newUser.email,
+        subject: "Welcome to Your Organization",
+        html: `
+          <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto;">
+            <h1>Welcome ${newUser.first_name}!</h1>
+            <p>Your account has been created successfully.</p>
+            <p><strong>Your temporary password:</strong> ${plainPassword}</p>
+            <p>Please log in and change your password immediately.</p>
+
+            <a href="${loginUrl}"
+               style="
+                 display: inline-block;
+                 margin-top: 20px;
+                 padding: 12px 24px;
+                 background-color: #2563eb;
+                 color: #ffffff;
+                 text-decoration: none;
+                 border-radius: 6px;
+                 font-weight: bold;
+               ">
+              Login to Your Account
+            </a>
+
+            <hr style="margin: 30px 0;" />
+
+            <p style="font-size: 12px; color: #777;">
+              If you did not create this account, please ignore this email.
+            </p>
+          </div>
+        `,
+        text: `Welcome ${newUser.first_name}!
+
+Your account has been created successfully.
+
+Temporary password: ${plainPassword}
+
+Please log in and change your password immediately:
+${loginUrl}
+
+If you did not create this account, please ignore this email.`,
+      });
+    } catch (error) {
+      console.error("Error sending welcome email:", error);
+    }
+
+    res.status(201).json({
+      message: "User registered successfully",
+      user: newUser,
+    });
+  } catch (err) {
+    console.error("Register error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const registerUser = async (req, res) => {
+  try {
+    const {
+      first_name,
+      last_name,
+      email,
+      password,
+      phone,
+      position,
+      role_id,
+      organization_id,
+      headquarter_id,
+    } = req.body;
+
+    if (!first_name || !last_name || !email)
+      return res.status(400).json({
+        message: "first_name, last_name, and email are required",
+      });
+
+    const existing = await UserModel.findByEmail(email);
+    if (existing)
+      return res.status(409).json({ message: "Email already in use" });
+
+    // ✅ Generate password if not provided
+    const plainPassword =
+      password || crypto.randomBytes(8).toString("base64").slice(0, 12);
+
+    const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
+    const passwordHash = await bcrypt.hash(plainPassword, saltRounds);
+
+    let status = "active";
 
     const newUser = await UserModel.create({
       first_name,
