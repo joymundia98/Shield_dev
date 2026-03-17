@@ -1,6 +1,6 @@
 // routes/authRoutes.js
 import express from "express";
-import { login, register, loginOrg, createOrg, headQuarterLogin, headQuarterRegister } from "./authController.js";
+import { login, register, loginOrg, createOrg, headQuarterLogin, headQuarterRegister, registerUser } from "./authController.js";
 import { verifyJWT } from "../../middleware/auth.js";
 import { requirePermission } from "../../middleware/accessControl.js";
 
@@ -18,6 +18,8 @@ router.post("/login", login);
 
 // Register User (Public OR you can protect it if needed)
 router.post("/register", register);
+
+router.post("/org_register/user", verifyJWT, registerUser);
 
 router.post("/organiazations/login", loginOrg);
 
