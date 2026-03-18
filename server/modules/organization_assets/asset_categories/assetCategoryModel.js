@@ -20,7 +20,7 @@ export const AssetCategory = {
   async getAll(organization_id) {
     const result = await pool.query(
       `SELECT * FROM asset_categories
-       WHERE organization_id = $1
+       WHERE organization_id = $1 OR organization_id IS NULL
        ORDER BY category_id ASC`,
       [organization_id]
     );

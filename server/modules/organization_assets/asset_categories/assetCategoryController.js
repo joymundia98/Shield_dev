@@ -31,7 +31,7 @@ export const getAssetCategoryById = async (req, res) => {
   try {
     const category = await AssetCategory.getById(
       req.params.id,
-      req.user.organization_id
+      req.auth.organization_id
     );
 
     if (!category) {

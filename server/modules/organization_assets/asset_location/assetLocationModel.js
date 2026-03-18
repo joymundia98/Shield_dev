@@ -19,7 +19,7 @@ export const AssetLocation = {
   // GET all locations for an organization
   async getAll(organization_id) {
     const result = await pool.query(
-      `SELECT * FROM asset_locations WHERE organization_id=$1 ORDER BY location_id ASC`,
+      `SELECT * FROM asset_locations WHERE organization_id=$1 OR organization_id IS NULL ORDER BY location_id ASC`,
       [organization_id]
     );
     return result.rows;
