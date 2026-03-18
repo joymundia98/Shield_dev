@@ -193,8 +193,8 @@ const AssetDashboard: React.FC = () => {
             <p>{underMaintenance}</p>
           </div>
           <div className="kpi-card">
-            <h3>Pending Requests</h3>
-            <p>{pendingRequests}</p>
+            <h3>Average Depreciation Rate</h3>
+            <p>{pendingRequests}%</p>
           </div>
         </div>
 
