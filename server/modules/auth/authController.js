@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import dotenv from "dotenv";
 import UserModel from "../user/user.model.js";
 import OrganizationModel from "../organization/organizationModel.js";
@@ -605,5 +606,126 @@ export const headQuarterLogin = async (req, res) => {
   } catch (err) {
     console.error("Headquarters login error:", err);
     return res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ========================================
+// FORGOT PASSWORD
+// ========================================
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await UserModel.findByEmail(email);
+
+    // Always return success (security best practice)
+    if (!user) {
+      return res.json({
+        message: "If the email exists, a reset link has been sent",
+      });
+    }
+
+    // Generate token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    // Hash token before saving
+    const hashedToken = await bcrypt.hash(resetToken, 10);
+
+    // Set expiry (15 minutes)
+    const expiry = new Date(Date.now() + 15 * 60 * 1000);
+
+    await UserModel.saveResetToken(user.id, hashedToken, expiry);
+
+    // Reset link (frontend URL)
+    const resetLink = `https://your-frontend.com/reset-password?token=${resetToken}&id=${user.id}`;
+
+    // Send email
+    await SendEmail({
+      to: user.email,
+      subject: "Password Reset Request",
+      html: `
+        <h2>Password Reset</h2>
+        <p>Click the button below to reset your password:</p>
+        <a href="${resetLink}" style="
+          padding:10px 20px;
+          background:#2563eb;
+          color:#fff;
+          text-decoration:none;
+          border-radius:5px;
+        ">Reset Password</a>
+
+        <p>This link expires in 15 minutes.</p>
+      `,
+    });
+
+    res.json({
+      message: "If the email exists, a reset link has been sent",
+    });
+
+  } catch (err) {
+    console.error("Forgot Password Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+// ========================================
+// RESET PASSWORD
+// ========================================
+export const resetPassword = async (req, res) => {
+  try {
+    const { token, userId, newPassword } = req.body;
+
+    if (!token || !userId || !newPassword) {
+      return res.status(400).json({
+        message: "Token, userId, and new password are required",
+      });
+    }
+
+    const user = await UserModel.getById(userId);
+
+    if (!user || !user.reset_token) {
+      return res.status(400).json({
+        message: "Invalid or expired token",
+      });
+    }
+
+    // Compare token
+    const isValid = await bcrypt.compare(token, user.reset_token);
+
+    if (!isValid) {
+      return res.status(400).json({
+        message: "Invalid token",
+      });
+    }
+
+    // Check expiry
+    if (new Date() > user.reset_token_expiry) {
+      return res.status(400).json({
+        message: "Token has expired",
+      });
+    }
+
+    // Hash new password
+    const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update password
+    await UserModel.updatePassword(userId, hashedPassword);
+
+    // Clear reset token
+    await UserModel.clearResetToken(userId);
+
+    res.json({
+      message: "Password reset successful",
+    });
+
+  } catch (err) {
+    console.error("Reset Password Error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };

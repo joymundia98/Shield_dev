@@ -175,6 +175,33 @@ const User = {
     return result.rows[0] || null;
   },
 
+  async saveResetToken(userId, token, expiry) {
+    await pool.query(
+      `UPDATE users 
+       SET reset_token = $1, reset_token_expiry = $2 
+       WHERE id = $3`,
+      [token, expiry, userId]
+    );
+  },
+
+  async clearResetToken(userId) {
+    await pool.query(
+      `UPDATE users 
+       SET reset_token = NULL, reset_token_expiry = NULL 
+       WHERE id = $1`,
+      [userId]
+    );
+  },
+
+  async updatePassword(userId, password) {
+    await pool.query(
+      `UPDATE users 
+       SET password = $1 
+       WHERE id = $2`,
+      [password, userId]
+    );
+  },
+
   // Update only the user's status (active/inactive)
   async updateStatus(status, id, organization_id) {
     const result = await pool.query(
