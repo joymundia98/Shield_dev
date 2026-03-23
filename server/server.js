@@ -152,9 +152,9 @@ app.use('/api/assets/categories', verifyJWT, assetCategoryRoutes);
 app.use('/api/assets/requests', verifyJWT, assetRequestRoutes);
 app.use('/api/assets/location', verifyJWT, assetLocationRoutes)
 app.use('/api/assets', verifyJWT, assetRoutes);
-app.use('/api/assets/maintenance_categories', verifyJWT, assetMaintenaceCategoryRoutes);
-app.use('/api/assets/maintenance_records', verifyJWT, assetMaintenaceRecordRoutes);
-app.use('/api/assets/depreciation', verifyJWT, assetDepreciationRoutes);
+app.use('/api/maintenance_categories', verifyJWT, assetMaintenaceCategoryRoutes);
+app.use('/api/maintenance_records', verifyJWT, assetMaintenaceRecordRoutes);
+app.use('/api/depreciation', verifyJWT, assetDepreciationRoutes);
 app.use('/api/assets/warranty', verifyJWT, assetWarrantyRoutes);
 app.use('/api/profiles/churches', churchRoutes);
 app.use('/api/profiles/core_values', coreValueRoutes);
