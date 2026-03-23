@@ -612,6 +612,12 @@ export const headQuarterLogin = async (req, res) => {
 // ========================================
 // FORGOT PASSWORD
 // ========================================
+const getFrontendUrl = () => {
+  return process.env.NODE_ENV === "production"
+    ? "https://sci-eld.org"
+    : "http://localhost:5173";
+};
+
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -622,53 +628,61 @@ export const forgotPassword = async (req, res) => {
 
     const user = await UserModel.findByEmail(email);
 
-    // Always return success (security best practice)
+    // 🔐 Always return same response (prevent email enumeration)
     if (!user) {
       return res.json({
         message: "If the email exists, a reset link has been sent",
       });
     }
 
-    // Generate token
+    // ✅ Generate raw token
     const resetToken = crypto.randomBytes(32).toString("hex");
 
-    // Hash token before saving
+    // ✅ Hash token before saving (never store raw token)
     const hashedToken = await bcrypt.hash(resetToken, 10);
 
-    // Set expiry (15 minutes)
+    // ⏳ Expiry (15 minutes)
     const expiry = new Date(Date.now() + 15 * 60 * 1000);
 
     await UserModel.saveResetToken(user.id, hashedToken, expiry);
 
-    // Reset link (frontend URL)
-    const resetLink = `https://your-frontend.com/reset-password?token=${resetToken}&id=${user.id}`;
+    // ✅ Build reset link (NO user id)
+    const resetLink = `${getFrontendUrl()}/reset-password?token=${resetToken}`;
 
-    // Send email
+    // 📧 Send email
     await SendEmail({
       to: user.email,
       subject: "Password Reset Request",
       html: `
-        <h2>Password Reset</h2>
-        <p>Click the button below to reset your password:</p>
-        <a href="${resetLink}" style="
-          padding:10px 20px;
-          background:#2563eb;
-          color:#fff;
-          text-decoration:none;
-          border-radius:5px;
-        ">Reset Password</a>
+        <div style="font-family: Arial; max-width: 600px; margin: auto;">
+          <h2>Password Reset</h2>
+          <p>You requested to reset your password.</p>
 
-        <p>This link expires in 15 minutes.</p>
+          <a href="${resetLink}" style="
+            display:inline-block;
+            padding:12px 20px;
+            background:#2563eb;
+            color:#fff;
+            text-decoration:none;
+            border-radius:6px;
+            margin-top:10px;
+          ">
+            Reset Password
+          </a>
+
+          <p style="margin-top:20px;">This link expires in 15 minutes.</p>
+          <p>If you didn’t request this, ignore this email.</p>
+        </div>
       `,
     });
 
-    res.json({
+    return res.json({
       message: "If the email exists, a reset link has been sent",
     });
 
   } catch (err) {
     console.error("Forgot Password Error:", err);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
