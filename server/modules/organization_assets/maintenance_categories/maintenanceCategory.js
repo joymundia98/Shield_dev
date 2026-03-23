@@ -17,7 +17,7 @@ export const MaintenanceCategory = {
   },
 
   async getAll(organization_id) {
-    const result = await pool.query(`SELECT * FROM maintenance_categories ORDER BY id ASC`, [organization_id]);
+    const result = await pool.query(`SELECT * FROM maintenance_categories WHERE organization_id=$1`, [organization_id]);
     return result.rows;
   },
 
