@@ -1,6 +1,6 @@
 // routes/authRoutes.js
 import express from "express";
-import { login, register, loginOrg, createOrg, headQuarterLogin, headQuarterRegister, registerUser } from "./authController.js";
+import { login, register, loginOrg, createOrg, headQuarterLogin, headQuarterRegister, registerUser, forgotPassword, resetPassword } from "./authController.js";
 import { verifyJWT } from "../../middleware/auth.js";
 import { requirePermission } from "../../middleware/accessControl.js";
 
@@ -27,7 +27,10 @@ router.post("/hq/register", headQuarterRegister);
 
 router.post("/hq/login", headQuarterLogin);
 
-// Register Organization (Protected + Permission required)
+router.post("/forgot-password", forgotPassword);
+
+router.post("/reset-password", resetPassword);
+
 
 
 export default router;
