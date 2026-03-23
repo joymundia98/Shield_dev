@@ -9,7 +9,6 @@ import headerLogo from '../../assets/headerlogo.png';
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
-// Schema only needs email
 const forgotPasswordSchema = z.object({
   email: z.string().email(),
 });
@@ -20,8 +19,8 @@ export const ForgotPasswordForm = () => {
   const [statusMessage, setStatusMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const location = useLocation();
 
   const { register, handleSubmit } = useForm<ForgotPasswordFormData>({
@@ -29,11 +28,7 @@ export const ForgotPasswordForm = () => {
   });
 
   useEffect(() => {
-    if (sidebarOpen) {
-      document.body.classList.add("sidebar-open");
-    } else {
-      document.body.classList.remove("sidebar-open");
-    }
+    document.body.classList.toggle("sidebar-open", sidebarOpen);
   }, [sidebarOpen]);
 
   const menuLinks = [
@@ -52,15 +47,16 @@ export const ForgotPasswordForm = () => {
     setStatusMessage('');
 
     try {
-      // We don’t need to store the response since we don’t use it
       await axios.post(`${baseURL}/api/auth/forgot-password`, {
         email: data.email,
       });
 
-      setStatusMessage('✅ If this email exists, a password reset link has been sent.');
+      setStatusMessage(
+        '✅ If this email exists, a password reset link has been sent.'
+      );
     } catch (err: any) {
       console.error('Forgot password error:', err);
-      setError('Something went wrong. Please try again.');
+      setError(err.response?.data?.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -117,13 +113,11 @@ export const ForgotPasswordForm = () => {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Email Field */}
             <div className="field input-field">
               <input type="email" required {...register('email')} />
               <label>Email Address</label>
             </div>
 
-            {/* Error or Status Messages */}
             {error && <div className="form-error">{error}</div>}
             {statusMessage && <div className="success-card">{statusMessage}</div>}
 
