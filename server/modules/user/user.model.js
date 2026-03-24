@@ -202,6 +202,19 @@ const User = {
     );
   },
 
+  // =====================================
+// PASSWORD RESET
+// =====================================
+async getAllWithResetTokens() {
+  const result = await pool.query(`
+    SELECT id, reset_token, reset_token_expiry
+    FROM users
+    WHERE reset_token IS NOT NULL
+  `);
+
+  return result.rows;
+},
+
   // Update only the user's status (active/inactive)
   async updateStatus(status, id, organization_id) {
     const result = await pool.query(

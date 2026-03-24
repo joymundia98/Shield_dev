@@ -692,51 +692,46 @@ export const forgotPassword = async (req, res) => {
 // ========================================
 export const resetPassword = async (req, res) => {
   try {
-    const { token, userId, newPassword } = req.body;
+    const { token, newPassword } = req.body;
 
-    if (!token || !userId || !newPassword) {
+    if (!token || !newPassword) {
       return res.status(400).json({
-        message: "Token, userId, and new password are required",
+        message: "Token and new password are required",
       });
     }
 
-    const user = await UserModel.getById(userId);
+    // 🔍 FIND USER BY TOKEN
+    const users = await UserModel.getAllWithResetTokens();
 
-    if (!user || !user.reset_token) {
-      return res.status(400).json({
-        message: "Invalid or expired token",
-      });
+    let user = null;
+
+    for (const u of users) {
+      if (u.reset_token && await bcrypt.compare(token, u.reset_token)) {
+        user = u;
+        break;
+      }
     }
 
-    // Compare token
-    const isValid = await bcrypt.compare(token, user.reset_token);
-
-    if (!isValid) {
-      return res.status(400).json({
-        message: "Invalid token",
-      });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token" });
     }
 
-    // Check expiry
+    // ⏳ CHECK EXPIRY
     if (new Date() > user.reset_token_expiry) {
-      return res.status(400).json({
-        message: "Token has expired",
-      });
+      return res.status(400).json({ message: "Token has expired" });
     }
 
-    // Hash new password
+    // 🔐 HASH NEW PASSWORD
     const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10", 10);
     const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
-    // Update password
-    await UserModel.updatePassword(userId, hashedPassword);
+    // 💾 UPDATE PASSWORD
+    await UserModel.updatePassword(user.id, hashedPassword);
 
-    // Clear reset token
-    await UserModel.clearResetToken(userId);
+    // 🧹 CLEAR TOKEN
+    await UserModel.clearResetToken(user.id);
 
-    res.json({
-      message: "Password reset successful",
-    });
+    res.json({ message: "Password reset successful" });
 
   } catch (err) {
     console.error("Reset Password Error:", err);

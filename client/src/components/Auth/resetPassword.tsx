@@ -8,8 +8,7 @@ const baseURL = import.meta.env.VITE_BASE_URL;
 
 export const ResetPassword = () => {
   const [params] = useSearchParams();
-  const token = params.get("token");
-  const userId = params.get("id"); // ⚠️ required for your backend
+  const token = params.get("token"); // token from URL
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -21,11 +20,8 @@ export const ResetPassword = () => {
   const location = useLocation();
 
   useEffect(() => {
-    if (sidebarOpen) {
-      document.body.classList.add("sidebar-open");
-    } else {
-      document.body.classList.remove("sidebar-open");
-    }
+    if (sidebarOpen) document.body.classList.add("sidebar-open");
+    else document.body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
   const menuLinks = [
@@ -38,56 +34,53 @@ export const ResetPassword = () => {
 
   const closeSidebar = () => setSidebarOpen(false);
 
-const handleSubmit = async (e: { preventDefault: () => void }) => {
-  e.preventDefault();
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    setError('');
+    setStatusMessage('');
 
-  setError('');
-  setStatusMessage('');
-
-  if (!token || !userId) {
-    setError("Invalid or missing reset link");
-    return;
-  }
-
-  if (password !== confirmPassword) {
-    setError("Passwords do not match");
-    return;
-  }
-
-  setLoading(true);
-
-  try {
-    await axios.post(`${baseURL}/api/auth/reset-password`, {
-      token,
-      userId,
-      newPassword: password,
-    });
-
-    setStatusMessage("✅ Password reset successful. Redirecting to login...");
-
-    setTimeout(() => {
-      window.location.href = "/login";
-    }, 3000);
-
-  } catch (err: unknown) {
-    console.error("Reset error:", err);
-
-    if (axios.isAxiosError(err)) {
-      setError(err.response?.data?.message || "Failed to reset password");
-    } else {
-      setError("An unexpected error occurred");
+    if (!token) {
+      setError("Invalid or missing reset link");
+      return;
     }
-  } finally {
-    setLoading(false);
-  }
-};
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await axios.post(`${baseURL}/api/auth/reset-password`, {
+        token,
+        newPassword: password,
+      });
+
+      setStatusMessage("✅ Password reset successful. Redirecting to login...");
+
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 3000);
+
+    } catch (err: unknown) {
+      console.error("Reset error:", err);
+
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || "Failed to reset password");
+      } else {
+        setError("An unexpected error occurred");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
       {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <h2>Menu</h2>
-
         {sidebarOpen && (
           <div className="close-wrapper">
             <div className="toggle close-btn">
@@ -105,7 +98,6 @@ const handleSubmit = async (e: { preventDefault: () => void }) => {
             </div>
           </div>
         )}
-
         {menuLinks.map((link, idx) => (
           <Link
             key={idx}
@@ -137,7 +129,14 @@ const handleSubmit = async (e: { preventDefault: () => void }) => {
               Reset Password
             </h3>
 
-            {/* Password */}
+            {/* Invalid token message */}
+            {!token && (
+              <div className="form-error">
+                Invalid or broken reset link.
+              </div>
+            )}
+
+            {/* New Password */}
             <div className="field input-field">
               <input
                 type="password"
