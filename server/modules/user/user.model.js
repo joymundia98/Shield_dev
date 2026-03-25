@@ -1,6 +1,21 @@
 import { pool } from "../../server.js";
 
 const User = {
+  async getAllUsers() {
+    const result = await pool.query(
+      `SELECT * FROM users ORDER BY id ASC`
+    );
+    return result.rows;
+  },
+
+  async getAllActiveUsers() {
+    const result = await pool.query(
+      `SELECT * FROM users 
+      WHERE LOWER(status) = 'active'
+      ORDER BY id ASC`
+    );
+    return result.rows;
+  },
   // Fetch all users by organization
   async getAllByOrg(organization_id) {
     const result = await pool.query(
@@ -30,7 +45,7 @@ const User = {
   },
 
   // Fetch active users by organization
-  async getActiveUsers(organization_id) {
+  async getActiveUsersByOrg(organization_id) {
     const result = await pool.query(
       `SELECT * FROM users 
        WHERE organization_id = $1

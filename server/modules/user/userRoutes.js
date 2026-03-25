@@ -3,9 +3,13 @@ import userController from './userController.js';
 
 const router = express.Router();
 
+//super admin routes
+router.get('/all', userController.getAllUsers);
+router.get('/all/active', userController.getAllActiveUsers);
+
 // Specific status routes first
-router.get('/active', userController.getActiveUsers);
-router.get('/inactive', userController.getInactiveUsers);
+router.get('/active', userController.getActiveUsersByOrg);
+router.get('/inactive', userController.getInactiveUsersByOrg);
 
 // Then parameterized and general routes
 router.get('/:id', userController.getById);

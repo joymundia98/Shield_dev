@@ -2,6 +2,41 @@ import User from './user.model.js';
 
 const userController = {
   // Fetch all users for a specific organization
+
+async getAllUsers(req, res) {
+  try {
+    const users = await User.getAllUsers();
+
+    res.json({
+      message: "Users fetched successfully",
+      data: users,
+    });
+
+  } catch (err) {
+    console.error("Get all users error:", err);
+    res.status(500).json({
+      error: "Failed to fetch users",
+    });
+  }
+},
+
+async getAllActiveUsers(req, res) {
+  try {
+    const users = await User.getAllActiveUsers();
+
+    res.json({
+      message: "Active users fetched successfully",
+      data: users,
+    });
+
+  } catch (err) {
+    console.error("Get active users error:", err);
+    res.status(500).json({
+      error: "Failed to fetch active users",
+    });
+  }
+},
+
   async getAll(req, res) {
     try {
       const organization_id = req.auth.organization_id;
@@ -28,10 +63,10 @@ const userController = {
   },
 
   // Fetch active users in the organization
-  async getActiveUsers(req, res) {
+  async getActiveUsersByOrg(req, res) {
     try {
       const { organization_id } = req.auth;
-      const users = await User.getActiveUsers(organization_id);
+      const users = await User.getActiveUsersByOrg(organization_id);
       res.json({ message: 'Active users fetched', data: users });
     } catch (err) {
       console.error(err);
@@ -40,7 +75,7 @@ const userController = {
   },
 
   // Fetch inactive users in the organization
-  async getInactiveUsers(req, res) {
+  async getInactiveUsersByOrg(req, res) {
     try {
       const { organization_id } = req.auth;
       const users = await User.getInactiveUsers(organization_id);
