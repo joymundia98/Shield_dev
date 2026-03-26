@@ -50,7 +50,7 @@ const HeadquartersController = {
 
   async getOrganizationsByHQId(req, res) {
     try {
-      const hq = await HeadquartersModel.getOrgsByHQId(eq.auth.headquarter_id);
+      const hq = await HeadquartersModel.getOrgsByHQId(req.auth.headquarter_id);
       if (!hq) return res.status(404).json({ message: "organizations under HQ not found" });
       res.json(hq);
     } catch (err) {
