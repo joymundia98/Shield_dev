@@ -18,6 +18,10 @@ import counsellorRoutes from './modules/counsellors/counsellorRoutes.js';
 import followUpRoutes from './modules/follow_ups/followUpRoutes.js';
 import followUpSessionRoutes from './modules/follow_ups/follow_up_sessions/followUpSessionRoutes.js';
 
+import paymentRoutes from './modules/payments/paymentsRoutes.js';
+import planRoutes from './modules/plans/plansRoutes.js';
+import subscriptionRoutes from './modules/subscriptions/subscriptionsRoutes.js';
+
 import leaveRoutes from './modules/hr/leave/leaveRoutes.js';
 import donorRoutes from './modules/donors/donorRoutes.js';
 import donorTypeRoutes from './modules/donors/donor_types/donorTypeRoutes.js';
@@ -110,6 +114,10 @@ app.use("/api/donors/donor_sub_category", donorSubCategoryRoutes);
 
 // Then the generic donors route
 app.use("/api/donors", donorRoutes);
+
+app.use("/api/plans", planRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/subsciprtions", subscriptionRoutes);
 
 
 app.use("/api/congregation/congregants", congregantRoutes);
