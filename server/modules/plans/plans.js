@@ -2,7 +2,7 @@ import { pool } from "../../server.js";
 
 export const Plan = {
   async create({ name, price, billing_cycle }) {
-    const result = await pool.raw(
+    const result = await pool.query(
       `
       INSERT INTO plans (
         name,
@@ -11,7 +11,7 @@ export const Plan = {
         created_at,
         updated_at
       )
-      VALUES (?, ?, ?, NOW(), NOW())
+      VALUES ($1, $2, $3, NOW(), NOW())
       RETURNING *
       `,
       [name, price, billing_cycle]
@@ -21,7 +21,7 @@ export const Plan = {
   },
 
   async getAll() {
-    const result = await pool.raw(
+    const result = await pool.query(
       `
       SELECT *
       FROM plans
@@ -33,11 +33,11 @@ export const Plan = {
   },
 
   async getById(id) {
-    const result = await pool.raw(
+    const result = await pool.query(
       `
       SELECT *
       FROM plans
-      WHERE id = ?
+      WHERE id = $1
       LIMIT 1
       `,
       [id]
@@ -47,14 +47,14 @@ export const Plan = {
   },
 
   async update(id, { name, price, billing_cycle }) {
-    const result = await pool.raw(
+    const result = await pool.query(
       `
       UPDATE plans
-      SET name = ?,
-          price = ?,
-          billing_cycle = ?,
+      SET name = $1,
+          price = $2,
+          billing_cycle = $3,
           updated_at = NOW()
-      WHERE id = ?
+      WHERE id = $4
       RETURNING *
       `,
       [name, price, billing_cycle, id]
@@ -64,10 +64,10 @@ export const Plan = {
   },
 
   async delete(id) {
-    const result = await pool.raw(
+    const result = await pool.query(
       `
       DELETE FROM plans
-      WHERE id = ?
+      WHERE id = $1
       RETURNING *
       `,
       [id]

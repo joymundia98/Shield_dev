@@ -9,7 +9,7 @@ export const Subscription = {
     status = "trialing",
     trial_days = 7,
   }) {
-    const result = await pool.raw(
+    const result = await pool.query(
       `
       INSERT INTO subscriptions (
         user_id,
@@ -21,7 +21,7 @@ export const Subscription = {
         created_at,
         updated_at
       )
-      VALUES (?, ?, ?, ?, ?, NOW() + INTERVAL '${trial_days} days', NOW(), NOW())
+      VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL '${trial_days} days', NOW(), NOW())
       RETURNING *
       `,
       [user_id, plan_id, organization_id, headquarters_id, status]
@@ -31,11 +31,11 @@ export const Subscription = {
   },
 
   async getByUser(user_id) {
-    const result = await pool.raw(
+    const result = await pool.query(
       `
       SELECT *
       FROM subscriptions
-      WHERE user_id = ?
+      WHERE user_id = $1
       ORDER BY created_at DESC
       LIMIT 1
       `,
@@ -46,11 +46,11 @@ export const Subscription = {
   },
 
   async getById(id) {
-    const result = await pool.raw(
+    const result = await pool.query(
       `
       SELECT *
       FROM subscriptions
-      WHERE id = ?
+      WHERE id = $1
       LIMIT 1
       `,
       [id]
@@ -60,13 +60,13 @@ export const Subscription = {
   },
 
   async activate(id) {
-    const result = await pool.raw(
+    const result = await pool.query(
       `
       UPDATE subscriptions
       SET status = 'active',
           start_date = NOW(),
           updated_at = NOW()
-      WHERE id = ?
+      WHERE id = $1
       RETURNING *
       `,
       [id]
@@ -76,13 +76,13 @@ export const Subscription = {
   },
 
   async cancel(id) {
-    const result = await pool.raw(
+    const result = await pool.query(
       `
       UPDATE subscriptions
       SET status = 'canceled',
           end_date = NOW(),
           updated_at = NOW()
-      WHERE id = ?
+      WHERE id = $1
       RETURNING *
       `,
       [id]
@@ -92,13 +92,13 @@ export const Subscription = {
   },
 
   async expire(id) {
-    const result = await pool.raw(
+    const result = await pool.query(
       `
       UPDATE subscriptions
       SET status = 'expired',
           end_date = NOW(),
           updated_at = NOW()
-      WHERE id = ?
+      WHERE id = $1
       RETURNING *
       `,
       [id]
@@ -108,13 +108,13 @@ export const Subscription = {
   },
 
   async updatePlan(id, plan_id) {
-    const result = await pool.raw(
+    const result = await pool.query(
       `
       UPDATE subscriptions
-      SET plan_id = ?,
+      SET plan_id = $1,
           status = 'pending',
           updated_at = NOW()
-      WHERE id = ?
+      WHERE id = $2
       RETURNING *
       `,
       [plan_id, id]

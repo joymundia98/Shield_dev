@@ -6,31 +6,27 @@ export const Payment = {
     organization_id,
     headquarters_id,
     amount,
-    currency = "USD",
     payment_provider,
     provider_payment_id,
     reference_type,
     reference_id,
-    metadata = {},
   }) {
-    const result = await pool.raw(
+    const result = await pool.query(
       `
       INSERT INTO payments (
         user_id,
         organization_id,
         headquarters_id,
         amount,
-        currency,
         payment_provider,
         provider_payment_id,
         reference_type,
         reference_id,
-        metadata,
         status,
         created_at,
         updated_at
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW(), NOW())
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pending', NOW(), NOW())
       RETURNING *
       `,
       [
@@ -38,12 +34,10 @@ export const Payment = {
         organization_id,
         headquarters_id,
         amount,
-        currency,
         payment_provider,
         provider_payment_id || null,
         reference_type,     // e.g. 'subscription', 'invoice', 'order'
-        reference_id,       // ID of the linked record
-        JSON.stringify(metadata),
+        reference_id,       // ID of the linked record,
       ]
     );
 
@@ -51,12 +45,12 @@ export const Payment = {
   },
 
   async markCompleted(provider_payment_id) {
-    const result = await pool.raw(
+    const result = await pool.query(
       `
       UPDATE payments
       SET status = 'completed',
           updated_at = NOW()
-      WHERE provider_payment_id = ?
+      WHERE provider_payment_id = $1
         AND status != 'completed'
       RETURNING *
       `,
@@ -67,12 +61,12 @@ export const Payment = {
   },
 
   async markFailed(provider_payment_id) {
-    const result = await pool.raw(
+    const result = await pool.query(
       `
       UPDATE payments
       SET status = 'failed',
           updated_at = NOW()
-      WHERE provider_payment_id = ?
+      WHERE provider_payment_id = $1
         AND status != 'failed'
       RETURNING *
       `,
@@ -83,11 +77,11 @@ export const Payment = {
   },
 
   async getByUser(user_id) {
-    const result = await pool.raw(
+    const result = await pool.query(
       `
       SELECT *
       FROM payments
-      WHERE user_id = ?
+      WHERE user_id = $1
       ORDER BY created_at DESC
       `,
       [user_id]
@@ -97,11 +91,11 @@ export const Payment = {
   },
 
   async getById(id) {
-    const result = await pool.raw(
+    const result = await pool.query(
       `
       SELECT *
       FROM payments
-      WHERE id = ?
+      WHERE id = $1
       LIMIT 1
       `,
       [id]
@@ -111,12 +105,12 @@ export const Payment = {
   },
 
   async getByReference(reference_type, reference_id) {
-    const result = await pool.raw(
+    const result = await pool.query(
       `
       SELECT *
       FROM payments
-      WHERE reference_type = ?
-        AND reference_id = ?
+      WHERE reference_type = $1
+        AND reference_id = $2
       ORDER BY created_at DESC
       `,
       [reference_type, reference_id]
