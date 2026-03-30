@@ -22,6 +22,9 @@ import paymentRoutes from './modules/payments/paymentsRoutes.js';
 import planRoutes from './modules/plans/plansRoutes.js';
 import subscriptionRoutes from './modules/subscriptions/subscriptionsRoutes.js';
 
+import paymentMethodRoutes from "./modules/payments/paymentMathodRoutes.js";
+import referenceRoutes from "./modules/references/referencesRoutes.js";
+
 import leaveRoutes from './modules/hr/leave/leaveRoutes.js';
 import donorRoutes from './modules/donors/donorRoutes.js';
 import donorTypeRoutes from './modules/donors/donor_types/donorTypeRoutes.js';
@@ -118,6 +121,9 @@ app.use("/api/donors", donorRoutes);
 app.use("/api/plans", planRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/subsciprtions", subscriptionRoutes);
+
+app.use("/api/payment-methods", paymentMethodRoutes);
+app.use("/api/references", referenceRoutes);
 
 
 app.use("/api/congregation/congregants", congregantRoutes);
