@@ -5,7 +5,7 @@ export const Reference = {
   async create({ type }) {
     const result = await pool.query(
       `
-      INSERT INTO references (type, created_at, updated_at)
+      INSERT INTO payment_references (type, created_at, updated_at)
       VALUES ($1, NOW(), NOW())
       RETURNING *
       `,
@@ -17,7 +17,7 @@ export const Reference = {
 
   async getAll() {
     const result = await pool.query(
-      `SELECT * FROM references ORDER BY created_at DESC`
+      `SELECT * FROM payment_references ORDER BY created_at DESC`
     );
 
     return result.rows;
@@ -25,7 +25,7 @@ export const Reference = {
 
   async getById(id) {
     const result = await pool.query(
-      `SELECT * FROM references WHERE id = $1`,
+      `SELECT * FROM payment_references WHERE id = $1`,
       [id]
     );
 
@@ -34,7 +34,7 @@ export const Reference = {
 
   async delete(id) {
     await pool.query(
-      `DELETE FROM references WHERE id = $1`,
+      `DELETE FROM payment_references WHERE id = $1`,
       [id]
     );
   },
