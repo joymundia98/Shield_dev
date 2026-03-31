@@ -16,11 +16,13 @@ export const PaymentController = {
         amount,
         payment_provider,
         reference_id,
+        organization_id,
+        date,
         remarks,
       } = req.body;
 
       // ✅ ALWAYS from auth context (secure multi-tenant)
-      const organization_id = req.auth.organization_id;
+      // const organization_id = req.auth.organization_id;
       const headquarters_id = req.auth.headquarters_id;
 
       // 1. Create subscription (inactive/pending)
@@ -46,6 +48,7 @@ export const PaymentController = {
         reference_id,
         subscription_id: subscription.id,
         remarks,
+        date,
       });
 
       return res.status(201).json({
