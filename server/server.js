@@ -122,8 +122,8 @@ app.use("/api/plans", planRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
 
-app.use("/api/payment-methods", paymentMethodRoutes);
-app.use("/api/references", referenceRoutes);
+app.use("/api/payment_methods", paymentMethodRoutes);
+app.use("/api/payment_references", referenceRoutes);
 
 
 app.use("/api/congregation/congregants", congregantRoutes);

@@ -15,6 +15,7 @@ export const PaymentController = {
         plan_id,
         amount,
         payment_provider,
+        reference_id,
         remarks,
       } = req.body;
 
@@ -42,7 +43,8 @@ export const PaymentController = {
         provider_payment_id: null,
 
         reference_type: "subscription",
-        reference_id: subscription.id,
+        reference_id,
+        subscription_id: subscription.id,
         remarks,
       });
 
