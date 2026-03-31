@@ -8,6 +8,7 @@ export const Subscription = {
     headquarters_id,
     status = "trialing",
     trial_days = 7,
+    remarks
   }) {
     const result = await pool.query(
       `
@@ -17,14 +18,15 @@ export const Subscription = {
         organization_id,
         headquarters_id,
         status,
+        remarks,
         trial_end,
         created_at,
         updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL '${trial_days} days', NOW(), NOW())
+      VALUES ($1, $2, $3, $4, $5, $6, NOW() + INTERVAL '${trial_days} days', NOW(), NOW())
       RETURNING *
       `,
-      [user_id, plan_id, organization_id, headquarters_id, status]
+      [user_id, plan_id, organization_id, headquarters_id, status, remarks]
     );
 
     return result.rows[0];

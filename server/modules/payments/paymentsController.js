@@ -15,6 +15,7 @@ export const PaymentController = {
         plan_id,
         amount,
         payment_provider,
+        remarks,
       } = req.body;
 
       // ✅ ALWAYS from auth context (secure multi-tenant)
@@ -27,6 +28,7 @@ export const PaymentController = {
         plan_id,
         organization_id,
         headquarters_id,
+        remarks
       });
 
       // 2. Create payment (polymorphic link)
@@ -41,6 +43,7 @@ export const PaymentController = {
 
         reference_type: "subscription",
         reference_id: subscription.id,
+        remarks,
       });
 
       return res.status(201).json({

@@ -120,7 +120,7 @@ app.use("/api/donors", donorRoutes);
 
 app.use("/api/plans", planRoutes);
 app.use("/api/payments", paymentRoutes);
-app.use("/api/subsciprtions", subscriptionRoutes);
+app.use("/api/subscriptions", subscriptionRoutes);
 
 app.use("/api/payment-methods", paymentMethodRoutes);
 app.use("/api/references", referenceRoutes);

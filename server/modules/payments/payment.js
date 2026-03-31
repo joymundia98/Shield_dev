@@ -7,9 +7,10 @@ export const Payment = {
     headquarters_id,
     amount,
     payment_provider,
-    provider_payment_id,
+    payment_method_id,
     reference_type,
     reference_id,
+    remarks,
   }) {
     const result = await pool.query(
       `
@@ -19,14 +20,15 @@ export const Payment = {
         headquarters_id,
         amount,
         payment_provider,
-        provider_payment_id,
+        payment_method_id,
         reference_type,
         reference_id,
+        remarks,
         status,
         created_at,
         updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pending', NOW(), NOW())
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'pending', NOW(), NOW())
       RETURNING *
       `,
       [
@@ -35,9 +37,10 @@ export const Payment = {
         headquarters_id,
         amount,
         payment_provider,
-        provider_payment_id || null,
+        payment_method_id || null,
         reference_type,     // e.g. 'subscription', 'invoice', 'order'
         reference_id,       // ID of the linked record,
+        remarks
       ]
     );
 
