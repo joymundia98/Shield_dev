@@ -99,6 +99,18 @@ export const Payment = {
     return result.rows;
   },
 
+  async getAll(user_id) {
+    const result = await pool.query(
+      `
+      SELECT *
+      FROM payments
+      ORDER BY created_at DESC
+      `,
+    );
+
+    return result.rows;
+  },
+
   async getById(id) {
     const result = await pool.query(
       `

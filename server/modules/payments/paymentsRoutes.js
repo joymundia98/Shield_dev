@@ -31,9 +31,15 @@ router.post(
  * Get current user's payments
  */
 router.get(
-  "/",
+  "/me",
   verifyJWT,
   PaymentController.getMyPayments
+);
+
+router.get(
+  "/",
+  verifyJWT,
+  PaymentController.getPayments
 );
 
 /**

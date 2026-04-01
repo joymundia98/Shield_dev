@@ -4,7 +4,9 @@ import { verifyJWT } from "../../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/", verifyJWT, SubscriptionController.getMySubscription);
+router.get("/me", verifyJWT, SubscriptionController.getMySubscription);
+
+router.get("/", verifyJWT, SubscriptionController.getSubscriptions);
 
 router.post("/", verifyJWT, SubscriptionController.createSubscription);
 

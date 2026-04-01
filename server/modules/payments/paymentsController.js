@@ -138,6 +138,16 @@ export const PaymentController = {
     }
   },
 
+   async getPayments(req, res) {
+    try {
+      const payments = await Payment.getAll();
+      return res.json(payments);
+
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  },
+
   /**
    * Get single payment
    */

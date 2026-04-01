@@ -17,6 +17,22 @@ export const SubscriptionController = {
     }
   },
 
+    async getSubscriptions(req, res) {
+    try {
+      const subscription = await Subscription.getAll();
+
+      if (!subscription) {
+        return res.status(404).json({
+          error: "No subscription found",
+        });
+      }
+
+      return res.json(subscription);
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  },
+
   async createSubscription(req, res) {
     try {
       const user_id = req.auth.sub;

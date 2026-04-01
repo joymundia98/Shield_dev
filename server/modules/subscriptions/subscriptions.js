@@ -47,6 +47,18 @@ export const Subscription = {
     return result.rows[0];
   },
 
+  async getAll() {
+    const result = await pool.query(
+      `
+      SELECT *
+      FROM subscriptions
+      ORDER BY created_at DESC
+      `
+    );
+
+    return result.rows;
+  },
+
   async getById(id) {
     const result = await pool.query(
       `
