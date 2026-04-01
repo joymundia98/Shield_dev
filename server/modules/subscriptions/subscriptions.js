@@ -6,7 +6,7 @@ export const Subscription = {
     plan_id,
     organization_id,
     headquarters_id,
-    status = "trialing",
+    status = "active",
     trial_days = 7,
     remarks
   }) {
