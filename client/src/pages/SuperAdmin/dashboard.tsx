@@ -191,7 +191,7 @@ const trialStats = useMemo(() => {
 
   // KPI CALCULATIONS
   const kpis = useMemo(() => {
-  const today = selectedDate; // ✅ use selected date
+  //const today = selectedDate; // ✅ use selected date
 
   let active = 0;
   let completed = 0;
