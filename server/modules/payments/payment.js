@@ -8,11 +8,14 @@ export const Payment = {
     amount,
     payment_provider,
     payment_method_id,
+    payment_date,
     reference_type,
     reference_id,
     subscription_id,
     remarks,
     date,
+    plan_id,
+    billing_cycle,
   }) {
     const result = await pool.query(
       `
@@ -23,16 +26,19 @@ export const Payment = {
         amount,
         payment_provider,
         payment_method_id,
+        payment_date,
         reference_type,
         reference_id,
         subscription_id,
         remarks,
         date,
+        plan_id,
+        billing_cycle,
         status,
         created_at,
         updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'paid', NOW(), NOW())
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, 'paid', NOW(), NOW())
       RETURNING *
       `,
       [
@@ -42,11 +48,14 @@ export const Payment = {
         amount,
         payment_provider,
         payment_method_id || null,
+        payment_date,
         reference_type,     // e.g. 'subscription', 'invoice', 'order'
         reference_id,       // ID of the linked record,
         subscription_id,
         remarks,
-        date
+        date,
+        plan_id,
+        billing_cycle
       ]
     );
 
