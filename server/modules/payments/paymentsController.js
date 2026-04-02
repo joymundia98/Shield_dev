@@ -44,7 +44,7 @@ export const PaymentController = {
         headquarters_id,
         amount,
         payment_provider: payment_provider || "cash",
-
+        date,
         payment_method_id,
         remarks,
         payment_date: subscription.created_at,
