@@ -82,6 +82,8 @@ import { verifyJWT } from './middleware/auth.js';
 import reportRoutes from "./modules/reports/reportRoutes.js";
 import uploadRoutes from "./modules/reports/upload/uploadRoutes.js";
 
+import platformRoutes from "./modules/platform/platformRoutes.js"
+
 // import { OrganizationController } from './modules/organization/organizationController.js';
 
 dotenv.config();
@@ -100,6 +102,7 @@ export { pool };
 app.use(cors());
 app.use(express.json());
 
+app.use("/api/platform", platformRoutes);
 app.use("/api/roles", rolesRoutes);
 app.use('/api/role_permissions', verifyJWT, rolePermissionRoutes);
 app.use('/api/permissions', permissionRoutes);
