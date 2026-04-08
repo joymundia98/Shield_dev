@@ -156,15 +156,24 @@ const subscriptionMap = useMemo(() => {
 
 // ✅ STATUS HELPER
   const getStatus = (org: Organization) => {
-    const trialEnd = new Date(org.createdAt);
-    trialEnd.setDate(trialEnd.getDate() + 21);
+  const trialEnd = new Date(org.createdAt);
+  trialEnd.setDate(trialEnd.getDate() + 21);
 
-    const monthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
+  const monthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
 
-    if (trialEnd > monthEnd) return "inTrial"; // trial active at month-end
-    if (subscriptionMap.has(org.id)) return "converted"; // paid subscription exists
-    return "churned"; // trial ended, no subscription
-  };
+  // 1️⃣ Trial still active at month-end
+  if (trialEnd > monthEnd) return "inTrial";
+
+  // 2️⃣ Subscription exists **and started on/before month-end**
+  const subscription = subscriptionMap.get(org.id);
+  if (subscription) {
+    const subStart = new Date(subscription.start_date || subscription.created_at);
+    if (subStart <= monthEnd) return "converted";
+  }
+
+  // 3️⃣ Trial ended and no subscription yet → churned
+  return "churned";
+};
 
 // ➡️ STEP 3: Dynamic Trial / Conversion Stats
 const trialStats = useMemo(() => {
