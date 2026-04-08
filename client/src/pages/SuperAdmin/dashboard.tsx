@@ -159,13 +159,10 @@ const subscriptionMap = useMemo(() => {
     const trialEnd = new Date(org.createdAt);
     trialEnd.setDate(trialEnd.getDate() + 21);
 
-    const monthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0); // end of selected month
+    const monthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
 
-    if (trialEnd > monthEnd) return "inTrial"; // still in trial at month end
-
-    const hasSubscription = subscriptionMap.has(org.id);
-    if (hasSubscription) return "converted"; // paid subscription exists
-
+    if (trialEnd > monthEnd) return "inTrial"; // trial active at month-end
+    if (subscriptionMap.has(org.id)) return "converted"; // paid subscription exists
     return "churned"; // trial ended, no subscription
   };
 
