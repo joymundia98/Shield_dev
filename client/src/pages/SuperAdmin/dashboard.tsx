@@ -19,40 +19,29 @@ interface Organization {
 
 const SuperAdminDashboard: React.FC = () => {
   const navigate = useNavigate();
-  //const { hasPermission } = useAuth();
 
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
-
   const [payments, setPayments] = useState<any[]>([]);
   const [plans, setPlans] = useState<any[]>([]);
 
   const today = new Date();
-
   const [selectedMonth, setSelectedMonth] = useState(
     today.toLocaleString("default", { month: "long" })
   );
-
-  const [selectedYear, setSelectedYear] = useState(
-    today.getFullYear().toString()
-  );
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear().toString());
 
   const months = [
     "January","February","March","April","May","June",
     "July","August","September","October","November","December"
   ];
 
-  // Allow up to 5 years back
-  const years = Array.from({ length: 6 }, (_, i) =>
-    (today.getFullYear() - i).toString()
-  );
+  const years = Array.from({ length: 6 }, (_, i) => (today.getFullYear() - i).toString());
 
-//Selected Date Object
   const selectedDate = useMemo(() => {
     const monthIndex = months.indexOf(selectedMonth);
-    return new Date(Number(selectedYear), monthIndex + 1, 0, 23, 59, 59);
+    return new Date(Number(selectedYear), monthIndex, 1);
   }, [selectedMonth, selectedYear]);
 
   const [conversionData, setConversionData] = useState({
@@ -84,55 +73,50 @@ const SuperAdminDashboard: React.FC = () => {
     return () => document.body.classList.remove("sidebar-open");
   }, [sidebarOpen]);
 
-  // FETCH DATA
   useEffect(() => {
     const fetchData = async () => {
-        try {
-          const [orgTypes, orgs, subs, pays, planList] = await Promise.all([
-            authFetch(`${baseURL}/api/organization_type`),
-            authFetch(`${baseURL}/api/organizations`),
-            authFetch(`${baseURL}/api/subscriptions`), // ✅ NEW
-            authFetch(`${baseURL}/api/payments`),   // ✅ NEW
-            authFetch(`${baseURL}/api/plans`)
-          ]);
+      try {
+        const [orgTypes, orgs, subs, pays, planList] = await Promise.all([
+          authFetch(`${baseURL}/api/organization_type`),
+          authFetch(`${baseURL}/api/organizations`),
+          authFetch(`${baseURL}/api/subscriptions`),
+          authFetch(`${baseURL}/api/payments`),
+          authFetch(`${baseURL}/api/plans`)
+        ]);
 
-          setSubscriptions(subs);
-          setPayments(pays);
-          setPlans(planList);
+        setSubscriptions(subs);
+        setPayments(pays);
+        setPlans(planList);
 
-          const mapped = orgs.map((org: any) => {
-            const created = new Date(org.created_at);
+        const mapped = orgs.map((org: any) => {
+          const created = new Date(org.created_at);
+          const type =
+            orgTypes.find((t: any) => t.org_type_id === org.org_type_id)?.name || "Unknown";
 
-            const type =
-              orgTypes.find((t: any) => t.org_type_id === org.org_type_id)
-                ?.name || "Unknown";
+          return {
+            id: org.id,
+            name: org.name,
+            orgType: type,
+            region: org.region,
+            createdAt: created,
+            email: org.organization_email,
+          };
+        });
 
-            return {
-              id: org.id,
-              name: org.name,
-              orgType: type,
-              region: org.region,
-              createdAt: created,
-              email: org.organization_email,
-            };
-          });
-
-          setOrganizations(mapped);
-        } catch (err) {
-          console.error(err);
-        }
-      };
+        setOrganizations(mapped);
+      } catch (err) {
+        console.error(err);
+      }
+    };
     fetchData();
   }, []);
 
-  //plan lookup map
   const planMap = useMemo(() => {
     const map = new Map<number, any>();
     plans.forEach((p) => map.set(p.id, p));
     return map;
   }, [plans]);
 
-  // FILTER OUT TEST DATA
   const validOrgs = useMemo(() => {
     return organizations.filter(
       (org) => !org.email?.toLowerCase().includes("test.com")
@@ -140,100 +124,80 @@ const SuperAdminDashboard: React.FC = () => {
   }, [organizations]);
 
   const filteredOrgs = useMemo(() => {
-  return validOrgs.filter((org) => org.createdAt <= selectedDate);
-}, [validOrgs, selectedDate]);
+    return validOrgs.filter((org) => org.createdAt <= selectedDate);
+  }, [validOrgs, selectedDate]);
 
-const subscriptionMap = useMemo(() => {
-  const map = new Map<number, any>();
+  const subscriptionMap = useMemo(() => {
+    const map = new Map<number, any>();
+    subscriptions.forEach((sub) => {
+      map.set(sub.organization_id, sub);
+    });
+    return map;
+  }, [subscriptions]);
 
-  subscriptions.forEach((sub) => {
-    map.set(sub.organization_id, sub);
-  });
-
-  return map;
-}, [subscriptions]);
-
-// ✅ STATUS HELPER
   const getStatus = (org: Organization) => {
     const trialEnd = new Date(org.createdAt);
     trialEnd.setDate(trialEnd.getDate() + 21);
 
-    // ✅ still in trial
     if (trialEnd > selectedDate) return "inTrial";
-
-    // ✅ check if subscription exists
-    const hasSubscription = subscriptionMap.has(org.id);
-
-    if (hasSubscription) return "converted";
-
+    if (subscriptionMap.has(org.id)) return "converted";
     return "churned";
   };
 
-// ➡️ STEP 3: Dynamic Trial / Conversion Stats
-const trialStats = useMemo(() => {
-  let inTrial = 0;
-  let completedPaid = 0;
-  let completedNoPay = 0;
+  const trialStats = useMemo(() => {
+    let inTrial = 0;
+    let completedPaid = 0;
+    let completedNoPay = 0;
 
-  filteredOrgs.forEach((org) => {
-    const status = getStatus(org);
-    if (status === "inTrial") inTrial++;
-    else if (status === "converted") completedPaid++;
-    else completedNoPay++;
-  });
+    filteredOrgs.forEach((org) => {
+      const status = getStatus(org);
+      if (status === "inTrial") inTrial++;
+      else if (status === "converted") completedPaid++;
+      else completedNoPay++;
+    });
 
-  const total = inTrial + completedPaid + completedNoPay;
-  const conversionRate = total ? Math.round((completedPaid / total) * 100) : 0;
+    const total = inTrial + completedPaid + completedNoPay;
+    const conversionRate = total ? Math.round((completedPaid / total) * 100) : 0;
 
-  return { inTrial, completedPaid, completedNoPay, conversionRate };
-}, [filteredOrgs, subscriptionMap, selectedDate]);
+    // ✅ Update conversionData state whenever trialStats change
+    setConversionData({ inTrial, completedPaid, completedNoPay, conversionRate });
 
+    return { inTrial, completedPaid, completedNoPay, conversionRate };
+  }, [filteredOrgs, subscriptionMap, selectedDate]);
 
-// Revenue breakdown per plan
-const revenueBreakdown = useMemo(() => {
-  const colors = ["#1a3c7ca3", "#906cf37c", "#006eff80", "#AF907A", "#FFB74D"];
+  const revenueBreakdown = useMemo(() => {
+    const colors = ["#1a3c7ca3", "#906cf37c", "#006eff80", "#AF907A", "#FFB74D"];
+    const planLabels: Record<string, string> = {
+      "Single Church Plan (Independent Churches)": "Single Church",
+      "Multiple Church (Head Office) Plan": "Multiple Church",
+      "Branch Church Plan": "Branch Church",
+      "Mother Body / Oversight Plan": "Mother Body",
+      "NGO & Donor-Funded Projects": "NGO",
+    };
 
-  const planLabels: Record<string, string> = {
-    "Single Church Plan (Independent Churches)": "Single Church",
-    "Multiple Church (Head Office) Plan": "Multiple Church",
-    "Branch Church Plan": "Branch Church",
-    "Mother Body / Oversight Plan": "Mother Body",
-    "NGO & Donor-Funded Projects": "NGO",
-  };
+    const planRevenue: Record<string, number> = {};
+    Object.values(planLabels).forEach((label) => { planRevenue[label] = 0; });
 
-  const planRevenue: Record<string, number> = {};
+    payments.forEach((payment) => {
+      if (payment.status !== "paid") return;
+      const paymentDate = new Date(payment.payment_date || payment.created_at);
+      if (
+        paymentDate.getMonth() !== selectedDate.getMonth() ||
+        paymentDate.getFullYear() !== selectedDate.getFullYear()
+      ) return;
+      const plan = planMap.get(payment.plan_id);
+      if (!plan) return;
+      const mappedName = planLabels[plan.name];
+      if (!mappedName) return;
+      planRevenue[mappedName] += Number(payment.amount || 0);
+    });
 
-  Object.values(planLabels).forEach((label) => {
-    planRevenue[label] = 0;
-  });
-
-  payments.forEach((payment) => {
-    if (payment.status !== "paid") return;
-
-    // ✅ ADD FILTER HERE
-    const paymentDate = new Date(payment.payment_date || payment.created_at);
-
-    if (
-      paymentDate.getMonth() !== selectedDate.getMonth() ||
-      paymentDate.getFullYear() !== selectedDate.getFullYear()
-    ) return;
-
-    const plan = planMap.get(payment.plan_id);
-    if (!plan) return;
-
-    const mappedName = planLabels[plan.name];
-    if (!mappedName) return;
-
-    planRevenue[mappedName] += Number(payment.amount || 0);
-  });
-
-  return {
-    labels: Object.keys(planRevenue),
-    data: Object.values(planRevenue),
-    backgroundColor: colors.slice(0, Object.keys(planRevenue).length),
-  };
-}, [payments, planMap, selectedDate]);
-
+    return {
+      labels: Object.keys(planRevenue),
+      data: Object.values(planRevenue),
+      backgroundColor: colors.slice(0, Object.keys(planRevenue).length),
+    };
+  }, [payments, planMap, selectedDate]);
 
   // KPI CALCULATIONS
   const kpis = useMemo(() => {
