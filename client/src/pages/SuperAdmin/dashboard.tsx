@@ -140,8 +140,9 @@ const SuperAdminDashboard: React.FC = () => {
   }, [organizations]);
 
   const filteredOrgs = useMemo(() => {
-  return validOrgs.filter((org) => org.createdAt <= selectedDate);
-}, [validOrgs, selectedDate]);
+    const monthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0); // last day of month
+    return validOrgs.filter((org) => org.createdAt <= monthEnd);
+  }, [validOrgs, selectedDate]);
 
 const subscriptionMap = useMemo(() => {
   const map = new Map<number, any>();
@@ -158,15 +159,14 @@ const subscriptionMap = useMemo(() => {
     const trialEnd = new Date(org.createdAt);
     trialEnd.setDate(trialEnd.getDate() + 21);
 
-    // ✅ still in trial
-    if (trialEnd > selectedDate) return "inTrial";
+    const monthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0); // end of selected month
 
-    // ✅ check if subscription exists
+    if (trialEnd > monthEnd) return "inTrial"; // still in trial at month end
+
     const hasSubscription = subscriptionMap.has(org.id);
+    if (hasSubscription) return "converted"; // paid subscription exists
 
-    if (hasSubscription) return "converted";
-
-    return "churned";
+    return "churned"; // trial ended, no subscription
   };
 
 // ➡️ STEP 3: Dynamic Trial / Conversion Stats
