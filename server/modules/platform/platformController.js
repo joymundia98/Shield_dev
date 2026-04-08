@@ -45,6 +45,7 @@ export const loginPlatformAdmin = async (req, res) => {
         sub: admin.id,
         type: "platform_admin",
         is_super_admin: admin.is_super_admin,
+        organization_id: admin.organization_id,
       },
       process.env.JWT_SECRET,
       { expiresIn: "72h" }

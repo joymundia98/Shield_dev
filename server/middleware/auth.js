@@ -17,7 +17,6 @@ export const verifyJWT = async (req, res, next) => {
     if (decoded.type === "user") {
       const user = await UserModel.getById(decoded.sub);
 
-      console.log("DB USER:", user);
       if (!user) throw new Error("Invalid user token");
 
       req.auth = {
@@ -28,6 +27,7 @@ export const verifyJWT = async (req, res, next) => {
         role: user.role,
         role_id: user.role_id,
       };
+
     } else if (decoded.type === "organization") {
       const org = await OrganizationModel.getById(decoded.sub);
       if (!org) throw new Error("Invalid org token");
@@ -36,13 +36,23 @@ export const verifyJWT = async (req, res, next) => {
         type: "organization",
         organization_id: org.id,
       };
+
     } else if (decoded.type === "headquarters") {
-      // ✅ Add HQ support
       req.auth = {
         type: "headquarters",
         headquarters_id: decoded.headquarters_id,
         name: decoded.name,
       };
+
+    } else if (decoded.type === "platform_admin") {
+      // ✅ NEW FIX
+      req.auth = {
+        type: "platform_admin",
+        user_id: decoded.sub,
+        organization_id: decoded.organization_id,
+        is_super_admin: decoded.is_super_admin,
+      };
+
     } else {
       throw new Error("Unknown token type");
     }
@@ -50,7 +60,6 @@ export const verifyJWT = async (req, res, next) => {
     next();
   } catch (err) {
     console.error("JWT Error:", err);
-    next();
     return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
