@@ -146,21 +146,21 @@ const SuperAdminDashboard: React.FC = () => {
 const rollingSignups = useMemo(() => {
   if (!validOrgs.length) return [];
 
-  // ✅ End = last moment of selected month (fixes "month behind" issue)
+  // anchor everything to END of selected month
   const end = new Date(
     selectedDate.getFullYear(),
     selectedDate.getMonth() + 1,
-    0, // last day of selected month
+    0,
     23,
     59,
     59,
     999
   );
 
-  // ✅ Start = first day of month 11 months before selected month
+  // start = 11 months before, also month-end aligned
   const start = new Date(
-    selectedDate.getFullYear(),
-    selectedDate.getMonth() - 11,
+    end.getFullYear(),
+    end.getMonth() - 11,
     1,
     0,
     0,
@@ -170,8 +170,6 @@ const rollingSignups = useMemo(() => {
 
   return validOrgs.filter((org) => {
     const created = new Date(org.createdAt);
-
-    // ensure valid date
     if (isNaN(created.getTime())) return false;
 
     return created >= start && created <= end;
