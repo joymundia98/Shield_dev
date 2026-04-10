@@ -140,7 +140,17 @@ const SuperAdminDashboard: React.FC = () => {
   }, [organizations]);
 
   const filteredOrgs = useMemo(() => {
-  return validOrgs.filter((org) => org.createdAt <= selectedDate);
+    return validOrgs.filter((org) => org.createdAt <= selectedDate);
+  }, [validOrgs, selectedDate]);
+
+const rollingSignups = useMemo(() => {
+  return validOrgs.filter((org) => {
+    const monthsAgo =
+      (selectedDate.getFullYear() - org.createdAt.getFullYear()) * 12 +
+      (selectedDate.getMonth() - org.createdAt.getMonth());
+
+    return monthsAgo >= 0 && monthsAgo < 12;
+  });
 }, [validOrgs, selectedDate]);
 
 const subscriptionMap = useMemo(() => {
@@ -318,7 +328,8 @@ const revenueBreakdown = useMemo(() => {
   }
 
     return {
-    total: filteredOrgs.length,
+    //total: filteredOrgs.length,
+    total: rollingSignups.length,
     active,
     completed,
     revenue,
@@ -326,7 +337,7 @@ const revenueBreakdown = useMemo(() => {
     revenueChange: Number(revenueChange.toFixed(1)),
     revenueDirection,
   };
-}, [filteredOrgs, selectedDate, subscriptionMap, revenueBreakdown, payments]);
+}, [filteredOrgs, selectedDate, subscriptionMap, revenueBreakdown, payments, rollingSignups]);
 
   // ⭐ STAR RENDERER
   const renderStars = (rating: number) => {
