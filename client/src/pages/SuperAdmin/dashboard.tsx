@@ -140,9 +140,8 @@ const SuperAdminDashboard: React.FC = () => {
   }, [organizations]);
 
   const filteredOrgs = useMemo(() => {
-    const monthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0); // last day of month
-    return validOrgs.filter((org) => org.createdAt <= monthEnd);
-  }, [validOrgs, selectedDate]);
+  return validOrgs.filter((org) => org.createdAt <= selectedDate);
+}, [validOrgs, selectedDate]);
 
 const subscriptionMap = useMemo(() => {
   const map = new Map<number, any>();
@@ -156,24 +155,19 @@ const subscriptionMap = useMemo(() => {
 
 // ✅ STATUS HELPER
   const getStatus = (org: Organization) => {
-  const trialEnd = new Date(org.createdAt);
-  trialEnd.setDate(trialEnd.getDate() + 21);
+    const trialEnd = new Date(org.createdAt);
+    trialEnd.setDate(trialEnd.getDate() + 21);
 
-  const monthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
+    // ✅ still in trial
+    if (trialEnd > selectedDate) return "inTrial";
 
-  // 1️⃣ Trial still active at month-end
-  if (trialEnd > monthEnd) return "inTrial";
+    // ✅ check if subscription exists
+    const hasSubscription = subscriptionMap.has(org.id);
 
-  // 2️⃣ Subscription exists **and started on/before month-end**
-  const subscription = subscriptionMap.get(org.id);
-  if (subscription) {
-    const subStart = new Date(subscription.start_date || subscription.created_at);
-    if (subStart <= monthEnd) return "converted";
-  }
+    if (hasSubscription) return "converted";
 
-  // 3️⃣ Trial ended and no subscription yet → churned
-  return "churned";
-};
+    return "churned";
+  };
 
 // ➡️ STEP 3: Dynamic Trial / Conversion Stats
 const trialStats = useMemo(() => {
