@@ -51,8 +51,8 @@ export const verifyJWT = async (req, res, next) => {
         user_id: decoded.sub,
         organization_id: decoded.organization_id,
         is_super_admin: decoded.is_super_admin,
-        role: user.role,
-        role_id: user.role_id,
+        role: decoded.role,
+        role_id: decoded.role_id,
       };
 
     } else {
