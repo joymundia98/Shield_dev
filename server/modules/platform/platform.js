@@ -43,6 +43,14 @@ export const PlatformAdmin = {
     return result.rows[0];
   },
 
+    async getRoleNameById(role_id) {
+    const result = await pool.query(
+      `SELECT * FROM roles WHERE id = $1 or id = NULL`,
+      [role_id]
+    );
+    return result.rows[0] || null;
+  },
+
   async getAll() {
     const result = await pool.query(
       `SELECT id, first_name, last_name, email, phone, role_id, status, is_super_admin, created_at FROM platform_admins ORDER BY id DESC`

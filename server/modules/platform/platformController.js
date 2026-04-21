@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { PlatformAdmin } from "./platform.js";
+import RolesModel from "../role/roleModel.js";
 
 export const registerPlatformAdmin = async (req, res) => {
   try {
@@ -39,6 +40,8 @@ export const loginPlatformAdmin = async (req, res) => {
     const match = await bcrypt.compare(password, admin.password);
     if (!match)
       return res.status(401).json({ message: "Invalid credentials" });
+
+    const role = await PlatformAdmin.getRoleNameById(admin.role_id);
 
     const token = jwt.sign(
       {
