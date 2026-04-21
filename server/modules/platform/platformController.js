@@ -46,6 +46,8 @@ export const loginPlatformAdmin = async (req, res) => {
         type: "platform_admin",
         is_super_admin: admin.is_super_admin,
         organization_id: admin.organization_id,
+        role_id: role.id,
+        role: role.name,
       },
       process.env.JWT_SECRET,
       { expiresIn: "72h" }
@@ -53,7 +55,12 @@ export const loginPlatformAdmin = async (req, res) => {
 
     res.json({
       accessToken: token,
-      admin,
+      admin: {
+        id: admin.id,
+        email: admin.email,
+        role_id: role.id,
+        role: role.name,
+      }
     });
   } catch (err) {
     console.error("Login platform admin error:", err);
