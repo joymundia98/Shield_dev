@@ -49,6 +49,7 @@ export const loginPlatformAdmin = async (req, res) => {
         type: "platform_admin",
         is_super_admin: admin.is_super_admin,
         organization_id: admin.organization_id,
+        status: admin.status,
         role_id: role.id,
         role: role.name,
       },
@@ -63,6 +64,7 @@ export const loginPlatformAdmin = async (req, res) => {
         email: admin.email,
         role_id: role.id,
         role: role.name,
+        status: admin.status,
       }
     });
   } catch (err) {
