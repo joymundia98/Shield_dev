@@ -121,7 +121,7 @@ async create(data, auditMeta = {}) {
       action: "CREATE",
       record_id: payroll.payroll_id,
       new_data: payroll
-    });
+    }, client);
 
     await client.query("COMMIT");
 
