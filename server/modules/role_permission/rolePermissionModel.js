@@ -82,7 +82,7 @@ const RolePermissionsModel = {
       JOIN role_permissions rp ON p.id = rp.permission_id
       JOIN roles r ON r.id = rp.role_id
       WHERE r.id = $1
-        AND r.organization_id = $2
+        AND r.organization_id = $2 OR r.organization_id IS NULL
       ORDER BY p.id
       `,
       [role_id, organization_id]
