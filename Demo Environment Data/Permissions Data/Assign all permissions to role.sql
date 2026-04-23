@@ -1,7 +1,7 @@
 INSERT INTO role_permissions (role_id, permission_id, organization_id)
 SELECT
-  90,
+  63,
   p.id,
-  33
+  56
 FROM permissions p
 ON CONFLICT DO NOTHING;

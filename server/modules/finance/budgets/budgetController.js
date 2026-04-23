@@ -44,16 +44,29 @@ const BudgetController = {
   },
 
   // Update a budget by ID (scoped to org)
-  async update(req, res) {
-    try {
-      const { id } = req.params;
-      const updated = await Budget.update(id, req.body);
-      if (!updated) return res.status(404).json({ message: 'Budget not found' });
-      return res.json(updated);
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
+ async update(req, res) {
+  try {
+    const { id } = req.params;
+    const orgId = req.auth?.organization_id;
+
+    if (!orgId) {
+      return res.status(400).json({ error: "Organization ID is required" });
     }
-  },
+
+    const updated = await Budget.update(id, {
+      ...req.body,
+      organization_id: orgId, // 👈 VERY IMPORTANT
+    });
+
+    if (!updated) {
+      return res.status(404).json({ message: 'Budget not found' });
+    }
+
+    return res.json(updated);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+},
 
   // Delete a budget by ID (scoped to org)
   async delete(req, res) {
